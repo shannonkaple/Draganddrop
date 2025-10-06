@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trackpad Drag & Drop Match (10 Items)</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --correct: #16a34a;
+      --wrong: #dc2626;
+      --shadow: 0 8px 24px rgba(0,0,0,0.08);
+      --radius: 16px;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg); color: var(--text);
+      display: grid; place-items: start center; padding: 24px;
+    }
+    .app {
+      width: min(1200px, 96vw);
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 16px;
+    }
+    h1 { font-size: clamp(1.2rem, 1.2rem + 1vw, 2rem); margin: 0; }
+    .sub { color: var(--muted); font-size: 0.95rem; }
+    .status {
+      display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    }
+    .pill { background: var(--card); padding: 8px 12px; border-radius: 999px; box-shadow: var(--shadow); }
+    button {
+      border: 0; border-radius: 999px; padding: 10px 16px; background: var(--accent); color: white; font-weight: 700; cursor: pointer; box-shadow: var(--shadow);
+    }
+    button:active { transform: translateY(1px); }
+
+    .board {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .column {
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 16px; min-height: 420px;
+      display: grid; align-content: start; gap: 12px;
+    }
+    .column h2 { margin: 0; font-size: 1.05rem; color: var(--muted); }
+    .grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .card, .dropzone {
+      user-select: none;
+      background: #fff; border-radius: 14px; min-height: 88px; padding: 10px; box-shadow: var(--shadow);
+      display: grid; place-items: center; text-align: center; transition: transform 120ms ease, box-shadow 120ms ease, outline-color 120ms;
+      outline: 2px solid transparent; position: relative;
+    }
+    .card { cursor: grab; }
+    .card:active { cursor: grabbing; }
+    .card.dragging { opacity: 0.7; transform: scale(0.97); }
+
+    .emoji { font-size: clamp(36px, 5.3vw, 56px); line-height: 1; }
+    .label { font-size: 0.95rem; color: var(--muted); margin-top: 6px; }
+
+    .dropzone { outline-color: #e5e7eb; }
+    .dropzone[data-accept] { outline-style: dashed; outline-width: 2px; }
+    .dropzone.hover { outline-color: var(--accent); background: #f0f7ff; }
+    .dropzone.correct { outline-color: var(--correct); background: #ecfdf5; }
+    .dropzone.wrong { outline-color: var(--wrong); background: #fef2f2; }
+
+    .locked { pointer-events: none; opacity: 1; }
+
+    .footer { margin-top: 16px; color: var(--muted); font-size: 0.9rem; }
+
+    /* Simple confetti */
+    .confetti {
+      position: fixed; inset: 0; pointer-events: none; overflow: hidden;
+    }
+    .confetti i {
+      position: absolute; width: 8px; height: 12px; opacity: 0.9; border-radius: 2px;
+      animation: fall linear forwards; transform: translate3d(0, -100%, 0);
+    }
+    @keyframes fall {
+      to { transform: translate3d(var(--dx), 110vh, 0) rotate(720deg); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" aria-live="polite">
+    <header>
+      <div>
+        <h1>Trackpad Drag & Drop Match</h1>
+        <div class="sub">Drag the pictures on the left to the matching picture on the right. There are 10 matches.</div>
+      </div>
+      <div class="status">
+        <div class="pill" id="progress">0 / 10 matched</div>
+        <button id="resetBtn" type="button" aria-label="Reset game">Reset</button>
+      </div>
+    </header>
+
+    <section class="board" role="application" aria-label="Drag and drop matching game">
+      <div class="column" aria-labelledby="draggables-title">
+        <h2 id="draggables-title">Drag these</h2>
+        <div class="grid" id="draggables" aria-describedby="drag-help"></div>
+        <div id="drag-help" class="footer">Tip: Click and hold, then slide with your trackpad to move an item.</div>
+      </div>
+      <div class="column" aria-labelledby="targets-title">
+        <h2 id="targets-title">Drop here</h2>
+        <div class="grid" id="targets"></div>
+      </div>
+    </section>
+  </div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    // --- Configuration: 10 kid-friendly emoji "images" ---
+    const ITEMS = [
+      { key: 'pencil', emoji: '✏️', name: 'Pencil' },
+      { key: 'book', emoji: '📘', name: 'Book' },
+      { key: 'globe', emoji: '🌎', name: 'Globe' },
+      { key: 'paint', emoji: '🎨', name: 'Paint' },
+      { key: 'mic', emoji: '🎤', name: 'Microphone' },
+      { key: 'robot', emoji: '🤖', name: 'Robot' },
+      { key: 'rocket', emoji: '🚀', name: 'Rocket' },
+      { key: 'apple', emoji: '🍎', name: 'Apple' },
+      { key: 'ruler', emoji: '📏', name: 'Ruler' },
+      { key: 'light', emoji: '💡', name: 'Lightbulb' }
+    ];
+
+    const draggablesEl = document.getElementById('draggables');
+    const targetsEl = document.getElementById('targets');
+    const progressEl = document.getElementById('progress');
+    const resetBtn = document.getElementById('resetBtn');
+    const confettiEl = document.getElementById('confetti');
+
+    let matchedCount = 0;
+
+    function shuffle(arr) {
+      return [...arr].sort(() => Math.random() - 0.5);
+    }
+
+    function createCard(item) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.setAttribute('draggable', 'true');
+      el.setAttribute('role', 'img');
+      el.setAttribute('aria-label', `${item.name}, draggable`);
+      el.dataset.key = item.key;
+      el.innerHTML = `<div class="emoji">${item.emoji}</div><div class="label">${item.name}</div>`;
+
+      el.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', item.key);
+        el.classList.add('dragging');
+        // Make the drag image clearer
+        if (e.dataTransfer.setDragImage) {
+          const ghost = el.cloneNode(true);
+          ghost.style.position = 'absolute';
+          ghost.style.top = '-9999px';
+          document.body.appendChild(ghost);
+          e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
+          setTimeout(() => ghost.remove(), 0);
+        }
+      });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+      return el;
+    }
+
+    function createDropzone(item) {
+      const dz = document.createElement('div');
+      dz.className = 'dropzone';
+      dz.dataset.accept = item.key;
+      dz.setAttribute('aria-label', `Drop zone for ${item.name}`);
+      dz.innerHTML = `<div class="emoji" aria-hidden="true">${item.emoji}</div><div class="label">${item.name}</div>`;
+
+      dz.addEventListener('dragover', (e) => {
+        e.preventDefault(); dz.classList.add('hover');
+      });
+      dz.addEventListener('dragleave', () => dz.classList.remove('hover'));
+      dz.addEventListener('drop', (e) => {
+        e.preventDefault(); dz.classList.remove('hover');
+        const key = e.dataTransfer.getData('text/plain');
+        if (!key) return;
+        if (key === dz.dataset.accept) {
+          dz.classList.add('correct');
+          // Find the matching card (still in DOM) and move it inside the dropzone
+          const card = [...document.querySelectorAll('.card')].find(c => c.dataset.key === key && !c.closest('.dropzone'));
+          if (card) {
+            card.classList.add('locked');
+            card.setAttribute('aria-label', `${card.getAttribute('aria-label')} (matched)`);
+            dz.appendChild(card);
+            matchedCount += 1; updateProgress();
+          }
+        } else {
+          // Flash wrong state
+          dz.classList.add('wrong');
+          setTimeout(() => dz.classList.remove('wrong'), 350);
+        }
+      });
+      return dz;
+    }
+
+    function updateProgress() {
+      progressEl.textContent = `${matchedCount} / ${ITEMS.length} matched`;
+      if (matchedCount === ITEMS.length) {
+        launchConfetti();
+        progressEl.textContent = `All matched! Great job!`;
+      }
+    }
+
+    function render() {
+      matchedCount = 0; updateProgress();
+      draggablesEl.innerHTML = ''; targetsEl.innerHTML = '';
+      const shuffled = shuffle(ITEMS);
+      const shuffledTargets = shuffle(ITEMS);
+      shuffled.forEach(item => draggablesEl.appendChild(createCard(item)));
+      shuffledTargets.forEach(item => targetsEl.appendChild(createDropzone(item)));
+    }
+
+    function resetGame() { render(); }
+
+    // Simple confetti without external libs
+    function launchConfetti() {
+      const count = 120;
+      const colors = ['#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#14b8a6'];
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement('i');
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.top = '-10vh';
+        piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+        const dx = (Math.random() * 200 - 100) + 'px';
+        const dur = (Math.random() * 1.5 + 1.2).toFixed(2) + 's';
+        piece.style.setProperty('--dx', dx);
+        piece.style.animationDuration = dur;
+        confettiEl.appendChild(piece);
+        setTimeout(() => piece.remove(), 2200);
+      }
+    }
+
+    resetBtn.addEventListener('click', resetGame);
+    render();
+  </script>
+</body>
+</html>
