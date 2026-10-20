@@ -24,6 +24,7 @@ export async function runAdventureChecks(page){
   let s=await saved(),r=s.adventure.activeRun;
   const stops=[...(r.skill?[r.skill]:[]),...r.items,r.goal];await page.keyboard.down('Space');
   for(const stop of stops){
+   if((await saved()).adventure.activeRun.complete)break;
    await page.keyboard.up('Space');await page.keyboard.down('Space');
    s=await saved();r=s.adventure.activeRun;
    const blocked=new Set(r.hazards.flatMap(e=>e.path.map(tile)));const keys=route(r.grid,r.player,stop,blocked);assert.ok(keys);
