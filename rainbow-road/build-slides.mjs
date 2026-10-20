@@ -9,7 +9,7 @@ async function enterPractice(page){await page.locator('[data-number="1"]').click
 const root=process.cwd(),server=http.createServer((req,res)=>{const relative=decodeURIComponent(new URL(req.url,'http://localhost').pathname);const file=path.resolve(root,'.'+relative);if(!file.startsWith(root+path.sep)){res.writeHead(403);res.end();return}try{const b=fs.readFileSync(file);res.setHeader('Content-Type',file.endsWith('.html')?'text/html':file.endsWith('.mjs')?'text/javascript':file.endsWith('.jpg')?'image/jpeg':'application/octet-stream');res.end(b)}catch{res.writeHead(404);res.end()}});
 await new Promise(resolve=>server.listen(4173,'127.0.0.1',resolve));let browser;
 try{
- browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1366,height:768}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1366,height:768}}),errors=[];page.on('pageerror',e=>{errors.push(e.message);console.log('Browser error:',e.stack)});
  await page.goto('http://127.0.0.1:4173/rainbow-road.html');assert.equal(await page.locator('#class-code').count(),0);const initial=makeMaze(221,8),wallet={total:0,earned:0,finished:0,color:'violet',owned:['violet']};
  await page.evaluate(({initial,wallet})=>localStorage.setItem('rainbow-road-number-v2:1',JSON.stringify({run:initial,wallet})),{initial,wallet});
  await enterPractice(page);await page.locator('#maze').waitFor();await page.evaluate(()=>document.fonts.ready);

@@ -16,6 +16,7 @@ export async function runAdventureChecks(page){
  await page.goto('http://127.0.0.1:4173/rainbow-road.html');await page.locator('[data-number="30"]').click();await page.locator('[data-hero="astro_ace"]').click();await page.locator('[data-land="rainbow_meadow"]').click();const storageKey='rainbow-road-number-v2:30';
  const saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),storageKey);
  for(const def of levels){
+  console.log('Playing adventure level',def.number);
   await page.locator('[data-level="'+def.number+'"]').click();
   if(await page.locator('#duck-ready').count())await page.locator('#duck-ready').click();
   for(const [width,height]of def.number===12?[[1366,768],[1280,720],[1024,600],[800,600],[1920,1080]]:[[1366,768]]){await page.setViewportSize({width,height});await page.waitForTimeout(100);const box=await page.locator('#adventure-maze').boundingBox();assert.ok(box&&box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1,'Adventure overflow '+width+'x'+height);assert.ok(box.width/def.mazeGrid.width>=20,'Adventure tiles too small');}
@@ -36,7 +37,7 @@ export async function runAdventureChecks(page){
     if(kind==='drag_and_drop'){const source=await page.locator('#drag-picture').boundingBox(),target=await page.locator('#drag-box').boundingBox();await page.mouse.move(source.x+30,source.y+30);await page.mouse.down();await page.mouse.move(target.x+target.width/2,target.y+target.height/2,{steps:8});await page.mouse.up();}
    }
   }
-  await page.keyboard.up('Space');await page.locator('#level-next').click();
+  await page.keyboard.up('Space');if(!await page.locator('#level-next').count())console.log('Goal diagnostic',def.number,JSON.stringify((await saved()).adventure.activeRun),await page.locator('#adventure-status').textContent());await page.locator('#level-next').click();
   if(def.rescueFriendOpportunity){await page.locator('[data-rescue]').first().click();await page.locator('#celebrate-next').click();await page.locator('[data-land]').first().click();}
   if(def.number<12)await page.locator('[data-nav="map"]').click();
  }
