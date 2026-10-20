@@ -1,11 +1,14 @@
 name: Check Arrow Adventure and export JPEG slides
 on:
   push:
-    branches: [main]
+    branches: [main, arrow-adventure-expansion]
     paths:
       - 'rainbow-road.html'
       - 'rainbow-slides.html'
       - 'rainbow-road/*.mjs'
+      - 'rainbow-road/*.css'
+      - 'rainbow-road/data/**'
+      - 'game-assets/**'
       - '.github/workflows/arrow-adventure.yml'
   workflow_dispatch:
 permissions:

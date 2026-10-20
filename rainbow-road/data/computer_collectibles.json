@@ -1,0 +1,42 @@
+[
+  {
+    "id": "desktop",
+    "name": "Desktop Computer",
+    "image": "/game-assets/collectibles/computer/desktop_512.png",
+    "thumbnail": "/game-assets/collectibles/computer/desktop_256.png",
+    "type": "computer_gear",
+    "requiredForFinale": true
+  },
+  {
+    "id": "laptop",
+    "name": "Laptop",
+    "image": "/game-assets/collectibles/computer/laptop_512.png",
+    "thumbnail": "/game-assets/collectibles/computer/laptop_256.png",
+    "type": "computer_gear",
+    "requiredForFinale": true
+  },
+  {
+    "id": "keyboard",
+    "name": "Keyboard",
+    "image": "/game-assets/collectibles/computer/keyboard_512.png",
+    "thumbnail": "/game-assets/collectibles/computer/keyboard_256.png",
+    "type": "computer_gear",
+    "requiredForFinale": true
+  },
+  {
+    "id": "trackpad",
+    "name": "Trackpad",
+    "image": "/game-assets/collectibles/computer/trackpad_512.png",
+    "thumbnail": "/game-assets/collectibles/computer/trackpad_256.png",
+    "type": "computer_gear",
+    "requiredForFinale": true
+  },
+  {
+    "id": "mouse",
+    "name": "Mouse",
+    "image": "/game-assets/collectibles/computer/mouse_512.png",
+    "thumbnail": "/game-assets/collectibles/computer/mouse_256.png",
+    "type": "computer_gear",
+    "requiredForFinale": true
+  }
+]
