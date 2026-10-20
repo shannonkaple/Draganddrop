@@ -10,7 +10,7 @@ export async function openAdventure({number,goPractice,onLogout}){
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
  const chars=data.characters,lands=data.rainbow_lands,levels=data.levels,config=data.game_config,key='rainbow-road-number-v2:'+number;
  let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
- let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
+ let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-adventure-teacher-settings')||'{}')}catch{settings={}}
  settings={difficulty:'standard',speed:2200,hints:true,sound:false,reducedMotion:false,touchArrows:false,...settings};
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
@@ -73,7 +73,7 @@ export async function openAdventure({number,goPractice,onLogout}){
  function startLevel(n,restart=false){
  clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;
  const old=a.activeRun,valid=old&&old.id===def.id&&!old.complete&&old.w===def.mazeGrid.width&&old.h===def.mazeGrid.height&&Array.isArray(old.grid)&&old.grid.length===old.h&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0;
- r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');a.activeRun=r;save();maze();
+ report='Start at the star. Collect your equipment, visit the skill stop, and find the flag.';r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');a.activeRun=r;save();maze();
  if(r.barrier&&!r.duckLearned)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;save();closeModal()}});
  }
  function maze(){
@@ -166,14 +166,14 @@ export async function openAdventure({number,goPractice,onLogout}){
  });
  }
  function keydown(e){
- if(closed)return;const target=e.target;if(target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement)return;
+ if(closed)return;if(e.code==='Space'&&heldSpace&&$('adventure-dialog')?.open){e.preventDefault();return}const target=e.target;if(target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement)return;
  if($('adventure-dialog')?.open){if(challengeKeys&&directions[e.key]){e.preventDefault();if(!e.repeat)challengeKeys(e.key)}return}
  if(view!=='maze')return;
- if(e.code==='Space'&&target.id!=='duck-button'){e.preventDefault();setDuck(true);return}
+ if(e.code==='Space'&&target.id!=='duck-button'){e.preventDefault();heldSpace=true;setDuck(true);return}
  if(directions[e.key]){e.preventDefault();if(!e.repeat)move(e.key)}
  }
- function keyup(e){if(e.code==='Space')setDuck(false)}
- function blur(){setDuck(false)}
+ function keyup(e){if(e.code==='Space'){if(heldSpace)e.preventDefault();heldSpace=false;setDuck(false)}}
+ function blur(){heldSpace=false;setDuck(false)}
  const observer='ResizeObserver'in window?new ResizeObserver(()=>requestAnimationFrame(fit)):null;observer?.observe($('app'));
  document.addEventListener('keydown',keydown);document.addEventListener('keyup',keyup);window.addEventListener('blur',blur);window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);
  if(settings.costs)config.progression.upgradeCost={...settings.costs};
