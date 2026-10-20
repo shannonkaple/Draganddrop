@@ -22,7 +22,7 @@ export async function runAdventureChecks(page){
   for(const [width,height]of def.number===12?[[1366,768],[1280,720],[1024,600],[800,600],[1920,1080]]:[[1366,768]]){await page.setViewportSize({width,height});await page.waitForTimeout(100);const box=await page.locator('#adventure-maze').boundingBox();assert.ok(box&&box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1,'Adventure overflow '+width+'x'+height);assert.ok(box.width/def.mazeGrid.width>=20,'Adventure tiles too small');}
   await page.setViewportSize({width:1366,height:768});
   let s=await saved(),r=s.adventure.activeRun;
-  const stops=[...r.items,...(r.skill?[r.skill]:[]),r.goal];await page.keyboard.down('Space');
+  const stops=[...(r.skill?[r.skill]:[]),...r.items,r.goal];await page.keyboard.down('Space');
   for(const stop of stops){
    await page.keyboard.up('Space');await page.keyboard.down('Space');
    s=await saved();r=s.adventure.activeRun;
