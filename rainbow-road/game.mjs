@@ -1,3 +1,4 @@
+import './read-aloud.mjs';
 import {openAdventure} from './adventure.mjs';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from './core.mjs';

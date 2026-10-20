@@ -5,6 +5,7 @@ import path from 'node:path';
 import {buildLevel,route,walk,tile,migrateAdventure,upgradeFriend,completeLevel,rescueFriend} from './adventure-core.mjs';
 const load=n=>JSON.parse(fs.readFileSync('rainbow-road/data/'+n+'.json','utf8'));
 export async function runAdventureChecks(page){
+ await page.addInitScript(()=>{window.__readAloud=[];speechSynthesis.speak=u=>window.__readAloud.push({text:u.text,rate:u.rate});speechSynthesis.cancel=()=>{}});
  const chars=load('characters'),lands=load('rainbow_lands'),levels=load('levels'),config=load('game_config');
  const all=[...chars.flatMap(c=>c.levels.flatMap(l=>[l.image,l.thumbnail])),...lands.flatMap(l=>[l.homeBackground,l.cardPreview]),...load('backgrounds').map(b=>b.image),...load('enemies').flatMap(e=>[e.image,e.thumbnail]),...load('computer_collectibles').flatMap(i=>[i.image,i.thumbnail]),...load('skill_badges').flatMap(i=>[i.image,i.thumbnail])];
  for(const p of new Set(all)){const file=path.join(process.cwd(),p.replace(/^\//,''));assert.ok(fs.existsSync(file),'Missing asset '+p);const response=await page.request.get('http://127.0.0.1:4173'+p);assert.equal(response.status(),200,p);}
@@ -13,7 +14,7 @@ export async function runAdventureChecks(page){
  for(let seed=1;seed<=60;seed++)for(const def of levels){const r=buildLevel(def,seed),blocked=new Set(r.hazards.flatMap(e=>e.path.map(tile)));let p=r.start;for(const stop of [...r.items,...(r.skill?[r.skill]:[]),r.goal]){assert.ok(route(r.grid,p,stop,blocked),'Safe route '+def.id+' seed '+seed);p=stop;}assert.equal(r.w,def.mazeGrid.width);assert.equal(r.h,def.mazeGrid.height);assert.equal(r.hazards.length,def.enemyIds.length);}
  let state=migrateAdventure(null,{character:'astro_ace',rescued:['astro_ace']},chars,lands);state.wallet.rainbowStars=8;assert.ok(upgradeFriend(state,'astro_ace',config.progression.upgradeCost));assert.equal(state.wallet.rainbowStars,6);assert.ok(upgradeFriend(state,'astro_ace',config.progression.upgradeCost));assert.equal(state.wallet.rainbowStars,2);assert.equal(upgradeFriend(state,'astro_ace',config.progression.upgradeCost),false);assert.ok(rescueFriend(state,'dizzy_dino',lands[1].id,'level_02'));assert.equal(rescueFriend(state,'dizzy_dino',lands[1].id,'level_03'),false);assert.equal(state.friends.dizzy_dino.upgradeStage,'starter');
  const rr=buildLevel(levels[0],9);assert.equal(completeLevel(state,rr,levels[0],config),2);assert.equal(completeLevel(state,rr,levels[0],config),0);
- await page.goto('http://127.0.0.1:4173/rainbow-road.html');await page.locator('[data-number="30"]').click();await page.locator('[data-hero="astro_ace"]').click();await page.locator('[data-land="rainbow_meadow"]').click();const storageKey='rainbow-road-number-v2:30';
+ await page.goto('http://127.0.0.1:4173/rainbow-road.html');await page.locator('[data-number="30"]').click();await page.locator('[data-hero="astro_ace"]').waitFor();await page.locator('[data-hero="astro_ace"]').locator('..').locator('[data-read-aloud]').click();assert.equal(await page.locator('[data-hero]').count(),8);assert.ok((await page.evaluate(()=>window.__readAloud.at(-1).text)).includes('Astro Ace'));await page.locator('[data-hero="astro_ace"]').click();await page.locator('[data-land="rainbow_meadow"]').locator('..').locator('[data-read-aloud]').click();assert.equal(await page.locator('[data-land]').count(),6);assert.ok((await page.evaluate(()=>window.__readAloud.at(-1).text)).includes('Rainbow Meadow'));await page.locator('[data-land="rainbow_meadow"]').click();const storageKey='rainbow-road-number-v2:30';
  const saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),storageKey);
  for(const def of levels){
   console.log('Playing adventure level',def.number);
@@ -30,7 +31,7 @@ export async function runAdventureChecks(page){
    const blocked=new Set(r.hazards.flatMap(e=>e.path.map(tile)));const keys=route(r.grid,r.player,stop,blocked);assert.ok(keys);
    for(const k of keys)await page.keyboard.press(k);
    if(stop.type){
-    const kind=stop.type;
+    const kind=stop.type;await page.locator('#adventure-dialog h2 [data-read-aloud]').click();assert.ok((await page.evaluate(()=>window.__readAloud.at(-1).text)).includes('Computer skill stop'));
     if(kind==='click')await page.locator('#skill-target').click();
     if(kind==='double_click'){await page.locator('#skill-target').click();await page.locator('#skill-target').click();}
     if(kind==='typing'){await page.locator('#skill-type').fill('cat');await page.locator('#check-type').click();}
