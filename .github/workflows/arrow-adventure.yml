@@ -1,0 +1,48 @@
+name: Check Arrow Adventure and export JPEG slides
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'rainbow-road.html'
+      - 'rainbow-slides.html'
+      - 'rainbow-road/*.mjs'
+      - '.github/workflows/arrow-adventure.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: arrow-adventure-checks
+  cancel-in-progress: true
+jobs:
+  lesson-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser for lesson export
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check game and render JPEG slides
+        run: node rainbow-road/build-slides.mjs
+      - name: Check JPEG ZIP
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('rainbow-road/week-1-jpegs.zip') as z:
+              assert len(z.namelist()) == 12
+              assert z.testzip() is None
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ms-Kaple-Arrow-Keys-Week-1-JPEGs
+          path: |
+            rainbow-road/week-1-slides/*.jpg
+            rainbow-road/week-1-jpegs.zip
+            rainbow-road/build-report.json
+          retention-days: 30
