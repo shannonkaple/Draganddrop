@@ -18,11 +18,11 @@ export async function runAdventureChecks(page){
  const saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),storageKey);
  for(const def of levels){
   console.log('Playing adventure level',def.number);
-  await page.locator('[data-level="'+def.number+'"]').click();
+  assert.equal(await page.locator('.adventure-nav [data-nav]').count(),2);assert.equal(await page.locator('#teacher-settings').count(),0);if(def.number===1)await page.locator('#continue-adventure').click();else{await page.locator('#other-mazes > summary').click();await page.locator('[data-level="'+def.number+'"]').click();}
   if(await page.locator('#duck-ready').count())await page.locator('#duck-ready').click();
   for(const [width,height]of def.number===12?[[1366,768],[1280,720],[1024,600],[800,600],[1920,1080]]:[[1366,768]]){await page.setViewportSize({width,height});await page.waitForTimeout(100);const box=await page.locator('#adventure-maze').boundingBox();assert.ok(box&&box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1,'Adventure overflow '+width+'x'+height);assert.ok(box.width/def.mazeGrid.width>=20,'Adventure tiles too small');}
   await page.setViewportSize({width:1366,height:768});
-  let s=await saved(),r=s.adventure.activeRun;
+  if(def.number===1){assert.equal(await page.locator('#duck-button').isVisible(),false);await page.locator('.help-panel h3 [data-read-aloud]').click();assert.ok((await page.evaluate(()=>window.__readAloud.at(-1).text)).includes('Find the Mouse'));}let s=await saved(),r=s.adventure.activeRun;
   const stops=[...(r.skill?[r.skill]:[]),...r.items,r.goal];await page.keyboard.down('Space');
   for(const stop of stops){
    if((await saved()).adventure.activeRun.complete)break;
@@ -45,7 +45,7 @@ export async function runAdventureChecks(page){
  }
  let s=await saved();assert.equal(s.adventure.completedLevelIds.length,12);assert.equal(Object.keys(s.adventure.friends).length,8);assert.equal(s.adventure.collectedComputerGearIds.length,5);assert.equal(s.adventure.earnedSkillBadgeIds.length,4);assert.equal(s.wallet.total,60);
  await page.locator('#build-computer').click();assert.ok((await page.locator('h1').innerText()).includes('You Built'));
- await page.locator('[data-nav="friends"]').click();await page.locator('[data-upgrade="astro_ace"]').click();await page.locator('#celebrate-next').click();await page.locator('[data-upgrade="astro_ace"]').click();await page.locator('#celebrate-next').click();await page.locator('[data-move="dizzy_dino"]').click();await page.locator('[data-land="rainbow_reef"]').click();
- await page.reload();await page.locator('[data-number="30"]').click();await page.locator('[data-nav="friends"]').click();s=await saved();assert.equal(s.adventure.selectedPlayerCharacterId,'astro_ace');assert.equal(s.adventure.friends.astro_ace.upgradeStage,'super_power');assert.equal(s.adventure.friends.dizzy_dino.upgradeStage,'starter');assert.equal(s.adventure.friends.dizzy_dino.homeLandId,'rainbow_reef');assert.equal(s.wallet.total,60);
+ await page.locator('[data-nav="stuff"]').click();await page.locator('[data-nav="friends"]').click();await page.locator('[data-upgrade="astro_ace"]').click();await page.locator('#celebrate-next').click();await page.locator('[data-upgrade="astro_ace"]').click();await page.locator('#celebrate-next').click();await page.locator('[data-move="dizzy_dino"]').click();await page.locator('[data-land="rainbow_reef"]').click();
+ await page.reload();await page.locator('[data-number="30"]').click();await page.locator('[data-nav="stuff"]').click();await page.locator('[data-nav="friends"]').click();s=await saved();assert.equal(s.adventure.selectedPlayerCharacterId,'astro_ace');assert.equal(s.adventure.friends.astro_ace.upgradeStage,'super_power');assert.equal(s.adventure.friends.dizzy_dino.upgradeStage,'starter');assert.equal(s.adventure.friends.dizzy_dino.homeLandId,'rainbow_reef');assert.equal(s.wallet.total,60);
  console.log('PASS: all supplied asset paths and sprite dimensions; 720 safe solvable mazes; 12 browser-played levels; click/double-click/typing/drag/arrows; eight friends; independent upgrades; lands; rewards; reload; legacy wallet; five viewports.');
 }

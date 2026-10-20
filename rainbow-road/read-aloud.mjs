@@ -6,7 +6,7 @@ const supported='speechSynthesis'in window&&'SpeechSynthesisUtterance'in window;
 function textOf(node){const clone=node.cloneNode(true);clone.querySelectorAll('[data-read-aloud]').forEach(n=>n.remove());clone.querySelectorAll('img').forEach(n=>n.remove());return spokenText(clone.textContent)}
 function sectionText(heading){
  const scope=heading.closest('dialog,article,.panel')||document.getElementById('app');
- const intro=Array.from(scope.querySelectorAll('p')).filter(p=>p.offsetParent!==null&&!p.closest('.adventure-cards,.level-cards,.side,nav')&&p.id!=='skill-feedback');
+ const intro=Array.from(scope.querySelectorAll('p')).filter(p=>p.offsetParent!==null&&p.id!=='skill-feedback'&&(scope.matches('dialog,article,.panel')||!p.closest('.adventure-cards,.level-cards,.side,nav,.audio-choice')));
  const special=scope.querySelector('#skill-sequence');
  return [textOf(heading),...intro.map(textOf),...(special?[textOf(special)]:[])].join('. ');
 }
@@ -24,7 +24,7 @@ function decorate(){
  for(const status of document.querySelectorAll('#adventure-status,#status')){
   if(!status.querySelector('[data-read-aloud]')){changed=true;status.append(reader(status,()=>textOf(status)))}
  }
- for(const choice of document.querySelectorAll('[data-hero],[data-land],[data-rescue],[data-level],[data-character]')){
+ for(const choice of document.querySelectorAll('[data-hero],[data-land],[data-rescue],[data-level],[data-character],[data-stuff]')){
   if(choice.parentElement.classList.contains('audio-choice'))continue;
   changed=true;const wrap=document.createElement('div');wrap.className='audio-choice';choice.before(wrap);wrap.append(choice,reader(choice,()=>textOf(choice)));
  }
