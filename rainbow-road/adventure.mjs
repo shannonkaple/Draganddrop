@@ -131,7 +131,16 @@ export async function openAdventure({number,goPractice,onLogout}){
  if(kind==='double_click'){let last=null;$('skill-target').onclick=()=>{const now=performance.now();if(last!==null&&now-last<=1300){win();last=null}else{last=now;$('skill-feedback').textContent='One click—click once more!'}};}
  if(kind==='typing'){const check=()=>{if($('skill-type').value.trim().toLowerCase()==='cat')win();else $('skill-feedback').textContent='Look at c a t. Try again!'};$('check-type').onclick=check;$('skill-type').onkeydown=e=>{if(e.key==='Enter')check()};$('skill-type').focus();}
  if(kind==='arrows'){let i=0;challengeKeys=k=>{if(k===['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'][i]){i++;if(i===4)win();else $('skill-sequence').textContent=['↑','→','↓','←'].map((x,j)=>j<i?'✓':x).join(' ')}else $('skill-feedback').textContent='Look at the next arrow. Try it again!'};}
- if(kind==='drag_and_drop'){const source=$('drag-picture'),box=$('drag-box');let held=false,pointer=null;source.onpointerdown=e=>{held=true;pointer=e.pointerId;source.setPointerCapture(e.pointerId);source.classList.add('picked-up')};source.onpointermove=e=>{if(held){source.style.transform='translate('+(e.clientX-source.getBoundingClientRect().left-35)+'px,0)'}};source.onpointerup=e=>{if(!held||e.pointerId!==pointer)return;held=false;source.classList.remove('picked-up');source.style.transform='';const b=box.getBoundingClientRect();if(e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom)win();else $('skill-feedback').textContent='Hold, move to the box, then let go. Try again!'};source.onpointercancel=()=>{held=false;source.style.transform=''};source.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();held=true;source.classList.add('picked-up');box.focus()}};box.onkeydown=e=>{if(held&&(e.key==='Enter'||e.key===' ')){e.preventDefault();win()}};}
+ if(kind==='drag_and_drop'){
+ const source=$('drag-picture'),box=$('drag-box');let held=false,pointer=null,ghost=null;
+ const clean=()=>{ghost?.remove();ghost=null;source.classList.remove('picked-up')};
+ source.onpointerdown=e=>{e.preventDefault();held=true;pointer=e.pointerId;source.setPointerCapture(pointer);source.classList.add('picked-up');ghost=source.querySelector('img').cloneNode();ghost.style.cssText='position:fixed;width:90px;height:90px;object-fit:contain;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)';document.body.append(ghost);ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px'};
+ source.onpointermove=e=>{if(held&&ghost){ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px'}};
+ source.onpointerup=e=>{if(!held||e.pointerId!==pointer)return;held=false;const b=box.getBoundingClientRect(),inside=e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom;clean();if(inside)win();else $('skill-feedback').textContent='Hold, move to the box, then let go. Try again!'};
+ source.onpointercancel=()=>{held=false;clean()};
+ source.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();held=true;source.classList.add('picked-up');box.focus()}};
+ box.onkeydown=e=>{if(held&&(e.key==='Enter'||e.key===' ')){e.preventDefault();clean();win()}};
+}
  });
  }
  function finish(){
