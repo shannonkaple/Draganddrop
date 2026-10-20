@@ -34,7 +34,7 @@ export async function runAdventureChecks(page){
     if(kind==='double_click'){await page.locator('#skill-target').click();await page.locator('#skill-target').click();}
     if(kind==='typing'){await page.locator('#skill-type').fill('cat');await page.locator('#check-type').click();}
     if(kind==='arrows')for(const k of ['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'])await page.keyboard.press(k);
-    if(kind==='drag_and_drop'){const source=await page.locator('#drag-picture').boundingBox(),target=await page.locator('#drag-box').boundingBox();await page.mouse.move(source.x+30,source.y+30);await page.mouse.down();await page.mouse.move(target.x+target.width/2,target.y+target.height/2,{steps:8});await page.mouse.up();console.log('Drag result',await page.locator('#skill-feedback').allTextContents());}
+    if(kind==='drag_and_drop'){await page.locator('#drag-picture').hover();const target=await page.locator('#drag-box').boundingBox();await page.mouse.down();await page.mouse.move(target.x+target.width/2,target.y+target.height/2,{steps:8});await page.mouse.up();assert.equal(await page.locator('#adventure-dialog[open]').count(),0,'Drag skill did not accept a drop in the box');}
    }
   }
   await page.keyboard.up('Space');if(!await page.locator('#level-next').count())console.log('Goal diagnostic',def.number,JSON.stringify((await saved()).adventure.activeRun),await page.locator('#adventure-status').textContent());await page.locator('#level-next').click();
