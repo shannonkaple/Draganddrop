@@ -5,7 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {makeMaze,step} from './core.mjs';
-async function enterPractice(page){await page.locator('[data-number="1"]').click();await page.waitForSelector('[data-hero],#endless,[data-land]');if(await page.locator('[data-hero]').count())await page.locator('[data-hero="astro_ace"]').click();if(await page.locator('[data-land]').count())await page.locator('[data-land]').first().click();await page.locator('#practice-options > summary').click();await page.locator('#endless').click();}
+async function enterPractice(page){await page.locator('[data-number="1"]').click();await page.waitForSelector('[data-hero],#continue-adventure,[data-land]');if(await page.locator('[data-hero]').count())await page.locator('[data-hero="astro_ace"]').click();if(await page.locator('[data-land]').count())await page.locator('[data-land]').first().click();await page.locator('#practice-options > summary').click();await page.locator('#endless').click();}
 const root=process.cwd(),server=http.createServer((req,res)=>{const relative=decodeURIComponent(new URL(req.url,'http://localhost').pathname);const file=path.resolve(root,'.'+relative);if(!file.startsWith(root+path.sep)){res.writeHead(403);res.end();return}try{const b=fs.readFileSync(file);res.setHeader('Content-Type',file.endsWith('.html')?'text/html':file.endsWith('.mjs')?'text/javascript':file.endsWith('.jpg')?'image/jpeg':'application/octet-stream');res.end(b)}catch{res.writeHead(404);res.end()}});
 await new Promise(resolve=>server.listen(4173,'127.0.0.1',resolve));let browser;
 try{

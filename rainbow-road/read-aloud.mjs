@@ -3,7 +3,7 @@ const labels=new Map([['↑','up'],['↓','down'],['←','left'],['→','right']
 export function spokenText(value){let text=String(value);for(const [symbol,word]of labels)text=text.replaceAll(symbol,' '+word+' ');return text.replace(/[🌈⭐🌟🏁✓★⌨🔊]/gu,' ').replace(/\s+/g,' ').trim()}
 const sources=new WeakMap();let active=null,scheduled=false;
 const supported='speechSynthesis'in window&&'SpeechSynthesisUtterance'in window;
-function textOf(node){const clone=node.cloneNode(true);clone.querySelectorAll('[data-read-aloud]').forEach(n=>n.remove());clone.querySelectorAll('img').forEach(n=>n.remove());return spokenText(clone.textContent)}
+function textOf(node){if(node.dataset.speech)return spokenText(node.dataset.speech);const clone=node.cloneNode(true);clone.querySelectorAll('[data-read-aloud]').forEach(n=>n.remove());clone.querySelectorAll('img').forEach(n=>n.remove());return spokenText(clone.textContent)}
 function sectionText(heading){
  const scope=heading.closest('dialog,article,.panel')||document.getElementById('app');
  const intro=Array.from(scope.querySelectorAll('p')).filter(p=>p.offsetParent!==null&&p.id!=='skill-feedback'&&(scope.matches('dialog,article,.panel')||!p.closest('.adventure-cards,.level-cards,.side,nav,.audio-choice')));
