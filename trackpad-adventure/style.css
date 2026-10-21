@@ -12,3 +12,28 @@ body.playing{height:100dvh;display:flex;flex-direction:column;overflow:hidden}bo
 html{font-synthesis:none}h1,h2,h3,header .eyebrow,.card>strong,.shop-character>strong,.bag-target>strong{font-family:Homebody,Arial,sans-serif;font-weight:400;font-style:normal;font-synthesis:none;text-transform:uppercase}strong,b{font-weight:400}h1 strong,h2 strong,h3 strong{font-weight:400}
 button.speaker{--speaker-size:44px;display:inline-flex;align-items:center;justify-content:center;width:var(--speaker-size)!important;height:var(--speaker-size)!important;min-width:var(--speaker-size)!important;min-height:var(--speaker-size)!important;max-width:var(--speaker-size)!important;max-height:var(--speaker-size)!important;flex:0 0 var(--speaker-size)!important;aspect-ratio:1;padding:0!important;border-radius:50%;line-height:1;font-family:Arial,"Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:22px;font-weight:400;vertical-align:middle;letter-spacing:0;text-transform:none;box-sizing:border-box}
 body.playing .mission-line .speaker,body.playing .game-footer .speaker{--speaker-size:36px;font-size:19px}
+
+/* The guide and request read as one large speech bubble, not a toolbar notice. */
+.guide-mission{display:grid;grid-template-columns:100px minmax(0,1fr);gap:16px;align-items:center;flex:none}
+.mission-guide{display:block;width:100px;height:108px;object-fit:contain;filter:drop-shadow(0 3px 2px #0002)}
+.speech-bubble{position:relative;background:#fff;border:3px solid #000;border-radius:24px;padding:9px 16px;box-shadow:0 4px 0 #ff2d8d;min-width:0}
+.speech-bubble:before{content:"";position:absolute;left:-13px;top:50%;width:20px;height:20px;transform:translateY(-50%) rotate(45deg);background:#fff;border-left:3px solid #000;border-bottom:3px solid #000}
+.guide-name{font-family:Homebody,Arial,sans-serif;font-size:20px;font-weight:400;text-transform:uppercase;line-height:1.1;display:block;color:#000}
+.speech-content{display:flex;align-items:center;gap:12px;min-width:0}
+body.playing .packing-request{font-family:VAG,Arial,sans-serif;font-size:clamp(23px,2.5vw,32px);font-weight:400;line-height:1.15;margin:5px 0;flex:1;min-width:0}
+.request-picture{width:52px;height:52px;object-fit:contain;flex:none}
+.speech-content .speaker{margin:0 0 0 auto}
+[data-guide="rigby"] .speech-bubble{box-shadow:0 4px 0 #24a8f2}
+@media(max-height:650px) and (min-width:700px){.guide-mission{grid-template-columns:86px minmax(0,1fr);gap:14px}.mission-guide{width:86px;height:90px}.speech-bubble{padding:7px 12px}.guide-name{font-size:18px}body.playing .packing-request{font-size:24px}.request-picture{height:44px;width:44px}}
+@media(max-width:700px){.guide-mission{grid-template-columns:68px minmax(0,1fr);gap:10px}.mission-guide{width:68px;height:88px}.speech-bubble{padding:7px 10px;border-radius:17px}.guide-name{font-size:17px}body.playing .packing-request{font-size:20px}.request-picture{width:34px;height:34px}.speech-content{gap:6px}}
+/* A visible, generous obstacle boundary matches the collision area. */
+.adventure-field .bad-guy{width:clamp(102px,10vw,150px)}
+.adventure-field .enemy-body{width:clamp(90px,9vw,132px);height:clamp(90px,9vw,132px);border:3px solid #000;border-radius:23px;background:#fff0f6e8;box-shadow:0 4px 0 #ff2d8d66;display:grid;place-items:center;box-sizing:border-box}
+.adventure-field .bad-guy .enemy-body img{width:100%;height:100%;min-height:0;object-fit:contain;padding:4px}
+.adventure-field .bad-guy span{margin-top:5px;font-size:14px;max-width:145px}
+.ghost{border:2px solid #000;border-radius:16px;background:#ffffffdd;padding:5px;box-sizing:border-box}
+#confetti{display:none}
+#app.celebrate .primary{animation:reward-pulse .6s ease-out}
+@keyframes reward-pulse{50%{box-shadow:0 0 0 7px #ffd60080,4px 5px 0 #000}}
+@media(max-width:700px){.adventure-field .bad-guy{width:84px}.adventure-field .enemy-body{width:76px;height:76px}.adventure-field .bad-guy span{font-size:11px}}
+@media(prefers-reduced-motion:reduce){#app.celebrate .primary{animation:none}}
