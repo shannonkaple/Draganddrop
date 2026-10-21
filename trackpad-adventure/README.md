@@ -1,6 +1,6 @@
 # Ms. Kaple & Rigby's Tech Rescue
 
-Students help pack scattered technology supplies in a Rainbow World. Five practice tasks introduce equipment by name and function. Five independent missions use function clues, three requested items and a bad guy to drag around. Rigby's final check asks students to choose eight items from three choices. All dragging requires a held mouse pointer; touchscreen and click-only attempts do not pack items. A browser cannot detect the trackpad or the student's two-hand technique.
+Students help pack scattered technology supplies in a Rainbow World. Five practice tasks introduce equipment by name and function with three drops each. Five independent missions use function clues and five requested items each. Rigby's final check requires ten drops. Each adventure requires 50 successful held-pointer drags, with three visible choices at a time. Bad guys appear from the third practice task onward; all eight appear in the first adventure. All dragging requires a held mouse pointer; touchscreen and click-only attempts do not pack items. A browser cannot detect the trackpad or the student's two-hand technique.
 
 Each completed task earns one Drag Star. A completed round includes a three-part star self-check, a choice of rescue friend and a required choice of home. Worlds cost 4, 6, 8, 10, 12 and 14 stars. Character appearances cost 3 then 5 stars. Until a first world is owned, upgrades reserve 4 stars for that world. Friends can move between owned worlds for free. Items collected and each friend's home persist independently.
 
