@@ -1,6 +1,6 @@
 {
   "gameId": "amazing_arrow_adventure",
-  "title": "Ms. Kaple’s A-Mazing Arrow Adventure",
+  "title": "Ms. Kaple\u2019s A-Mazing Arrow Adventure",
   "targetGrade": "first",
   "assetRoot": "/game-assets",
   "levelCount": 12,
@@ -43,26 +43,19 @@
   "friends": {
     "initialRosterSize": 1,
     "totalFriends": 8,
-    "rescueLevels": [
-      2,
-      3,
-      5,
-      6,
-      8,
-      10,
-      12
-    ],
-    "rescueMode": "choose_from_unrescued_and_assign_world",
+    "rescueMode": "choose_from_unrescued_and_assign_owned_world",
     "friendsCanBeMovedBetweenLands": true,
     "eachFriendUpgradeIndependent": true,
-    "duplicateRescues": false
+    "duplicateRescues": false,
+    "rescueEveryCompletedMazes": 3
   },
   "rainbowLands": {
     "allAvailableAtStart": true,
     "choosePrimaryHomeAtStart": true,
-    "placeRescuedFriendsInAnyLand": true,
+    "placeRescuedFriendsInAnyLand": false,
     "allowChangeLater": true,
-    "decorateWithEarnedStarsOptional": true
+    "decorateWithEarnedStarsOptional": true,
+    "placeRescuedFriendsInOwnedLand": true
   },
   "enemyContact": {
     "action": "return_to_last_safe_checkpoint",

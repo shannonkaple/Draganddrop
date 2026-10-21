@@ -16,6 +16,7 @@ function reader(source,getText){
 }
 function decorate(){
  scheduled=false;let changed=false;
+ if(document.body.classList.contains("guided"))return;
  if(active&&(!active.source.isConnected||active.source.closest('dialog')&&!active.source.closest('dialog').open)){speechSynthesis.cancel();active=null}
  for(const heading of document.querySelectorAll('#app h1,#app h2,#app h3,#adventure-dialog h2,#characters h2,#win h2')){
   if(heading.closest('button')||heading.querySelector('[data-read-aloud]'))continue;
@@ -42,3 +43,4 @@ const style=document.createElement('style');style.textContent=".read-aloud{displ
 new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
 window.addEventListener('pagehide',()=>{if(supported)speechSynthesis.cancel()});
 schedule();
+

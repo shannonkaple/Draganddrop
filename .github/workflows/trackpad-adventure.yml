@@ -3,6 +3,7 @@ on:
   push:
     branches: [main, arrow-adventure-expansion]
     paths:
+      - 'game-ui/**'
       - 'trackpad-adventure.html'
       - 'trackpad-adventure/**'
       - '.github/workflows/trackpad-adventure.yml'
