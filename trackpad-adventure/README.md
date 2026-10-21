@@ -8,7 +8,7 @@ Existing number saves retain progress, stars, characters and purchased appearanc
 
 Ms. Kaple and Rigby use the supplied transparent character artwork. These images are optimized WebP assets with alpha preserved. Shared Arrow Adventure data is unchanged.
 
-Student progress and CSV reports are browser-local, using the existing number-based storage key. No class codes or server synchronization are added.
+Student progress and CSV reports are browser-local. Students select their teacher, then their number. Saves use kaple-trackpad-adventure-v2:<stable teacher ID>:<number>; number 1 in two classes has separate progress. Original v1 number-only records remain untouched. The teacher panel can copy unassigned old records into empty slots for a selected class with code 8714; existing class saves are never overwritten. teachers.json contains 15 stable teacher IDs with temporary labels. Teacher names must be approved for publication before replacing those labels. No class codes or server synchronization are added.
 
 The first 15 practice drops cover monitor, mouse, speakers, keyboard, printer, microphone, projector, headphones, taskbar, file, window, tab, close button, icon and cursor. The teacher-supplied Mouse & Trackpad Skills list appears as a separate read-aloud glossary; gameplay continues to require held-pointer dragging.
 
