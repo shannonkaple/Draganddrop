@@ -1,9 +1,9 @@
 import {segmentHitsRect} from './collision.mjs';
-import {saveKey,legacyKey,copyLegacy,isClaimed} from './identity.mjs';
-import {worldCosts,migrate,buyWorld,grow,place,buyDecoration,savePosition,decorations,switchPlayer} from './economy.mjs';
+import {saveKey,legacyKey,copyLegacy,isClaimed} from './identity.mjs?v=20261021-class24';
+import {worldCosts,migrate,buyWorld,grow,place,buyDecoration,savePosition,decorations,switchPlayer} from './economy.mjs?v=20261021-class24';
 const $=s=>document.querySelector(s),app=$('#app');
 const [characters,lands,enemies]=await Promise.all(['characters','rainbow_lands','enemies'].map(n=>fetch(`rainbow-road/data/${n}.json`).then(r=>{if(!r.ok)throw Error('Could not load characters. Please refresh.');return r.json()}))).catch(e=>{app.textContent=e.message;throw e});
-const teachers=await fetch('trackpad-adventure/teachers.json').then(r=>{if(!r.ok)throw Error('Could not load teachers. Please refresh.');return r.json()});
+const teachers=await fetch('trackpad-adventure/teachers.json?v=20261021-class24').then(r=>{if(!r.ok)throw Error('Could not load teachers. Please refresh.');return r.json()});
 const esc=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('\"','&quot;');
 const guideBadge=(name,color)=>'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="87" fill="${color}" stroke="black" stroke-width="7"/><text x="100" y="123" text-anchor="middle" font-family="Arial,sans-serif" font-size="64" font-weight="bold">${name}</text></svg>`);
 for(const [id,name,initials,color] of [['ms_kaple','Ms. Kaple','MK','#ff2d8d'],['rigby','Rigby','R','#ffd600']])characters.push({id,name,levels:['Starter','Power-Up','Super Power'].map((name,i)=>({name,thumbnail:`trackpad-adventure/characters/${id}.webp`}))});
