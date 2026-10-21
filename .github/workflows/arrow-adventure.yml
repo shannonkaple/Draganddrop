@@ -10,6 +10,7 @@ on:
       - 'rainbow-road/data/**'
       - 'game-assets/**'
       - 'trackpad-adventure/economy.mjs'
+      - 'trackpad-adventure/teachers.json'
       - 'trackpad-adventure/decorations/**'
       - '.github/workflows/arrow-adventure.yml'
   workflow_dispatch:

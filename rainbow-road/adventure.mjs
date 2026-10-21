@@ -6,10 +6,10 @@ const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),r
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
 const readJSON=async n=>{const r=await fetch(new URL('./data/'+n+'.json',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
-export async function openAdventure({number,goPractice,onLogout}){
+export async function openAdventure({number,storageKey,teacherName,goPractice,onLogout}){
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
- const chars=data.characters,lands=data.rainbow_lands,levels=data.levels.map(l=>({...l,primarySkill:'arrows'})),config=data.game_config,key='rainbow-road-number-v2:'+number;
+ const chars=data.characters,lands=data.rainbow_lands,levels=data.levels.map(l=>({...l,primarySkill:'arrows'})),config=data.game_config,key=storageKey;
  let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-adventure-teacher-settings')||'{}')}catch{settings={}}
@@ -27,10 +27,10 @@ export async function openAdventure({number,goPractice,onLogout}){
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
  function shell(title,content){
  clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
- $('who').classList.remove('hidden');$('who').textContent='Change number';$('who').onclick=()=>{save();cleanup();onLogout()};
+ $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
  const nav=ready?'<div class="actions"><button data-nav="map">▶ Play</button><button data-nav="stuff">⭐ Shop & friends</button></div>':'<span class="setup-steps">'+(!a.selectedPlayerCharacterId?'<strong>1. Pick a player</strong> · 2. Pick a home':'✓ Player · <strong>2. Pick a home</strong>')+' · 3. Play</span>';
- $('app').innerHTML='<nav class="adventure-nav"><strong>#'+number+' <span class="star-wallet">⭐ '+a.wallet.rainbowStars+'</span></strong>'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
+ $('app').innerHTML='<nav class="adventure-nav"><strong>'+esc(teacherName)+' · #'+number+' <span class="star-wallet">⭐ '+a.wallet.rainbowStars+'</span></strong>'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));
  }
  function navigate(where){if(r)save();if(where==='map')map();if(where==='stuff')stuff();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='computer')computer()}
@@ -192,7 +192,7 @@ export async function openAdventure({number,goPractice,onLogout}){
  modal('Teacher settings',content,()=>{$('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;for(const k of ['hints','sound','reducedMotion','touchArrows'])$('set-'+k).checked=settings[k];
  $('save-settings').onclick=()=>{settings.difficulty=$('set-difficulty').value;settings.speed=Number($('set-speed').value);for(const k of ['hints','sound','reducedMotion','touchArrows'])settings[k]=$('set-'+k).checked;settings.costs={power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))};config.progression.upgradeCost={...settings.costs};try{localStorage.setItem('arrow-adventure-teacher-settings',JSON.stringify(settings))}catch{}save();closeModal();if(view==='maze')startLevel(def.number,true);else map()};
  $('skip-level').onclick=()=>{a.highestUnlockedLevel=Math.min(12,a.highestUnlockedLevel+1);save();closeModal();map()};
- $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{const rows=[['Number','Levels','Friends','Rainbow Stars','Equipment','Skill badges']];for(let n=1;n<=30;n++){try{const d=JSON.parse(localStorage.getItem('rainbow-road-number-v2:'+n)||'null')?.adventure;if(d)rows.push([n,d.completedLevelIds.length,Object.keys(d.friends).length,d.wallet.rainbowStars,d.collectedComputerGearIds.join(' / '),d.earnedSkillBadgeIds.join(' / ')])}catch{}}const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');link.href=url;link.download='arrow-adventure-progress.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{const rows=[['Homeroom','Number','Levels','Friends','Rainbow Stars','Equipment','Skill badges']];for(let t=1;t<=18;t++)for(let n=1;n<=24;n++){try{const raw=JSON.parse(localStorage.getItem('rainbow-road-class-v3:class-'+String(t).padStart(2,'0')+':'+n)||'null'),d=raw?.adventure;if(d)rows.push([raw.teacherName||('Class '+t),n,d.completedLevelIds.length,Object.keys(d.friends).length,d.wallet.rainbowStars,d.collectedComputerGearIds.join(' / '),d.earnedSkillBadgeIds.join(' / ')])}catch{}}const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');link.href=url;link.download='arrow-adventure-progress.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  });
  }
  function keydown(e){
