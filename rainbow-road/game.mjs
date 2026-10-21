@@ -1,6 +1,6 @@
 import '../game-ui/viewport.mjs?v=20261021-menu';
 import {classKey,copyLegacy} from './identity.mjs?v=20261021-class24';
-const teachers=await fetch(new URL('./data/teachers.json?v=20261021-firstgrade',import.meta.url)).then(r=>r.json());
+const teachers=await fetch(new URL('./data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import './read-aloud.mjs?v=20261021-menu';
 import {openAdventure} from './adventure.mjs?v=20261021-menu';
 let adventureController=null,adventureActive=false;
