@@ -37,3 +37,5 @@ body.playing .packing-request{font-family:VAG,Arial,sans-serif;font-size:clamp(2
 @keyframes reward-pulse{50%{box-shadow:0 0 0 7px #ffd60080,4px 5px 0 #000}}
 @media(max-width:700px){.adventure-field .bad-guy{width:84px}.adventure-field .enemy-body{width:76px;height:76px}.adventure-field .bad-guy span{font-size:11px}}
 @media(prefers-reduced-motion:reduce){#app.celebrate .primary{animation:none}}
+
+.card img.decor-preview{width:140px;height:130px;object-fit:contain;pointer-events:none}.world-decor img.decor-art{width:clamp(90px,12vw,160px);height:clamp(90px,15vh,150px);object-fit:contain;pointer-events:none;filter:drop-shadow(0 5px 2px #0003)}.world-decor{max-width:170px}.world-decor:hover{filter:drop-shadow(0 0 5px #fff)}

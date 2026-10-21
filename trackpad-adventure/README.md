@@ -15,3 +15,7 @@ The first 15 practice drops cover monitor, mouse, speakers, keyboard, printer, m
 Rigby review regression: previously packed items may appear as distractors; every visible option remains draggable until the current task is complete. A correct release only packs the currently requested item.
 
 Hazards use swept full-token collision against the visibly outlined obstacle bodies, including release events and moving hazards crossing a held stationary token. Missions 3 and 5 have slow patrols. Early practice hazards stay stationary. Floating confetti stars are removed; reward feedback is a short button highlight.
+
+
+## Shop artwork and player changes
+Twelve transparent decorations are extracted from Ms. Kaple’s supplied rainbow artwork. They cost 2–10 Drag Stars and can be dragged around owned worlds. Existing flowers/tree/tent/trophy purchase IDs are retained. Change character on the home or shop screen; stars, rescues, current tasks and individual player upgrades persist.

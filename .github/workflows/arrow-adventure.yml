@@ -9,6 +9,8 @@ on:
       - 'rainbow-road/*.css'
       - 'rainbow-road/data/**'
       - 'game-assets/**'
+      - 'trackpad-adventure/economy.mjs'
+      - 'trackpad-adventure/decorations/**'
       - '.github/workflows/arrow-adventure.yml'
   workflow_dispatch:
 permissions:
@@ -49,3 +51,4 @@ jobs:
             rainbow-road/week-1-jpegs.zip
             rainbow-road/build-report.json
           retention-days: 30
+
