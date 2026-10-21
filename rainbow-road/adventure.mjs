@@ -1,7 +1,7 @@
-import {tellGuide,starIcon} from '../game-ui/viewport.mjs?v=20261021-guide';
+import {tellGuide,starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
 import {decorations,worldCosts} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 
-import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=20261021-guide';
+import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=20261021-menu';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
@@ -128,7 +128,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  }m.innerHTML=html;m.classList.toggle('ducking',duck);const tasks=r.items.map(i=>({image:data.computer_collectibles.find(g=>g.id===i.id).thumbnail,name:data.computer_collectibles.find(g=>g.id===i.id).name,done:i.collected}));
  if(r.skill)tasks.push({image:(data.skill_badges.find(b=>b.id===r.skill.type)||data.computer_collectibles.find(g=>g.id==='trackpad')).thumbnail,name:'Skill stop',done:r.skill.done});
  const pictureSteps=tasks.map(t=>'<span class="quest-picture '+(t.done?'task-done':'')+'">'+img(t.image,t.name)+'<span>'+(t.done?'✓':'Find')+'</span></span>').join('')+'<span class="quest-finish">→ 🏁</span>';
- const nextItem=r.items.find(i=>!i.collected);const nextWords=nextItem?'Find the '+data.computer_collectibles.find(g=>g.id===nextItem.id).name+'.':r.skill&&!r.skill.done?'Find the arrow stop. Follow the arrows.':'Go to the checkered flag!';tellGuide(nextWords+' Press an arrow key. Let go. Look.',pictureSteps);
+ const nextItem=r.items.find(i=>!i.collected);const nextWords=nextItem?'Find the '+data.computer_collectibles.find(g=>g.id===nextItem.id).name+'.':r.skill&&!r.skill.done?'Find the arrow stop. Follow the arrows.':'Go to the checkered flag!';tellGuide(nextWords+' Press an arrow key. Let go. Look.','<div class="guide-keys" aria-label="Up, left, down, right arrow keys"><span>↑</span><span>←</span><span>↓</span><span>→</span></div>'+pictureSteps);
  fit();
  }
  function fit(){

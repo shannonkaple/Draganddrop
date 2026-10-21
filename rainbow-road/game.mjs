@@ -1,8 +1,8 @@
-import '../game-ui/viewport.mjs?v=20261021-guide';
+import '../game-ui/viewport.mjs?v=20261021-menu';
 import {classKey,copyLegacy} from './identity.mjs?v=20261021-class24';
 const teachers=await fetch(new URL('./data/teachers.json?v=20261021-firstgrade',import.meta.url)).then(r=>r.json());
-import './read-aloud.mjs?v=20261021-guide';
-import {openAdventure} from './adventure.mjs?v=20261021-guide';
+import './read-aloud.mjs?v=20261021-menu';
+import {openAdventure} from './adventure.mjs?v=20261021-menu';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from './core.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -1,4 +1,4 @@
-import {starIcon} from '../game-ui/viewport.mjs?v=20261021-guide';
+import {starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
 import {segmentHitsRect} from './collision.mjs';
 import {saveKey,legacyKey,copyLegacy,isClaimed} from './identity.mjs?v=20261021-class24';
 import {worldCosts,migrate,buyWorld,grow,place,buyDecoration,savePosition,decorations,switchPlayer} from './economy.mjs?v=20261021-class24';
@@ -46,8 +46,8 @@ window.addEventListener('pointercancel',cancelWorldDrag);window.addEventListener
 function splitShop(){
  const titles=[...app.querySelectorAll(':scope > h3')],ids=['worlds','upgrades','decor'];const sections=[];
  titles.forEach((h,i)=>{const box=document.createElement('section');box.dataset.shopSection=ids[i];h.before(box);let n=h;while(n&&!(n!==h&&(n.tagName==='H3'||n.tagName==='DETAILS'))){const next=n.nextSibling;box.append(n);n=next}sections.push(box)});
- const collection=app.querySelector(':scope > details');if(collection){collection.open=true;collection.dataset.shopSection='collection';sections.push(collection)}
- const menu=document.createElement('div');menu.className='shop-tabs';menu.innerHTML=[['worlds','🌍','Worlds'],['upgrades','🌟','Upgrades'],['decor','🌷','Decorations'],['collection','💻','Collection']].map(([id,icon,name])=>`<button id="shop-${id}" data-shop-tab="${id}"><span>${icon}</span>${name}</button>`).join('');app.querySelector('h2').after(menu);
+ const collection=app.querySelector(':scope > details');if(collection){const words=document.createElement('section');words.dataset.shopSection='words';words.innerHTML='<h3>Tech words</h3><div class="cards word-cards"></div>';collection.querySelectorAll('.tech-words p,.skill-glossary p').forEach(p=>words.querySelector('.word-cards').append(p));collection.before(words);sections.push(words);const grid=collection.querySelector('.collection'),title=[...collection.querySelectorAll('h3')].at(-1);collection.replaceChildren(title,grid);collection.open=true;collection.dataset.shopSection='collection';sections.push(collection)}
+ const menu=document.createElement('div');menu.className='shop-tabs';menu.innerHTML=[['worlds','🌍','Worlds'],['upgrades','🌟','Upgrades'],['decor','🌷','Decorations'],['collection','💻','Collection'],['words','🔊','Words']].map(([id,icon,name])=>`<button id="shop-${id}" data-shop-tab="${id}"><span>${icon}</span>${name}</button>`).join('');app.querySelector('h2').after(menu);
  const show=tab=>{shopTab=tab;sections.forEach(s=>s.hidden=s.dataset.shopSection!==tab);menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.shopTab===tab)));window.dispatchEvent(new Event('resize'))};menu.querySelectorAll('button').forEach(b=>b.onclick=()=>show(b.dataset.shopTab));show(shopTab);
 }
 function worldCards(placing){return lands.map((l,i)=>{const owned=state.ownedWorlds.includes(l.id),cost=worldCosts[i];return `<button class="card" ${placing?`data-place="${l.id}"`:`data-world="${l.id}"`} ${!owned&&state.stars<cost?'disabled':''}><img class="land" src="${asset(l.cardPreview)}" alt=""><strong>${l.name}</strong><span>${owned?(placing?'Place friend here':'Visit world ✓'):(placing?'Buy & place':'Buy world')+' · ⭐ '+cost}</span>${!owned&&state.stars<cost?`<small>Earn ${cost-state.stars} more stars</small>`:''}</button>`}).join('')}
