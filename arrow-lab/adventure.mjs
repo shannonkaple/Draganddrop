@@ -33,7 +33,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const chars=data.characters,lands=data.rainbow_lands,
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
-   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+title,
+   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(wi===0?candyNames[ai]:title),
      worldIndex:wi,worldStage:ai+1,backgroundImage:world.backgroundImage,sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:wi===0?candyObjects.slice(ai*2,ai*2+2).map(x=>x[0]):undefined,
      mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
