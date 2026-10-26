@@ -1,0 +1,59 @@
+
+/* Arrow Lab — HD map and readable transparent maze tiles. Sandbox only. */
+body.lab-map-active .lab-map-canvas{
+ background-image:url('./map-background-hd.jpg?v=hd64-20261026')!important;
+ background-repeat:no-repeat!important;
+ background-size:100% 100%!important;
+ background-position:center!important;
+ image-rendering:auto!important;
+}
+body.adventure-mode.playing .scenic-board{
+ background-size:400% 200%!important;
+ background-position:var(--lab-sprite-x,0%) var(--lab-sprite-y,0%)!important;
+ background-repeat:no-repeat!important;
+ background-color:#d9edfb!important;
+ overflow:hidden;
+}
+body.adventure-mode.playing .adventure-layout .maze{
+ border:3px solid rgba(255,255,255,.83)!important;
+ box-shadow:0 7px 28px rgba(14,28,74,.32);
+}
+body.adventure-mode.playing .adventure-layout .wall{
+ background:rgba(32,48,91,.23)!important;
+ border:1.5px solid rgba(34,47,87,.48)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.25)!important;
+}
+body.adventure-mode.playing .adventure-layout .road{
+ background:rgba(255,255,255,.09)!important;
+ border:1px solid rgba(255,255,255,.36)!important;
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)!important;
+}
+body.adventure-mode.playing .adventure-layout .cell{
+ border-radius:2px;
+}
+body.adventure-mode.playing .adventure-layout .enemy-art{
+ background:rgba(255,255,255,.45)!important;
+ outline:1px solid rgba(255,255,255,.8);
+ box-shadow:0 0 9px rgba(24,31,64,.2);
+}
+body.adventure-mode.playing .adventure-layout .character-player{
+ filter:drop-shadow(0 0 3px white) drop-shadow(0 2px 2px rgba(15,37,81,.6))!important;
+}
+/* KA Homebody Club is always displayed as uppercase. Avoid changing students' stored names. */
+body>header .brand,
+body.adventure-mode h1,
+body.adventure-mode h2,
+body.adventure-mode h3,
+body.adventure-mode .lab-map-title h2,
+body.adventure-mode .lab-player-meta b,
+body.adventure-mode .lab-world-name,
+body.adventure-mode .lab-next-play,
+body.adventure-mode .lab-main-nav button,
+body.adventure-mode .lab-world-heading h2,
+body.adventure-mode .lab-activity-card strong,
+body.adventure-mode .lab-world-pin,
+body.adventure-mode .aa-play-button,
+body.adventure-mode .home-menu strong,
+body.adventure-mode .stuff-cards strong{
+ text-transform:uppercase!important;
+}
