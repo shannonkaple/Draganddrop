@@ -1,5 +1,5 @@
 
-import {rng} from './core.mjs';
+import {rng} from '../rainbow-road/core.mjs';
 export const directions={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};
 export const tile=p=>p.x+','+p.y;
 export function route(grid,start,goal,blocked=new Set()){
