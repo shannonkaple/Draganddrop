@@ -20,7 +20,7 @@ const STU_HEADERS=[
  "Correct drops","Drag attempts","Misplaced drops","Click only",
  "Cancelled drags","Touch blocked","Bad-guy bumps","Friends rescued",
  "Friends upgraded","Stars balance","Adventure","Activity stage",
- "Latest submission ID","Last update ID"
+ "Latest submission ID","Last update ID","Game-board clicks"
 ];
 const HISTORY_HEADERS=[
  "Teacher ID","Teacher","Student #","Submitted UTC","Both hands (1-3)",
@@ -108,7 +108,8 @@ function doPost(e){
    count_(stats,"upgrades",21),count_(stats,"stars",10000),
    count_(stats,"round",2000),count_(stats,"stage",11),
    (hasNewerRating&&p.latestRating.id)||old[21]||"",
-   p.eventId
+   p.eventId,
+   count_(stats,"totalClicks",100000)
   ].map(cell_);
   if(!row)row=sheet.getLastRow()+1;
   sheet.getRange(row,1,1,values.length).setValues([values]);
