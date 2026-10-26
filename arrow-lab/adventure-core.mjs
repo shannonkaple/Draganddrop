@@ -14,7 +14,7 @@ export function buildLevel(def,seed,easy=false){
  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)if(grid[y][x]===1&&((x%2===0&&y%2===1)||(x%2===1&&y%2===0))&&random()<.18)grid[y][x]=0;
  const start={x:1,y:1},goal={x:w-2,y:h-2},roads=[];for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)if(!grid[y][x]&&(x!==1||y!==1)&&(x!==goal.x||y!==goal.y))roads.push({x,y});
  const shuffled=[...roads].sort(()=>0);for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}
- const items=(def.computerGearIds||[]).map((id,i)=>({id,...shuffled[i],collected:false}));
+ const items=(def.collectibleIds||def.computerGearIds||[]).map((id,i)=>({id,...shuffled[i],collected:false}));
  const needsSkill=def.primarySkill!=='arrows'&&def.primarySkill!=='mixed'||(def.skillBadgeIds||[]).length>0;
  const skill=needsSkill?{...shuffled[items.length],done:false,type:def.primarySkill}:null;
  const stops=[...items,...(skill?[skill]:[]),goal],safe=new Set([tile(start)]);let p=start;
