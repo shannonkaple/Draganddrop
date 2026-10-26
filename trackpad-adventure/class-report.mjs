@@ -23,6 +23,7 @@ function loadStudent(teacherId,studentNumber,saveKey){
   ratings:latest?.ratings||null,
   drops:activities.reduce((count,item)=>count+(item.done?.length||0),0),
   attempts:getCount(activities,'attempts'),
+  totalClicks:getCount(activities,'totalClicks'),
   misses:getCount(activities,'misses'),
   clickOnly:getCount(activities,'clickOnly'),
   cancelled:getCount(activities,'cancelled'),
@@ -59,7 +60,8 @@ export function showClassReport({teacher,saveKey,shell,onBack}){
     <ul class="report-responses">${responsesHtml}</ul>
     <div class="report-metrics">
     <span><strong>${student.drops}</strong> correct drops</span>
-    <span><strong>${student.attempts}</strong> drag attempts</span>
+    <span><strong>${student.totalClicks}</strong> game-board clicks</span>
+    <span><strong>${student.attempts}</strong> completed attempts</span>
     <span><strong>${student.misses}</strong> misplaced drops</span>
     <span><strong>${student.clickOnly}</strong> click-only attempts</span>
     <span><strong>${student.bumps}</strong> obstacle bumps</span>

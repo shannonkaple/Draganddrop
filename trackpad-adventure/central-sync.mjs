@@ -19,7 +19,7 @@ function telemetry(state){
  const upgrades=Object.values(levels).reduce((n,x)=>n+(Number(x)||0),0);
  return {
   drops:tasks.reduce((n,row)=>n+row.done.length,0),
-  attempts:total('attempts'),misses:total('misses'),
+  attempts:total('attempts'),totalClicks:total('totalClicks'),misses:total('misses'),
   clickOnly:total('clickOnly'),cancelled:total('cancelled'),
   touchBlocked:total('touchBlocked'),enemyBumps:total('enemyBumps'),
   friends,upgrades,stars:Number(state.stars)||0,
