@@ -21,9 +21,42 @@ export function buildLevel(def,seed,easy=false){
  for(const stop of stops){for(const n of walk(p,route(grid,p,stop)))safe.add(tile(n));p=stop}
  const excluded=new Set([tile(start),tile(goal),...items.map(tile),...(skill?[tile(skill)]:[])]);
  const side=roads.filter(n=>!safe.has(tile(n))&&!excluded.has(tile(n))),hazards=[];
- // Carve optional alcoves if the safe route uses every existing branch.
- if(!easy)for(let y=1;y<h-1&&side.length<(def.enemyIds||[]).length*2;y++)for(let x=1;x<w-1&&side.length<(def.enemyIds||[]).length*2;x++)if(grid[y][x]===1&&Object.values(directions).some(([dx,dy])=>grid[y+dy]?.[x+dx]===0)){grid[y][x]=0;side.push({x,y})}
- if(!easy)for(const id of def.enemyIds||[]){const pos=side.find(n=>!hazards.some(e=>e.path.some(q=>tile(q)===tile(n))));if(!pos)continue;let path=[pos];if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id)){const second=side.find(n=>Math.abs(n.x-pos.x)+Math.abs(n.y-pos.y)===1&&!hazards.some(e=>e.path.some(q=>tile(q)===tile(n))));if(second)path.push(second)}hazards.push({id,path,index:0})}
+ // Keep every enemy away from the guaranteed safe path and collectables.
+ // Make additional side alcoves only where required, never blocking a corridor.
+ if(!easy)for(let y=1;y<h-1&&side.length<(def.enemyIds||[]).length*3;y++)for(let x=1;x<w-1&&side.length<(def.enemyIds||[]).length*3;x++){
+   const p={x,y};
+   if(grid[y][x]===1&& !safe.has(tile(p)) && !excluded.has(tile(p)) &&
+      Object.values(directions).some(([dx,dy])=>grid[y+dy]?.[x+dx]===0)){
+     grid[y][x]=0;side.push(p);
+   }
+ }
+ if(!easy){
+   const used=new Set(),dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+   for(const id of def.enemyIds||[]){
+     // Pick the farthest available side branch from other bad guys, the start,
+     // and the flag. Never place two on the same tile or an item/skill tile.
+     const available=side.filter(p=>!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
+     if(!available.length)break;
+     const score=p=>{
+       const separation=hazards.length?Math.min(...hazards.map(h=>dist(p,h.path[0]))):Math.min(dist(p,start),dist(p,goal));
+       const entrances=Math.min(dist(p,start),dist(p,goal));
+       return separation*100+entrances*3+random();
+     };
+     let pos=available[0],best=-Infinity;
+     for(const p of available){const value=score(p);if(value>best){best=value;pos=p}}
+     used.add(tile(pos));
+     const path=[pos];
+     // Moving enemies patrol only within their own isolated side branch.
+     if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id)){
+       const secondary=side.filter(p=>dist(p,pos)===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
+       if(secondary.length){
+         secondary.sort((a,b)=>dist(b,start)-dist(a,start));
+         path.push(secondary[0]);used.add(tile(secondary[0]));
+       }
+     }
+     hazards.push({id,path,index:0});
+   }
+ }
  let barrier=null;if(def.ducking!=='none'&&!easy){const main=walk(start,route(grid,start,goal));barrier=main.find((n,i)=>i>=2&&i<main.length-2&&!excluded.has(tile(n)))||null}
  return {id:def.id,seed,w,h,grid,start,goal,player:{...start},checkpoint:{...start},steps:0,items,skill,hazards,barrier,safe:[...safe],complete:false,rewarded:false,trail:[[1,1]],duckLearned:!barrier};
 }
