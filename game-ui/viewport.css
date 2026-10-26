@@ -106,3 +106,23 @@ body.playing .adventure-field.layout-3 .bad-guy.hazard-1{left:58%!important;top:
  .class-report h3{font-size:16px!important}
  .class-report .report-student h3{font-size:14px!important}
 }
+
+
+/* Compact printable observation report: one child per row, outcomes + four self-ratings. */
+.class-report .report-observation{width:100%;table-layout:fixed;font-size:12px}
+.class-report .report-observation th:first-child{width:15%;white-space:nowrap}
+.class-report .report-observation th:nth-child(2),
+.class-report .report-observation th:nth-child(3){width:11%}
+.class-report .report-observation th:nth-child(n+4){width:15.5%}
+.class-report .report-observation td{vertical-align:middle}
+.class-report .report-summary small{display:block;margin-top:3px;font-weight:400;font-size:10px;line-height:1.2}
+.class-report .report-observation tbody tr:nth-child(even){background:#f7f8fa}
+@media print{
+ @page{size:letter landscape;margin:.38in}
+ .class-report .report-observation{font-size:10px}
+ .class-report .report-observation th,
+ .class-report .report-observation td{padding:4px}
+ .class-report .report-device-note{font-size:9px}
+ .class-report .report-header h2{font-size:19px!important}
+ .class-report .report-summary small{font-size:9px}
+}
