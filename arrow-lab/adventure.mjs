@@ -30,11 +30,12 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  ];
  const candyLabels=Object.fromEntries(candyObjects);
  const candyNames=['Lollipop Lane','Cupcake Creek','Ice Cream Island','Donut Ridge','Candy Castle','Gummy Grove','Chocolate Falls','Sweet Summit'];
+ const candyStageBackgrounds=['01-lollipop-lane','02-cupcake-creek','03-ice-cream-island','04-donut-ridge','05-candy-castle','06-gummy-grove','07-chocolate-falls','08-sweet-summit'].map(n=>'/arrow-lab/candy-stages/'+n+'.jpg');
  const chars=data.characters,lands=data.rainbow_lands,
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(wi===0?candyNames[ai]:title),
-     worldIndex:wi,worldStage:ai+1,backgroundImage:world.backgroundImage,sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:wi===0?candyObjects.slice(ai*2,ai*2+2).map(x=>x[0]):undefined,
+     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:world.backgroundImage,sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:wi===0?candyObjects.slice(ai*2,ai*2+2).map(x=>x[0]):undefined,
      mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
  })),config=data.game_config,key=storageKey;
@@ -132,11 +133,12 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
      '<section class="lab-candy-world" aria-label="Candy World map with eight playable mazes">'+
        '<div class="lab-candy-heading"><button type="button" id="lab-back-map">← ALL WORLDS</button>'+
        '<div><small>WORLD 1 • 8 SWEET MAZES</small><h2>🍬 CANDY WORLD</h2></div>'+
-       '<div class="lab-candy-progress">'+worldDoneCount(0)+' / 8 COMPLETE</div></div>'+
+       '<div class="lab-candy-progress">'+worldDoneCount(0)+' / 8 COMPLETE</div>'+(canRescue()?'<button class="lab-candy-rescue" id="lab-candy-rescue" type="button">🐾 RESCUE A FRIEND!</button>':'')+'</div>'+
        '<div class="lab-candy-scenery" role="group" aria-label="Eight stops along the Candyland rainbow road">'+points+'</div>'+
        '<nav class="lab-candy-actions"><button data-nav="map">🏠 HOME</button><button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">💻 MY COLLECTIONS</button></nav>'+
      '</section>');
    $('lab-back-map').onclick=map;
+   $('lab-candy-rescue')?.addEventListener('click',continueRescue);
    document.querySelectorAll('.lab-candy-node[data-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.level)));
  }
 
@@ -215,7 +217,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
  }
  function maze(){
- view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full">Full screen</button><div class="sr"><button data-direction="ArrowUp">↑</button><button data-direction="ArrowLeft">←</button><button data-direction="ArrowDown">↓</button><button data-direction="ArrowRight">→</button></div></div>');
+ view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full">Full screen</button><div class="sr"><button data-direction="ArrowUp">↑</button><button data-direction="ArrowLeft">←</button><button data-direction="ArrowDown">↓</button><button data-direction="ArrowRight">→</button></div></div>');
  document.body.classList.add('playing');
  $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>startLevel(def.number,true);$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;const keys=route(r.grid,r.player,target);status(keys?.length?'Try '+keys[0].slice(5).toUpperCase()+' next.':'You are at your next stop.');};
  $('adventure-full').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.().catch(()=>{})};
@@ -290,7 +292,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?'You finished three mazes! A friend is ready to rescue.':chars.some(c=>!a.friends[c.id])?left+' more '+(left===1?'maze':'mazes')+' until your next rescue.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+(ready?'🐾 Rescue a friend':'🏡 Home')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();afterLevel()}});
  try{const old=JSON.parse(localStorage.getItem(key)||'{}');if(old.wallet){old.wallet.total+=5;old.wallet.earned+=5;old.wallet.finished+=1;localStorage.setItem(key,JSON.stringify(old))}}catch{}
  }
- function afterLevel(){if(canRescue()){continueRescue();return}map()}
+ function afterLevel(){if(def?.worldIndex===0){openCandyWorld();return}if(canRescue()){continueRescue();return}map()}
  function rescue(){
  if(!canRescue()){map();return}view='rescue';shell('A friend is ready to come home!','<p>Choose one new friend. Then pick one of your owned worlds.</p><div class="adventure-cards">'+chars.filter(c=>!a.friends[c.id]).map(c=>'<button data-rescue="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
  document.querySelectorAll('[data-rescue]').forEach(b=>b.onclick=()=>{const id=b.dataset.rescue;if(!canRescue()||a.friends[id]||!char(id))return;a.pendingRescueFriendId=id;save();place(id,true)});
