@@ -171,3 +171,181 @@ body:has(.lab-map-home)>header .brand{font-size:clamp(17px,2.3vw,31px)!important
  .lab-main-nav button{font-size:12px;height:60px;}
  .lab-world-activities{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
+
+
+
+/* Final map layout: approved JPEG artwork + real interactive buttons. */
+body.lab-map-active .lab-map-home {
+  position:relative!important;
+  display:grid!important;
+  grid-template-rows:112px 67px minmax(300px,1fr) 76px!important;
+  gap:5px!important;
+  height:calc(var(--screen-height,760px) - 12px)!important;
+  min-height:565px;
+  padding:8px 10px 10px;
+  overflow:hidden;
+  border-radius:25px;
+  background:linear-gradient(120deg,#fbe5ffcc,#e5f9ff8c 50%,#fff4d0a1);
+}
+body.lab-map-active .lab-game-hud{
+  position:relative;z-index:5;
+  justify-content:flex-end;
+  padding:10px 17px 2px clamp(285px,30%,420px)!important;
+  gap:12px;
+  align-items:center;
+}
+body.lab-map-active .lab-player-compact{
+  width:218px!important;min-width:0;max-width:240px;
+  min-height:84px;height:auto;
+  padding:7px 11px;
+  flex:none;
+}
+body.lab-map-active .lab-player-figure img{
+  width:65px;height:68px;
+}
+body.lab-map-active .lab-friend-compact{
+  width:clamp(210px,21vw,265px)!important;min-width:0;min-height:84px;
+  padding:8px 12px;flex:none;
+}
+body.lab-map-active .lab-map-title{
+  padding:0 280px 0 clamp(270px,27%,355px)!important;
+  min-height:67px;justify-content:center;
+}
+body.lab-map-active .lab-map-title h2{
+  font-size:clamp(25px,2.8vw,38px);
+}
+body.lab-map-active .lab-map-title p{
+  font-size:12px;
+}
+body.lab-map-active .lab-map-canvas{
+  position:relative!important;
+  min-height:295px;
+  margin:0 8px!important;
+  overflow:visible;
+  background-image:url('./map-background.jpg?v=rainbow-v2')!important;
+  background-size:100% 100%!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  background-color:#a9d9ff!important;
+  border:3px solid #ffffffcf;
+  border-radius:23px;
+  box-shadow:0 6px 16px #31598a45;
+}
+body.lab-map-active button.lab-next-play,
+body.lab-map-active #continue-adventure.lab-next-play {
+  box-sizing:border-box!important;
+  position:absolute!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  top:140px!important;
+  right:25px!important;
+  bottom:auto!important;
+  left:auto!important;
+  width:216px!important;
+  min-width:0!important;
+  max-width:216px!important;
+  height:67px!important;
+  min-height:0!important;
+  max-height:67px!important;
+  flex:0 0 216px!important;
+  padding:8px 14px!important;
+  gap:1px!important;
+  font:23px Homebody,VAG,Arial,sans-serif!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  border:3px solid #e9ffcb!important;
+  border-radius:38px!important;
+  background:linear-gradient(180deg,#93f978 0%,#43ce34 60%,#17a91e 100%)!important;
+  color:white!important;
+  box-shadow:0 5px 0 #157922,0 7px 15px #2e605a6e!important;
+  text-align:center!important;
+  z-index:10!important;
+}
+body.lab-map-active button.lab-next-play small{
+  display:block!important;
+  font:12px VAG,Arial,sans-serif!important;
+  color:white!important;
+  margin-top:2px;
+}
+body.lab-map-active .lab-world-node{
+  z-index:5!important;
+}
+body.lab-map-active .lab-world-pin{
+  width:clamp(39px,3.4vw,48px)!important;
+  height:clamp(39px,3.4vw,48px)!important;
+  border-width:3px!important;
+}
+body.lab-map-active .lab-world-name{
+  font-size:clamp(12px,1.2vw,16px)!important;
+  background:linear-gradient(#fffffff7,#ebf4fff2)!important;
+  box-shadow:0 3px 7px #23467669!important;
+  min-width:65px;
+}
+body.lab-map-active .lab-main-nav{
+  display:flex!important;
+  gap:13px!important;
+  padding:6px clamp(35px,8vw,120px) 6px clamp(250px,23%,340px)!important;
+  align-items:center;
+  justify-content:center;
+}
+body.lab-map-active .lab-main-nav button{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:7px;
+  height:59px!important;
+  max-width:310px;
+  flex:1;
+  border-radius:18px;
+  font-size:clamp(14px,1.7vw,22px);
+}
+body.lab-map-active #kaple-guide{
+  top:92px!important;
+  left:6px!important;
+  height:clamp(225px,30vh,325px)!important;
+  width:clamp(220px,23vw,345px)!important;
+  z-index:4!important;
+  pointer-events:none!important;
+}
+body.lab-map-active #kaple-guide .guide-cast{
+  height:100%!important;
+  width:100%!important;
+}
+body.lab-map-active #kaple-guide .kaple-portrait{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+@media(max-width:1050px){
+  body.lab-map-active .lab-game-hud{padding-left:200px!important;gap:7px;}
+  body.lab-map-active .lab-player-compact{width:176px!important;padding:5px;}
+  body.lab-map-active .lab-player-figure img{width:49px;height:56px;}
+  body.lab-map-active .lab-player-meta b{font-size:15px;}
+  body.lab-map-active .lab-friend-compact{width:205px!important;padding:6px;}
+  body.lab-map-active .lab-map-title{padding-left:195px!important;padding-right:215px!important;}
+  body.lab-map-active button.lab-next-play{width:190px!important;max-width:190px!important;flex-basis:190px!important;font-size:19px!important;right:13px!important;}
+  body.lab-map-active #kaple-guide{width:225px!important;}
+  body.lab-map-active .lab-main-nav{padding-left:180px!important;padding-right:22px!important;}
+}
+@media(max-width:700px){
+  body.lab-map-active .lab-map-home{grid-template-rows:120px 70px minmax(320px,1fr) 72px!important;min-height:595px;}
+  body.lab-map-active #kaple-guide{top:116px!important;height:155px!important;width:170px!important;}
+  body.lab-map-active .lab-game-hud{padding-left:130px!important;padding-right:4px!important;gap:5px;}
+  body.lab-map-active .lab-player-compact{width:137px!important;}
+  body.lab-map-active .lab-player-figure img{width:34px;height:44px;}
+  body.lab-map-active .lab-player-meta b{font-size:12px;}
+  body.lab-map-active .lab-player-meta button{font-size:9px;}
+  body.lab-map-active .lab-friend-compact{width:146px!important;}
+  body.lab-map-active .lab-friend-compact b{font-size:10px;}
+  body.lab-map-active .lab-map-title{padding:0 115px 0 150px!important;}
+  body.lab-map-active .lab-map-title h2{font-size:21px!important;}
+  body.lab-map-active .lab-map-title>span,body.lab-map-active .lab-map-title p{font-size:9px!important;}
+  body.lab-map-active button.lab-next-play{top:158px!important;right:7px!important;width:108px!important;max-width:108px!important;height:52px!important;max-height:52px!important;padding:4px!important;flex-basis:108px!important;font-size:12px!important;}
+  body.lab-map-active button.lab-next-play small{font-size:9px!important;}
+  body.lab-map-active .lab-world-name{font-size:9px!important;min-width:0;}
+  body.lab-map-active .lab-world-count{font-size:8px!important;}
+  body.lab-map-active .lab-world-node{width:55px!important;}
+  body.lab-map-active .lab-world-pin{width:30px!important;height:30px!important;font-size:14px!important;}
+  body.lab-map-active .lab-main-nav{padding:3px 8px!important;gap:5px!important;}
+  body.lab-map-active .lab-main-nav button{height:53px!important;font-size:12px!important;white-space:normal!important;}
+}
