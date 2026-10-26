@@ -1,4 +1,5 @@
 import {starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
+import {queueStudentSync} from './central-sync.mjs?v=20261026-central';
 import {showClassReport} from './class-report.mjs?v=20261026';
 import {segmentHitsRect} from './collision.mjs';
 import {saveKey,legacyKey,copyLegacy,isClaimed} from './identity.mjs?v=20261021-class24';
@@ -26,7 +27,7 @@ function ratingIsComplete(){return criteria.every((_,i)=>[1,2,3].includes(state.
 function autoRateIfDue(){if(!teacher||!number||!state?.hero||state.pendingRescue||document.hidden)return;const clock=schoolClock();if(autoRateEligibleDate!==clock.date||clock.hour!==9||clock.minute!==0||state.lastRatingDate===clock.date)return;const identity=teacher.id+'/'+number+'/'+clock.date;if(autoPrompted.has(identity))return;autoPrompted.add(identity);autoRateEligibleDate=null;if(app.querySelector('#rate-submit'))return;rateScreen(document.body.classList.contains('playing')?'play':'home')}
 let teacher=null,number,state,drag=null,worldDrag=null,task=null,shopReturn='home',hazardFrame=0,celebrationTimer=0;const key=(n,t=teacher)=>saveKey(t.id,n);
 function fresh(){return {version:1,hero:null,land:lands[0].id,round:0,stage:0,stars:0,level:0,friends:[],records:[],current:null,checks:{},ownedWorlds:[],homes:{},friendLevels:{},collection:[],pendingRescue:null}}
-function save(){state.teacherId=teacher.id;state.teacherName=teacher.name;state.studentNumber=number;try{localStorage.setItem(key(number),JSON.stringify(state))}catch(e){$('#feedback')&&( $('#feedback').textContent='Progress cannot save on this browser. Tell your teacher.')}}
+function save(){state.teacherId=teacher.id;state.teacherName=teacher.name;state.studentNumber=number;try{localStorage.setItem(key(number),JSON.stringify(state))}catch(e){$('#feedback')&&( $('#feedback').textContent='Progress cannot save on this browser. Tell your teacher.')}queueStudentSync(teacher,number,state)}
 function speak(text){if(!('speechSynthesis'in window)){alert('Read aloud is not available in this browser. Ask your teacher to read with you.');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.82;speechSynthesis.speak(u)}
 function reader(text){return `<button class="speaker" data-read="${encodeURIComponent(text)}" aria-label="Read aloud">🔊</button>`}
 function heading(title,text=''){return `<h2>${title}${reader(title+'. '+text)}</h2>${text?`<p>${text}</p>`:''}`}
@@ -133,7 +134,7 @@ function submitRating(){
  if(!ratingIsComplete())return;
  const today=schoolClock().date,answers={...state.ratingDraft};
  state.records.push({type:'skill-rating',round:state.round,ratings:answers,submittedAt:Date.now(),submittedDate:today});
- state.lastRatingDate=today;save();
+ state.lastRatingDate=today;save();queueStudentSync(teacher,number,state,'rating');
  shell(`<div class="center rate-thanks"><h2>⭐ Great job!</h2><p>Your four star ratings have been saved for Ms. Kaple.</p><p>Student #${number} · ${esc(teacher.name)}</p><button class="primary" id="rate-done">Back to adventure ▶</button></div>`);
  $('#rate-done').onclick=()=>ratingReturn==='play'?play():home();
 }
