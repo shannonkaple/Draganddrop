@@ -154,3 +154,27 @@ body:has(.arrow-style-home) .game-menu button{min-height:41px}
  .arrow-world-node{min-height:55px!important}
 }
 @media(prefers-reduced-motion:reduce){.arrow-world-pin{transition:none!important}}
+
+
+/* Homebody Club's display lettering is ALWAYS UPPERCASE. */
+@font-face{font-family:"HOMEBODY CLUB";src:url('https://shannonkaple.github.io/Taskscreen/KAHomebodyClub.ttf') format('truetype');font-display:swap}
+.arrow-style-home .arrow-player-details h2,
+.arrow-style-home .arrow-friend-info strong,
+.arrow-style-home .arrow-map-heading h2,
+.arrow-style-home .arrow-world-name,
+.arrow-style-home .arrow-home-nav button,
+.arrow-style-home .arrow-next-play,
+.arrow-style-home .arrow-map2-locked,
+.arrow-style-home .arrow-friend-info>small,
+.arrow-style-home .arrow-player-details>small{
+ font-family:"HOMEBODY CLUB",Homebody,VAG,sans-serif!important;
+ text-transform:uppercase!important;
+}
+.campaign-level-screen h2,
+.campaign-level-screen .campaign-level small,
+.campaign-level-screen .campaign-level-footer button,
+.campaign-win h2,
+.campaign-win h3{
+ font-family:"HOMEBODY CLUB",Homebody,VAG,sans-serif!important;
+ text-transform:uppercase!important;
+}
