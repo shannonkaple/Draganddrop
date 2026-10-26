@@ -1,7 +1,7 @@
 import {centralWebAppUrl} from './central-config.mjs';
 const QUEUE_KEY='ms-kaple-central-sync-queue-v1';
 let scheduled=0, sending=false;
-const enabled=()=>typeof centralWebAppUrl==='string'&&/^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(centralWebAppUrl.trim());
+const enabled=()=>typeof centralWebAppUrl==='string'&&/^https:\/\/script\.google\.com\/(?:a\/macros\/centralcss\.org\/s|macros\/s)\/[A-Za-z0-9_-]+\/exec$/.test(centralWebAppUrl.trim());
 function queued(){
  try{const result=JSON.parse(localStorage.getItem(QUEUE_KEY)||'[]');return Array.isArray(result)?result:[]}
  catch{return []}
@@ -61,7 +61,7 @@ export async function flushStudentSync(){
    try{
     // Text/plain + no-cors avoids browser preflight and works with Apps Script's /exec URL.
     // The response is opaque, so use the private Sheet to VERIFY receipt; do not claim confirmed success.
-    await fetch(centralWebAppUrl,{method:'POST',mode:'no-cors',
+    await fetch(centralWebAppUrl,{method:'POST',mode:'no-cors',credentials:'include',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body:JSON.stringify(item),keepalive:true});
     const list=queued();
