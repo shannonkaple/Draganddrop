@@ -185,3 +185,18 @@ body.adventure-mode .lab-map-title {
 
 /* Play Next stays wholly above the illustrated world map. */
 body.lab-map-active #continue-adventure.lab-next-play{top:169px!important;height:51px!important;max-height:51px!important;}
+
+
+/* Rescue remains available when students return to Candy World after their third maze. */
+.lab-candy-heading .lab-candy-rescue {
+  background:linear-gradient(#ffe58e,#f6b334);color:#523369;
+  border:2px solid #fff;border-radius:17px;padding:7px 11px;
+  box-shadow:0 3px 0 #ca912e;white-space:nowrap;
+  font:12px VAG,Arial,sans-serif;
+}
+@media(max-width:900px) {
+ .lab-candy-heading .lab-candy-rescue {font-size:10px;padding:5px 7px;}
+}
+@media(max-width:700px) {
+ .lab-candy-heading:has(.lab-candy-rescue) .lab-candy-progress {display:none;}
+}
