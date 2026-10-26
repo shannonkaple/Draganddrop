@@ -12,6 +12,7 @@ const TEACHERS={
  "class-13":"Toler","class-14":"Tucker","class-15":"Homeroom 15",
  "class-16":"Sims","class-17":"Juvenal","class-18":"Rizzutto"
 };
+const SPREADSHEET_ID="1vQLEDi8Jp_3ZCgLRrxDX5sN7MjUaBlc4lOPI20OtHzI";
 const STUDENTS_TAB="Students", HISTORY_TAB="Rating History";
 const STU_HEADERS=[
  "Teacher ID","Teacher","Student #","Last sync UTC","Last rating UTC",
@@ -26,7 +27,7 @@ const HISTORY_HEADERS=[
  "Click & hold (1-3)","Drag (1-3)","Drop (1-3)","Submission ID"
 ];
 function initialize(){
- const ss=SpreadsheetApp.getActiveSpreadsheet();
+ const ss=SpreadsheetApp.openById(SPREADSHEET_ID);
  if(!ss)throw new Error("Open this script from the teacher's Google Sheet.");
  const students=ss.getSheetByName(STUDENTS_TAB)||ss.insertSheet(STUDENTS_TAB);
  const ratings=ss.getSheetByName(HISTORY_TAB)||ss.insertSheet(HISTORY_TAB);
@@ -83,7 +84,7 @@ function doPost(e){
   if(p.kind==="rating"&&!ratings)return result_("four ratings required");
   lock=LockService.getScriptLock();
   if(!lock.tryLock(20000))return result_("busy — client may retry");
-  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const ss=SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet=studentsSheet_(ss);
   const now=new Date().toISOString();
   let row=findRow_(sheet,p.teacherId,studentNo);
