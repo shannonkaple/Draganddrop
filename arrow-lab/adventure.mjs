@@ -1,7 +1,7 @@
 import {tellGuide,starIcon} from './viewport.mjs?v=lab1';
 import {decorations,worldCosts} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 
-import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=lab64-spread2';
+import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=candyworld1';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
@@ -11,7 +11,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
  const worldThemes=[
- {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/arrow-lab/scenes/candy.jpg'},
+ {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/arrow-lab/scenes/candy.jpg?v=candyworld1'},
  {name:'Pirate',icon:'🏴‍☠️',id:'pirate',color:'#d39a54',backgroundImage:'/arrow-lab/scenes/pirate.jpg'},
  {name:'Arctic',icon:'🐧',id:'arctic',color:'#60c4f3',backgroundImage:'/arrow-lab/scenes/arctic.jpg'},
  {name:'Castle',icon:'🏰',id:'castle',color:'#9c7cdd',backgroundImage:'/arrow-lab/scenes/castle.jpg'},
