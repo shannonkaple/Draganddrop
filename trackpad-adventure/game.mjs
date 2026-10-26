@@ -44,7 +44,7 @@ function changeCharacter(from='home'){characterReturn=from;choose(true)}
 function choose(changing=false){shell(`<div class="center">${changing?'<button id="cancel-character">← Back</button>':''}${heading('Pick your player',state.reselectGuide?'Ms. Kaple and Rigby are your guides. Choose an adventure player. Your progress and stars are saved.':'Choose a player. Your stars, rescues, and adventure stay saved. Each player keeps its own power-ups.')}<div class="cards">${players.map(c=>`<button class="card" data-hero="${c.id}"><img src="${image(c,Math.max(state.playerLevels?.[c.id]||0,state.friendLevels[c.id]||0))}" alt="">${c.name}${c.id===state.hero?' · Your player ✓':''}</button>`).join('')}</div></div>`);if(changing)$('#cancel-character').onclick=()=>characterReturn==='shop'?stuff():home()}
 
 function mapSummary(){const c=campaign(state),hero=characters.find(x=>x.id===state.hero),n=c.completed.reduce((x,v)=>x+v,0);
- const currentWorld=adventureWorlds[c.unlocked];const friends=state.friends.map(id=>characters.find(ch=>ch.id===id)).filter(Boolean);return `<div class="campaign-profile"><img src="${image(hero,state.level)}" alt="${esc(hero.name)}"><div><strong>${esc(hero.name)} · ${esc(teacher.name)} #${number}</strong><small>📍 ${currentWorld.name} · ${n}/64 activities · ⭐ ${state.stars} stars</small><div class="campaign-friend-row" aria-label="Your rescued friends">${friends.map(ch=>`<img src="${image(ch,Math.min(2,state.friendLevels[ch.id]||0))}" alt="${esc(ch.name)}" title="${esc(ch.name)}">`).join('')||'<small>Rescued friends will appear here.</small>'}</div></div><button id="change-character">Change</button></div>`;}
+ const currentWorld=adventureWorlds[c.unlocked];const friends=state.friends.map(id=>characters.find(ch=>ch.id===id)).filter(Boolean);const earnedCompanions=adventureWorlds.filter(w=>c.companions.includes(w.id));return `<div class="campaign-profile"><img src="${image(hero,state.level)}" alt="${esc(hero.name)}"><div><strong>${esc(hero.name)} · ${esc(teacher.name)} #${number}</strong><small>📍 ${currentWorld.name} · ${n}/64 activities · ⭐ ${state.stars} stars</small><div class="campaign-friend-row" aria-label="Your rescued friends">${friends.map(ch=>`<img src="${image(ch,Math.min(2,state.friendLevels[ch.id]||0))}" alt="${esc(ch.name)}" title="${esc(ch.name)}">`).join('')}${earnedCompanions.map(w=>`<span class="campaign-companion" title="${esc(w.companion)}" aria-label="Earned ${esc(w.companion)}">${w.companionIcon}</span>`).join('')}${!friends.length&&!earnedCompanions.length?'<small>Rescued friends will appear here.</small>':''}</div></div><button id="change-character">Change</button></div>`;}
 function home(){
  if(state.pendingRescue){rescueFlow();return}
  const c=campaign(state),allDone=c.completed.every(n=>n===8);
@@ -76,7 +76,7 @@ function worldLevelMap(){
  }).join('');
  shell(`<section class="campaign-level-screen"><div class="campaign-level-header"><button id="back-worlds">← All Worlds</button><div><h2>${w.icon} ${w.name}</h2><p>${c.completed[c.current]} / 8 activities finished · ${w.action}</p></div><strong>⭐ ${state.stars}</strong></div>
  <div class="campaign-level-map" style="background-image:url('${mapPath(w)}')" role="group" aria-label="Eight levels in ${w.name}">${buttons}</div>
- <div class="campaign-level-footer"><span>Friend: <strong>${esc(characters.find(x=>x.id===friendForWorld(c.current))?.name||'Adventure friend')}</strong> ${finished?'✓ Unlocked at world completion':'🔒 Finish level 8 to earn'}</span>
+ <div class="campaign-level-footer"><span>World friend: <strong>${w.companionIcon} ${esc(w.companion)}</strong> ${finished?'✓ Rescued':'🔒 Finish level 8 to rescue'}</span>
  <button id="campaign-continue" class="primary">${finished?'Replay the World Challenge':'▶ Start Level '+(c.completed[c.current]+1)}</button></div></section>`);
  $('#back-worlds').onclick=home;
  app.querySelectorAll('[data-campaign-level]').forEach(b=>b.onclick=()=>startCampaignActivity(Number(b.dataset.campaignLevel)));
@@ -103,7 +103,7 @@ function campaignLevelFinished(){
  state.ownedWorlds??=[];if(!state.ownedWorlds.includes(w.land))state.ownedWorlds.push(w.land);
  state.land=w.land;
  if(newProgress&&c.completed[i]===8&&!c.awarded.includes(i)){
-  c.awarded.push(i);
+  c.awarded.push(i);c.companions??=[];if(!c.companions.includes(w.id))c.companions.push(w.id);
   const friend=friendForWorld(i),character=characters.find(x=>x.id===friend);
   let gained=false;
   if(friend!==state.hero&&!state.friends.includes(friend)){
@@ -114,7 +114,7 @@ function campaignLevelFinished(){
   const next=isWorldUnlocked(state,i+1)&&i<7;
   shell(`<section class="campaign-win"><h2>🎉 ${w.name} Complete!</h2><p>All 8 levels finished!</p>
     <img src="${image(character,Math.max(state.friendLevels[friend]||0,state.playerLevels?.[friend]||0))}" alt="${esc(character.name)}">
-    <h3>${gained?esc(character.name)+' joined your rescued friends!':esc(character.name)+' is already on your team! +3 bonus stars'}</h3>
+    <h3>${w.companionIcon} You rescued ${esc(w.companion)}!</h3><p>${gained?esc(character.name)+' also joined your playable friends!':esc(character.name)+' was already on your team! +3 bonus stars'}</p>
     <p>⭐ ${state.stars} stars saved · ${state.friends.length} rescued friends</p>
     <button id="win-map" class="primary">${next?'Unlock '+adventureWorlds[i+1].name+' →':'Back to World Map →'}</button></section>`);
   $('#win-map').onclick=()=>{if(next)openCampaignWorld(i+1);else home()};
