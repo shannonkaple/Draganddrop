@@ -51,7 +51,7 @@ body:has(.arrow-style-home) .game-menu button{min-height:41px}
 .arrow-map-heading p{font:12px VAG,Arial,sans-serif;margin:0!important;color:#346394}
 .arrow-world-stage{
  flex:1;min-height:218px;position:relative;
- background-image:url('./maps/overview.svg?v=arrow-style-home1');background-position:center;
+ background-image:url('./maps/overview.jpg?v=20261026-jpeg2');background-position:center;
  background-size:100% 100%;background-repeat:no-repeat;
  border:3px solid #ffffffcb;border-radius:21px;box-shadow:inset 0 0 16px #fff6,0 5px 13px #27568039;
 }
