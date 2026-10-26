@@ -117,8 +117,32 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   $('endless').onclick=()=>{save();cleanup();goPractice()};
   document.querySelectorAll('[data-world-index]').forEach(b=>b.onclick=()=>openWorld(Number(b.dataset.worldIndex)));
  }
+
+ function openCandyWorld(){
+   view='world-select';
+   const positions=[[9.6,61],[25.5,44],[34.8,71],[43.2,45],[58,73],[69.3,47],[81.7,72],[91.6,44]];
+   const points=levels.slice(0,8).map((l,k)=>{
+     const done=a.completedLevelIds.includes(l.id),unlocked=l.number<=a.highestUnlockedLevel;
+     return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" '+(unlocked?'':'disabled')+
+       ' aria-label="Candy maze '+(k+1)+': '+candyNames[k]+(done?', completed':unlocked?', play':', locked')+'">'+
+       '<span class="lab-candy-status">'+(done?'⭐ DONE':unlocked?'▶ PLAY':'🔒 LOCKED')+'</span>'+
+       '<span class="lab-candy-name">'+candyNames[k].toUpperCase()+'</span></button>';
+   }).join('');
+   shell('Candy World',
+     '<section class="lab-candy-world" aria-label="Candy World map with eight playable mazes">'+
+       '<div class="lab-candy-heading"><button type="button" id="lab-back-map">← ALL WORLDS</button>'+
+       '<div><small>WORLD 1 • 8 SWEET MAZES</small><h2>🍬 CANDY WORLD</h2></div>'+
+       '<div class="lab-candy-progress">'+worldDoneCount(0)+' / 8 COMPLETE</div></div>'+
+       '<div class="lab-candy-scenery" role="group" aria-label="Eight stops along the Candyland rainbow road">'+points+'</div>'+
+       '<nav class="lab-candy-actions"><button data-nav="map">🏠 HOME</button><button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">💻 MY COLLECTIONS</button></nav>'+
+     '</section>');
+   $('lab-back-map').onclick=map;
+   document.querySelectorAll('.lab-candy-node[data-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.level)));
+ }
+
  function openWorld(i){
    if(!isWorldUnlocked(i))return map();
+   if(i===0)return openCandyWorld();
    const world=worldThemes[i];
    view='world-select';
    const cards=levels.slice(i*8,i*8+8).map((l,k)=>{
