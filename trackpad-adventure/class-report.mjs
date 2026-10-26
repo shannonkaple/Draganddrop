@@ -18,6 +18,7 @@ function loadStudent(teacherId,studentNumber,saveKey){
  if(data.current&&Array.isArray(data.current.done))activities.push(data.current);
  return {
   number:studentNumber,
+  date:(()=>{const times=[data.lastInteractionAt||0,data.current?.started||0,...records.map(r=>r.finished||r.submittedAt||0)].map(Number).filter(Number.isFinite);const stamp=Math.max(0,...times);return stamp?new Date(stamp).toLocaleDateString('en-US'):'—'})(),
   latest,
   submissions:submissions.length,
   ratings:latest?.ratings||null,
@@ -60,10 +61,11 @@ export function showClassReport({teacher,saveKey,shell,onBack}){
  const studentRows=students.map((s,i)=>{
   const name=escapeHtml((i+1)+"-"+teacher.name);
   const cells=s?[
+    escapeHtml(s.date),
     String(s.drops),
     String(s.attempts),
     ...[0,1,2,3].map(i=>escapeHtml(labels[answer(s,i)]||"Not submitted"))
-  ]:["—","—","Not submitted","Not submitted","Not submitted","Not submitted"];
+  ]:["—","—","—","Not submitted","Not submitted","Not submitted","Not submitted"];
   return `<tr><th scope="row">${name}</th>${cells.map(x=>"<td>"+x+"</td>").join("")}</tr>`;
  }).join("");
  shell(`<section class="class-report">
@@ -73,8 +75,8 @@ export function showClassReport({teacher,saveKey,shell,onBack}){
  <h3>At a glance — student self-ratings</h3>
  <table class="report-summary"><thead><tr><th>Skill</th><th>⭐ Need help</th><th>⭐⭐ Practicing</th><th>⭐⭐⭐ On my own</th></tr></thead><tbody>${summary}</tbody></table>
  <h3>Student results by homeroom number</h3>
- <table class="report-summary report-observation"><thead><tr><th>Student</th><th>Successful drops</th><th>Attempts</th><th>Both hands</th><th>Click & hold</th><th>Drag</th><th>Drop</th></tr></thead><tbody>${studentRows}</tbody></table>
- <p class="report-footer">One attempt starts when a child presses a draggable item; a success requires placing the correct item in the backpack. Four skill answers are the student's latest self-ratings. In-progress and completed activities are counted.</p>
+ <table class="report-summary report-observation"><thead><tr><th>Student</th><th>Date</th><th>Successful drops</th><th>Attempts</th><th>Both hands</th><th>Click & hold</th><th>Drag</th><th>Drop</th></tr></thead><tbody>${studentRows}</tbody></table>
+ <p class="report-footer">One attempt starts when a child presses a draggable item; a success requires placing the correct item in the backpack. Date is the student's latest recorded activity or rating date. Four skill answers are the student's latest self-ratings. In-progress and completed activities are counted.</p>
  </section>`);
  document.getElementById("report-back").onclick=onBack;
  document.getElementById("report-print").onclick=()=>window.print();

@@ -126,3 +126,12 @@ body.playing .adventure-field.layout-3 .bad-guy.hazard-1{left:58%!important;top:
  .class-report .report-header h2{font-size:19px!important}
  .class-report .report-summary small{font-size:9px}
 }
+
+
+/* Dated teacher roster: 8 columns kept printable on letter landscape. */
+.class-report .report-observation th:first-child{width:13%}
+.class-report .report-observation th:nth-child(2){width:11%;white-space:nowrap}
+.class-report .report-observation th:nth-child(3),
+.class-report .report-observation th:nth-child(4){width:10%}
+.class-report .report-observation th:nth-child(n+5){width:14%}
+@media print{.class-report .report-observation{font-size:9.5px}}
