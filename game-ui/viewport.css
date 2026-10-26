@@ -197,3 +197,9 @@ body:not(.playing) .campaign-home,body:not(.playing) .campaign-level-screen{widt
  .campaign-stop strong{font-size:13px}.campaign-stop small{font-size:11px}
  .campaign-profile{min-height:65px}.campaign-profile img{width:55px;height:55px}
 }
+
+
+.campaign-friend-row{display:flex;gap:4px;align-items:center;flex-wrap:wrap;min-height:23px}
+.campaign-friend-row img{width:clamp(25px,3vw,40px)!important;height:clamp(25px,3vw,40px)!important;background:#f4f9ff;border:1.5px solid #273258;border-radius:50%;object-fit:contain}
+.campaign-friend-row small{font-size:12px;opacity:.8}
+@media(max-height:740px) and (min-width:760px){.campaign-friend-row img{width:26px!important;height:26px!important}}
