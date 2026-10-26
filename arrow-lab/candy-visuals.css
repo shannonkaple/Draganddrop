@@ -182,3 +182,6 @@ body.adventure-mode .lab-map-title {
  .lab-candy-actions {gap:4px;padding:0;}
  .lab-candy-actions button {font-size:10px;}
 }
+
+/* Play Next stays wholly above the illustrated world map. */
+body.lab-map-active #continue-adventure.lab-next-play{top:169px!important;height:51px!important;max-height:51px!important;}
