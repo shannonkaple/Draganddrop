@@ -69,8 +69,8 @@ function mapSummary(){
 function home(){
  if(state.pendingRescue){rescueFlow();return}
  const c=campaign(state),allDone=c.completed.every(n=>n===8);
- // Same eight-island rainbow path and stop positions as our Arrow Adventure home.
- const coords=[[9.4,68],[20.6,44],[32.1,70],[44.1,38],[56.7,65],[68.2,35],[80,57],[90.7,29]];
+ // Align interactive world nodes to the new eight-island backdrop.
+ const coords=[[13,27],[38,27],[63,27],[87,26],[13,73],[38,72],[63,73],[87,71]];
  const nodes=adventureWorlds.map((w,i)=>{
   const unlocked=isWorldUnlocked(state,i),done=c.completed[i],active=unlocked&&!allDone&&i===c.unlocked;
   const position=coords[i],status=done===8?'completed':active?'current':unlocked?'available':'locked';
