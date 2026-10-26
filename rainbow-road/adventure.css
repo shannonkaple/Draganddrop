@@ -17,7 +17,7 @@ h1,h2,h3,.brand{font-family:Homebody,VAG,sans-serif;text-transform:uppercase;fon
 
 
 /* Game-like home screen: cosmetic overlay on top of existing saved game. */
-body.adventure-mode:has(.aa-home){background:#8cd9ff;}
+body.adventure-mode:has(.aa-home){background:linear-gradient(180deg,#ffffff18,#73d8ff24),url('../game-assets/backgrounds/cloud_kingdom_day.webp') center center /cover fixed no-repeat #8cd9ff;}
 body.adventure-mode:has(.aa-home) #app{overflow:visible;}
 body.adventure-mode:has(.aa-home) .adventure-nav{background:#ffffffed;border:1px solid #fffc;border-radius:24px;box-shadow:0 5px 18px #215c8a35;padding:8px 18px;margin-bottom:7px;min-height:52px;}
 body.adventure-mode:has(.aa-home) .adventure-nav strong{font-size:18px;color:#123368;}
