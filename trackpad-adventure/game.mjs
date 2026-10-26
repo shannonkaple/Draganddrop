@@ -70,7 +70,7 @@ function home(){
  if(state.pendingRescue){rescueFlow();return}
  const c=campaign(state),allDone=c.completed.every(n=>n===8);
  // Align interactive world nodes to the new eight-island backdrop.
- const coords=[[13,27],[38,27],[63,27],[87,26],[13,73],[38,72],[63,73],[87,71]];
+ const coords=[[13,31],[38.5,29],[63,31],[89,31],[10,79],[39,79],[63.5,79],[89,79]];
  const nodes=adventureWorlds.map((w,i)=>{
   const unlocked=isWorldUnlocked(state,i),done=c.completed[i],active=unlocked&&!allDone&&i===c.unlocked;
   const position=coords[i],status=done===8?'completed':active?'current':unlocked?'available':'locked';
