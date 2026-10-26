@@ -34,7 +34,7 @@ function speak(text){if(!('speechSynthesis'in window)){alert('Read aloud is not 
 function reader(text){return `<button class="speaker" data-read="${encodeURIComponent(text)}" aria-label="Read aloud">🔊</button>`}
 function heading(title,text=''){return `<h2>${title}${reader(title+'. '+text)}</h2>${text?`<p>${text}</p>`:''}`}
 function topMenu(){return `<nav class="game-menu" aria-label="Game menu"><span class="menu-balance">⭐ ${state.stars} stars</span><button data-top="home"><span>🏠</span>Home</button><button data-top="play"><span>▶️</span>Play</button><button data-top="worlds"><span>🌍</span>Worlds</button><button data-top="rate" class="rate-top"><span>⭐</span>RATE</button><button data-top="shop" class="star-shop-button">${starIcon}<span>Star Shop</span></button></nav>`}
-function shell(html){stopHazards();clearTimeout(celebrationTimer);$('#confetti').replaceChildren();app.classList.remove('celebrate');document.body.classList.remove('playing','world-playing');cancelWorldDrag();cancelDrag();if('speechSynthesis'in window)speechSynthesis.cancel();app.innerHTML=(number&&state?.hero?topMenu():'')+html;app.querySelectorAll('[data-top]').forEach(b=>b.onclick=()=>{const from=document.body.classList.contains('playing')?'play':shopReturn;switch(b.dataset.top){case 'home':home();break;case 'play':resumeCampaign();break;case 'worlds':home();break;case 'rate':rateScreen(from);break;case 'shop':shopReturn=from;shopTab='menu';stuff();break;}});$('#account').innerHTML=number?`<button id="logout">${esc(teacher.name)} · #${number} · Switch student</button>`:'';$('#logout')?.addEventListener('click',()=>{number=null;teacher=null;login()});window.scrollTo(0,0)}
+function shell(html){stopHazards();clearTimeout(celebrationTimer);$('#confetti').replaceChildren();app.classList.remove('celebrate');document.body.classList.remove('playing','world-playing');cancelWorldDrag();cancelDrag();if('speechSynthesis'in window)speechSynthesis.cancel();app.innerHTML=(number&&state?.hero?topMenu():'')+html;app.querySelectorAll('[data-top]').forEach(b=>b.onclick=()=>{const from=document.body.classList.contains('playing')?'play':shopReturn;switch(b.dataset.top){case 'home':home();break;case 'play':resumeCampaign();break;case 'worlds':home();break;case 'rate':rateScreen(from);break;case 'shop':shopReturn=from;shopTab='upgrades';stuff();break;}});$('#account').innerHTML=number?`<button id="logout">${esc(teacher.name)} · #${number} · Switch student</button>`:'';$('#logout')?.addEventListener('click',()=>{number=null;teacher=null;login()});window.scrollTo(0,0)}
 function confetti(){$('#confetti').replaceChildren();clearTimeout(celebrationTimer);requestAnimationFrame(()=>app.classList.add('celebrate'));celebrationTimer=setTimeout(()=>app.classList.remove('celebrate'),700)}
 
 function login(){number=null;autoRateEligibleDate=null;shell(`<div class="center">${heading('1. Pick your teacher','Choose your homeroom teacher. Then choose your classroom number.')}<div class="cards teacher-cards">${teachers.map(t=>`<button data-teacher="${t.id}">${esc(t.name)}</button>`).join('')}</div><details><summary>For the teacher</summary><button id="download">Download this device’s results</button><details><summary>Assign previous number-only progress</summary><p class="note">Old saves have no class label. Choose the class that owns the old saves on this device. This copies unassigned progress into empty slots only, keeps the original backups, and never replaces existing teacher-and-number progress.</p><label for="migration-pin">Teacher code</label><input id="migration-pin" type="password" inputmode="numeric" autocomplete="off"><div class="cards">${teachers.map(t=>`<button data-import="${t.id}">Assign old saves to ${esc(t.name)}</button>`).join('')}</div><p id="migration-status" role="status"></p></details><p class="note">Progress saves on this browser by teacher and student number. Each class has separate slots. Use the same browser and device to resume. Homeroom 15 is the remaining unnamed slot in the existing class list.</p></details></div>`);$('#download').onclick=download;app.querySelectorAll('[data-import]').forEach(b=>b.onclick=()=>{if($('#migration-pin').value!=='8714'){$('#migration-status').textContent='Enter the teacher code first.';return}const count=copyLegacy(localStorage,b.dataset.import);$('#migration-status').textContent=`Copied ${count} old saves. Original backups were kept.`})}
@@ -43,27 +43,76 @@ let characterReturn='home';
 function changeCharacter(from='home'){characterReturn=from;choose(true)}
 function choose(changing=false){shell(`<div class="center">${changing?'<button id="cancel-character">← Back</button>':''}${heading('Pick your player',state.reselectGuide?'Ms. Kaple and Rigby are your guides. Choose an adventure player. Your progress and stars are saved.':'Choose a player. Your stars, rescues, and adventure stay saved. Each player keeps its own power-ups.')}<div class="cards">${players.map(c=>`<button class="card" data-hero="${c.id}"><img src="${image(c,Math.max(state.playerLevels?.[c.id]||0,state.friendLevels[c.id]||0))}" alt="">${c.name}${c.id===state.hero?' · Your player ✓':''}</button>`).join('')}</div></div>`);if(changing)$('#cancel-character').onclick=()=>characterReturn==='shop'?stuff():home()}
 
-function mapSummary(){const c=campaign(state),hero=characters.find(x=>x.id===state.hero),n=c.completed.reduce((x,v)=>x+v,0);
- const currentWorld=adventureWorlds[c.unlocked];const friends=state.friends.map(id=>characters.find(ch=>ch.id===id)).filter(Boolean);const earnedCompanions=adventureWorlds.filter(w=>c.companions.includes(w.id));return `<div class="campaign-profile"><img src="${image(hero,state.level)}" alt="${esc(hero.name)}"><div><strong>${esc(hero.name)} · ${esc(teacher.name)} #${number}</strong><small>📍 ${currentWorld.name} · ${n}/64 activities · ⭐ ${state.stars} stars</small><div class="campaign-friend-row" aria-label="Your rescued friends">${friends.map(ch=>`<img src="${image(ch,Math.min(2,state.friendLevels[ch.id]||0))}" alt="${esc(ch.name)}" title="${esc(ch.name)}">`).join('')}${earnedCompanions.map(w=>`<span class="campaign-companion" title="${esc(w.companion)}" aria-label="Earned ${esc(w.companion)}">${w.companionIcon}</span>`).join('')}${!friends.length&&!earnedCompanions.length?'<small>Rescued friends will appear here.</small>':''}</div></div><button id="change-character">Change</button></div>`;}
+
+function mapSummary(){
+ const c=campaign(state),hero=characters.find(x=>x.id===state.hero),total=c.completed.reduce((x,v)=>x+v,0);
+ const world=adventureWorlds[c.unlocked],done=c.completed[c.unlocked];
+ const friends=state.friends.map(id=>characters.find(x=>x.id===id)).filter(Boolean);
+ const companions=adventureWorlds.filter(w=>c.companions.includes(w.id));
+ const complete=c.completed.every(n=>n===8),remaining=8-done;
+ return '<div class="arrow-map-hud">'+
+   '<section class="arrow-player-card" aria-label="My character"><img class="arrow-player-art" src="'+image(hero,state.level)+'" alt="'+esc(hero.name)+'">'+
+   '<div class="arrow-player-details"><small>MY CHARACTER</small><h2>'+esc(hero.name)+'</h2>'+
+   '<span class="arrow-player-location">📍 '+esc(world.name)+'</span>'+
+   '<span class="arrow-student-id">'+esc(teacher.name)+' #'+number+' · '+total+'/64 levels</span>'+
+   '<button type="button" id="change-character">Change Character ›</button></div></section>'+
+   '<section class="arrow-friend-card" aria-label="Next rescued friend"><div class="arrow-friend-info"><small>NEXT FRIEND</small>'+
+   '<strong>'+(complete?'All 8 world friends rescued!':world.companionIcon+' '+esc(world.companion))+'</strong>'+
+   '<div class="arrow-friend-meter" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="'+done+'"><i style="width:'+(done/8*100)+'%"></i></div>'+
+   '<span>'+(complete?'64 of 64 activities finished':remaining+' '+(remaining===1?'activity':'activities')+' to rescue · '+done+'/8 done')+'</span>'+
+   '</div><div class="arrow-friend-icon" aria-hidden="true">'+(complete?'🌟':world.companionIcon)+'</div></section>'+
+   '<div class="arrow-rewards-strip" aria-label="Stars and earned rewards"><strong>⭐ '+state.stars+' Stars</strong>'+
+   '<div aria-label="Rescued friends">'+friends.map(ch=>'<img src="'+image(ch,Math.min(2,state.friendLevels[ch.id]||0))+'" alt="'+esc(ch.name)+'" title="'+esc(ch.name)+'">').join('')+
+   companions.map(w=>'<span title="Rescued '+esc(w.companion)+'" aria-label="Rescued '+esc(w.companion)+'">'+w.companionIcon+'</span>').join('')+
+   (!friends.length&&!companions.length?'<small>Your rescued friends appear here.</small>':'')+'</div></div></div>';
+}
 function home(){
  if(state.pendingRescue){rescueFlow();return}
  const c=campaign(state),allDone=c.completed.every(n=>n===8);
- const map=adventureWorlds.map((w,i)=>{
-  const unlocked=isWorldUnlocked(state,i),done=c.completed[i],at=unlocked&&!allDone&&i===c.unlocked;
-  return `<button type="button" class="campaign-stop ${!unlocked?'locked':at?'active':'open'}" data-map-world="${i}" ${unlocked?'':'disabled aria-disabled="true"'} aria-label="${w.name}: ${unlocked?done+' of 8 activities finished':'locked'}"><span class="campaign-stop-icon">${unlocked?(done===8?w.companionIcon:w.icon):'🔒'}</span><strong>${w.name}</strong><small>${unlocked?(done===8?'✓ Friend rescued · ':'')+done+'/8':'Locked'}</small></button>`;
+ // Same eight-island rainbow path and stop positions as our Arrow Adventure home.
+ const coords=[[9.4,68],[20.6,44],[32.1,70],[44.1,38],[56.7,65],[68.2,35],[80,57],[90.7,29]];
+ const nodes=adventureWorlds.map((w,i)=>{
+  const unlocked=isWorldUnlocked(state,i),done=c.completed[i],active=unlocked&&!allDone&&i===c.unlocked;
+  const position=coords[i],status=done===8?'completed':active?'current':unlocked?'available':'locked';
+  return '<button type="button" class="arrow-world-node '+status+'" data-map-world="'+i+'" '+
+   'style="left:'+position[0]+'%;top:'+position[1]+'%" '+(!unlocked?'disabled aria-disabled="true" ':'')+
+   'aria-label="'+esc(w.name)+': '+(unlocked?done+' of 8 levels complete':'locked')+'">'+
+   '<span class="arrow-world-pin" aria-hidden="true">'+(done===8?'⭐':unlocked?'▶':'🔒')+'</span>'+
+   '<span class="arrow-world-name">'+(i+1)+'. '+esc(w.name.replace(' World',''))+'</span>'+
+   '<span class="arrow-world-status">'+(unlocked?done+' / 8':'LOCKED')+'</span></button>';
  }).join('');
- shell(`<section class="campaign-home">${mapSummary()}<h2 class="campaign-title">Choose Your World</h2><p class="campaign-subtitle">Complete all 8 activities to unlock the next world. Your stars and friends stay saved!</p>
- <div class="campaign-overview" role="group" aria-label="Eight connected game worlds">${map}</div>
- <div class="campaign-home-buttons"><button id="continue-world" class="primary">▶ ${allDone?'Replay the final world':'Keep playing · '+adventureWorlds[c.unlocked].name}</button><button id="see-my-friends">🏡 My rescued friends</button><button id="star-shop">⭐ Star Shop</button></div>
- ${allDone?'<p class="campaign-map2">🌟 All eight worlds completed! Map 2: coming soon.</p>':'<p class="campaign-map2 locked">🔒 Map 2 unlocks after all eight worlds. More places are coming later!</p>'}<details class="campaign-export"><summary>Teacher: Matching JPEG maps</summary><button id="download-maps-jpg" type="button">Download matching JPEG maps (.zip)</button></details>
- </section>`);
+ const next=adventureWorlds[allDone?7:c.unlocked],nextStep=allDone?8:c.completed[c.unlocked]+1;
+ shell('<section class="arrow-style-home" aria-label="Ms. Kaple Trackpad rainbow adventure home">'+
+    mapSummary()+
+    '<div class="arrow-map-heading"><span>🌈 8 magical worlds · 8 activities each</span><h2>Choose Your World!</h2>'+
+    '<p>Follow the rainbow road. Earn stars. Rescue friends!</p></div>'+
+    '<div class="arrow-world-stage" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+nodes+'</div>'+
+    '<div class="arrow-home-actions">'+
+      '<button type="button" id="continue-world" class="arrow-next-play">'+(allDone?'↻ REPLAY WORLD':'▶ PLAY NEXT')+' <small>'+esc(next.name)+' · Level '+nextStep+'</small></button>'+
+      '<nav class="arrow-home-nav" aria-label="Game navigation">'+
+      '<button type="button" id="arrow-nav-home" class="arrow-nav-home"><span>🏠</span>Home</button>'+
+      '<button type="button" id="star-shop" class="arrow-nav-shop"><span>⭐</span>Star Shop</button>'+
+      '<button type="button" id="see-my-friends" class="arrow-nav-friends"><span>🐾</span>My Friends</button></nav>'+
+    '</div>'+
+    '<div class="arrow-home-secondary"><span class="arrow-map2-locked">'+
+     (allDone?'🌟 All eight worlds cleared · Map 2 coming soon!':'🔒 Map 2 · Coming soon!')+'</span>'+
+     '<details class="arrow-map-more"><summary>⚙ More</summary><button type="button" id="arrow-nav-rate">⭐ RATE my skills</button>'+
+      '<button type="button" id="arrow-nav-collections">💻 My Collections</button>'+
+      '<button type="button" id="arrow-nav-levels">▶ Open Current World</button>'+
+      '<button type="button" id="download-maps-jpg">Download matching JPEG maps (.zip)</button></details></div>'+
+   '</section>');
  app.querySelectorAll('[data-map-world]').forEach(b=>b.onclick=()=>openCampaignWorld(Number(b.dataset.mapWorld)));
- $('#continue-world').onclick=()=>openCampaignWorld(allDone?7:c.unlocked);
- $('#see-my-friends').onclick=()=>{shopReturn='home';state.land=state.ownedWorlds.includes(state.land)?state.land:lands[0].id;openShop('home')};
+ $('#continue-world').onclick=()=>{if(allDone){openCampaignWorld(7);return}c.current=c.unlocked;startCampaignActivity(c.completed[c.unlocked])};
+ $('#arrow-nav-home').onclick=home;
+ $('#see-my-friends').onclick=()=>{shopReturn='home';state.land=state.ownedWorlds.includes(state.land)?state.land:lands[0].id;shopTab='upgrades';stuff()};
  $('#star-shop').onclick=()=>openShop('home');
+ $('#arrow-nav-rate').onclick=()=>rateScreen('home');
+ $('#arrow-nav-collections').onclick=()=>{shopReturn='home';shopTab='collection';stuff()};
+ $('#arrow-nav-levels').onclick=()=>openCampaignWorld(allDone?7:c.unlocked);
  $('#download-maps-jpg').onclick=e=>downloadWorldMapJpegs(e.currentTarget);
  $('#change-character').onclick=()=>changeCharacter('home');
 }
+
 function openCampaignWorld(i){
  if(!isWorldUnlocked(state,i))return;
  const c=campaign(state);c.current=i;c.level=Math.min(7,c.completed[i]);c.replay=c.completed[i]===8;save();worldLevelMap();
@@ -124,7 +173,7 @@ function campaignLevelFinished(){
 }
 
 let shopTab='menu';
-function openShop(from='home'){shopReturn=from;shopTab='menu';stuff()}
+function openShop(from='home'){shopReturn=from;shopTab='upgrades';stuff()}
 function returnFromShop(){shopReturn==='play'?play():home()}
 function decorationArt(d,shop=false){return d.art?`<img class="${shop?'decor-preview':'decor-art'}" src="trackpad-adventure/decorations/${d.art}.webp" alt="" draggable="false">`:`<span class="decor-picture">${d.emoji}</span>`}
 function stuff(){shell(`<div class="toolbar"><button id="back">← ${shopReturn==='play'?'Back to mission':'Play'}</button><button id="my-world">🏡 My world</button><button id="change-character">Change character</button><strong>⭐ ${state.stars} Drag Stars</strong></div>${heading('Spend your Drag Stars!','Every correct drag earns a star. Worlds unlock by completing activities—not by spending stars. Use stars for character power-ups, friend homes and decorations.')}<h3>🏡 Friend Home Backgrounds</h3><div class="cards">${worldCards(false)}</div><h3>🌟 Character power-ups</h3>${!state.ownedWorlds.length?'<p class="note">Buy a world first, or keep 4 stars saved for your first home.</p>':''}<div class="cards">${[...new Set([state.hero,...state.friends])].map(id=>{const c=characters.find(c=>c.id===id),level=id===state.hero?state.level:state.friendLevels[id]||0,cost=[3,5][level];return `<article class="card shop-character"><img class="level-${level}" src="${image(c,level)}" alt=""><strong>${c.name}</strong><span>${c.levels[level].name}</span>${cost?`<button data-grow="${id}" ${state.stars<cost||(!state.ownedWorlds.length&&state.stars-cost<worldCosts[0])?'disabled':''}>Power up · ⭐ ${cost}</button>`:'<span>Super Power! 🌟</span>'}${id!==state.hero?`<button data-movefriend="${id}">🏡 Choose a world</button>`:'<span>Your player</span>'}</article>`}).join('')}</div><h3>🌷 World decorations</h3><p>For ${lands.find(l=>l.id===state.land).name}. Drag your decorations around after buying them.</p><div class="cards">${decorations.map(d=>{const owned=(state.decorations[state.land]||[]).includes(d.id);return `<button class="card" data-decoration="${d.id}" ${owned||!state.ownedWorlds.includes(state.land)||state.stars<d.cost?'disabled':''}>${decorationArt(d,true)}<strong>${d.name}</strong><span>${owned?'Owned ✓':'Buy · ⭐ '+d.cost}</span></button>`}).join('')}</div>${!state.ownedWorlds.includes(state.land)?'<p>Buy this world to decorate it.</p>':''}<details><summary>🔊 My tech words & collection</summary><h3>Tech words</h3><div class="tech-words">${[['Cursor','The cursor is the pointer that shows where you are on the screen.'],['Click and hold','Press the trackpad and keep it pressed with one hand.'],['Drag','Keep the click held while your other hand moves the item.'],['Drop','Let go to put the item in its new place.'],['Hardware','Hardware is the computer equipment you can touch.'],['Software','Software is the programs and apps a computer runs.']].map(([word,meaning])=>`<p><strong>${word}</strong>: ${meaning}${reader(word+'. '+meaning)}</p>`).join('')}</div><details class="skill-glossary"><summary>🔊 Mouse & trackpad words</summary>${[['Point','Move the cursor to something on the screen.'],['Click','Press and let go once to choose something.'],['Double-click','Click twice quickly in the same place.'],['Right-click','Use a secondary click to open more choices.'],['Click and hold','Press and keep the trackpad pressed.'],['Drag','Keep the click held while moving an item.'],['Drop','Let go to put the item in a new place.'],['Scroll up','Move the page to see what is above.'],['Scroll down','Move the page to see what is below.'],['Move the cursor','Slide your finger on the trackpad to move the pointer.'],['Select','Choose an item on the screen.'],['Highlight','Mark text or an item so it is selected.'],['Hover','Rest the cursor over something without clicking.'],['Tap','Touch the trackpad lightly and lift your finger.'],['Two-finger scroll','Slide two fingers together to move up or down a page.']].map(([word,meaning])=>`<p><strong>${word}</strong>: ${meaning}${reader(word+'. '+meaning)}</p>`).join('')}</details><h3>🖥 My computer collection · ${state.collection.length}/${allItems.length}</h3><div class="collection">${allItems.map(id=>`<div class="collectible ${state.collection.includes(id)?'':'locked'}"><img src="${pic(id)}" alt=""><span>${names[id]}</span>${state.collection.includes(id)?reader(vocabulary[id]):'🔒'}</div>`).join('')}</div></details>`);$('#back').onclick=returnFromShop;$('#my-world').onclick=worldView;$('#change-character').onclick=()=>changeCharacter('shop');splitShop()}
