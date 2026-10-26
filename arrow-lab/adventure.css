@@ -124,3 +124,7 @@ body.lab-map-active #kaple-guide .rigby-portrait{right:0;bottom:3%;}
 .lab-home button:focus-visible{outline:4px solid #ffce30;outline-offset:3px;}
 [data-import-arrow]{display:none!important;}
 @media(max-width:800px){.lab-player,.lab-friend{padding:6px;min-height:95px}.lab-player>.friend-art{width:60px;height:70px}.lab-player h2{font-size:16px}.lab-map-head{padding:5px 12px}.lab-play{font-size:18px;padding:8px 12px}.lab-menu{padding-left:0;gap:5px}.lab-menu button{min-width:0;flex:1;font-size:13px;min-height:57px}.lab-secret{display:none}.lab-home{gap:6px}.lab-map-node small{font-size:9px}.lab-map-node>span{height:42px;width:42px;font-size:18px;}}
+
+/* Sandbox indicator and anchored extras menu. */
+body:has(.lab-home)>header:after{content:'TEST COPY';display:inline-flex;align-items:center;white-space:nowrap;color:#874806;background:#fff0af;border:2px solid #ffb934;border-radius:99px;font:13px VAG,Arial,sans-serif;padding:5px 10px;margin-right:8px;}
+.lab-home{position:relative;}
