@@ -39,3 +39,70 @@ body>header{margin:0!important;flex:none!important}
 .rate-bottom #rate-back{font-size:16px;min-height:45px;padding:6px 14px}
 @media(max-width:850px){.rate-questions{grid-template-columns:1fr}.rate-criterion{grid-template-columns:100px 1fr}.criterion-gif{width:100px;height:73px}.rate-criterion .rating button{min-height:48px}}
 @media(max-width:700px){#app > .game-menu + .center > .home{height:130px}#app > .game-menu + .center > .home .bubble{grid-template-columns:76px 1fr;column-gap:7px;padding:4px 8px}#app > .game-menu + .center > .home .bubble .hero{width:70px;height:70px}#app > .game-menu + .center > .home .bubble p{font-size:14px}#app > .game-menu + .center > .home .bubble small{font-size:12px}.rate-page h2{font-size:20px}.rate-criterion h3{font-size:14px}.rate-criterion .rating button{font-size:11px}}
+
+
+/* Mission variety: flip supply and backpack positions every other activity.
+   Hazard locations change with the mission; collisions still use actual rectangles. */
+body.playing .adventure-field.layout-1 .supplies,
+body.playing .adventure-field.layout-3 .supplies{
+ left:auto!important;right:3%!important;
+}
+body.playing .adventure-field.layout-1 .bag-target,
+body.playing .adventure-field.layout-3 .bag-target{
+ left:3%!important;right:auto!important;
+}
+body.playing .adventure-field.layout-1 .bag-target{top:13%;height:63%}
+body.playing .adventure-field.layout-2 .bag-target{top:32%;height:59%}
+body.playing .adventure-field.layout-3 .bag-target{top:31%;height:59%}
+body.playing .adventure-field.layout-1 .bad-guy.hazard-0{left:45%!important;top:29%!important}
+body.playing .adventure-field.layout-1 .bad-guy.hazard-1{left:60%!important;top:72%!important}
+body.playing .adventure-field.layout-2 .bad-guy.hazard-0{left:43%!important;top:70%!important}
+body.playing .adventure-field.layout-2 .bad-guy.hazard-1{left:60%!important;top:27%!important}
+body.playing .adventure-field.layout-3 .bad-guy.hazard-0{left:43%!important;top:22%!important}
+body.playing .adventure-field.layout-3 .bad-guy.hazard-1{left:58%!important;top:67%!important}
+/* Class report: compact teacher-readable screen display and letter-size handouts. */
+.class-report{font:15px Arial,Helvetica,sans-serif!important;text-align:left;max-width:1200px;margin:auto;color:#111;background:#fff}
+.class-report *{box-sizing:border-box}
+.class-report .report-actions{display:flex;justify-content:space-between;gap:8px;margin:0 0 10px}
+.class-report .report-actions button{font:700 16px Arial,sans-serif;min-height:43px;padding:6px 12px}
+.class-report .report-header{display:block;height:auto!important;min-height:0!important;margin:0 0 8px;padding:0!important;border:0!important;text-align:left}
+.class-report .report-header h2{font:700 26px Arial,sans-serif!important;margin:0 0 5px}
+.class-report .report-header p{margin:2px 0;font:16px Arial,sans-serif}
+.class-report .report-total{background:#fff5c1;border:2px solid #000;border-radius:9px;padding:10px;margin:10px 0}
+.class-report .report-device-note{font-size:13px;line-height:1.4;background:#fff6f6;padding:9px;border-left:4px solid #bd3939}
+.class-report h3{font:700 20px Arial,sans-serif!important;margin:16px 0 8px}
+.class-report .report-summary{border-collapse:collapse;width:100%;table-layout:fixed;font-size:13px}
+.class-report .report-summary th,.class-report .report-summary td{border:1px solid #555;text-align:left;vertical-align:top;padding:8px 7px;word-wrap:break-word}
+.class-report .report-summary th:first-child{width:29%}
+.class-report .report-summary td strong,.class-report .report-summary td span{display:block;margin-bottom:2px}
+.class-report .report-missing,.class-report .report-footer{font-size:12px}
+.class-report .report-students{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.class-report .report-student{padding:10px;border:1px solid #555;border-radius:8px;break-inside:avoid;page-break-inside:avoid}
+.class-report .report-student h3{margin:0 0 2px;font:700 17px Arial,sans-serif!important}
+.class-report .report-date{margin:2px 0 6px;font-size:11px}
+.class-report .report-responses{list-style:none;padding:0;margin:0}
+.class-report .report-responses li{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #ddd;padding:5px 0;font-size:12px}
+.class-report .report-responses li strong{width:49%;font-weight:600}
+.class-report .report-responses li span{width:49%;text-align:right}
+.class-report .report-metrics{display:flex;flex-wrap:wrap;gap:5px;margin:7px 0 0}
+.class-report .report-metrics span{padding:4px 6px;border:1px solid #aaa;border-radius:5px;font-size:11px}
+@media(max-width:750px){.class-report .report-students{grid-template-columns:1fr}.class-report .report-summary{font-size:11px}.class-report .report-summary th,.class-report .report-summary td{padding:5px}}
+@media print{
+ @page{size:letter portrait;margin:.43in}
+ html,body{width:auto!important;height:auto!important;overflow:visible!important;background:#fff!important}
+ body{display:block!important}
+ body>header{display:none!important}
+ #app{position:static!important;top:auto!important;left:auto!important;width:100%!important;height:auto!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important;display:block!important}
+ .game-menu,.report-actions,#confetti{display:none!important}
+ .class-report{font-size:11px!important;max-width:none!important}
+ .class-report .report-header h2{font-size:21px!important}
+ .class-report .report-device-note{font-size:10px;padding:5px}
+ .class-report .report-summary{font-size:10px}
+ .class-report .report-summary th,.class-report .report-summary td{padding:5px}
+ .class-report .report-students{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ .class-report .report-student{padding:6px}
+ .class-report .report-responses li{font-size:10px;padding:3px 0}
+ .class-report .report-metrics span{font-size:9px}
+ .class-report h3{font-size:16px!important}
+ .class-report .report-student h3{font-size:14px!important}
+}
