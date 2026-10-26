@@ -79,7 +79,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   const remaining=Math.max(0,3-a.mazesSinceRescue);
   const moreFriends=chars.some(c=>!a.friends[c.id]);
   const progress=canRescue()?'A new friend is ready!':moreFriends?remaining+' more '+(remaining===1?'maze':'mazes')+' until your next friend!':'All 8 friends rescued!';
-  const coords=[[9.4,68],[20.6,44],[32.1,70],[44.1,38],[56.7,65],[68.2,35],[80,57],[90.7,29]];
+  const coords=[[8.0,60],[20.5,47],[34.1,72],[44.2,46],[56.7,70],[68.5,45],[80.3,64],[91.5,45]];
   const nodes=worldThemes.map((world,i)=>{
    const count=worldDoneCount(i),open=isWorldUnlocked(i),current=next.worldIndex===i;
    return '<button type="button" class="lab-world-node'+(count===8?' completed':'')+(current?' current':'')+'" data-world-index="'+i+'" style="left:'+coords[i][0]+'%;top:'+coords[i][1]+'%" '+(open?'':'disabled')+' aria-label="'+world.name+' world, '+count+' of 8 mazes complete, '+(open?'open':'locked')+'">'+
