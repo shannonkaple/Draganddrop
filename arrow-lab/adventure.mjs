@@ -50,21 +50,49 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  }
  function landCards(){return '<div class="adventure-cards land-cards">'+lands.map(l=>'<button data-land="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><span>'+(view==='select'?'Training camp':owned(l.id)?'Owned ✓':'Buy · ⭐ '+worldCosts[lands.indexOf(l)])+'</span></button>').join('')+'</div>'}
 
+
  function map(){
   view='map';
-  const next=nextLevel(),resume=a.activeRun&&!a.activeRun.complete&&a.activeRun.id===next.id;
+  const next=nextLevel();
+  const resume=a.activeRun&&!a.activeRun.complete&&a.activeRun.id===next.id;
   const remaining=Math.max(0,3-a.mazesSinceRescue),playerId=a.selectedPlayerCharacterId;
   const moreFriends=chars.some(c=>!a.friends[c.id]);
-  const progress=canRescue()?'New friend is ready!':moreFriends?remaining+' more '+(remaining===1?'maze':'mazes')+' until your next friend!':'All eight friends rescued!';
-  const positions=[[10,78],[21,62],[33,77],[44,53],[56,69],[67,43],[79,56],[90,26]];
-  const nodes=levels.slice(0,8).map((l,i)=>{const done=a.completedLevelIds.includes(l.id),open=l.number<=a.highestUnlockedLevel;return '<button class="lab-map-node'+(done?' done':'')+(l.number===next.number?' next':'')+'" type="button" data-level="'+l.number+'" style="left:'+positions[i][0]+'%;top:'+positions[i][1]+'%" '+(open?'':'disabled')+' aria-label="Maze '+l.number+' '+(open?'open':'locked')+'"><span>'+(done?'⭐':open?l.number:'🔒')+'</span><small>Maze '+l.number+'</small></button>'}).join('');
-  const path='<svg class="lab-map-path" viewBox="0 0 1000 450" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="lab-rainbow" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#f579d4"/><stop offset=".2" stop-color="#aa70fa"/><stop offset=".4" stop-color="#56c7f7"/><stop offset=".6" stop-color="#78dc9a"/><stop offset=".8" stop-color="#ffe875"/><stop offset="1" stop-color="#ffb775"/></linearGradient></defs><path d="M100 351 Q155 268 210 279 T330 346 T440 239 T560 310 T670 194 T790 252 T900 117" fill="none" stroke="#ffffff9c" stroke-width="75" stroke-linecap="round"/><path d="M100 351 Q155 268 210 279 T330 346 T440 239 T560 310 T670 194 T790 252 T900 117" fill="none" stroke="url(#lab-rainbow)" stroke-width="56" stroke-linecap="round"/><path d="M100 351 Q155 268 210 279 T330 346 T440 239 T560 310 T670 194 T790 252 T900 117" fill="none" stroke="#ffffffa8" stroke-dasharray="6 18" stroke-width="4" stroke-linecap="round"/></svg>';
-  shell('My Adventure Home','<section class="lab-home"><div class="lab-top">'+
-    '<div class="lab-player">'+pic(playerId)+'<div><small>MY CHARACTER</small><h2>'+esc(char(playerId).name)+'</h2><p>'+esc(currentStage(playerId))+'</p><button id="change-player">Change Character</button></div></div>'+
-    '<div class="lab-friend"><div><small>NEXT FRIEND</small><h3>'+esc(progress)+'</h3><div class="lab-meter" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="'+Math.min(3,a.mazesSinceRescue)+'"><i style="width:'+(Math.min(3,a.mazesSinceRescue)/3*100)+'%"></i></div><p>'+Math.min(3,a.mazesSinceRescue)+' / 3 mazes</p></div>'+(canRescue()?'<button id="ready-rescue">🐾 Rescue Friend</button>':'<span class="lab-secret">?</span>')+'</div></div>'+
-    '<div class="lab-world"><div class="lab-map-head"><div><small>WORLD 1 • RAINBOW PATH</small><h2>My Maze Map</h2></div><button class="lab-play" id="continue-adventure">▶ '+(resume?'CONTINUE':'PLAY NEXT')+'</button></div><div class="lab-map-ground">'+path+nodes+'</div></div>'+
-    '<div class="lab-menu"><button data-nav="map">🏠 Home</button><button data-nav="shop">⭐ Star Shop</button><button data-nav="computer">💻 My Collections</button></div>'+
-    '<details class="lab-more"><summary>More options</summary><button data-nav="lands">🌍 My Worlds</button><button id="endless">Arrow Practice</button><button id="teacher-settings">Teacher Settings</button><details><summary>All 12 mazes</summary><div class="lab-level-list">'+levels.map(l=>'<button data-level="'+l.number+'" '+(l.number>a.highestUnlockedLevel?'disabled':'')+'>Maze '+l.number+'</button>').join('')+'</div></details></details></section>');
+  const progress=canRescue()?'Your next friend is ready!':moreFriends?remaining+' more '+(remaining===1?'maze':'mazes')+' to your next friend':'All 8 friends rescued!';
+  const completed=a.completedLevelIds.length;
+  const positions=[[9,72],[20,52],[32,76],[44,45],[56,68],[68,34],[80,57],[91,25]];
+  const themes=[
+    {emoji:'🌼',shade:'meadow'},{emoji:'☁️',shade:'clouds'},
+    {emoji:'⌨️',shade:'candy'},{emoji:'🦀',shade:'reef'},
+    {emoji:'✨',shade:'stars'},{emoji:'🚀',shade:'rocket'},
+    {emoji:'🌅',shade:'sunset'},{emoji:'🌈',shade:'finish'}
+  ];
+  const nodes=levels.slice(0,8).map((l,i)=>{
+    const done=a.completedLevelIds.includes(l.id),unlocked=l.number<=a.highestUnlockedLevel,active=l.id===next.id;
+    const icon=done?'⭐':unlocked?themes[i].emoji:'🔒';
+    const label=done?'DONE':active?'PLAY':unlocked?'OPEN':'LOCKED';
+    return '<button type="button" class="lab-map-node lab-theme-'+themes[i].shade+(done?' done':'')+(active?' next':'')+'" style="left:'+positions[i][0]+'%;top:'+positions[i][1]+'%" data-level="'+l.number+'" '+(unlocked?'':'disabled')+' aria-label="Maze '+l.number+', '+esc(l.title)+', '+(done?'finished':unlocked?'unlocked':'locked')+'">'+
+      '<span class="lab-node-scene">'+img(l.backgroundImage,'','lab-scene-img')+'<span class="lab-node-icon" aria-hidden="true">'+icon+'</span></span>'+
+      '<span class="lab-node-label"><b>'+l.number+'. '+esc(l.title)+'</b><em>'+label+'</em></span>'+
+    '</button>';
+  }).join('');
+  const path='<svg class="lab-map-path" viewBox="0 0 1000 450" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="lab-road" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ff8ac8"/><stop offset=".18" stop-color="#ab82fc"/><stop offset=".35" stop-color="#4ac5f8"/><stop offset=".53" stop-color="#6ce1a2"/><stop offset=".73" stop-color="#ffe66a"/><stop offset="1" stop-color="#ff9c6a"/></linearGradient></defs><path class="lab-path-shadow" d="M90 324 C145 340 155 222 200 234 S275 375 320 342 S397 165 440 203 S516 345 560 306 S640 108 680 153 S744 323 800 257 S875 174 910 113"/><path class="lab-path-color" d="M90 324 C145 340 155 222 200 234 S275 375 320 342 S397 165 440 203 S516 345 560 306 S640 108 680 153 S744 323 800 257 S875 174 910 113"/><path class="lab-path-dashes" d="M90 324 C145 340 155 222 200 234 S275 375 320 342 S397 165 440 203 S516 345 560 306 S640 108 680 153 S744 323 800 257 S875 174 910 113"/></svg>';
+  const scene='<div class="lab-decor" aria-hidden="true"><span class="lab-cloud c1">☁️</span><span class="lab-cloud c2">☁️</span><span class="lab-cloud c3">☁️</span><span class="lab-spark s1">✦</span><span class="lab-spark s2">✦</span><span class="lab-spark s3">✧</span><span class="lab-garden g1">🌷</span><span class="lab-garden g2">🌿</span><span class="lab-garden g3">🌸</span></div>';
+  const rescueAction=canRescue()?'<button id="ready-rescue" class="lab-rescue" type="button">🐾 Rescue Friend!</button>':'';
+  const mapLabel=next.number<=8?'Maze '+next.number+' • '+esc(next.title):'Bonus maze '+next.number;
+  shell('My Adventure Home',
+    '<section class="lab-home" aria-label="My rainbow adventure home">'+
+      '<div class="lab-top">'+
+        '<div class="lab-player"><div class="lab-player-image">'+pic(playerId)+'</div><div class="lab-player-info"><small>MY PLAYER</small><h2>'+esc(char(playerId).name)+'</h2><span class="lab-stage">'+esc(currentStage(playerId))+'</span><button id="change-player" type="button">Change Player ›</button></div></div>'+
+        '<div class="lab-friend"><div><small>NEXT FRIEND</small><h3>'+esc(progress)+'</h3><div class="lab-meter" role="progressbar" aria-label="Mazes towards your next friend" aria-valuemin="0" aria-valuemax="3" aria-valuenow="'+Math.min(3,a.mazesSinceRescue)+'"><i style="width:'+(Math.min(3,a.mazesSinceRescue)/3*100)+'%"></i></div><p>'+Math.min(3,a.mazesSinceRescue)+' of 3 mazes</p>'+rescueAction+'</div><span class="lab-secret" aria-hidden="true">'+(moreFriends?'?':'⭐')+'</span></div>'+
+      '</div>'+
+      '<section class="lab-world" aria-label="Choose a maze on the map">'+
+        '<div class="lab-map-head"><div><small>🌈 MAP ONE · RAINBOW ADVENTURE</small><h2>Choose Your Maze</h2><p>'+Math.min(8,levels.slice(0,8).filter(l=>a.completedLevelIds.includes(l.id)).length)+' of 8 map stops finished</p></div><div class="lab-next-action"><button class="lab-play" id="continue-adventure" type="button">▶ '+(resume?'CONTINUE':'PLAY NEXT')+'</button><span>'+mapLabel+'</span></div></div>'+
+        '<div class="lab-map-ground">'+scene+path+nodes+'<span class="lab-start" aria-hidden="true">START</span><span class="lab-end" aria-hidden="true">🏰 FINISH</span></div>'+
+      '</section>'+
+      '<nav class="lab-menu" aria-label="Home game navigation"><button type="button" data-nav="map" class="lab-home-button"><span aria-hidden="true">🏠</span> Home</button><button type="button" data-nav="shop" class="lab-shop-button"><span aria-hidden="true">⭐</span> Star Shop</button><button type="button" data-nav="computer" class="lab-collection-button"><span aria-hidden="true">💻</span> My Collections</button></nav>'+
+      '<details class="lab-more"><summary>⚙️ More options</summary><div><button type="button" data-nav="lands">🌍 My Worlds</button><button type="button" id="endless">Arrow Practice</button><button type="button" id="teacher-settings">Teacher Settings</button><details><summary>All 12 Mazes</summary><div class="lab-level-list">'+levels.map(l=>'<button type="button" data-level="'+l.number+'" '+(l.number>a.highestUnlockedLevel?'disabled':'')+'>Maze '+l.number+(a.completedLevelIds.includes(l.id)?' ✓':'')+'</button>').join('')+'</div></details></div></details>'+
+    '</section>'
+  );
   $('change-player').onclick=()=>selectCharacter(true);
   $('continue-adventure').onclick=playNext;
   $('ready-rescue')?.addEventListener('click',continueRescue);
