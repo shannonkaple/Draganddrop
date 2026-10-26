@@ -57,3 +57,25 @@ body.adventure-mode .home-menu strong,
 body.adventure-mode .stuff-cards strong{
  text-transform:uppercase!important;
 }
+
+
+
+/* Eight independent 300-DPI JPEG scenes: never stretch a 4x2 sprite sheet over Candy. */
+body.adventure-mode.playing .scenic-board.lab-candy-maze {
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+/* Stronger translucent walls make the actual playable maze unmistakable on colorful art. */
+body.adventure-mode.playing .lab-candy-maze .wall {
+  background: rgba(36, 49, 96, .66) !important;
+  border: 1px solid rgba(255, 255, 255, .72) !important;
+  box-shadow: inset 0 0 0 1px rgba(18, 24, 68, .35) !important;
+}
+body.adventure-mode.playing .lab-candy-maze .road {
+  background: rgba(255, 255, 255, .12) !important;
+  border: 1px solid rgba(255, 255, 255, .58) !important;
+}
+body.adventure-mode.playing .lab-candy-maze .tile-art {
+  filter: drop-shadow(0 2px 4px rgba(20, 31, 73, .6));
+}
