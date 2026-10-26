@@ -88,7 +88,7 @@ function home(){
     '<p>Follow the rainbow road. Earn stars. Rescue friends!</p></div>'+
     '<div class="arrow-world-stage" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+nodes+'</div>'+
     '<div class="arrow-home-actions">'+
-      '<button type="button" id="continue-world" class="arrow-next-play">▶ PLAY NEXT <small>'+esc(next.name)+' · Level '+nextStep+'</small></button>'+
+      '<button type="button" id="continue-world" class="arrow-next-play">'+(allDone?'↻ REPLAY WORLD':'▶ PLAY NEXT')+' <small>'+esc(next.name)+' · Level '+nextStep+'</small></button>'+
       '<nav class="arrow-home-nav" aria-label="Game navigation">'+
       '<button type="button" id="arrow-nav-home" class="arrow-nav-home"><span>🏠</span>Home</button>'+
       '<button type="button" id="star-shop" class="arrow-nav-shop"><span>⭐</span>Star Shop</button>'+
@@ -102,7 +102,7 @@ function home(){
       '<button type="button" id="download-maps-jpg">Download matching JPEG maps (.zip)</button></details></div>'+
    '</section>');
  app.querySelectorAll('[data-map-world]').forEach(b=>b.onclick=()=>openCampaignWorld(Number(b.dataset.mapWorld)));
- $('#continue-world').onclick=()=>openCampaignWorld(allDone?7:c.unlocked);
+ $('#continue-world').onclick=()=>{if(allDone){openCampaignWorld(7);return}c.current=c.unlocked;startCampaignActivity(c.completed[c.unlocked])};
  $('#arrow-nav-home').onclick=home;
  $('#see-my-friends').onclick=()=>{shopReturn='home';state.land=state.ownedWorlds.includes(state.land)?state.land:lands[0].id;shopTab='upgrades';stuff()};
  $('#star-shop').onclick=()=>openShop('home');
