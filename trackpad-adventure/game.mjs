@@ -1,5 +1,6 @@
 import {starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
 import {adventureWorlds,campaign,activityStatus,activityNames,friendForWorld,isWorldUnlocked,mapPath,makeWorldTask} from './campaign.mjs?v=20261026-world8';
+import {downloadWorldMapJpegs} from './map-jpeg-export.mjs?v=20261026-mapjpg';
 import {queueStudentSync} from './central-sync.mjs?v=20261026-central';
 import {showClassReport} from './class-report.mjs?v=20261026-dated';
 import {segmentHitsRect} from './collision.mjs';
@@ -54,12 +55,13 @@ function home(){
  shell(`<section class="campaign-home">${mapSummary()}<h2 class="campaign-title">Choose Your World</h2><p class="campaign-subtitle">Complete all 8 activities to unlock the next world. Your stars and friends stay saved!</p>
  <div class="campaign-overview" role="group" aria-label="Eight connected game worlds">${map}</div>
  <div class="campaign-home-buttons"><button id="continue-world" class="primary">▶ ${allDone?'Replay the final world':'Keep playing · '+adventureWorlds[c.unlocked].name}</button><button id="see-my-friends">🏡 My rescued friends</button><button id="star-shop">⭐ Star Shop</button></div>
- ${allDone?'<p class="campaign-map2">🌟 All eight worlds completed! Map 2: coming soon.</p>':'<p class="campaign-map2 locked">🔒 Map 2 unlocks after all eight worlds. More places are coming later!</p>'}
+ ${allDone?'<p class="campaign-map2">🌟 All eight worlds completed! Map 2: coming soon.</p>':'<p class="campaign-map2 locked">🔒 Map 2 unlocks after all eight worlds. More places are coming later!</p>'}<details class="campaign-export"><summary>Teacher: Matching JPEG maps</summary><button id="download-maps-jpg" type="button">Download matching JPEG maps (.zip)</button></details>
  </section>`);
  app.querySelectorAll('[data-map-world]').forEach(b=>b.onclick=()=>openCampaignWorld(Number(b.dataset.mapWorld)));
  $('#continue-world').onclick=()=>openCampaignWorld(allDone?7:c.unlocked);
  $('#see-my-friends').onclick=()=>{shopReturn='home';state.land=state.ownedWorlds.includes(state.land)?state.land:lands[0].id;openShop('home')};
  $('#star-shop').onclick=()=>openShop('home');
+ $('#download-maps-jpg').onclick=e=>downloadWorldMapJpegs(e.currentTarget);
  $('#change-character').onclick=()=>changeCharacter('home');
 }
 function openCampaignWorld(i){
@@ -140,7 +142,7 @@ function splitShop(){
  const menu=document.createElement('div');menu.className='shop-tabs';menu.innerHTML=[['worlds','🌍','Worlds'],['upgrades','🌟','Upgrades'],['decor','🌷','Decorations'],['collection','💻','Collection'],['words','🔊','Words']].map(([id,icon,name])=>`<button id="shop-${id}" data-shop-tab="${id}"><span>${icon}</span>${name}</button>`).join('');app.querySelector('h2').after(menu);
  const show=tab=>{shopTab=tab;sections.forEach(s=>s.hidden=s.dataset.shopSection!==tab);menu.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.shopTab===tab)));window.dispatchEvent(new Event('resize'))};menu.querySelectorAll('button').forEach(b=>b.onclick=()=>show(b.dataset.shopTab));show(shopTab);
 }
-function worldCards(placing){return lands.map((l,i)=>{const owned=state.ownedWorlds.includes(l.id),cost=worldCosts[i];return `<button class="card" ${placing?`data-place="${l.id}"`:`data-world="${l.id}"`} ${!owned&&state.stars<cost?'disabled':''}><img class="land" src="${asset(l.cardPreview)}" alt=""><strong>${l.name}</strong><span>${owned?(placing?'Place friend here':'Visit world ✓'):(placing?'Buy & place':'Buy world')+' · ⭐ '+cost}</span>${!owned&&state.stars<cost?`<small>Earn ${cost-state.stars} more stars</small>`:''}</button>`}).join('')}
+function worldCards(placing){return lands.map((l,i)=>{const owned=state.ownedWorlds.includes(l.id),cost=worldCosts[i];return `<button class="card" ${placing?`data-place="${l.id}"`:`data-world="${l.id}"`} ${!owned&&state.stars<cost?'disabled':''}><img class="land" src="${asset(l.cardPreview)}" alt=""><strong>${l.name}</strong><span>${owned?(placing?'Place friend here':'Visit world ✓'):(placing?'Buy & place':'Buy home')+' · ⭐ '+cost}</span>${!owned&&state.stars<cost?`<small>Earn ${cost-state.stars} more stars</small>`:''}</button>`}).join('')}
 function moveFriend(id){state.movingFriend=id;save();placement(id,false)}
 function placement(id,rescue){const c=characters.find(c=>c.id===id);shell(`<div class="toolbar"><button id="place-back">← ${rescue?'Choose a friend':'My star shop'}</button><strong>⭐ ${state.stars} Drag Stars</strong></div><div class="center">${heading('Where will '+c.name+' live?','Choose a world you own, or spend stars to buy one.')}<img class="hero" src="${image(c,state.friendLevels[id]||0)}" alt=""><div class="cards">${worldCards(true)}</div></div>`);$('#place-back').onclick=()=>{if(rescue){state.friends=state.friends.filter(x=>x!==id);state.pendingRescue.friend=null;save();rescueChoice()}else stuff()};app.querySelectorAll('[data-place]').forEach(b=>b.onclick=()=>{const world=b.dataset.place;if(!state.ownedWorlds.includes(world)&&!buyWorld(state,world,lands))return;if(!place(state,id,world))return;state.land=world;state.movingFriend=null;if(rescue)advanceAfterCheckpoint();save();confetti();if(rescue)rescueDone(id);else worldView()})}
 function advanceAfterCheckpoint(){state.pendingRescue=null;if(state.stage>=11){state.round++;state.stage=0;state.checks={}}}
