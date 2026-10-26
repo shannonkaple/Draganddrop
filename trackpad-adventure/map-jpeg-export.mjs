@@ -8,7 +8,7 @@ function imageJpeg(id){return new Promise((resolve,reject)=>{const img=new Image
  canvas.toBlob(async blob=>{if(!blob)return reject(new Error('JPEG export failed'));try{resolve(new Uint8Array(await blob.arrayBuffer()))}catch(e){reject(e)}},'image/jpeg',.91)
  }catch(error){reject(error)}};
  img.onerror=()=>reject(new Error('Could not load '+id+' map illustration'));
- img.src='trackpad-adventure/maps/'+id+'.svg?v=20261026-illustrated';
+ img.src='trackpad-adventure/maps/'+id+(id==='overview'?'.jpg?v=20261026-cute-islands':'.svg?v=20261026-illustrated');
 })}
 function writeZip(items){
  const encoder=new TextEncoder(),locals=[],centrals=[];let offset=0;
