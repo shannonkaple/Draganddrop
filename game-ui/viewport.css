@@ -203,3 +203,9 @@ body:not(.playing) .campaign-home,body:not(.playing) .campaign-level-screen{widt
 .campaign-friend-row img{width:clamp(25px,3vw,40px)!important;height:clamp(25px,3vw,40px)!important;background:#f4f9ff;border:1.5px solid #273258;border-radius:50%;object-fit:contain}
 .campaign-friend-row small{font-size:12px;opacity:.8}
 @media(max-height:740px) and (min-width:760px){.campaign-friend-row img{width:26px!important;height:26px!important}}
+
+
+.campaign-companion{width:clamp(25px,3vw,40px);height:clamp(25px,3vw,40px);border:2px solid #293450;border-radius:50%;background:#fff0b8;display:grid;place-items:center;font-size:clamp(17px,2vw,27px);line-height:1;box-shadow:0 2px 0 #26345048}
+.campaign-export{margin:auto;font-size:12px;text-align:center;padding:0 8px}
+.campaign-export summary{cursor:pointer;font-weight:700}
+.campaign-export button{font-size:13px;padding:5px 12px;min-height:36px}
