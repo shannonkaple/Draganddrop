@@ -1,0 +1,156 @@
+
+/* Trackpad Adventure HOME — matches the A-Maze-Ing Arrow Adventure home. */
+/* Only the home map uses these rules; world activities, teacher reports, and shops stay intact. */
+body:has(.arrow-style-home){background:linear-gradient(120deg,#f79bdf 0%,#bba0ff 20%,#94dcff 40%,#9cf2c9 60%,#fff1ae 80%,#ffbc98 100%)}
+body:has(.arrow-style-home) #app{display:flex;flex-direction:column;align-items:center}
+body:has(.arrow-style-home) .game-menu{width:min(100%,1250px);margin:0 auto 5px;background:#fffffff1;border:2px solid #fff!important;border-radius:18px;box-shadow:0 5px 13px #31578930;min-height:47px}
+body:has(.arrow-style-home) .game-menu button{min-height:41px}
+.arrow-style-home{
+ --ah-blue:#19386c;--ah-sky:#d2f5ff;
+ width:min(100%,1240px);height:calc(var(--screen-height,690px) - 68px);
+ min-height:495px;max-height:850px;display:flex;flex-direction:column;gap:6px;
+ padding:10px 13px 9px;overflow:hidden;border:3px solid #ffffffb8;border-radius:26px;
+ color:var(--ah-blue);box-shadow:0 8px 22px #244b8e44;
+ background:linear-gradient(130deg,#fba9df 0%,#c0a9ff 22%,#a1e7ff 43%,#a4efbf 63%,#ffefa2 83%,#ffc396 100%);
+}
+.arrow-style-home button{color:inherit;font-family:VAG,Arial,sans-serif;cursor:pointer}
+.arrow-style-home button:focus-visible,.arrow-style-home summary:focus-visible{outline:4px solid #ffe33b;outline-offset:3px}
+.arrow-map-hud{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;flex:none;min-height:93px}
+.arrow-player-card,.arrow-friend-card,.arrow-rewards-strip{
+ display:flex;min-width:0;align-items:center;gap:9px;
+ background:#fffffff1;border:2px solid #fff;border-radius:22px;
+ box-shadow:0 5px 12px #31528b3b;padding:7px 11px;
+}
+.arrow-player-art{width:75px;height:76px;flex:none;object-fit:contain;filter:drop-shadow(0 3px 3px #4c6b9a69)}
+.arrow-player-details{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+.arrow-player-details small,.arrow-friend-info>small{font:700 10px VAG,Arial,sans-serif;letter-spacing:.7px;color:#5174a9}
+.arrow-player-details h2{color:#142e68;font:clamp(18px,1.8vw,26px)/1.05 Homebody,VAG,sans-serif!important;margin:0!important;overflow-wrap:anywhere}
+.arrow-player-location{font:700 12px VAG,Arial,sans-serif}
+.arrow-student-id{font:11px Arial,sans-serif;color:#476194}
+.arrow-player-details button{
+ font-size:12px!important;background:linear-gradient(#69c4ff,#1f81df)!important;border:2px solid #e8f8ff;
+ border-radius:14px;box-shadow:0 2px 0 #1563ac;padding:3px 9px;min-height:29px;color:#fff;
+}
+.arrow-friend-info{min-width:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.arrow-friend-info strong{font:clamp(12px,1.35vw,18px) Homebody,VAG,sans-serif;line-height:1.1}
+.arrow-friend-info>span{font:11px VAG,Arial;color:#4b6190}
+.arrow-friend-icon{font-size:clamp(30px,3vw,48px);border:3px dashed #c7a4ec;background:#f7e7ff;
+ display:grid;place-items:center;flex:none;width:62px;height:62px;border-radius:50%}
+.arrow-friend-meter{width:100%;height:13px;overflow:hidden;border:2px solid #9399c8;border-radius:99px;background:#ced3ea}
+.arrow-friend-meter i{display:block;height:100%;background:linear-gradient(#fff08d,#ffbc2c);border-radius:99px}
+.arrow-rewards-strip{flex-direction:column;justify-content:center;align-items:center;min-width:124px;max-width:225px;gap:4px}
+.arrow-rewards-strip>strong{background:linear-gradient(#fff7ad,#ffd442);border:2px solid #f0b229;color:#40330f;
+ font:clamp(12px,1.2vw,16px) VAG,Arial;padding:4px 9px;border-radius:25px;white-space:nowrap}
+.arrow-rewards-strip>div{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-height:54px;overflow:hidden;align-items:center}
+.arrow-rewards-strip img,.arrow-rewards-strip span{width:25px;height:25px;object-fit:contain;background:#ecf7ff;border:1.5px solid #88a2d3;
+ border-radius:50%;display:grid;place-items:center;font-size:17px}
+.arrow-rewards-strip small{font:10px VAG,Arial;text-align:center}
+.arrow-map-heading{text-align:center;flex:none;display:flex;flex-direction:column;gap:0}
+.arrow-map-heading>span{font:12px VAG,Arial;color:#3a5f99}
+.arrow-map-heading h2{font:clamp(25px,2.8vw,39px) Homebody,VAG,sans-serif!important;margin:0!important;color:#243c72;text-shadow:0 2px 2px #fff8}
+.arrow-map-heading p{font:12px VAG,Arial,sans-serif;margin:0!important;color:#346394}
+.arrow-world-stage{
+ flex:1;min-height:218px;position:relative;
+ background-image:url('./maps/overview.svg?v=arrow-style-home1');background-position:center;
+ background-size:100% 100%;background-repeat:no-repeat;
+ border:3px solid #ffffffcb;border-radius:21px;box-shadow:inset 0 0 16px #fff6,0 5px 13px #27568039;
+}
+.arrow-world-node{
+ position:absolute;transform:translate(-50%,-50%);z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+ border:0!important;background:transparent!important;box-shadow:none!important;padding:2px!important;
+ width:clamp(78px,8.3vw,126px);min-height:65px!important;cursor:pointer;
+}
+.arrow-world-pin{
+ display:grid;place-items:center;width:clamp(35px,3.8vw,53px);height:clamp(35px,3.8vw,53px);
+ border:3px solid #7a9ccf;border-radius:50%;background:linear-gradient(#fff,#dff3ff);
+ box-shadow:0 4px 0 #3e6da484,0 7px 13px #273e6565;font-size:clamp(19px,2vw,25px);line-height:1;
+}
+.arrow-world-name{font:clamp(12px,1.25vw,18px) Homebody,VAG,sans-serif;color:#123667;
+ border:2px solid #fff;border-radius:16px;white-space:nowrap;background:#ffffffeb;
+ padding:3px 8px;box-shadow:0 3px 7px #31508b6b;text-transform:uppercase}
+.arrow-world-status{font:clamp(10px,.9vw,12px) VAG,Arial,sans-serif;background:#fffdf5e8;border-radius:9px;color:#31517a;padding:1px 5px}
+.arrow-world-node.current .arrow-world-pin{background:linear-gradient(#bbffae,#50d85d);border-color:#fff4a3;box-shadow:0 0 0 6px #ffe44db2,0 5px 13px #255f4c64}
+.arrow-world-node.completed .arrow-world-pin{background:linear-gradient(#fff8b1,#ffc32c);border-color:#fff3bc}
+.arrow-world-node:disabled{opacity:.82;cursor:not-allowed;filter:grayscale(.25)}
+.arrow-world-node:disabled .arrow-world-name{color:#5c667a;background:#e9eef2e8}
+.arrow-world-node:hover:not(:disabled) .arrow-world-pin{transform:translateY(-4px)}
+.arrow-home-actions{flex:none;display:flex;align-items:stretch;gap:9px;min-height:77px}
+.arrow-style-home #continue-world{
+ flex:0 0 min(30%,295px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+ color:#fff!important;font:clamp(20px,2.4vw,29px) Homebody,VAG,sans-serif!important;
+ border:4px solid #eeffde;border-radius:44px;background:linear-gradient(#96fc72,#2acb30 65%,#08a51b)!important;
+ box-shadow:0 5px 0 #128824,0 9px 13px #25564370;text-shadow:0 2px #147d16;
+ padding:6px 10px!important;min-height:70px!important;white-space:nowrap
+}
+.arrow-next-play small{font:clamp(10px,.96vw,13px) VAG,Arial,sans-serif;text-shadow:none;color:#f8ffec}
+.arrow-home-nav{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.arrow-home-nav button{
+ display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;color:white!important;
+ border:3px solid white;border-radius:20px;box-shadow:0 5px 0 #27649782,0 7px 10px #35567b50,inset 0 3px 0 #ffffff55;
+ font:clamp(14px,1.45vw,20px) Homebody,VAG,sans-serif!important;min-height:67px!important;padding:5px!important;
+ text-shadow:0 2px #233e6c50;white-space:nowrap
+}
+.arrow-home-nav button span{font-size:clamp(23px,2.7vw,36px);line-height:1}
+.arrow-home-nav .arrow-nav-home{background:linear-gradient(#7bcfff,#1781e6)!important}
+.arrow-home-nav .arrow-nav-shop{background:linear-gradient(#d29dff,#9247da)!important}
+.arrow-home-nav .arrow-nav-friends{background:linear-gradient(#ffd479,#ed970b)!important}
+.arrow-home-secondary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:27px;flex:none}
+.arrow-map2-locked{font:11px VAG,Arial,sans-serif;background:#ffffffc9;border-radius:14px;padding:3px 9px}
+.arrow-map-more{margin:0!important;position:relative;z-index:4;font:12px VAG,Arial,sans-serif}
+.arrow-map-more summary{padding:4px 12px!important;border:1.5px solid white;border-radius:13px;background:#fffef3;color:#1e3864}
+.arrow-map-more[open]{z-index:15}
+.arrow-map-more button{margin:3px;display:inline-block;padding:5px 10px;min-height:32px;font:12px VAG,Arial;background:#ecf5ff;border:2px solid #bad6f3;border-radius:11px}
+.arrow-map-more[open]{position:absolute;right:30px;bottom:13px;max-width:min(90%,550px);background:#fff;border-radius:12px;padding:7px;box-shadow:0 10px 30px #12356277}
+@media(max-width:920px){
+ .arrow-map-hud{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .arrow-rewards-strip{grid-column:1/-1;flex-direction:row;max-width:none;min-height:35px;padding:2px 9px}
+ .arrow-rewards-strip>div{max-height:35px}
+ .arrow-style-home{min-height:510px}
+ .arrow-player-art{width:53px;height:61px}
+ .arrow-player-card,.arrow-friend-card{min-height:79px;padding:6px}
+ .arrow-player-details h2{font-size:17px!important}
+ .arrow-friend-icon{width:45px;height:45px;font-size:27px}
+ .arrow-world-node{width:clamp(66px,10vw,102px)}
+ .arrow-world-name{font-size:clamp(10px,1.5vw,15px);padding:3px 5px}
+}
+@media(max-width:620px){
+ .arrow-style-home{min-height:530px;padding:6px;gap:4px}
+ .arrow-map-hud{gap:4px}
+ .arrow-player-card,.arrow-friend-card{border-radius:13px;padding:3px}
+ .arrow-player-art{width:45px;height:52px}
+ .arrow-player-details h2{font-size:14px!important}
+ .arrow-player-details small,.arrow-friend-info>small,.arrow-player-location,.arrow-student-id,.arrow-friend-info>span{font-size:9px}
+ .arrow-player-details button{min-height:24px!important;padding:2px!important;font-size:10px!important}
+ .arrow-friend-info strong{font-size:11px}
+ .arrow-friend-icon{display:none}
+ .arrow-rewards-strip{min-height:28px}
+ .arrow-map-heading h2{font-size:22px!important}
+ .arrow-world-stage{min-height:235px}
+ .arrow-world-node{min-height:55px!important;width:60px}
+ .arrow-world-pin{width:30px;height:30px;font-size:17px}
+ .arrow-world-name{font:10px VAG,Arial,sans-serif;padding:2px 3px;white-space:normal;max-width:68px}
+ .arrow-world-status{font-size:9px}
+ .arrow-home-actions{min-height:60px;gap:4px}
+ .arrow-style-home #continue-world{min-height:58px!important;flex-basis:30%;font-size:15px!important;padding:3px!important;white-space:normal}
+ .arrow-next-play small{font-size:9px}
+ .arrow-home-nav{gap:3px}
+ .arrow-home-nav button{min-height:55px!important;border-radius:11px;font-size:11px!important;white-space:normal}
+ .arrow-home-nav button span{font-size:20px}
+}
+@media(min-width:720px) and (max-height:720px){
+ .arrow-style-home{min-height:0;height:calc(var(--screen-height,620px) - 58px);gap:3px}
+ .arrow-map-hud{min-height:71px}
+ .arrow-player-card,.arrow-friend-card{padding:4px 8px}
+ .arrow-player-art{width:52px;height:59px}
+ .arrow-friend-icon{width:43px;height:43px;font-size:26px}
+ .arrow-map-heading>span,.arrow-map-heading p{font-size:10px}
+ .arrow-map-heading h2{font-size:24px!important}
+ .arrow-world-stage{min-height:160px}
+ .arrow-home-actions{min-height:59px}
+ .arrow-style-home #continue-world{min-height:57px!important;font-size:22px!important}
+ .arrow-home-nav button{min-height:55px!important;font-size:15px!important}
+ .arrow-home-nav button span{font-size:23px}
+ .arrow-world-pin{height:34px;width:34px}
+ .arrow-world-node{min-height:55px!important}
+}
+@media(prefers-reduced-motion:reduce){.arrow-world-pin{transition:none!important}}
