@@ -1,3 +1,3 @@
-// Paste the Google Apps Script deployment's /exec URL here after deployment.
-// Blank by design: never send student data until the teacher enables the receiver.
-export const centralWebAppUrl='';
+// Teacher-authorized school Google Apps Script receiver for centralized student results.
+// Progress is also stored on each Chromebook as a local backup.
+export const centralWebAppUrl="https://script.google.com/a/macros/centralcss.org/s/AKfycbzEf8eFzCPv07EdwA89rVSlQIk6LAlMeteC2i57RincxNzm8mTC3PUPqGmYl-SBEI1q/exec";
