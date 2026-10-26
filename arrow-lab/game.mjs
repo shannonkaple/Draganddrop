@@ -2,7 +2,7 @@ import './viewport.mjs?v=lab1';
 import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import '../rainbow-road/read-aloud.mjs?v=20261021-menu';
-import {openAdventure} from './adventure.mjs?v=candyjpeg8';
+import {openAdventure} from './adventure.mjs?v=candyjpeg8b';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from '../rainbow-road/core.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
