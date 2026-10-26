@@ -1,13 +1,13 @@
 // Eight-world campaign: the map controls unlocking; stars only buy optional decorations.
 export const adventureWorlds=[
- {id:'candy',name:'Candy World',icon:'🍭',land:'candy_clouds',friend:'sunny_kitten',target:'🍬',targetName:'Candy basket',action:'Collect the right tech supplies for the candy shop!',color:'#f45ca9'},
- {id:'pirate',name:'Pirate World',icon:'🏴‍☠️',land:'rainbow_meadow',friend:'poppy_pup',target:'🧰',targetName:'Treasure chest',action:'Find the correct supplies to unlock the treasure!',color:'#d09a3b'},
- {id:'arctic',name:'Arctic World',icon:'🐧',land:'cloud_kingdom',friend:'penny_penguin',target:'🛷',targetName:'Arctic sled',action:'Load the sled to help your friends in the snow!',color:'#56b9ec'},
- {id:'castle',name:'Castle World',icon:'🏰',land:'star_trophy_land',friend:'twinkle_fairy',target:'🏰',targetName:'Castle gate',action:'Deliver the correct tech tools to the castle!',color:'#9b6ade'},
- {id:'space',name:'Space World',icon:'🚀',land:'galaxy_gardens',friend:'beep_bop_robot',target:'🚀',targetName:'Space rocket',action:'Load the correct supplies before the rocket launches!',color:'#766bd3'},
- {id:'jurassic',name:'Jurassic World',icon:'🦕',land:'rainbow_meadow',friend:'dizzy_dino',target:'🦴',targetName:'Dinosaur discovery',action:'Help the dinosaurs gather the right supplies!',color:'#63bd64'},
- {id:'ocean',name:'Ocean World',icon:'🐬',land:'rainbow_reef',friend:'rainbow_rocket_unicorn',target:'🐚',targetName:'Ocean treasure',action:'Restore the ocean by dragging the right supplies!',color:'#34b7ce'},
- {id:'lava',name:'Lava World',icon:'🌋',land:'star_trophy_land',friend:'astro_ace',target:'⚙️',targetName:'Volcano control',action:'Repair the volcano controls with the right items!',color:'#ec6343'}
+ {id:'candy',companion:'Candy Bunny',companionIcon:'🐰',name:'Candy World',icon:'🍭',land:'candy_clouds',friend:'sunny_kitten',target:'🍬',targetName:'Candy basket',action:'Collect the right tech supplies for the candy shop!',color:'#f45ca9'},
+ {id:'pirate',companion:'Pirate Parrot',companionIcon:'🦜',name:'Pirate World',icon:'🏴‍☠️',land:'rainbow_meadow',friend:'poppy_pup',target:'🧰',targetName:'Treasure chest',action:'Find the correct supplies to unlock the treasure!',color:'#d09a3b'},
+ {id:'arctic',companion:'Arctic Seal',companionIcon:'🦭',name:'Arctic World',icon:'🐧',land:'cloud_kingdom',friend:'penny_penguin',target:'🛷',targetName:'Arctic sled',action:'Load the sled to help your friends in the snow!',color:'#56b9ec'},
+ {id:'castle',companion:'Castle Griffin',companionIcon:'🦅',name:'Castle World',icon:'🏰',land:'star_trophy_land',friend:'twinkle_fairy',target:'🏰',targetName:'Castle gate',action:'Deliver the correct tech tools to the castle!',color:'#9b6ade'},
+ {id:'space',companion:'Space Alien',companionIcon:'👽',name:'Space World',icon:'🚀',land:'galaxy_gardens',friend:'beep_bop_robot',target:'🚀',targetName:'Space rocket',action:'Load the correct supplies before the rocket launches!',color:'#766bd3'},
+ {id:'jurassic',companion:'Baby Dino',companionIcon:'🦖',name:'Jurassic World',icon:'🦕',land:'rainbow_meadow',friend:'dizzy_dino',target:'🦴',targetName:'Dinosaur discovery',action:'Help the dinosaurs gather the right supplies!',color:'#63bd64'},
+ {id:'ocean',companion:'Ocean Dolphin',companionIcon:'🐬',name:'Ocean World',icon:'🐬',land:'rainbow_reef',friend:'rainbow_rocket_unicorn',target:'🐚',targetName:'Ocean treasure',action:'Restore the ocean by dragging the right supplies!',color:'#34b7ce'},
+ {id:'lava',companion:'Lava Lizard',companionIcon:'🦎',name:'Lava World',icon:'🌋',land:'star_trophy_land',friend:'astro_ace',target:'⚙️',targetName:'Volcano control',action:'Repair the volcano controls with the right items!',color:'#ec6343'}
 ];
 export const activityNames=['Find & collect','Click and carry','Avoid the bad guy','Fix the route','Match the supplies','Rescue delivery','Careful crossing','World challenge'];
 export const activitiesPerWorld=8;
@@ -18,6 +18,7 @@ export function campaign(state){
  const c=state.campaign;
  c.completed=Array.from({length:8},(_,i)=>Math.max(0,Math.min(8,Math.floor(Number(c.completed[i])||0))));
  c.awarded=Array.isArray(c.awarded)?c.awarded:[];
+ c.companions=Array.isArray(c.companions)?c.companions:[];
  c.current=Math.max(0,Math.min(7,Math.floor(Number(c.current)||0)));
  c.level=Math.max(0,Math.min(7,Math.floor(Number(c.level)||0)));
  const unlocked=c.completed.findIndex(v=>v<8);
