@@ -1,0 +1,184 @@
+
+/* Arrow Lab Candy pass — game interface, never change original classroom game. */
+/* Full-width JPEG heading; actual help/change-student buttons remain interactive. */
+body.adventure-mode>header {
+  height:108px!important;min-height:108px!important;max-height:none!important;
+  padding:10px 24px!important;
+  background: url('./title-banner.jpg?v=candy1') center center/100% 100% no-repeat!important;
+  border-bottom:2px solid #ffffffd9!important;
+  display:flex;align-items:center;justify-content:flex-end;
+}
+body.adventure-mode>header .brand {
+  position:absolute!important;clip-path:inset(50%);height:1px;width:1px;
+  overflow:hidden;white-space:nowrap;
+}
+body.adventure-mode>header .actions {
+  z-index:20;margin-left:auto;flex-wrap:nowrap;gap:10px;
+  border-radius:23px;padding:3px;
+}
+body.adventure-mode>header .actions button {
+  white-space:nowrap;background:#ffffffeb;border:2px solid #fff!important;
+  border-radius:17px;font:12px VAG,Arial,sans-serif;box-shadow:0 4px 0 #506a9d65;padding:9px 13px;
+}
+/* Main map: no HUD, character, heading or play button overlaps. */
+body.lab-map-active .lab-map-home {
+  grid-template-rows:165px 55px minmax(295px,1fr) 69px!important;
+  min-height:625px!important;
+  height:calc(var(--screen-height,760px) - 12px)!important;
+  padding:7px 10px 10px!important;
+  gap:3px!important;
+}
+body.lab-map-active .lab-game-hud {
+  padding:58px 18px 0 325px!important;
+  align-items:center!important;justify-content:flex-end!important;
+  gap:13px!important;
+}
+body.lab-map-active #kaple-guide {
+  top:calc(var(--screen-top,118px) + 6px)!important;
+  left:12px!important;width:clamp(210px,21vw,300px)!important;
+  height:clamp(155px,21vh,194px)!important;
+  z-index:8!important;pointer-events:none!important;
+}
+body.lab-map-active #kaple-guide .guide-cast{
+  width:100%!important;height:100%!important;
+}
+body.lab-map-active #kaple-guide .kaple-portrait{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+body.lab-map-active .lab-map-title {
+  padding:0 255px 0 312px!important;
+  justify-content:center!important;
+}
+body.lab-map-active .lab-map-title h2 {
+  font-size:clamp(24px,2.5vw,36px)!important;
+  white-space:nowrap;
+}
+body.lab-map-active .lab-next-play,
+body.lab-map-active button.lab-next-play,
+body.lab-map-active #continue-adventure.lab-next-play {
+  top:177px!important;right:27px!important;
+  width:205px!important;max-width:205px!important;min-width:0!important;
+  height:57px!important;min-height:0!important;max-height:57px!important;
+  font-size:19px!important;
+  border-width:3px!important;padding:6px 10px!important;
+}
+body.lab-map-active .lab-map-canvas {overflow:hidden!important;}
+body.lab-map-active .lab-main-nav {padding-top:3px!important;padding-bottom:2px!important;}
+body.lab-map-active .lab-main-nav button {height:57px!important;}
+/* Separate Candy-map screen: illustrated JPEG + real, stateful controls above the eight stops. */
+body.adventure-mode .lab-candy-world {
+  box-sizing:border-box;isolation:isolate;
+  width:100%;height:calc(var(--screen-height,700px) - 66px);
+  min-height:460px;
+  display:grid;grid-template-rows:78px minmax(250px,1fr) 64px;
+  padding:9px;gap:9px;
+  overflow:hidden;border:2px solid #ffffffd9;border-radius:24px;
+  color:#412b70;background:linear-gradient(140deg,#fad5ee,#a8deff 48%,#ffe9ab);
+  box-shadow:0 8px 26px #305ca14d;
+}
+.lab-candy-heading {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:linear-gradient(165deg,#fffffff0,#fdf3ffee);
+  border:2px solid #fff;border-radius:18px;
+  box-shadow:0 4px 12px #3c62ac3b;padding:7px 13px;
+  min-height:70px;
+}
+.lab-candy-heading h2 {margin:1px 0;font:clamp(22px,2.4vw,35px) Homebody,VAG,sans-serif;text-transform:uppercase;}
+.lab-candy-heading small {font:11px VAG,sans-serif;color:#785d9c;}
+.lab-candy-heading button {background:#8c69e3;color:white;border:2px solid #fff;border-radius:16px;padding:9px 12px;font:12px VAG,sans-serif;white-space:nowrap;}
+.lab-candy-progress {font:clamp(12px,1.3vw,17px) VAG,Arial,sans-serif;color:#5b3b84;border-radius:18px;background:#fff1c5;border:2px solid #fff;padding:8px 12px;white-space:nowrap;}
+.lab-candy-scenery {
+  position:relative;min-height:230px;overflow:hidden;border-radius:19px;
+  background:url('./candy-world-map.jpg?v=candy1') center/100% 100% no-repeat #ffd8e8;
+  border:3px solid #ffffffeb;box-shadow:0 7px 14px #275a8a50;
+}
+.lab-candy-node {
+  position:absolute!important;left:var(--x)!important;top:var(--y)!important;
+  transform:translate(-50%,-50%);
+  width:clamp(76px,10vw,136px);min-height:75px;
+  padding:1px!important;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;
+  color:#582760!important;background:transparent!important;
+  border:0!important;box-shadow:none!important;cursor:pointer;
+}
+.lab-candy-status{
+  background:linear-gradient(#fffaff,#fce2fa);border:2px solid #fff;
+  border-radius:50px;padding:5px 9px;box-shadow:0 3px 0 #ae6296a1;
+  font:11px VAG,Arial,sans-serif;white-space:nowrap;color:#7c3f80;
+}
+.lab-candy-node:not(.locked):not(.done) .lab-candy-status{
+  background:linear-gradient(#b3ff9c,#3ada65);color:#205d36;
+  box-shadow:0 0 0 4px #caffc699,0 4px 0 #2f8851;
+}
+.lab-candy-node.done .lab-candy-status {background:#fff0a2;color:#735217;}
+.lab-candy-name{
+  padding:3px 7px;border-radius:9px;border:1px solid #fff;
+  background:#fffffff0;color:#56316f;
+  font:clamp(9px,1vw,12px) Homebody,VAG,Arial,sans-serif;
+  text-shadow:0 1px #fff;white-space:nowrap;
+}
+.lab-candy-node.locked {opacity:.78;}
+.lab-candy-node:hover:not(:disabled) .lab-candy-status {transform:translateY(-3px);}
+.lab-candy-node:focus-visible {outline:4px solid #ffca47!important;outline-offset:5px;}
+.lab-candy-actions{display:flex;justify-content:center;align-items:center;gap:11px;padding:0 18px;}
+.lab-candy-actions button {
+  height:55px;max-width:260px;flex:1;
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid #fff;border-radius:17px;
+  background:linear-gradient(#7fd3ff,#228bdc);color:white;
+  font:clamp(13px,1.5vw,20px) Homebody,VAG,Arial,sans-serif;
+  text-transform:uppercase;
+  box-shadow:0 4px 0 #4772b486;
+}
+.lab-candy-actions button:nth-child(2){background:linear-gradient(#d5a3ff,#9154d3);}
+.lab-candy-actions button:nth-child(3){background:linear-gradient(#ffdd7e,#f79d26);}
+body.adventure-mode .lab-candy-collection{grid-template-columns:repeat(4,minmax(0,1fr));}
+body.adventure-mode .lab-candy-collection img {max-width:110px;object-fit:contain;}
+body.adventure-mode .lab-candy-collection article {background:linear-gradient(#fff,#fff6f9);border-color:#eeb7d9;}
+/* Every use of KA HOMEBODY CLUB in the game must appear uppercase. */
+body.adventure-mode h1,body.adventure-mode h2,body.adventure-mode h3,
+body.adventure-mode .lab-map-home .lab-player-meta b,
+body.adventure-mode .lab-main-nav button,
+body.adventure-mode .lab-next-play,body.adventure-mode .lab-world-name,
+body.adventure-mode .lab-world-heading,body.adventure-mode .lab-activity-card strong,
+body.adventure-mode .lab-candy-name,body.adventure-mode .lab-candy-actions button,
+body.adventure-mode .lab-map-title {
+  text-transform:uppercase!important;
+}
+@media(max-width:1000px){
+ body.adventure-mode>header {height:90px!important;min-height:90px!important;}
+ body.lab-map-active .lab-map-home {grid-template-rows:139px 53px minmax(260px,1fr) 61px!important;min-height:555px!important;}
+ body.lab-map-active #kaple-guide {width:185px!important;height:144px!important;}
+ body.lab-map-active .lab-game-hud {padding:42px 6px 0 185px!important;gap:5px!important;}
+ body.lab-map-active .lab-player-compact {width:174px!important;}
+ body.lab-map-active .lab-friend-compact {width:190px!important;}
+ body.lab-map-active .lab-map-title {padding-left:188px!important;padding-right:181px!important;}
+ body.lab-map-active .lab-map-title h2 {font-size:25px!important;}
+ body.lab-map-active #continue-adventure.lab-next-play {top:146px!important;right:12px!important;width:162px!important;max-width:162px!important;height:54px!important;max-height:54px!important;font-size:15px!important;}
+ body.lab-map-active .lab-main-nav {padding-left:170px!important;padding-right:12px!important;}
+}
+@media(max-width:700px){
+ body.adventure-mode>header {height:78px!important;min-height:78px!important;padding-right:7px!important;}
+ body.adventure-mode>header .actions {gap:3px!important;}
+ body.adventure-mode>header .actions button {font-size:9px;padding:6px!important;}
+ body.lab-map-active .lab-map-home {grid-template-rows:135px 56px minmax(260px,1fr) 65px!important;min-height:535px!important;}
+ body.lab-map-active #kaple-guide {top:calc(var(--screen-top,85px) + 9px)!important;width:139px!important;height:130px!important;}
+ body.lab-map-active .lab-game-hud {padding-left:138px!important;padding-top:34px!important;gap:4px!important;}
+ body.lab-map-active .lab-player-compact {width:137px!important;}
+ body.lab-map-active .lab-friend-compact {width:144px!important;}
+ body.lab-map-active .lab-map-title {padding-left:138px!important;padding-right:110px!important;}
+ body.lab-map-active .lab-map-title h2 {font-size:19px!important;white-space:normal;}
+ body.lab-map-active #continue-adventure.lab-next-play {top:151px!important;width:104px!important;max-width:104px!important;height:51px!important;font-size:11px!important;}
+ body.lab-map-active .lab-main-nav {padding-left:8px!important;padding-right:8px!important;}
+ .lab-candy-world {grid-template-rows:65px minmax(240px,1fr) 62px!important;padding:5px!important;}
+ .lab-candy-heading {gap:3px;padding:3px 5px;}
+ .lab-candy-heading button {font-size:9px;padding:5px;}
+ .lab-candy-heading small {font-size:8px;}
+ .lab-candy-heading h2 {font-size:18px;}
+ .lab-candy-progress {font-size:9px;padding:5px;}
+ .lab-candy-node {min-height:50px;width:63px;}
+ .lab-candy-status {font-size:8px;padding:2px 4px;}
+ .lab-candy-name {font-size:7px;padding:2px;}
+ .lab-candy-actions {gap:4px;padding:0;}
+ .lab-candy-actions button {font-size:10px;}
+}
