@@ -1,7 +1,7 @@
 import {tellGuide,starIcon} from './viewport.mjs?v=lab1';
 import {decorations,worldCosts} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 
-import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from '../rainbow-road/adventure-core.mjs?v=20261021-menu';
+import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=lab64';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
@@ -10,7 +10,26 @@ let dataPromise;
 export async function openAdventure({number,storageKey,teacherName,teachers,goPractice,onLogout}){
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
- const chars=data.characters,lands=data.rainbow_lands,levels=data.levels.map(l=>({...l,primarySkill:'arrows'})),config=data.game_config,key=storageKey;
+ const worldThemes=[
+ {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/game-assets/backgrounds/candy_clouds_day.webp'},
+ {name:'Pirate',icon:'🏴‍☠️',id:'pirate',color:'#d39a54',backgroundImage:'/game-assets/backgrounds/rainbow_meadow_twilight.webp'},
+ {name:'Arctic',icon:'🐧',id:'arctic',color:'#60c4f3',backgroundImage:'/game-assets/backgrounds/cloud_kingdom_day.webp'},
+ {name:'Castle',icon:'🏰',id:'castle',color:'#9c7cdd',backgroundImage:'/game-assets/backgrounds/cloud_kingdom_twilight.webp'},
+ {name:'Space',icon:'🚀',id:'space',color:'#7659de',backgroundImage:'/game-assets/backgrounds/galaxy_gardens_day.webp'},
+ {name:'Jurassic',icon:'🦕',id:'jurassic',color:'#5fbc74',backgroundImage:'/game-assets/backgrounds/rainbow_meadow_day.webp'},
+ {name:'Ocean',icon:'🐬',id:'ocean',color:'#41bce2',backgroundImage:'/game-assets/backgrounds/rainbow_reef_day.webp'},
+ {name:'Lava',icon:'🌋',id:'lava',color:'#ee7748',backgroundImage:'/game-assets/backgrounds/star_trophy_land_twilight.webp'}
+ ];
+ const activityNames=['First Steps','Rainbow Turns','Find the Treasure','Bridge Crossing','Star Path','Friend Quest','Winding Maze','World Finale'];
+ const chars=data.characters,lands=data.rainbow_lands,
+ levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
+   const template=data.levels[ai];
+   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+title,
+     worldIndex:wi,worldStage:ai+1,backgroundImage:world.backgroundImage,primarySkill:'arrows',
+     mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
+     skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
+ })),config=data.game_config,key=storageKey;
+ config.levelCount=levels.length;
  let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-lab-teacher-settings')||'{}')}catch{settings={}}
@@ -36,7 +55,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play mazes to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit a world you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first)first.hidden=true;
  }
  function navigate(where){if(r)save();if(where==='map'||where==='stuff')map();if(where==='shop')starShop();if(where==='play')playNext();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='decor')decorShop();if(where==='computer')computer()}
- function nextLevel(){const unfinished=levels.find(l=>!a.completedLevelIds.includes(l.id)&&l.number<=a.highestUnlockedLevel);const current=a.activeRun&&!a.activeRun.complete?levels.find(l=>l.id===a.activeRun.id):null;return current||unfinished||levels[11]}
+ function nextLevel(){const unfinished=levels.find(l=>!a.completedLevelIds.includes(l.id)&&l.number<=a.highestUnlockedLevel);const current=a.activeRun&&!a.activeRun.complete?levels.find(l=>l.id===a.activeRun.id):null;return current||unfinished||levels[levels.length-1]}
  function playNext(){startLevel(nextLevel().number)}
  function canRescue(){return rescueReady(a)&&chars.some(c=>!a.friends[c.id])}
  function continueRescue(){if(!canRescue()){map();return}if(a.pendingRescueFriendId)place(a.pendingRescueFriendId,true);else rescue()}
@@ -51,54 +70,60 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function landCards(){return '<div class="adventure-cards land-cards">'+lands.map(l=>'<button data-land="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><span>'+(view==='select'?'Training camp':owned(l.id)?'Owned ✓':'Buy · ⭐ '+worldCosts[lands.indexOf(l)])+'</span></button>').join('')+'</div>'}
 
 
+
+ function isWorldUnlocked(i){return a.highestUnlockedLevel>=i*8+1}
+ function worldDoneCount(i){return levels.slice(i*8,i*8+8).filter(l=>a.completedLevelIds.includes(l.id)).length}
  function map(){
   view='map';
-  const next=nextLevel();
-  const resume=a.activeRun&&!a.activeRun.complete&&a.activeRun.id===next.id;
-  const remaining=Math.max(0,3-a.mazesSinceRescue),playerId=a.selectedPlayerCharacterId;
+  const next=nextLevel(),playerId=a.selectedPlayerCharacterId;
+  const remaining=Math.max(0,3-a.mazesSinceRescue);
   const moreFriends=chars.some(c=>!a.friends[c.id]);
-  const progress=canRescue()?'Your next friend is ready!':moreFriends?remaining+' more '+(remaining===1?'maze':'mazes')+' to your next friend':'All 8 friends rescued!';
-  const completed=a.completedLevelIds.length;
-  const positions=[[9,72],[20,52],[32,76],[44,45],[56,68],[68,34],[80,57],[91,25]];
-  const themes=[
-    {emoji:'🌼',shade:'meadow'},{emoji:'☁️',shade:'clouds'},
-    {emoji:'⌨️',shade:'candy'},{emoji:'🦀',shade:'reef'},
-    {emoji:'✨',shade:'stars'},{emoji:'🚀',shade:'rocket'},
-    {emoji:'🌅',shade:'sunset'},{emoji:'🌈',shade:'finish'}
-  ];
-  const nodes=levels.slice(0,8).map((l,i)=>{
-    const done=a.completedLevelIds.includes(l.id),unlocked=l.number<=a.highestUnlockedLevel,active=l.id===next.id;
-    const icon=done?'⭐':unlocked?themes[i].emoji:'🔒';
-    const label=done?'DONE':active?'PLAY':unlocked?'OPEN':'LOCKED';
-    return '<button type="button" class="lab-map-node lab-theme-'+themes[i].shade+(done?' done':'')+(active?' next':'')+'" style="left:'+positions[i][0]+'%;top:'+positions[i][1]+'%" data-level="'+l.number+'" '+(unlocked?'':'disabled')+' aria-label="Maze '+l.number+', '+esc(l.title)+', '+(done?'finished':unlocked?'unlocked':'locked')+'">'+
-      '<span class="lab-node-scene">'+img(l.backgroundImage,'','lab-scene-img')+'<span class="lab-node-icon" aria-hidden="true">'+icon+'</span></span>'+
-      '<span class="lab-node-label"><b>'+l.number+'. '+esc(l.title)+'</b><em>'+label+'</em></span>'+
-    '</button>';
+  const progress=canRescue()?'A new friend is ready!':moreFriends?remaining+' more '+(remaining===1?'maze':'mazes')+' until your next friend!':'All 8 friends rescued!';
+  const coords=[[9.4,68],[20.6,44],[32.1,70],[44.1,38],[56.7,65],[68.2,35],[80,57],[90.7,29]];
+  const nodes=worldThemes.map((world,i)=>{
+   const count=worldDoneCount(i),open=isWorldUnlocked(i),current=next.worldIndex===i;
+   return '<button type="button" class="lab-world-node'+(count===8?' completed':'')+(current?' current':'')+'" data-world-index="'+i+'" style="left:'+coords[i][0]+'%;top:'+coords[i][1]+'%" '+(open?'':'disabled')+' aria-label="'+world.name+' world, '+count+' of 8 mazes complete, '+(open?'open':'locked')+'">'+
+    '<span class="lab-world-pin" aria-hidden="true">'+(count===8?'⭐':open?'▶':'🔒')+'</span><span class="lab-world-name">'+(i+1)+'. '+world.name+'</span><span class="lab-world-count">'+(open?count+' / 8':'LOCKED')+'</span></button>';
   }).join('');
-  const path='<svg class="lab-map-path" viewBox="0 0 1000 450" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="lab-road" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ff8ac8"/><stop offset=".18" stop-color="#ab82fc"/><stop offset=".35" stop-color="#4ac5f8"/><stop offset=".53" stop-color="#6ce1a2"/><stop offset=".73" stop-color="#ffe66a"/><stop offset="1" stop-color="#ff9c6a"/></linearGradient></defs><path class="lab-path-shadow" d="M90 324 C145 340 155 222 200 234 S275 375 320 342 S397 165 440 203 S516 345 560 306 S640 108 680 153 S744 323 800 257 S875 174 910 113"/><path class="lab-path-color" d="M90 324 C145 340 155 222 200 234 S275 375 320 342 S397 165 440 203 S516 345 560 306 S640 108 680 153 S744 323 800 257 S875 174 910 113"/><path class="lab-path-dashes" d="M90 324 C145 340 155 222 200 234 S275 375 320 342 S397 165 440 203 S516 345 560 306 S640 108 680 153 S744 323 800 257 S875 174 910 113"/></svg>';
-  const scene='<div class="lab-decor" aria-hidden="true"><span class="lab-cloud c1">☁️</span><span class="lab-cloud c2">☁️</span><span class="lab-cloud c3">☁️</span><span class="lab-spark s1">✦</span><span class="lab-spark s2">✦</span><span class="lab-spark s3">✧</span><span class="lab-garden g1">🌷</span><span class="lab-garden g2">🌿</span><span class="lab-garden g3">🌸</span></div>';
   const rescueAction=canRescue()?'<button id="ready-rescue" class="lab-rescue" type="button">🐾 Rescue Friend!</button>':'';
-  const mapLabel=next.number<=8?'Maze '+next.number+' • '+esc(next.title):'Bonus maze '+next.number;
-  shell('My Adventure Home',
-    '<section class="lab-home" aria-label="My rainbow adventure home">'+
-      '<div class="lab-top">'+
-        '<div class="lab-player"><div class="lab-player-image">'+pic(playerId)+'</div><div class="lab-player-info"><small>MY PLAYER</small><h2>'+esc(char(playerId).name)+'</h2><span class="lab-stage">'+esc(currentStage(playerId))+'</span><button id="change-player" type="button">Change Player ›</button></div></div>'+
-        '<div class="lab-friend"><div><small>NEXT FRIEND</small><h3>'+esc(progress)+'</h3><div class="lab-meter" role="progressbar" aria-label="Mazes towards your next friend" aria-valuemin="0" aria-valuemax="3" aria-valuenow="'+Math.min(3,a.mazesSinceRescue)+'"><i style="width:'+(Math.min(3,a.mazesSinceRescue)/3*100)+'%"></i></div><p>'+Math.min(3,a.mazesSinceRescue)+' of 3 mazes</p>'+rescueAction+'</div><span class="lab-secret" aria-hidden="true">'+(moreFriends?'?':'⭐')+'</span></div>'+
-      '</div>'+
-      '<section class="lab-world" aria-label="Choose a maze on the map">'+
-        '<div class="lab-map-head"><div><small>🌈 MAP ONE · RAINBOW ADVENTURE</small><h2>Choose Your Maze</h2><p>'+Math.min(8,levels.slice(0,8).filter(l=>a.completedLevelIds.includes(l.id)).length)+' of 8 map stops finished</p></div><div class="lab-next-action"><button class="lab-play" id="continue-adventure" type="button">▶ '+(resume?'CONTINUE':'PLAY NEXT')+'</button><span>'+mapLabel+'</span></div></div>'+
-        '<div class="lab-map-ground">'+scene+path+nodes+'<span class="lab-start" aria-hidden="true">START</span><span class="lab-end" aria-hidden="true">🏰 FINISH</span></div>'+
-      '</section>'+
-      '<nav class="lab-menu" aria-label="Home game navigation"><button type="button" data-nav="map" class="lab-home-button"><span aria-hidden="true">🏠</span> Home</button><button type="button" data-nav="shop" class="lab-shop-button"><span aria-hidden="true">⭐</span> Star Shop</button><button type="button" data-nav="computer" class="lab-collection-button"><span aria-hidden="true">💻</span> My Collections</button></nav>'+
-      '<details class="lab-more"><summary>⚙️ More options</summary><div><button type="button" data-nav="lands">🌍 My Worlds</button><button type="button" id="endless">Arrow Practice</button><button type="button" id="teacher-settings">Teacher Settings</button><details><summary>All 12 Mazes</summary><div class="lab-level-list">'+levels.map(l=>'<button type="button" data-level="'+l.number+'" '+(l.number>a.highestUnlockedLevel?'disabled':'')+'>Maze '+l.number+(a.completedLevelIds.includes(l.id)?' ✓':'')+'</button>').join('')+'</div></details></div></details>'+
-    '</section>'
+  const now=worldThemes[next.worldIndex]||worldThemes[7];
+  shell('Rainbow World Map',
+   '<section class="lab-map-home" aria-label="Interactive eight-world rainbow map">'+
+    '<div class="lab-game-hud"><div class="lab-player-compact"><div class="lab-player-figure">'+pic(playerId)+'</div><div class="lab-player-meta"><span class="lab-kicker">MY PLAYER</span><b>'+esc(char(playerId).name)+'</b><small>'+esc(currentStage(playerId))+'</small><button id="change-player" type="button">Change Player ›</button></div></div>'+
+    '<div class="lab-friend-compact"><span class="lab-kicker">NEXT FRIEND</span><b>'+esc(progress)+'</b><div class="lab-meter" role="progressbar" aria-valuenow="'+Math.min(3,a.mazesSinceRescue)+'" aria-valuemin="0" aria-valuemax="3"><i style="width:'+(Math.min(3,a.mazesSinceRescue)/3*100)+'%"></i></div>'+rescueAction+'</div></div>'+
+    '<div class="lab-map-title"><span>🌈 8 magical worlds · 8 mazes each</span><h2>Choose Your World!</h2><p>Follow the rainbow road. Earn stars. Unlock new lands!</p></div>'+
+    '<div class="lab-map-canvas" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+nodes+'</div>'+
+    '<button id="continue-adventure" type="button" class="lab-next-play">▶ PLAY NEXT <small>'+esc(now.name)+' · Maze '+next.worldStage+'</small></button>'+
+    '<nav class="lab-main-nav" aria-label="Game navigation"><button type="button" data-nav="map">🏠 <span>Home</span></button><button type="button" data-nav="shop">⭐ <span>Star Shop</span></button><button type="button" data-nav="computer">💻 <span>My Collections</span></button></nav>'+
+    '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="lands">My Friend Worlds</button><button type="button" id="endless">Arrow Practice</button><button type="button" id="teacher-settings">Teacher Settings</button></details>'+
+   '</section>'
   );
   $('change-player').onclick=()=>selectCharacter(true);
   $('continue-adventure').onclick=playNext;
   $('ready-rescue')?.addEventListener('click',continueRescue);
   $('teacher-settings').onclick=teacher;
   $('endless').onclick=()=>{save();cleanup();goPractice()};
-  document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.level)));
+  document.querySelectorAll('[data-world-index]').forEach(b=>b.onclick=()=>openWorld(Number(b.dataset.worldIndex)));
+ }
+ function openWorld(i){
+   if(!isWorldUnlocked(i))return map();
+   const world=worldThemes[i];
+   view='world-select';
+   const cards=levels.slice(i*8,i*8+8).map((l,k)=>{
+     const cleared=a.completedLevelIds.includes(l.id),open=l.number<=a.highestUnlockedLevel;
+     return '<button type="button" class="lab-activity-card'+(cleared?' cleared':'')+'" data-level="'+l.number+'" '+(open?'':'disabled')+'>'+
+       '<span class="lab-activity-icon">'+(cleared?'⭐':open?world.icon:'🔒')+'</span>'+
+       '<span class="lab-activity-number">MAZE '+(k+1)+'</span><strong>'+esc(activityNames[k])+'</strong>'+
+       '<small>'+(cleared?'COMPLETED ✓':open?'▶ PLAY':'LOCKED')+'</small></button>';
+   }).join('');
+   shell(world.name+' World',
+    '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+')">'+
+    '<div class="lab-world-heading"><button id="lab-back-map" type="button">← World Map</button>'+
+    '<div><span>WORLD '+(i+1)+' OF 8</span><h2>'+world.icon+' '+esc(world.name)+' World</h2><p>'+worldDoneCount(i)+' of 8 mazes finished</p></div></div>'+
+    '<div class="lab-world-activities">'+cards+'</div>'+
+    '<p class="lab-world-tip">Use your arrow keys to move. Finish each maze to unlock the next!</p></section>');
+   $('lab-back-map').onclick=map;
+   document.querySelectorAll('.lab-activity-card[data-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.level)));
  }
 
  function stuff(){map()}
@@ -143,7 +168,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function computer(){
  view='computer';const cards=(items,owned)=>items.map(i=>'<article class="'+(owned.includes(i.id)?'earned-item':'waiting-item')+'">'+img(i.image,i.name)+'<strong>'+esc(i.name)+'</strong><p>'+(owned.includes(i.id)?'✓ Collected':'Keep exploring')+'</p></article>').join('');
  const all=data.computer_collectibles.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
- shell('My Rainbow Computer','<h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('level_12')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect all five items and four skill badges, then finish level 12. Replay any level to collect something you missed.</p>'));
+ shell('My Rainbow Computer','<h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('lab_lava_8')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect all five items and four skill badges, then finish the Lava finale. Replay any maze to collect something you missed.</p>'));
  if($('build-computer'))$('build-computer').onclick=finale;
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
@@ -238,7 +263,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label>Challenge <select id="set-difficulty"><option value="standard">Standard</option><option value="gentle">Gentle · no obstacles</option></select></label><label>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show hints'],['sound','Celebration sound'],['reducedMotion','Reduce motion'],['touchArrows','Allow on-screen arrow buttons']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
  modal('Teacher settings',content,()=>{$('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;for(const k of ['hints','sound','reducedMotion','touchArrows'])$('set-'+k).checked=settings[k];
  $('save-settings').onclick=()=>{settings.difficulty=$('set-difficulty').value;settings.speed=Number($('set-speed').value);for(const k of ['hints','sound','reducedMotion','touchArrows'])settings[k]=$('set-'+k).checked;settings.costs={power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))};config.progression.upgradeCost={...settings.costs};try{localStorage.setItem('arrow-lab-teacher-settings',JSON.stringify(settings))}catch{}save();closeModal();if(view==='maze')startLevel(def.number,true);else map()};
- $('skip-level').onclick=()=>{a.highestUnlockedLevel=Math.min(12,a.highestUnlockedLevel+1);save();closeModal();map()};
+ $('skip-level').onclick=()=>{a.highestUnlockedLevel=Math.min(levels.length,a.highestUnlockedLevel+1);save();closeModal();map()};
  $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{const rows=[['Homeroom','Number','Levels','Friends','Rainbow Stars','Equipment','Skill badges']];for(const t of teachers)for(let n=1;n<=24;n++){try{const raw=JSON.parse(localStorage.getItem('arrow-lab-class-v1:'+t.id+':'+n)||'null'),d=raw?.adventure;if(d)rows.push([raw.teacherName||t.name,n,d.completedLevelIds.length,Object.keys(d.friends).length,d.wallet.rainbowStars,d.collectedComputerGearIds.join(' / '),d.earnedSkillBadgeIds.join(' / ')])}catch{}}const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');link.href=url;link.download='arrow-adventure-progress.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  });
  }
