@@ -1,6 +1,6 @@
 import {starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
 import {queueStudentSync} from './central-sync.mjs?v=20261026-central';
-import {showClassReport} from './class-report.mjs?v=20261026';
+import {showClassReport} from './class-report.mjs?v=20261026-dated';
 import {segmentHitsRect} from './collision.mjs';
 import {saveKey,legacyKey,copyLegacy,isClaimed} from './identity.mjs?v=20261021-class24';
 import {worldCosts,migrate,buyWorld,grow,place,buyDecoration,savePosition,decorations,switchPlayer} from './economy.mjs?v=20261021-class24';
@@ -75,7 +75,7 @@ function play(){if(state.pendingRescue){rescueFlow();return}if(!state.current){s
 let visibleIds=task.ids.filter(id=>!task.done.includes(id)).slice(0,3);if(!visibleIds.length)visibleIds=[expected];if(review){visibleIds=[expected,...allItems.filter(id=>id!==expected).slice((task.done.length*2)%8,(task.done.length*2)%8+2)];if(task.done.length%2)visibleIds.reverse()}
 shell(`<div class="toolbar"><button id="home">← Home</button><span class="tag">${title} · ${task.done.length}/${task.ids.length} packed</span><button id="spend-stars" class="shop-wallet">⭐ ${state.stars} · Star Shop</button></div><section class="guide-mission" data-guide="${review?'rigby':'ms_kaple'}" aria-label="${review?'Rigby':'Ms. Kaple'}’s packing request"><img class="mission-guide" src="${image(characters.find(c=>c.id===(review?'rigby':'ms_kaple')))}" alt="${review?'Rigby':'Ms. Kaple'}"><div class="speech-bubble"><span class="guide-name">${review?'RIGBY SAYS':'MS. KAPLE SAYS'}</span><div class="speech-content">${practice&&!finished?`<img class="request-picture" src="${pic(expected)}" alt="">`:''}<p class="packing-request">${instruction}</p>${reader(instruction+'. '+(!finished&&practice?vocabulary[expected]:finished?'':'Find the right item and pack it in the bag.'))}</div></div></section><div class="steps"><span>1. CLICK AND HOLD</span><span>2. DRAG</span><span>3. DROP</span></div><section class="board story-board adventure-field layout-${(state.round*11+state.stage)%4}" style="background-image:url('${asset(world.homeBackground)}')" aria-label="Pack the adventure bag"><div class="world-label">📍 ${world.name}${state.ownedWorlds.includes(world.id)?'':' · Training camp'}</div><div class="rainbow-trail" aria-hidden="true"></div>${badGuys.map((enemy,i)=>`<div class="bad-guy hazard-${i} ${[7,9].includes(state.stage)?'patrol':''}" aria-label="Avoid ${enemy.name}"><div class="enemy-body"><img src="${asset(enemy.thumbnail)}" alt="${enemy.name}"></div><span>${enemy.name}</span></div>`).join('')}<div class="supplies" aria-label="Scattered supplies">${visibleIds.map((id,i)=>`<div class="piece supply-${i} ${finished?'placed':''}" data-piece="${id}" role="img" aria-label="Drag ${names[id]}"><img draggable="false" src="${pic(id)}" alt=""><span>${names[id]}</span></div>`).join('')}</div><div class="target bag-target ${finished?'done':''}" data-target="${expected}"><span class="bag-picture" aria-hidden="true">🎒</span><strong>Adventure bag</strong><span>${practice?names[expected]:'Drop the right item here'}</span><span>${task.done.length} / ${task.ids.length} packed</span></div>${badGuys.length?'<div class="field-tip">Drag around the bad guys. Keep holding!</div>':''}</section><p id="feedback" role="status" class="center">${finished?'Bag packed! Choose Next.':practice?vocabulary[expected]:'Find the tech item. Pack it to earn ⭐ 1!'}</p><div class="center game-footer"><button class="speaker" id="help" aria-label="Hear the instructions">🔊</button><button id="next" class="primary" ${finished?'':'hidden'}>${review?'My star check':'Next →'}</button></div>`);document.body.classList.add('playing');$('.speech-bubble').append($('.steps'));$('#home').onclick=home;$('#spend-stars').onclick=()=>openShop('play');$('#help').onclick=()=>speak(instruction+'. '+criteria.join(' ')+(badGuys.length?' Keep holding and drag around the bad guys. If you bump a bad guy, try again.':''));$('#next').onclick=complete;document.querySelectorAll('[data-piece]').forEach(el=>el.onpointerdown=beginDrag);$('.adventure-field')?.addEventListener('pointerdown',trackBoardClick,true);startHazards()}
 
-function trackBoardClick(e){if(e.pointerType!=='mouse'||e.button!==0||!task||task.done.length===task.ids.length)return;task.totalClicks=(task.totalClicks||0)+1;save()}
+function trackBoardClick(e){if(e.pointerType!=='mouse'||e.button!==0||!task||task.done.length===task.ids.length)return;task.totalClicks=(task.totalClicks||0)+1;state.lastInteractionAt=Date.now();save()}
 function feedback(text){$('#feedback').textContent=text}
 function cancelDrag(){if(!drag)return;drag.ghost.remove();drag.el.classList.remove('held');document.querySelectorAll('.hot').forEach(e=>e.classList.remove('hot'));drag=null}
 function beginDrag(e){if(e.pointerType!=='mouse'){task.touchBlocked++;save();feedback('Use your trackpad and two hands. Screen touching does not move the pictures.');e.preventDefault();return}if(e.button!==0||task.done.length===task.ids.length||drag)return;e.preventDefault();task.attempts=(task.attempts||0)+1;save();const el=e.currentTarget;el.setPointerCapture(e.pointerId);const ghost=document.createElement('img');ghost.src=el.querySelector('img').src;ghost.className='ghost';ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';ghost.alt='';document.body.append(ghost);el.classList.add('held');drag={el,ghost,id:el.dataset.piece,pointerId:e.pointerId,x:e.clientX,y:e.clientY,distance:0,started:performance.now()};}
@@ -135,14 +135,14 @@ function submitRating(){
  if(!ratingIsComplete())return;
  const today=schoolClock().date,answers={...state.ratingDraft};
  state.records.push({type:'skill-rating',round:state.round,ratings:answers,submittedAt:Date.now(),submittedDate:today});
- state.lastRatingDate=today;save();queueStudentSync(teacher,number,state,'rating');
+ state.lastRatingDate=today;state.lastInteractionAt=Date.now();save();queueStudentSync(teacher,number,state,'rating');
  shell(`<div class="center rate-thanks"><h2>⭐ Great job!</h2><p>Your four star ratings have been saved for Ms. Kaple.</p><p>Student #${number} · ${esc(teacher.name)}</p><button class="primary" id="rate-done">Back to adventure ▶</button></div>`);
  $('#rate-done').onclick=()=>ratingReturn==='play'?play():home();
 }
 
 function download(){
  const ratingWords=['','I need help','I’m practicing','I can do it on my own'];
- const rows=[['Student','Successful click-hold-drag-drops','Attempts','Both hands self-rating','Click & hold self-rating','Drag self-rating','Drop self-rating']];
+ const rows=[['Student','Date','Successful click-hold-drag-drops','Attempts','Both hands self-rating','Click & hold self-rating','Drag self-rating','Drop self-rating']];
  for(const t of teachers)for(let n=1;n<=24;n++){
   let data;try{data=JSON.parse(localStorage.getItem(saveKey(t.id,n)))}catch{}
   if(!data)continue;
@@ -150,7 +150,9 @@ function download(){
   const successful=activities.reduce((total,r)=>total+r.done.length,0);
   const attempts=activities.reduce((total,r)=>total+(Number(r.attempts)||0),0);
   const ratings=(data.records||[]).filter(r=>r.type==='skill-rating').at(-1)?.ratings||{};
-  rows.push([n+'-'+t.name,successful,attempts,...[0,1,2,3].map(i=>ratingWords[ratings[i]]||'Not submitted')]);
+  const timestamps=[data.lastInteractionAt||0,data.current?.started||0,...(data.records||[]).map(r=>r.finished||r.submittedAt||0)].map(Number).filter(Number.isFinite);
+  const latest=Math.max(0,...timestamps);const date=latest?new Date(latest).toLocaleDateString('en-US'):'';
+  rows.push([n+'-'+t.name,date,successful,attempts,...[0,1,2,3].map(i=>ratingWords[ratings[i]]||'Not submitted')]);
  }
  const csv=rows.map(row=>row.map(value=>'"'+String(value).replaceAll('"','""')+'"').join(',')).join('\r\n');
  const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');
