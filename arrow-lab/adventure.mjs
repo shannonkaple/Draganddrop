@@ -11,21 +11,21 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
  const worldThemes=[
- {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/game-assets/backgrounds/candy_clouds_day.webp'},
- {name:'Pirate',icon:'🏴‍☠️',id:'pirate',color:'#d39a54',backgroundImage:'/game-assets/backgrounds/rainbow_meadow_twilight.webp'},
- {name:'Arctic',icon:'🐧',id:'arctic',color:'#60c4f3',backgroundImage:'/game-assets/backgrounds/cloud_kingdom_day.webp'},
- {name:'Castle',icon:'🏰',id:'castle',color:'#9c7cdd',backgroundImage:'/game-assets/backgrounds/cloud_kingdom_twilight.webp'},
- {name:'Space',icon:'🚀',id:'space',color:'#7659de',backgroundImage:'/game-assets/backgrounds/galaxy_gardens_day.webp'},
- {name:'Jurassic',icon:'🦕',id:'jurassic',color:'#5fbc74',backgroundImage:'/game-assets/backgrounds/rainbow_meadow_day.webp'},
- {name:'Ocean',icon:'🐬',id:'ocean',color:'#41bce2',backgroundImage:'/game-assets/backgrounds/rainbow_reef_day.webp'},
- {name:'Lava',icon:'🌋',id:'lava',color:'#ee7748',backgroundImage:'/game-assets/backgrounds/star_trophy_land_twilight.webp'}
+ {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/arrow-lab/scenes/candy.jpg'},
+ {name:'Pirate',icon:'🏴‍☠️',id:'pirate',color:'#d39a54',backgroundImage:'/arrow-lab/scenes/pirate.jpg'},
+ {name:'Arctic',icon:'🐧',id:'arctic',color:'#60c4f3',backgroundImage:'/arrow-lab/scenes/arctic.jpg'},
+ {name:'Castle',icon:'🏰',id:'castle',color:'#9c7cdd',backgroundImage:'/arrow-lab/scenes/castle.jpg'},
+ {name:'Space',icon:'🚀',id:'space',color:'#7659de',backgroundImage:'/arrow-lab/scenes/space.jpg'},
+ {name:'Jurassic',icon:'🦕',id:'jurassic',color:'#5fbc74',backgroundImage:'/arrow-lab/scenes/jurassic.jpg'},
+ {name:'Ocean',icon:'🐬',id:'ocean',color:'#41bce2',backgroundImage:'/arrow-lab/scenes/ocean.jpg'},
+ {name:'Lava',icon:'🌋',id:'lava',color:'#ee7748',backgroundImage:'/arrow-lab/scenes/lava.jpg'}
  ];
  const activityNames=['First Steps','Rainbow Turns','Find the Treasure','Bridge Crossing','Star Path','Friend Quest','Winding Maze','World Finale'];
  const chars=data.characters,lands=data.rainbow_lands,
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+title,
-     worldIndex:wi,worldStage:ai+1,backgroundImage:world.backgroundImage,primarySkill:'arrows',
+     worldIndex:wi,worldStage:ai+1,backgroundImage:world.backgroundImage,sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',
      mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
  })),config=data.game_config,key=storageKey;
@@ -117,7 +117,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
        '<small>'+(cleared?'COMPLETED ✓':open?'▶ PLAY':'LOCKED')+'</small></button>';
    }).join('');
    shell(world.name+' World',
-    '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+')">'+
+    '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+');background-size:cover,400% 200%;background-position:center,0% 0%">'+
     '<div class="lab-world-heading"><button id="lab-back-map" type="button">← World Map</button>'+
     '<div><span>WORLD '+(i+1)+' OF 8</span><h2>'+world.icon+' '+esc(world.name)+' World</h2><p>'+worldDoneCount(i)+' of 8 mazes finished</p></div></div>'+
     '<div class="lab-world-activities">'+cards+'</div>'+
@@ -179,7 +179,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
  }
  function maze(){
- view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board" style="background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full">Full screen</button><div class="sr"><button data-direction="ArrowUp">↑</button><button data-direction="ArrowLeft">←</button><button data-direction="ArrowDown">↓</button><button data-direction="ArrowRight">→</button></div></div>');
+ view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full">Full screen</button><div class="sr"><button data-direction="ArrowUp">↑</button><button data-direction="ArrowLeft">←</button><button data-direction="ArrowDown">↓</button><button data-direction="ArrowRight">→</button></div></div>');
  document.body.classList.add('playing');
  $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>startLevel(def.number,true);$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;const keys=route(r.grid,r.player,target);status(keys?.length?'Try '+keys[0].slice(5).toUpperCase()+' next.':'You are at your next stop.');};
  $('adventure-full').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.().catch(()=>{})};
