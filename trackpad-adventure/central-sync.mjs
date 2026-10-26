@@ -1,4 +1,4 @@
-import {centralWebAppUrl} from './central-config.mjs';
+import {centralWebAppUrl} from './central-config.mjs?v=20261026-school-live';
 const QUEUE_KEY='ms-kaple-central-sync-queue-v1';
 let scheduled=0, sending=false;
 const enabled=()=>typeof centralWebAppUrl==='string'&&/^https:\/\/script\.google\.com\/(?:a\/macros\/centralcss\.org\/s|macros\/s)\/[A-Za-z0-9_-]+\/exec$/.test(centralWebAppUrl.trim());
