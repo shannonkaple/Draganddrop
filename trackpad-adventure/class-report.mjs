@@ -38,55 +38,44 @@ function answer(student,index){
  return [1,2,3].includes(value)?value:null;
 }
 export function showClassReport({teacher,saveKey,shell,onBack}){
- const students=Array.from({length:24},(_,i)=>loadStudent(teacher.id,i+1,saveKey)).filter(Boolean);
- const rated=students.filter(x=>x.latest);
- const now=new Date().toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'});
- const summary=skills.map((skill,i)=>{
+ const students=Array.from({length:24},(_,i)=>loadStudent(teacher.id,i+1,saveKey));
+ const present=students.filter(Boolean);
+ const rated=present.filter(s=>s.latest);
+ const labels=["","I need help","I'm practicing","I can do it on my own"];
+ const skills=[
+   ["Both hands","I can use both hands at the same time"],
+   ["Click & hold","I can click and hold"],
+   ["Drag","I can drag"],
+   ["Drop","I can drop"]
+ ];
+ const title=escapeHtml(teacher.name);
+ const now=new Date().toLocaleString("en-US",{dateStyle:"medium",timeStyle:"short"});
+ const summary=skills.map(([short,full],index)=>{
   const cells=[1,2,3].map(score=>{
-   const matching=rated.filter(student=>answer(student,i)===score).map(s=>'#'+s.number);
-   return `<td><strong>${matching.length} students</strong><span>${matching.length?matching.join(', '):'—'}</span></td>`;
-  }).join('');
-  return `<tr><th scope="row">${escapeHtml(skill)}</th>${cells}</tr>`;
- }).join('');
- const cards=students.map(student=>{
-  const responsesHtml=skills.map((skill,i)=>{
-   const rating=answer(student,i);
-   return `<li><strong>${escapeHtml(skill)}</strong><span>${rating?'⭐'.repeat(rating)+' '+responses[rating]:'Not submitted'}</span></li>`;
-  }).join('');
-  const latest=student.latest?new Date(student.latest.submittedAt||student.latest.finished||Date.now()).toLocaleString('en-US',{dateStyle:'short',timeStyle:'short'}):'Not submitted';
-  return `<article class="report-student">
-    <h3>Student #${student.number}</h3>
-    <p class="report-date">Latest rating: ${escapeHtml(latest)} ${student.submissions>1?'('+student.submissions+' submissions)':''}</p>
-    <ul class="report-responses">${responsesHtml}</ul>
-    <div class="report-metrics">
-    <span><strong>${student.drops}</strong> correct drops</span>
-    <span><strong>${student.totalClicks}</strong> game-board clicks</span>
-    <span><strong>${student.attempts}</strong> completed attempts</span>
-    <span><strong>${student.misses}</strong> misplaced drops</span>
-    <span><strong>${student.clickOnly}</strong> click-only attempts</span>
-    <span><strong>${student.bumps}</strong> obstacle bumps</span>
-    <span><strong>${student.touch}</strong> touch attempts blocked</span>
-    <span><strong>${student.friends}</strong> friends rescued</span>
-    </div>
-   </article>`;
- }).join('');
- const missing=students.filter(student=>!student.latest).map(student=>'#'+student.number);
- const teacherName=escapeHtml(teacher.name);
- shell(`<section class="class-report" id="class-report">
-   <div class="report-actions">
-    <button type="button" id="report-back">← Student numbers</button>
-    <button type="button" id="report-print" class="primary">🖨 Print / Save as PDF</button>
-   </div>
-   <header class="report-header"><h2>Trackpad Adventure — Class Results</h2><p><strong>${teacherName}</strong> · ${escapeHtml(now)}</p></header>
-   <p class="report-device-note"><strong>Device report only.</strong> This includes student numbers saved in this browser. Results from other student Chromebooks are not synchronized. Drag attempts are recorded interactions, not a measurement of the physical trackpad or which hands students used.</p>
-   <div class="report-total"><strong>${students.length}</strong> student records on device · <strong>${rated.length}</strong> completed star ratings</div>
-   <h3>What students said about each success criterion</h3>
-   <table class="report-summary"><thead><tr><th>Objective</th><th>⭐ I need help</th><th>⭐⭐ I'm practicing</th><th>⭐⭐⭐ On my own</th></tr></thead><tbody>${summary}</tbody></table>
-   <p class="report-missing">Student numbers without submitted ratings: <strong>${missing.length?missing.join(', '):'None among saved students'}</strong></p>
-   <h3>Individual student results</h3>
-   <div class="report-students">${cards||'<p>No student data was saved on this browser yet.</p>'}</div>
-   <p class="report-footer">Prepared from the current device’s locally saved student progress. Correct drops and attempts include an unfinished activity when one is saved.</p>
-  </section>`);
- document.getElementById('report-back').onclick=onBack;
- document.getElementById('report-print').onclick=()=>window.print();
+   const nums=rated.filter(s=>answer(s,index)===score).map(s=>s.number+"-"+teacher.name);
+   return `<td><strong>${nums.length}</strong><small>${escapeHtml(nums.join(", ")||"—")}</small></td>`;
+  }).join("");
+  return `<tr><th scope="row">${escapeHtml(short)}</th>${cells}</tr>`;
+ }).join("");
+ const studentRows=students.map((s,i)=>{
+  const name=escapeHtml((i+1)+"-"+teacher.name);
+  const cells=s?[
+    String(s.drops),
+    String(s.attempts),
+    ...[0,1,2,3].map(i=>escapeHtml(labels[answer(s,i)]||"Not submitted"))
+  ]:["—","—","Not submitted","Not submitted","Not submitted","Not submitted"];
+  return `<tr><th scope="row">${name}</th>${cells.map(x=>"<td>"+x+"</td>").join("")}</tr>`;
+ }).join("");
+ shell(`<section class="class-report">
+ <div class="report-actions"><button type="button" id="report-back">← Student numbers</button><button type="button" id="report-print" class="primary">🖨 Print / Save as PDF</button></div>
+ <header class="report-header"><h2>Ms. Kaple's Trackpad Adventure — ${title}</h2><p>${escapeHtml(now)} · ${present.length} student records on this device · ${rated.length} star check submissions</p></header>
+ <p class="report-device-note"><strong>This device only.</strong> For complete classwide results from every Chromebook, open the private Central Results Google Sheet. The game detects correct click-hold-drag-drop actions, not whether students physically used two hands.</p>
+ <h3>At a glance — student self-ratings</h3>
+ <table class="report-summary"><thead><tr><th>Skill</th><th>⭐ Need help</th><th>⭐⭐ Practicing</th><th>⭐⭐⭐ On my own</th></tr></thead><tbody>${summary}</tbody></table>
+ <h3>Student results by homeroom number</h3>
+ <table class="report-summary report-observation"><thead><tr><th>Student</th><th>Successful drops</th><th>Attempts</th><th>Both hands</th><th>Click & hold</th><th>Drag</th><th>Drop</th></tr></thead><tbody>${studentRows}</tbody></table>
+ <p class="report-footer">One attempt starts when a child presses a draggable item; a success requires placing the correct item in the backpack. Four skill answers are the student's latest self-ratings. In-progress and completed activities are counted.</p>
+ </section>`);
+ document.getElementById("report-back").onclick=onBack;
+ document.getElementById("report-print").onclick=()=>window.print();
 }
