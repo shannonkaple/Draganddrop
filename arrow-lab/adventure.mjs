@@ -289,7 +289,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  }
  function finish(){
  r.complete=true;if(def.worldIndex===0)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=Math.max(0,3-a.mazesSinceRescue);
- modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?'You finished three mazes! A friend is ready to rescue.':chars.some(c=>!a.friends[c.id])?left+' more '+(left===1?'maze':'mazes')+' until your next rescue.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+(ready?'🐾 Rescue a friend':'🏡 Home')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();afterLevel()}});
+ modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?'You finished three mazes! A friend is ready to rescue.':chars.some(c=>!a.friends[c.id])?left+' more '+(left===1?'maze':'mazes')+' until your next rescue.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+(def.worldIndex===0?'🍬 Candy Map':ready?'🐾 Rescue a friend':'🏡 Home')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();afterLevel()}});
  try{const old=JSON.parse(localStorage.getItem(key)||'{}');if(old.wallet){old.wallet.total+=5;old.wallet.earned+=5;old.wallet.finished+=1;localStorage.setItem(key,JSON.stringify(old))}}catch{}
  }
  function afterLevel(){if(def?.worldIndex===0){openCandyWorld();return}if(canRescue()){continueRescue();return}map()}
