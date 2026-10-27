@@ -131,3 +131,61 @@ body.adventure-mode:has(.aa-home){
 .flash-stats{display:flex;justify-content:center;gap:35px;font-size:clamp(16px,2vw,23px);font-weight:bold;}
 #flash-feedback{font-size:18px;margin:8px 0;}
 @media(max-height:650px){.flash-friend{height:50px}.flash-friend img{height:65px;width:65px}.flash-arrow{height:170px;width:230px;min-height:170px;font-size:150px}}
+
+
+/* Make the new choices unmistakable and the new STEM images easy to see. */
+.new-choice-heading{
+  margin:8px auto 12px;
+  text-align:center;
+  font:clamp(24px,3.2vw,40px)/1.15 Homebody,VAG,sans-serif;
+  color:#123b82;
+}
+.new-character-label{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:999px;
+  font:16px VAG,Arial,sans-serif;
+  color:#10264e;
+  background:#ffdc40;
+  border:2px solid #ffb21f;
+}
+.stem-collection .waiting-item{
+  opacity:1!important;
+  filter:none!important;
+  border-color:#2c9dde;
+  background:#ecfaff;
+}
+.stem-collection .earned-item{
+  background:#e5ffdc;
+  border-color:#4fae2a!important;
+}
+.stem-collection article{
+  min-width:0;
+  border:3px solid #2a8cdb;
+  border-radius:18px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  text-align:center;
+}
+.stem-collection article>img{
+  width:100%;
+  max-width:175px;
+  height:145px;
+  object-fit:contain;
+}
+.stem-collection article>strong{font-size:18px}
+.stem-collection article>p{margin:0;font-size:14px}
+.stem-collection article>small{font-size:13px}
+.stem-find{
+  min-height:39px;
+  padding:7px 11px;
+  font-size:15px;
+  background:#ffd600;
+  border:2px solid #111;
+}
+.friend-collection article{padding:10px;border:3px solid #7bbcf3;border-radius:17px;text-align:center;background:#effaff}
+.friend-collection article img{height:108px;width:100%;object-fit:contain}
+.friend-collection article p{margin:4px}
