@@ -94,13 +94,23 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  ];
  const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods];
  const findDecoration=id=>fullDecorations.find(d=>d.id===id);
+ const enemyRosters=[
+   ['purple_slime','chomper_plant','storm_cloud','prickly_cactus'], // Candy: four different playful monsters
+   ['cranky_crab','rock_golem','whirly_tornado','purple_slime'],   // Pirate
+   ['storm_cloud','rock_golem','cranky_crab','whirly_tornado'],    // Arctic
+   ['rock_golem','chomper_plant','storm_cloud','purple_slime'],    // Castle
+   ['whirly_tornado','purple_slime','lava_slime','storm_cloud'],   // Space
+   ['chomper_plant','prickly_cactus','rock_golem','cranky_crab'],  // Jurassic
+   ['cranky_crab','purple_slime','chomper_plant','storm_cloud'],   // Ocean
+   ['lava_slime','rock_golem','whirly_tornado','prickly_cactus']   // Lava
+ ];
  const chars=data.characters,lands=[...backgroundHomes,...data.rainbow_lands],worldCosts=lands.map((_,i)=>i<8?4+i*2:4+(i-8)*2),
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
      worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai),
-     mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
-     skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
+     mazeGrid:{width:Math.max(11,template.mazeGrid.width),height:Math.max(9,template.mazeGrid.height)},computerGearIds:[...template.computerGearIds],
+     skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...enemyRosters[wi]]};
  })),config=data.game_config,key=storageKey;
  config.levelCount=levels.length;
  let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
@@ -530,7 +540,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
    return;
  }
  const old=a.mazeRuns?.[def.id]||a.activeRun;
- const valid=old&&old.id===def.id&&!old.complete&&old.w===def.mazeGrid.width&&old.h===def.mazeGrid.height&&Array.isArray(old.grid)&&old.grid.length===old.h&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0&&(!def.collectibleIds||def.collectibleIds.every(id=>old.items.some(i=>i.id===id)));
+ const valid=old&&old.id===def.id&&!old.complete&&Number.isInteger(old.w)&&old.w>=5&&Number.isInteger(old.h)&&old.h>=5&&Array.isArray(old.grid)&&old.grid.length===old.h&&old.grid.every(row=>Array.isArray(row)&&row.length===old.w)&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0&&(!def.collectibleIds||def.collectibleIds.every(id=>old.items.some(i=>i.id===id)));
  if(restart)delete a.mazeRuns[def.id];
  report=valid&&!restart?'Welcome back! Keep going from your saved spot.':'Start at the star. Use your arrow keys.';
  r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
