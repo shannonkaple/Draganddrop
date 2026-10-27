@@ -1,0 +1,147 @@
+/* Arrow Adventure: accessible, responsive layout. 
+   Artwork is always contained at native proportions; never crop or stretch faces. */
+
+/* Horizontal toolbar remains inside the header, never stacks over the title. */
+body>header.lab-image-header {
+  position:fixed!important;left:0!important;top:0!important;
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  height:clamp(148px,22vh,222px)!important;
+  width:100%!important;padding:5px 12px!important;gap:3px!important;
+  background:linear-gradient(95deg,#e8ccff,#b9e9ff 27%,#fdf2ff 52%,#cafee7 74%,#ffe4f8)!important;
+  overflow:hidden!important;
+  border-bottom:2px solid #ffffff!important;
+}
+body>header.lab-image-header .brand {
+  display:flex!important;flex:1 1 auto!important;min-height:0!important;
+  align-items:center!important;justify-content:center!important;
+  max-width:100%!important;width:100%!important;
+  overflow:hidden!important;
+}
+body>header.lab-image-header img.lab-header-art {
+  display:block!important;position:static!important;
+  width:auto!important;height:100%!important;
+  max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;object-position:center!important;
+  margin:0 auto!important;
+}
+body>header.lab-image-header .actions {
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  flex:0 0 auto!important;width:auto!important;max-width:100%!important;
+  gap:clamp(4px,1vw,13px)!important;margin:0 auto!important;
+  justify-content:center!important;align-items:center!important;
+  padding:0!important;overflow-x:auto!important;overflow-y:hidden!important;
+}
+body>header.lab-image-header .actions button{
+  width:auto!important;max-width:none!important;flex:0 0 auto!important;
+  min-height:33px!important;padding:5px clamp(7px,1.1vw,16px)!important;
+  font-size:clamp(11px,1vw,15px)!important;
+  white-space:nowrap!important;line-height:1.1!important;
+  border-radius:11px!important;
+}
+@media(max-width:620px){
+ body>header.lab-image-header{height:clamp(130px,23vh,168px)!important;padding:4px!important}
+ body>header.lab-image-header .actions{width:100%!important;justify-content:flex-start!important}
+ body>header.lab-image-header .actions button{font-size:11px!important;padding:5px 6px!important}
+}
+
+/* Real images with known file paths render normally. Missing character pictures
+   must never be broken-image icons that students cannot recognize. */
+.pending-character-art{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ position:relative!important;min-width:56px!important;min-height:56px!important;
+ width:100%!important;height:100%!important;
+ background:radial-gradient(circle at 40% 30%,#fff9fc,#d4eaff)!important;
+ border:2px solid #fff!important;border-radius:22%!important;
+ box-shadow:0 3px 10px #5350862f!important;
+ font-size:clamp(40px,5vw,90px)!important;line-height:1!important;
+ overflow:hidden!important;
+}
+.pending-character-art>span{display:inline-block!important;line-height:1!important}
+.adventure-cards [data-hero] .pending-character-art{
+ display:flex!important;width:min(100%,160px)!important;
+ height:clamp(90px,10vw,160px)!important;margin:auto!important;
+}
+.character-player .pending-character-art{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;border:0!important;font-size:clamp(20px,4vw,65px)!important}
+.world-companion .world-friend-icon, .placing-friend .world-friend-icon{
+ display:grid!important;place-items:center!important;
+ width:clamp(90px,14vw,180px)!important;height:clamp(90px,14vw,180px)!important;
+ font-size:clamp(65px,10vw,135px)!important;line-height:1!important;
+}
+
+/* Every popup fits its CONTENT and the viewport. Strong white/ink contrast. */
+dialog#adventure-dialog{
+ position:fixed!important;top:50%!important;left:50%!important;
+ right:auto!important;bottom:auto!important;inset:auto!important;
+ display:none!important;transform:translate(-50%,-50%)!important;
+ width:max-content!important;max-width:min(760px,calc(100vw - 24px))!important;
+ min-width:min(290px,calc(100vw - 24px))!important;
+ height:fit-content!important;min-height:0!important;
+ max-height:calc(100dvh - 26px)!important;
+ margin:0!important;padding:clamp(12px,2vw,23px)!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+ border:3px solid #25215c!important;border-radius:24px!important;
+ background:#fffefb!important;color:#18264a!important;
+ box-sizing:border-box!important;box-shadow:0 18px 65px #111d5980!important;
+ text-align:center!important;scrollbar-width:thin;
+}
+dialog#adventure-dialog[open]{display:block!important;}
+dialog#adventure-dialog::backdrop{background:#101c4c99!important;}
+dialog#adventure-dialog h2,dialog#adventure-dialog #adventure-dialog-title{
+ color:#25376b!important;font-size:clamp(23px,3vw,36px)!important;
+ font-weight:900!important;line-height:1.12!important;
+ margin:10px 0!important;text-shadow:none!important;
+}
+dialog#adventure-dialog p,dialog#adventure-dialog label,
+dialog#adventure-dialog #skill-feedback{
+ color:#26334e!important;font-size:clamp(15px,1.4vw,20px)!important;
+ line-height:1.35!important;max-width:58ch!important;margin:8px auto 12px!important;
+}
+dialog#adventure-dialog .reward-stars{font-size:clamp(26px,3vw,37px)!important;color:#7238aa!important;}
+dialog#adventure-dialog button:not(.modal-home):not(.modal-fullscreen){
+ max-width:100%!important;min-height:43px!important;
+ font-size:clamp(15px,1.6vw,22px)!important;
+ color:#231c52!important;background:#e9dcff!important;
+ border:2px solid #664d95!important;
+ padding:7px 15px!important;white-space:normal!important;
+}
+dialog#adventure-dialog .modal-home,dialog#adventure-dialog .modal-fullscreen{
+ position:static!important;float:none!important;display:inline-flex!important;
+ vertical-align:top!important;width:auto!important;height:auto!important;
+ min-height:35px!important;margin:0 3px 8px!important;
+ padding:5px 9px!important;line-height:1.2!important;
+ font-size:clamp(11px,1vw,15px)!important;
+ color:#244377!important;background:#dff1ff!important;
+ border:2px solid #81b5df!important;border-radius:12px!important;
+}
+dialog#adventure-dialog .final-arrow-scene{
+ box-sizing:border-box!important;width:100%!important;
+ aspect-ratio:16/9!important;height:auto!important;
+ max-height:45dvh!important;background-size:contain!important;
+ background-position:center!important;background-repeat:no-repeat!important;
+}
+dialog#adventure-dialog .final-arrow-big{
+ font-size:clamp(90px,16vh,172px)!important;line-height:1!important;
+}
+dialog#adventure-dialog .final-arrow-frost{
+ min-height:0!important;padding:9px 16px!important;
+ background:#ffffffd9!important;
+}
+dialog#adventure-dialog #skill-sequence {
+ display:flex!important;justify-content:center!important;flex-wrap:wrap!important;
+ max-width:100%!important;gap:7px!important;margin:8px 0!important;
+}
+dialog#adventure-dialog #skill-sequence .pattern-arrow{
+ width:clamp(50px,9vw,104px)!important;
+ height:clamp(60px,11vw,114px)!important;
+ font-size:clamp(48px,8vw,90px)!important;
+}
+dialog#adventure-dialog .adventure-cards{
+ max-height:50dvh!important;overflow:auto!important;
+}
+@media(max-height:700px){
+ dialog#adventure-dialog{max-height:calc(100dvh - 12px)!important;padding:9px 12px!important}
+ dialog#adventure-dialog h2{font-size:clamp(20px,3vh,27px)!important;margin:4px!important}
+ dialog#adventure-dialog p{font-size:15px!important;margin:5px auto!important}
+ dialog#adventure-dialog .final-arrow-scene{max-height:40dvh!important}
+}
