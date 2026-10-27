@@ -308,7 +308,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function fit(){
  if(view!=='maze'||!r)return;document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||innerHeight)+'px');
  const m=$('adventure-maze'),box=document.querySelector('.scenic-board');if(!m||!box)return;const viewport=window.visualViewport?.height||innerHeight;
- const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/r.w,(box.clientHeight-24)/r.h,(viewport-box.getBoundingClientRect().top-55)/r.h)));m.style.width=size*r.w+'px';m.style.height=size*r.h+'px';
+ const controls=document.querySelector('.maze-controls');const reserve=Math.max(70,(controls?.getBoundingClientRect().height||0)+24);const remaining=Math.max(r.h,viewport-box.getBoundingClientRect().top-reserve-16);const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/r.w,(box.clientHeight-24)/r.h,remaining/r.h)));m.style.width=size*r.w+'px';m.style.height=size*r.h+'px';
  }
  function hit(){r.player={...r.checkpoint};status('Back to your safe checkpoint. You can try another path!');save();draw()}
  function move(key){
