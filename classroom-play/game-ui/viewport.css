@@ -6,3 +6,46 @@ body.playing:not(.guided)>header{height:44px!important;min-height:44px!important
 body>header{margin:0!important;flex:none!important}
 
 .word-cards>p{padding:12px;border:2px solid #000;border-radius:18px;margin:0;background:#fff;font-size:17px}.word-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.guided .guide-keys{display:flex;gap:4px;justify-content:center;width:100%;font:24px Arial,sans-serif}.guide-keys span{border:2px solid #000;border-radius:6px;padding:2px 7px;background:#FFD600}.guide-keys span:nth-child(2){background:#FF2D8D}.guide-keys span:nth-child(3){background:#6BCB24}.guide-keys span:nth-child(4){background:#24A8F2}
+
+
+/* Home-screen overlap repair: keep the character panel in normal flow.
+   Previously its content exceeded the forced 140px banner height. */
+.game-menu + .center > .home,
+.center > .home {
+  height: auto;
+  min-height: 225px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+.game-menu + .center > .home .bubble,
+.center > .home .bubble {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  max-width: min(100%, 290px);
+  padding: 8px 16px;
+  position: relative;
+}
+.game-menu + .center > .home .hero,
+.center > .home .hero {
+  display: block;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  flex: none;
+}
+.center > .home .bubble p {margin: 2px 0;line-height: 1.15;font-size: 17px}
+.center > .home .bubble small {display: block;font-size: 14px;line-height: 1.2}
+.game-menu + .center > h2 {margin: 14px 0 6px;line-height: 1.2;clear: both}
+.game-menu + .center > p {margin: 9px 0;line-height: 1.3}
+.game-menu + .center > .steps {margin: 10px 0}
+.game-menu + .center > .primary {margin: 8px 0}
+@media(max-height:740px){
+  .game-menu + .center > .home,.center > .home{min-height:190px;padding:8px}
+  .game-menu + .center > .home .hero,.center > .home .hero{width:82px;height:82px}
+  .game-menu + .center > h2{margin-top:10px}
+}
