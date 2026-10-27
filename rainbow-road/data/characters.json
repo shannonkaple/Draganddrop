@@ -246,5 +246,315 @@
     "rescuable": true,
     "isStarterOption": true,
     "friendUpgradesEnabled": true
+  },
+  {
+    "id": "luna_axolotl",
+    "name": "Luna Axolotl",
+    "themeColor": "#FF74B4",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:luna_axolotl",
+        "thumbnail": "generated:character:luna_axolotl"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:luna_axolotl",
+        "thumbnail": "generated:character:luna_axolotl"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:luna_axolotl",
+        "thumbnail": "generated:character:luna_axolotl"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "cosmo_fox",
+    "name": "Cosmo Fox",
+    "themeColor": "#FF9228",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:cosmo_fox",
+        "thumbnail": "generated:character:cosmo_fox"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:cosmo_fox",
+        "thumbnail": "generated:character:cosmo_fox"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:cosmo_fox",
+        "thumbnail": "generated:character:cosmo_fox"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "nova_panda",
+    "name": "Nova Panda",
+    "themeColor": "#626C93",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:nova_panda",
+        "thumbnail": "generated:character:nova_panda"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:nova_panda",
+        "thumbnail": "generated:character:nova_panda"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:nova_panda",
+        "thumbnail": "generated:character:nova_panda"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "pixel_pig",
+    "name": "Pixel Pig",
+    "themeColor": "#F269A5",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:pixel_pig",
+        "thumbnail": "generated:character:pixel_pig"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:pixel_pig",
+        "thumbnail": "generated:character:pixel_pig"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:pixel_pig",
+        "thumbnail": "generated:character:pixel_pig"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "zippy_turtle",
+    "name": "Zippy Turtle",
+    "themeColor": "#69D43E",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:zippy_turtle",
+        "thumbnail": "generated:character:zippy_turtle"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:zippy_turtle",
+        "thumbnail": "generated:character:zippy_turtle"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:zippy_turtle",
+        "thumbnail": "generated:character:zippy_turtle"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "coco_koala",
+    "name": "Coco Koala",
+    "themeColor": "#B1B7CA",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:coco_koala",
+        "thumbnail": "generated:character:coco_koala"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:coco_koala",
+        "thumbnail": "generated:character:coco_koala"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:coco_koala",
+        "thumbnail": "generated:character:coco_koala"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "berry_bunny",
+    "name": "Berry Bunny",
+    "themeColor": "#C594FF",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:berry_bunny",
+        "thumbnail": "generated:character:berry_bunny"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:berry_bunny",
+        "thumbnail": "generated:character:berry_bunny"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:berry_bunny",
+        "thumbnail": "generated:character:berry_bunny"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "sparky_dragon",
+    "name": "Sparky Dragon",
+    "themeColor": "#2ACBDD",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:sparky_dragon",
+        "thumbnail": "generated:character:sparky_dragon"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:sparky_dragon",
+        "thumbnail": "generated:character:sparky_dragon"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:sparky_dragon",
+        "thumbnail": "generated:character:sparky_dragon"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "mochi_otter",
+    "name": "Mochi Otter",
+    "themeColor": "#B67A51",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:mochi_otter",
+        "thumbnail": "generated:character:mochi_otter"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:mochi_otter",
+        "thumbnail": "generated:character:mochi_otter"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:mochi_otter",
+        "thumbnail": "generated:character:mochi_otter"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "bolt_bot",
+    "name": "Bolt Bot",
+    "themeColor": "#F6BD22",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "generated:character:bolt_bot",
+        "thumbnail": "generated:character:bolt_bot"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Power-Up",
+        "image": "generated:character:bolt_bot",
+        "thumbnail": "generated:character:bolt_bot"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Power",
+        "image": "generated:character:bolt_bot",
+        "thumbnail": "generated:character:bolt_bot"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
   }
 ]
