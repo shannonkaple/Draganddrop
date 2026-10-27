@@ -460,3 +460,42 @@ html body dialog#adventure-dialog.final-arrow-modal .final-arrow-big{
    font-size:20px!important;
  }
 }
+
+/* Small previews are ALWAYS visible beneath the play scene, without opening a tab. */
+body.lab-collection-active .my-stuff-world-quickstrip{
+ display:flex!important;flex-direction:column!important;gap:7px!important;
+ align-items:center!important;width:100%!important;
+ padding:10px!important;background:#fdf9e9!important;
+ border:3px solid #fff!important;border-radius:19px!important;
+ box-shadow:0 3px 12px #1f356624!important;
+}
+body.lab-collection-active .my-stuff-world-quickstrip>strong{
+ font-size:clamp(16px,1.6vw,23px)!important;color:#332b79!important;
+}
+body.lab-collection-active .my-stuff-quickworlds{
+ display:flex!important;justify-content:center!important;align-items:stretch!important;
+ gap:7px!important;flex-wrap:wrap!important;
+ width:100%!important;max-height:none!important;overflow:visible!important;
+}
+body.lab-collection-active .my-stuff-quickworlds button{
+ width:clamp(110px,12vw,170px)!important;
+ max-width:48%!important;min-width:0!important;
+ padding:5px!important;display:flex!important;
+ flex-direction:column!important;justify-content:space-between!important;
+ align-items:center!important;gap:3px!important;
+ font-size:clamp(11px,1vw,14px)!important;
+ line-height:1.1!important;color:#273765!important;
+ background:#fff!important;border:2px solid #e3cffa!important;
+ border-radius:13px!important;
+}
+body.lab-collection-active .my-stuff-quickworlds button[aria-pressed="true"]{
+ border:4px solid #ffd43b!important;background:#fff9cc!important;
+}
+body.lab-collection-active .my-stuff-quickworlds img{
+ display:block!important;width:100%!important;
+ height:auto!important;aspect-ratio:16/9!important;object-fit:contain!important;
+ border-radius:8px!important;
+}
+body.lab-collection-active .my-stuff-quickworlds span{
+ font-weight:900!important;text-align:center!important;
+}
