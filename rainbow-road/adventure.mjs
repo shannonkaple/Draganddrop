@@ -52,7 +52,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   flashRescue();
  }
  function selectCharacter(changing=false){
- view='select';const newest=chars.filter(c=>c.levels[0].image.startsWith('generated:')),classic=chars.filter(c=>!c.levels[0].image.startsWith('generated:'));const displayCharacters=[...newest,...classic];shell('Pick your player','<p>10 NEW CHARACTERS! Choose anyone below. Your rescued friends stay saved in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+displayCharacters.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong>'+(c.levels[0].image.startsWith('generated:')?'<span class="new-character-label">NEW!</span>':'')+'</button>').join('')+'</div>');
+ view='select';const newest=chars.filter(c=>c.levels[0].image.startsWith('generated:')),classic=chars.filter(c=>!c.levels[0].image.startsWith('generated:'));const displayCharacters=[...newest,...classic];shell('Pick your player','<h2 class="new-choice-heading">MEET 10 NEW CHARACTERS!</h2><p>Choose anyone below. Your rescued friends stay saved in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+displayCharacters.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong>'+(c.levels[0].image.startsWith('generated:')?'<span class="new-character-label">NEW!</span>':'')+'</button>').join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});
  const choices=[...document.querySelectorAll('[data-hero]')];
  if(choices.length>8){
@@ -182,7 +182,17 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function startLevel(n,restart=false){
  clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;
  const old=a.activeRun,valid=old&&old.id===def.id&&!old.complete&&old.w===def.mazeGrid.width&&old.h===def.mazeGrid.height&&Array.isArray(old.grid)&&old.grid.length===old.h&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0;
- report='Start at the star. Use your arrow keys.';r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');a.activeRun=r;save();maze();
+ report='Start at the star. Use your arrow keys.';r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
+ // Existing student saves may contain a maze created before the STEM gear was added.
+ // Inject newly assigned pickups into an unoccupied reachable road, keeping their progress.
+ for(const id of def.computerGearIds||[]){
+   if(r.items.some(i=>i.id===id))continue;
+   const occupied=new Set([tile(r.start),tile(r.goal),tile(r.player),...(r.items||[]).map(tile),...(r.hazards||[]).flatMap(h=>h.path.map(tile)),...(r.barrier?[tile(r.barrier)]:[]),...(r.skill?[tile(r.skill)]:[])]);
+   const candidates=(r.safe||[]).map(t=>{const[x,y]=t.split(',').map(Number);return {x,y}}).filter(p=>!occupied.has(tile(p))&&r.grid[p.y]?.[p.x]===0);
+   const spot=candidates.at(-1);
+   if(spot)r.items.push({id,...spot,collected:false});
+ }
+ a.activeRun=r;save();maze();
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{a.duckTutorialSeen=true;r.duckLearned=true;save();closeModal()}});
  }
  function maze(){
