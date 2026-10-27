@@ -397,7 +397,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   document.querySelectorAll('[data-buy-decor]').forEach(b=>b.onclick=()=>{
    const d=goods.find(x=>x.id===b.dataset.buyDecor);
    if(!d||!owned(id)||a.wallet.rainbowStars<d.cost||(a.decorations[id]||[]).includes(d.id))return;
-   a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();computer(id,'decor');
+   a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();refresh();
   });
  }
  function friendGiftShop(selectedId=null){
@@ -522,43 +522,41 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const requested=worldId||a.collectionWorldId||a.primaryRainbowLandId;
   const id=purchased.some(l=>l.id===requested)?requested:purchased[0]?.id;
   if(!id)return homeMap();
-  const valid=['decor','friends','worlds','treasures'];
-  const tab=valid.includes(section)?section:valid.includes(a.collectionTab)?a.collectionTab:'decor';
-  a.collectionWorldId=id;a.collectionTab=tab;a.primaryRainbowLandId=id;save();
-  const ownedDecor=a.decorations[id]||[],rescued=companions.filter(c=>a.worldFriends?.[c.id]),treasures=a.collectedWorldItems||[];
-  let tray='';
-  if(tab==='decor'){
-    tray='<p>Choose the decorations you want to see in your world. Put them away any time. You never lose what you bought!</p>'+
-      '<div class="my-stuff-tray">'+(ownedDecor.length?ownedDecor.map(key=>{
-        const d=findDecoration(key);if(!d)return '';
-        const placed=!a.hiddenDecorations[id]?.includes(key);
-        return '<article class="my-stuff-item">'+shopArt(d)+'<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'">'+
-          (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
-      }).join(''):'<p class="my-stuff-empty">Your world is ready for decorating! Earn stars to buy decorations in the shop.</p>')+'</div>'+
-      '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Shop for Decorations</button>';
-  }else if(tab==='friends'){
-    tray='<p>Bring your rescued friends into the big scene or put them away. You can move them between purchased worlds.</p>'+
-      '<div class="my-stuff-tray">'+(rescued.length?rescued.map(c=>{
-        const here=a.worldFriends[c.id].homeLandId===id,placed=here&&!a.hiddenCompanions.includes(c.id);
-        return '<article class="my-stuff-item">'+companionArt(c.id)+'<strong>'+esc(c.name)+'</strong><button type="button" data-stuff-friend="'+c.id+'" aria-pressed="'+placed+'">'+
-          (placed?'✓ Here · Put Away':here?'＋ Add to Scene':'＋ Bring to This World')+'</button></article>';
-      }).join(''):'<p class="my-stuff-empty">When you rescue a friend, their picture will appear here for you to play with!</p>')+'</div>';
-  }else if(tab==='worlds'){
-    tray='<p>Here are your worlds! Click a mini world picture to switch your entire scene.</p>'+
-      '<div class="my-stuff-worlds">'+purchased.map(l=>
-        '<button class="my-stuff-world-preview" type="button" data-stuff-world="'+l.id+'" aria-pressed="'+(l.id===id)+'">'+
-          img(l.cardPreview,l.name,'my-stuff-thumb')+'<strong>'+esc(l.name)+'</strong><span>'+(l.id===id?'✓ My Current World':'Go to This World')+'</span></button>').join('')+'</div>'+
-      '<button id="stuff-buy-world" type="button" class="my-stuff-action">⭐ Get Another World</button>';
-  }else{
-    tray='<p>Use the treasures you earn in mazes to decorate your world, too!</p>'+
-      '<div class="my-stuff-tray">'+(treasures.length?treasures.map(key=>{
-        const placed=(a.collectionExtraObjects[id]||[]).includes(key);
-        return '<article class="my-stuff-item">'+img(itemArt(key),itemName(key),'my-stuff-thumb')+'<strong>'+esc(itemName(key))+'</strong>'+
-          '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'">'+(placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
-      }).join(''):'<p class="my-stuff-empty">Explore the mazes and you will find treasures to display!</p>')+'</div>';
-  }
-  const tabs=[['decor','🌷 Decorations'],['friends','🐾 Friends'],['worlds','🌍 Change World'],['treasures','⭐ Treasures']]
-    .map(([key,label])=>'<button type="button" data-stuff-tab="'+key+'" aria-pressed="'+(key===tab)+'">'+label+'</button>').join('');
+  // A playroom, not four inventory pages: show every usable object together.
+  // The old collectionTab is left intact for save compatibility, but never gates the tray.
+  a.collectionWorldId=id;a.primaryRainbowLandId=id;save();
+  const ownedDecor=a.decorations[id]||[];
+  const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
+  const treasures=a.collectedWorldItems||[];
+  const decorationCards=ownedDecor.map(key=>{
+    const d=findDecoration(key);if(!d)return '';
+    const placed=!a.hiddenDecorations[id]?.includes(key);
+    return '<article class="my-stuff-item" data-stuff-kind="decoration">'+shopArt(d)+
+      '<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'">'+
+      (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
+  }).join('');
+  const friendCards=rescued.map(c=>{
+    const here=a.worldFriends[c.id].homeLandId===id;
+    const placed=here&&!a.hiddenCompanions.includes(c.id);
+    return '<article class="my-stuff-item" data-stuff-kind="friend">'+companionArt(c.id)+
+      '<strong>'+esc(c.name)+'</strong><button type="button" data-stuff-friend="'+c.id+'" aria-pressed="'+placed+'">'+
+      (placed?'✓ Here · Put Away':here?'＋ Add to Scene':'＋ Bring to This World')+'</button></article>';
+  }).join('');
+  const treasureCards=treasures.map(key=>{
+    const placed=(a.collectionExtraObjects[id]||[]).includes(key);
+    return '<article class="my-stuff-item" data-stuff-kind="treasure">'+
+      img(itemArt(key),itemName(key),'my-stuff-thumb')+'<strong>'+esc(itemName(key))+'</strong>'+
+      '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'">'+
+      (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
+  }).join('');
+  const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
+  const tray='<p>Pick anything you have earned or bought. Add it to your world, then drag it where you want!</p>'+
+    '<div class="my-stuff-tray" aria-label="All my earned decorations, rescued friends and treasures">'+
+      (hasObjects?decorationCards+friendCards+treasureCards:
+      '<p class="my-stuff-empty">Your collection starts here! Finish mazes to earn treasures, rescue friends and buy decorations.</p>')+
+    '</div><div class="my-stuff-shop-actions">'+
+      '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Get More Decorations</button>'+
+      '<button class="my-stuff-action" type="button" id="stuff-buy-world">🌍 Get Another World</button></div>';
   shell('MY STUFF','<section class="lab-collection-page my-stuff-room" aria-label="My Stuff: make and play with my world">'+
       '<div class="my-stuff-heading"><div><small>MY WORLD • MY SCENE • MY FRIENDS</small><h2>'+esc(land(id).name)+'</h2></div>'+
         '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
@@ -569,12 +567,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
           '<button type="button" data-stuff-world="'+l.id+'" aria-label="Show my '+esc(l.name)+' world" aria-pressed="'+(l.id===id)+'">'+
           img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
-        '<div class="my-stuff-tabs" role="group" aria-label="What can I put in my world?">'+tabs+'</div>'+
         '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
   enableCollectionDrag(id);
   $('stuff-home').onclick=map;
   $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
-  document.querySelectorAll('[data-stuff-tab]').forEach(b=>b.onclick=()=>computer(id,b.dataset.stuffTab));
+  // Keep the tray in view after adding/putting away several objects in a row.
+  const refresh=()=>{const y=$('app').scrollTop;computer(id);$('app').scrollTop=y;};
   document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld,'worlds'));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
@@ -586,12 +584,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const here=friend.homeLandId===id,hidden=a.hiddenCompanions.includes(key);
     if(here&&!hidden)a.hiddenCompanions.push(key);
     else{friend.homeLandId=id;a.hiddenCompanions=a.hiddenCompanions.filter(x=>x!==key);}
-    save();computer(id,'friends');
+    save();refresh();
   });
   document.querySelectorAll('[data-stuff-treasure]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffTreasure,active=(a.collectionExtraObjects[id]??=[]);
     if(active.includes(key))a.collectionExtraObjects[id]=active.filter(x=>x!==key);else active.push(key);
-    save();computer(id,'treasures');
+    save();refresh();
   });
   $('stuff-decor-shop')?.addEventListener('click',()=>{a.primaryRainbowLandId=id;save();decorShop()});
   $('stuff-buy-world')?.addEventListener('click',homeMap);
