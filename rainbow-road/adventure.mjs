@@ -2,11 +2,11 @@ import {artJPEG} from './individual-art.mjs?v=20261027-jpegs';
 import {tellGuide,starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
 import {decorations,worldCosts} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 
-import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=20261021-menu';
+import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=20261027-five';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),asset=p=>p.startsWith('generated:')?artJPEG(p):new URL(p.replace(/^\//,''),root).href;
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
-const readJSON=async n=>{const r=await fetch(new URL('./data/'+n+'.json',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
+const readJSON=async n=>{const r=await fetch(new URL('./data/'+n+'.json?v=20261027-stem',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
 export async function openAdventure({number,storageKey,teacherName,teachers,goPractice,onLogout}){
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
@@ -53,7 +53,26 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  }
  function selectCharacter(changing=false){
  view='select';shell('Pick your player','<p>Who will you be? Click one picture. Rescue friends to unlock more players.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+(changing?chars.filter(c=>a.friends[c.id]):chars).map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
- document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});if(changing)$('cancel-player').onclick=map;
+ document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});
+ const choices=[...document.querySelectorAll('[data-hero]')];
+ if(choices.length>8){
+   let page=0;
+   const pager=document.createElement('nav');pager.className='choice-pages';
+   pager.setAttribute('aria-label','Character pages');
+   pager.innerHTML='<button type="button" id="characters-back">← Back</button><span id="characters-page"></span><button type="button" id="characters-next">Next →</button>';
+   choices[0].parentElement.after(pager);
+   const previous=$('characters-back'),next=$('characters-next');
+   const show=()=>{
+     choices.forEach((b,i)=>{b.hidden=i<page*8||i>=(page+1)*8});
+     previous.disabled=page===0;next.disabled=(page+1)*8>=choices.length;
+     $('characters-page').textContent=(page+1)+' / '+Math.ceil(choices.length/8);
+     requestAnimationFrame(fit);
+   };
+   previous.onclick=()=>{page--;show()};
+   next.onclick=()=>{page++;show()};
+   show();
+ }
+ if(changing)$('cancel-player').onclick=map;
  }
  function chooseLand(){
  view='select';shell('Pick your home','<p>Choose your training camp. Finish mazes to earn stars and buy a home for your friends.</p>'+landCards());
@@ -129,7 +148,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function computer(){
  view='computer';const cards=(items,owned)=>items.map(i=>'<article class="'+(owned.includes(i.id)?'earned-item':'waiting-item')+'">'+img(i.image,i.name)+'<strong>'+esc(i.name)+'</strong><p>'+(owned.includes(i.id)?'✓ Collected':'Keep exploring')+'</p></article>').join('');
  const all=data.computer_collectibles.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
- shell('My Rainbow Computer','<h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('level_12')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect all five items and four skill badges, then finish level 12. Replay any level to collect something you missed.</p>'));
+ shell('My Rainbow Computer','<h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('level_12')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect the STEM equipment and four skill badges, then finish level 12. Replay any level to collect something you missed.</p>'));
  if($('build-computer'))$('build-computer').onclick=finale;
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
@@ -278,7 +297,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  document.addEventListener('keydown',keydown);document.addEventListener('keyup',keyup);window.addEventListener('blur',blur);window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);
  if(settings.costs)config.progression.upgradeCost={...settings.costs};
  $('help').onclick=()=>{const t='Start at the star. Use your keyboard arrows. Press and release to move one space. Collect your computer equipment. Follow the arrows at each arrow stop. Hold the space bar to duck under a striped bridge. Finish at the checkered flag.';if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;speechSynthesis.speak(u)}else alert(t)};
- if(!a.selectedPlayerCharacterId)selectCharacter();else if(!a.primaryRainbowLandId)chooseLand();else if(a.pendingRescueFriendId&&canRescue())continueRescue();else map();
+ if(!a.selectedPlayerCharacterId)selectCharacter();else if(!a.primaryRainbowLandId)chooseLand();else if(canRescue())continueRescue();else map();
  return {cleanup};
 }
 
