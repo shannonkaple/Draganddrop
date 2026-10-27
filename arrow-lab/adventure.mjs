@@ -45,6 +45,16 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  ];
  const oceanStageNames=['Coral Cove','Pearl Lagoon','Seahorse Garden','Jellyfish Glow','Dolphin Bay','Turtle Trail','Octopus Grotto','Rainbow Reef'];
  const pirateStageNames=['Treasure Cove',"Captain's Deck",'Palm Lagoon','Shipwreck Reef','Cannon Fort','Skull Rock','Mermaid Grotto','Treasure Island'];
+ const stageNames={
+  candy:candyNames,
+  pirate:pirateStageNames,
+  arctic:['Snowflake Meadow','Glacier Valley','Penguin Cove','Igloo Village','Crystal Cavern','Aurora Lake','Polar Palace','Blizzard Summit'],
+  castle:['Royal Courtyard','Castle Gardens',"Knight's Bridge",'Enchanted Library','Tower Hall','Royal Ballroom','Dragon Gate','Throne Room'],
+  space:['Starfield Gate','Moonbase','Ringed Planet','Comet Trail','Nebula Gardens','Meteor Fields','Cosmic Observatory','Galaxy Palace'],
+  jurassic:['Fern Forest','Dinosaur Valley','Fossil Cliffs','Prehistoric River','Amber Cave','Dinosaur Nest','Volcano Trail','Jurassic Summit'],
+  ocean:oceanStageNames,
+  lava:['Ember Trail','Magma Falls','Fire Crystal Cavern','Volcanic Bridge','Obsidian Valley','Molten River','Phoenix Crater','Lava Throne']
+ };
  const oceanStageBackgrounds=['/arrow-lab/ocean-stages/01-coral-cove.jpg'];
  const objectGroups={candy:candyObjects,pirate:pirateObjects,ocean:oceanObjects};
  const allWorldLabels=Object.fromEntries(Object.values(objectGroups).flat());
@@ -57,7 +67,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const chars=data.characters,lands=data.rainbow_lands,
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
-   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(wi===0?candyNames[ai]:wi===1?pirateStageNames[ai]:wi===6?oceanStageNames[ai]:title),
+   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
      worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai),
      mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
@@ -174,7 +184,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
      const cleared=a.completedLevelIds.includes(l.id),open=l.number<=a.highestUnlockedLevel;
      return '<button type="button" class="lab-activity-card'+(cleared?' cleared':'')+'" data-level="'+l.number+'" '+(open?'':'disabled')+'>'+
        '<span class="lab-activity-icon">'+(cleared?'⭐':open?world.icon:'🔒')+'</span>'+
-       '<span class="lab-activity-number">MAZE '+(k+1)+'</span><strong>'+esc(activityNames[k])+'</strong>'+
+       '<span class="lab-activity-number">MAZE '+(k+1)+'</span><strong>'+esc(stageNames[world.id]?.[k]||activityNames[k])+'</strong>'+
        '<small>'+(cleared?'COMPLETED ✓':open?'▶ PLAY':'LOCKED')+'</small></button>';
    }).join('');
    shell(world.name+' World',
