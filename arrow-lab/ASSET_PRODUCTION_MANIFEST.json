@@ -1,5 +1,5 @@
 {
-  "project": "Ms. Kaple's A-MAZE-ING Arrow Adventure — Arrow Lab asset production",
+  "project": "Ms. Kaple's A-MAZE-ING Arrow Adventure \u2014 Arrow Lab asset production",
   "updated_on": "2026-10-27",
   "scope": "shannonkaple/Draganddrop/arrow-lab/ only",
   "rules": {
@@ -25,7 +25,8 @@
       "return_to_current_world": true,
       "never_modify_original_game": true,
       "uppercase_homebody_club": true
-    }
+    },
+    "style": "Match existing Candy artwork: glossy cute dimensional cartoon; chunky rounded shapes, playful colors, smooth toy-like surfaces. Reject realistic rocks, wood grain, sand and water."
   },
   "worlds": [
     {
@@ -180,57 +181,161 @@
           "index": 1,
           "name": "Treasure Cove",
           "path": "arrow-lab/pirate-stages/01-treasure-cove.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/01-treasure-cove.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Match approved Candy artwork with glossy chubby cartoon Treasure Cove; bright toy-like palms, lavender rocks, stylized turquoise water, clear sandy center; no realistic textures, text, UI or maze."
         },
         {
           "index": 2,
           "name": "Captain's Deck",
           "path": "arrow-lab/pirate-stages/02-captains-deck.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/02-captains-deck.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference is approved Candy game artwork: MATCH its cute cartoon style, not its candy subject. Create ONE Pirate stage 2: Captain's Deck. Broad open pale honey wooden ship deck, rounded polished railings only along edges, coiled rope at far corners, sails high overhead and turquoise sea beyond, central deck entirely clear. Strongly stylized glossy chubby toy-world cartoon: exaggerated rounded shapes, bulbous lavender rocks, chunky curved playful architecture, huge shiny emerald palm leaves, soft puffy clouds, smooth turquoise water drawn as stylized swirls. Candy-bright colors and polished cartoon highlights. NO realism, gritty textures, naturalistic wood grain or photographic water. Wide quiet pale central area 70% width/65% height for maze overlay, scenery concentrated on far edges. No characters, text, collectibles, UI, circles, grid or baked-in maze. Single 16:9 scene ideally 3840x2160."
         },
         {
           "index": 3,
           "name": "Palm Lagoon",
           "path": "arrow-lab/pirate-stages/03-palm-lagoon.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/03-palm-lagoon.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference is approved Candy game artwork: MATCH its cute cartoon style, not its candy subject. Create ONE Pirate stage 3: Palm Lagoon. Luminous shallow turquoise lagoon with broad pale sandy central clearing, lush glossy palms at far sides, rounded pastel coastal rocks, waterfall and distant greenery along top edge. Strongly stylized glossy chubby toy-world cartoon: exaggerated rounded shapes, bulbous lavender rocks, chunky curved playful architecture, huge shiny emerald palm leaves, soft puffy clouds, smooth turquoise water drawn as stylized swirls. Candy-bright colors and polished cartoon highlights. NO realism, gritty textures, naturalistic wood grain or photographic water. Wide quiet pale central area 70% width/65% height for maze overlay, scenery concentrated on far edges. No characters, text, collectibles, UI, circles, grid or baked-in maze. Single 16:9 scene ideally 3840x2160."
         },
         {
           "index": 4,
           "name": "Shipwreck Reef",
           "path": "arrow-lab/pirate-stages/04-shipwreck-reef.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/04-shipwreck-reef.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference is approved Candy game artwork: MATCH its cute cartoon style, not its candy subject. Create ONE Pirate stage 4: Shipwreck Reef. Whimsical old shipwreck pieces at far outer edges on a sunny tropical beach, colorful reef visible in shallow water at top corners, wide smooth sandy center, no wreckage in center. Strongly stylized glossy chubby toy-world cartoon: exaggerated rounded shapes, bulbous lavender rocks, chunky curved playful architecture, huge shiny emerald palm leaves, soft puffy clouds, smooth turquoise water drawn as stylized swirls. Candy-bright colors and polished cartoon highlights. NO realism, gritty textures, naturalistic wood grain or photographic water. Wide quiet pale central area 70% width/65% height for maze overlay, scenery concentrated on far edges. No characters, text, collectibles, UI, circles, grid or baked-in maze. Single 16:9 scene ideally 3840x2160."
         },
         {
           "index": 5,
           "name": "Cannon Fort",
           "path": "arrow-lab/pirate-stages/05-cannon-fort.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/05-cannon-fort.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference is approved Candy game artwork: MATCH its cute cartoon style, not its candy subject. Create ONE Pirate stage 5: Cannon Fort. Friendly rounded sandstone pirate fort outer parapets along far perimeter, two cute antique cannons recessed into upper corners aimed outward, tropical ocean beyond, open pale sandy courtyard center. No maze walls. Strongly stylized glossy chubby toy-world cartoon: exaggerated rounded shapes, bulbous lavender rocks, chunky curved playful architecture, huge shiny emerald palm leaves, soft puffy clouds, smooth turquoise water drawn as stylized swirls. Candy-bright colors and polished cartoon highlights. NO realism, gritty textures, naturalistic wood grain or photographic water. Wide quiet pale central area 70% width/65% height for maze overlay, scenery concentrated on far edges. No characters, text, collectibles, UI, circles, grid or baked-in maze. Single 16:9 scene ideally 3840x2160."
         },
         {
           "index": 6,
           "name": "Skull Rock",
           "path": "arrow-lab/pirate-stages/06-skull-rock.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/06-skull-rock.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference is approved Candy game artwork: MATCH its cute cartoon style, not its candy subject. Create ONE Pirate stage 6: Skull Rock. Friendly rounded skull-shaped natural rock island at far upper left, palms and small waterfall at perimeter, sunny turquoise ocean at upper right, broad calm pale sandy clearing center, playful not scary. Strongly stylized glossy chubby toy-world cartoon: exaggerated rounded shapes, bulbous lavender rocks, chunky curved playful architecture, huge shiny emerald palm leaves, soft puffy clouds, smooth turquoise water drawn as stylized swirls. Candy-bright colors and polished cartoon highlights. NO realism, gritty textures, naturalistic wood grain or photographic water. Wide quiet pale central area 70% width/65% height for maze overlay, scenery concentrated on far edges. No characters, text, collectibles, UI, circles, grid or baked-in maze. Single 16:9 scene ideally 3840x2160."
         },
         {
           "index": 7,
           "name": "Mermaid Grotto",
           "path": "arrow-lab/pirate-stages/07-mermaid-grotto.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/07-mermaid-grotto.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference is approved Candy game artwork: MATCH its cute cartoon style, not its candy subject. Create ONE Pirate stage 7: Mermaid Grotto. Magical tropical sea cave framed by smooth rounded lavender and turquoise rocks at far edges, pearlescent cave walls, softly glowing coral at outer corners, wide tranquil pale aqua shallow-water center. No mermaids or animals. Strongly stylized glossy chubby toy-world cartoon: exaggerated rounded shapes, bulbous lavender rocks, chunky curved playful architecture, huge shiny emerald palm leaves, soft puffy clouds, smooth turquoise water drawn as stylized swirls. Candy-bright colors and polished cartoon highlights. NO realism, gritty textures, naturalistic wood grain or photographic water. Wide quiet pale central area 70% width/65% height for maze overlay, scenery concentrated on far edges. No characters, text, collectibles, UI, circles, grid or baked-in maze. Single 16:9 scene ideally 3840x2160."
         },
         {
           "index": 8,
           "name": "Treasure Island",
           "path": "arrow-lab/pirate-stages/08-treasure-island.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/pirate-stages/08-treasure-island.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference is approved Candy game artwork: MATCH its cute cartoon style, not its candy subject. Create ONE Pirate stage 8: Treasure Island. Celebratory lush tropical island, distant ornate whimsical pirate harbor and small ship in upper corners, rounded green palm-covered cliffs, sparkling turquoise sea, broad open warm cream sandy center. No treasure chests or coins. Strongly stylized glossy chubby toy-world cartoon: exaggerated rounded shapes, bulbous lavender rocks, chunky curved playful architecture, huge shiny emerald palm leaves, soft puffy clouds, smooth turquoise water drawn as stylized swirls. Candy-bright colors and polished cartoon highlights. NO realism, gritty textures, naturalistic wood grain or photographic water. Wide quiet pale central area 70% width/65% height for maze overlay, scenery concentrated on far edges. No characters, text, collectibles, UI, circles, grid or baked-in maze. Single 16:9 scene ideally 3840x2160."
         }
       ],
       "collectibles": [
