@@ -12,7 +12,7 @@ const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),r
 const img=(p,name,cls='')=>{
  const value=String(p||'');
  if(value.startsWith('generated:character:')||value.startsWith('pending:character:')){
-   const initials=String(name||'?').trim().split(/\\s+/).slice(0,2).map(word=>word.charAt(0)).join('').toUpperCase();
+   const initials=String(name||'?').trim().split(/\s+/).slice(0,2).map(word=>word.charAt(0)).join('').toUpperCase();
    return '<span class="'+cls+' pending-character-art" role="img" aria-label="'+esc(name)+' — character art coming soon"><span class="pending-character-initial" aria-hidden="true">'+esc(initials)+'</span><small class="pending-character-note" aria-hidden="true">ART COMING SOON</small></span>';
  }
  if(!value)return '<span class="'+cls+' pending-character-art" role="img" aria-label="'+esc(name)+'">✨</span>';
