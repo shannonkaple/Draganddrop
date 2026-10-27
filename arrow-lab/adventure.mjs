@@ -37,6 +37,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  ['compass','Pirate Compass'],['parrot','Pirate Parrot'],['ship_wheel','Ship Wheel'],
  ['spyglass','Spyglass'],['anchor','Anchor'],['message_bottle','Message in a Bottle'],['gold_coins','Gold Coins']
  ];
+ const arcticObjects=[["snowflake_crystal", "Snowflake Crystal"], ["mitten", "Mitten"], ["snow_globe", "Snow Globe"], ["polar_bear_plush", "Polar Bear Plush"], ["igloo", "Igloo"], ["ice_skate", "Ice Skate"], ["winter_scarf", "Winter Scarf"], ["hot_cocoa", "Hot Cocoa"], ["icicle_gem", "Icicle Gem"], ["snowflake_lantern", "Snowflake Lantern"]];
  const oceanObjects=[
  ['pearl_shell','Pearl Shell'],['seahorse','Seahorse'],['jellyfish','Jellyfish'],
  ['dolphin','Dolphin'],['coral_cluster','Coral Reef'],['pufferfish','Pufferfish'],
@@ -56,20 +57,21 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   lava:['Ember Trail','Magma Falls','Fire Crystal Cavern','Volcanic Bridge','Obsidian Valley','Molten River','Phoenix Crater','Lava Throne']
  };
  const pirateStageBackgrounds=['01-treasure-cove','02-captains-deck','03-palm-lagoon','04-shipwreck-reef','05-cannon-fort','06-skull-rock','07-mermaid-grotto','08-treasure-island'].map(n=>'/arrow-lab/pirate-stages/'+n+'.jpg');
+ const arcticStageBackgrounds=["01-snowflake-meadow", "02-glacier-valley", "03-penguin-cove", "04-igloo-village", "05-crystal-cavern", "06-aurora-lake", "07-polar-palace", "08-blizzard-summit"].map(n=>'/arrow-lab/arctic-stages/'+n+'.jpg');
  const oceanStageBackgrounds=['/arrow-lab/ocean-stages/01-coral-cove.jpg'];
- const objectGroups={candy:candyObjects,pirate:pirateObjects,ocean:oceanObjects};
+ const objectGroups={candy:candyObjects,pirate:pirateObjects,arctic:arcticObjects,ocean:oceanObjects};
  const allWorldLabels=Object.fromEntries(Object.values(objectGroups).flat());
  const objectArtPaths=Object.fromEntries(Object.entries(objectGroups).flatMap(([world,items])=>items.map(([id])=>[id,'arrow-lab/collectibles/'+world+'/'+id+'.png'])));
  const pairFor=(worldIndex,stageIndex)=>{
   if(worldIndex===0)return candyObjects.slice(stageIndex*2,stageIndex*2+2).map(x=>x[0]);
-  const objects=worldIndex===1?pirateObjects:worldIndex===6?oceanObjects:null;
+  const objects=worldIndex===1?pirateObjects:worldIndex===2?arcticObjects:worldIndex===6?oceanObjects:null;
   return objects?[objects[(stageIndex*3)%10][0],objects[(stageIndex*3+4)%10][0]]:undefined;
  };
  const chars=data.characters,lands=data.rainbow_lands,
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
-     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai),
+     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai),
      mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
  })),config=data.game_config,key=storageKey;
@@ -242,7 +244,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function computer(){
  view='computer';const cards=(items,owned)=>items.map(i=>'<article class="'+(owned.includes(i.id)?'earned-item':'waiting-item')+'">'+img(i.image,i.name)+'<strong>'+esc(i.name)+'</strong><p>'+(owned.includes(i.id)?'✓ Collected':'Keep exploring')+'</p></article>').join('');
  const all=data.computer_collectibles.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
- shell('My Rainbow Computer','<h2>CANDY TREASURES</h2><div class="adventure-cards lab-candy-collection">'+candyObjects.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in Candy World')+'</p></article>').join('')+'</div>'+worldTreasureCards('Pirate',pirateObjects)+worldTreasureCards('Ocean',oceanObjects)+'<h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('lab_lava_8')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect all five items and four skill badges, then finish the Lava finale. Replay any maze to collect something you missed.</p>'));
+ shell('My Rainbow Computer','<h2>CANDY TREASURES</h2><div class="adventure-cards lab-candy-collection">'+candyObjects.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in Candy World')+'</p></article>').join('')+'</div>'+worldTreasureCards('Pirate',pirateObjects)+worldTreasureCards('Arctic',arcticObjects)+worldTreasureCards('Ocean',oceanObjects)+'<h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('lab_lava_8')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect all five items and four skill badges, then finish the Lava finale. Replay any maze to collect something you missed.</p>'));
  if($('build-computer'))$('build-computer').onclick=finale;
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}

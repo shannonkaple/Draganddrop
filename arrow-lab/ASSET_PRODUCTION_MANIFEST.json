@@ -399,109 +399,283 @@
           "index": 1,
           "name": "Snowflake Meadow",
           "path": "arrow-lab/arctic-stages/01-snowflake-meadow.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/01-snowflake-meadow.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 1 Snowflake Meadow, changing theme to winter. Puffy snowy hills, rounded frosted pine trees and chunky blue ice boulders framing an open pale snow meadow. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         },
         {
           "index": 2,
           "name": "Glacier Valley",
           "path": "arrow-lab/arctic-stages/02-glacier-valley.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/02-glacier-valley.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 2 Glacier Valley, changing theme to winter. Bulbous rounded blue and lavender glacier cliffs and stylized frozen waterfalls along outer edges, open pale blue snow valley center. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         },
         {
           "index": 3,
           "name": "Penguin Cove",
           "path": "arrow-lab/arctic-stages/03-penguin-cove.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/03-penguin-cove.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 3 Penguin Cove, changing theme to winter. Cute icy shoreline with rounded turquoise floes and puffy snowbanks at far edges, open pale snowy shore center. No penguins or other animals. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         },
         {
           "index": 4,
           "name": "Igloo Village",
           "path": "arrow-lab/arctic-stages/04-igloo-village.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/04-igloo-village.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 4 Igloo Village, changing theme to winter. Miniature chubby rounded blue igloos nestled at far upper corners, oversized snow-laden cartoon pines at sides, open snowy village square center. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         },
         {
           "index": 5,
           "name": "Crystal Cavern",
           "path": "arrow-lab/arctic-stages/05-crystal-cavern.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/05-crystal-cavern.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 5 Crystal Cavern, changing theme to winter. Glossy chunky blue lavender and pink ice crystal clusters around cavern rim, shimmering icy arch near top, smooth pale blue center. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         },
         {
           "index": 6,
           "name": "Aurora Lake",
           "path": "arrow-lab/arctic-stages/06-aurora-lake.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/06-aurora-lake.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 6 Aurora Lake, changing theme to winter. Magical pastel green and pink aurora high at top, glossy snowy hills and rounded firs at far sides, broad smooth pale lavender frozen lake center. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         },
         {
           "index": 7,
           "name": "Polar Palace",
           "path": "arrow-lab/arctic-stages/07-polar-palace.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/07-polar-palace.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 7 Polar Palace, changing theme to winter. Whimsical toy-like ice palace towers with bulbous blue domes at upper corners, shiny frosty parapets along distant perimeter, wide pale icy courtyard center. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         },
         {
           "index": 8,
           "name": "Blizzard Summit",
           "path": "arrow-lab/arctic-stages/08-blizzard-summit.jpg",
-          "status": "generation_requested_not_exported",
-          "existing_path": null
+          "status": "exported_integrated_pending_browser_review",
+          "existing_path": "arrow-lab/arctic-stages/08-blizzard-summit.jpg",
+          "source_dimensions": [
+            1672,
+            941
+          ],
+          "export_dimensions": [
+            3840,
+            2160
+          ],
+          "dpi": 300,
+          "upscaled": true,
+          "visual_review": "Glossy rounded cartoon scenery with clear center; reviewed before export.",
+          "generation_method": "built-in image_gen",
+          "generation_prompt": "Reference 1 is approved Candy game artwork. Match its cute glossy dimensional CARTOON style for Arctic stage 8 Blizzard Summit, changing theme to winter. Rounded pastel-blue snowy mountaintops around edges under swirling soft puffy clouds, a few decorative snowflakes far outside center, clear calm pale snow plateau center. Chubby exaggerated rounded toy-like shapes, smooth shiny cartoon materials, bright icy candy colors, simplified soft cartoon shading, NOT realistic snow or ice. Detailed scenery only at far edges, wide low contrast clear central 70% width/65% height for interactive maze. No characters, collectibles, text, UI, grid, circles, maze walls or routes. One continuous widescreen 16:9 background ideally 3840x2160, never collage."
         }
       ],
       "collectibles": [
         {
           "id": "snowflake_crystal",
           "path": "arrow-lab/collectibles/arctic/snowflake_crystal.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "Single glossy cute dimensional six-armed blue lavender snowflake crystal on genuine transparency."
         },
         {
           "id": "mitten",
           "path": "arrow-lab/collectibles/arctic/mitten.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One puffy rounded turquoise mitten with fluffy white cuff and a small embroidered snowflake. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "snow_globe",
           "path": "arrow-lab/collectibles/arctic/snow_globe.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One round glossy snow globe on a lavender base containing a tiny stylized snowy pine tree. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "polar_bear_plush",
           "path": "arrow-lab/collectibles/arctic/polar_bear_plush.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One adorable white polar bear plush toy seated, chubby body, small ears, happy face and baby-blue scarf. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "igloo",
           "path": "arrow-lab/collectibles/arctic/igloo.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One miniature rounded baby-blue igloo made of chunky shiny ice blocks. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "ice_skate",
           "path": "arrow-lab/collectibles/arctic/ice_skate.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One cute pastel lavender ice skate boot, fluffy white cuff, shiny rounded silver blade. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "winter_scarf",
           "path": "arrow-lab/collectibles/arctic/winter_scarf.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One neatly folded chunky turquoise and lavender striped winter scarf. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "hot_cocoa",
           "path": "arrow-lab/collectibles/arctic/hot_cocoa.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One round glossy blue mug of hot cocoa with fluffy marshmallows inside. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "icicle_gem",
           "path": "arrow-lab/collectibles/arctic/icicle_gem.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One chunky elongated blue and lavender icicle gemstone, smooth beveled cartoon facets. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         },
         {
           "id": "snowflake_lantern",
           "path": "arrow-lab/collectibles/arctic/snowflake_lantern.png",
-          "status": "generation_requested_not_exported"
+          "status": "exported_integrated_pending_browser_review",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "visual_review": "Single glossy cartoon object on transparency",
+          "generation_prompt": "ONE Arctic game collectible: One cute rounded frosty-blue lantern with a snowflake motif and warm glowing interior. Glossy cute dimensional cartoon icon, exaggerated chubby toy-like shapes, bright soft colors, smooth highlights, matching whimsical candy game collectibles. Not photorealistic, no realistic texture. Entire single object isolated and centered with margin, square 1024x1024 or larger, genuinely transparent background. No scene, pedestal, text, border, collage, extra loose objects or checkerboard."
         }
       ]
     },
