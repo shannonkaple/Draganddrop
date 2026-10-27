@@ -564,6 +564,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
         '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
       '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
        '<p id="collection-report" role="status">This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!</p></div>'+
+      '<div class="my-stuff-world-quickstrip" aria-label="Quickly change to a world you own">'+
+        '<strong>🌍 My Worlds</strong><div class="my-stuff-quickworlds">'+purchased.map(l=>
+          '<button type="button" data-stuff-world="'+l.id+'" aria-label="Show my '+esc(l.name)+' world" aria-pressed="'+(l.id===id)+'">'+
+          img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
         '<div class="my-stuff-tabs" role="group" aria-label="What can I put in my world?">'+tabs+'</div>'+
         '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
