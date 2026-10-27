@@ -286,3 +286,32 @@ body:has(.arrow-style-home) .game-menu button{min-height:41px}
  .world-map-reward{font-size:23px}
  .arrow-style-home{width:100%!important}
 }
+
+
+/* Exact user-supplied Candy map: a panoramic 2048×682 JPEG.
+   Its eight pale oval circles are already in the original image.
+   Keep its intrinsic aspect ratio; place INVISIBLE real buttons over the ovals. */
+.campaign-level-screen .world-map-art.candy-user-map{
+ aspect-ratio:2048 / 682!important;
+ min-height:0!important;
+ height:auto!important;
+}
+.world-map-art.candy-user-map>.map-jpeg-backdrop{
+ aspect-ratio:2048 / 682!important;
+ display:block!important;
+ width:100%!important;
+ height:auto!important;
+ object-fit:contain!important;
+}
+.campaign-level-screen .world-map-art.candy-user-map .world-map-hotspot{
+ width:6.45%!important;
+ height:10.7%!important;
+ min-width:0!important;
+ min-height:0!important;
+ aspect-ratio:auto!important;
+ border-radius:50%!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ padding:0!important;
+}
+/* None of these circles needs numbers, labels, icons or SVG elements. */
