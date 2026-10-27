@@ -572,8 +572,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     computer(id);
     $('app').scrollTop=appScroll;
     // Depending on Chromebook viewport, either the page or the app is scrollable.
-    window.scrollTo(0,pageScroll);
-    requestAnimationFrame(()=>{$('app').scrollTop=appScroll;window.scrollTo(0,pageScroll)});
+    window.scrollTo?.(0,pageScroll);
+    requestAnimationFrame(()=>{$('app').scrollTop=appScroll;window.scrollTo?.(0,pageScroll)});
   };
   document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld,'worlds'));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
@@ -585,9 +585,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       // Move one purchased item, without charging stars, duplicating it or clearing other saves.
       const from=Object.keys(a.decorations||{}).find(world=>world!==id&&a.decorations[world]?.includes(key));
       if(!from)return;
-      a.decorations[from]=a.decorations[from].filter((item,index)=>item!==key||index!==a.decorations[from].indexOf(key));
+      a.decorations[from].splice(a.decorations[from].indexOf(key),1);
       if(a.hiddenDecorations[from])a.hiddenDecorations[from]=a.hiddenDecorations[from].filter(item=>item!==key);
-      if(a.positions[from])delete a.positions[from]['decor:'+key];
+      if(a.positions?.[from])delete a.positions[from]['decor:'+key];
       (a.decorations[id]??=[]).push(key);
       a.hiddenDecorations[id]=hidden.filter(item=>item!==key);
     }
