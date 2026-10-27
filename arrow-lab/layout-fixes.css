@@ -456,3 +456,53 @@ body.lab-collection-active .collection-cards{
   overflow-x:auto!important;
   overflow-y:visible!important;
 }
+
+/* A native <dialog> must size to CONTENT. Earlier inset:0 made auto-height dialogs
+   stretch to almost the entire viewport, leaving a giant empty reward box. */
+#adventure-dialog:not(.final-arrow-modal) {
+  position:fixed!important;
+  inset:auto!important;
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  display:none;
+  width:max-content!important;
+  min-width:0!important;
+  max-width:min(670px,calc(100vw - 28px))!important;
+  height:fit-content!important;
+  min-height:0!important;
+  max-height:calc(100dvh - 40px)!important;
+  margin:0!important;
+  padding:clamp(12px,2.1vw,24px)!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  box-sizing:border-box!important;
+  border-radius:22px!important;
+}
+#adventure-dialog:not(.final-arrow-modal)[open] {display:block!important;}
+#adventure-dialog:not(.final-arrow-modal) .modal-home,
+#adventure-dialog:not(.final-arrow-modal) .modal-fullscreen {
+  display:inline-flex!important;align-items:center;justify-content:center;
+  float:none!important;position:static!important;
+  margin:3px 4px!important;min-height:35px!important;
+  font-size:clamp(12px,1.2vw,15px)!important;
+}
+#adventure-dialog:not(.final-arrow-modal) h2 {
+  margin:12px auto 10px!important;
+  font-size:clamp(24px,3vw,36px)!important;
+  max-width:590px!important;
+  line-height:1.1!important;
+}
+#adventure-dialog:not(.final-arrow-modal) p {
+  font-size:clamp(14px,1.4vw,20px)!important;
+  line-height:1.33!important;
+  margin:9px auto!important;
+}
+#adventure-dialog:not(.final-arrow-modal) button.primary.big-next {
+  width:auto!important;max-width:100%!important;
+  min-height:53px!important;margin:12px auto 0!important;
+  font-size:clamp(16px,2vw,26px)!important;
+  white-space:normal!important;
+}
