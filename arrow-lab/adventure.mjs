@@ -170,8 +170,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
  const pic=id=>img(look(id).image,char(id).name,'friend-art');
 
- const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||id;
- const itemArt=id=>objectArtPaths[id]||data.computer_collectibles.find(i=>i.id===id)?.thumbnail;
+ const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
+ const itemArt=id=>objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
  function save(){
   try{
@@ -469,7 +469,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c].homeLandId===id);
   const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
   const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
-  const treasureGoods=a.collectionExtraObjects?.[id]||[];
+  const treasureGoods=(a.collectionExtraObjects?.[id]||[]).filter(key=>[...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])].includes(key));
   const positions=a.positions[id]||{};
   const at=(key,i)=>positions[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
   const personArt=residents.map((c,i)=>{
@@ -527,7 +527,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   a.collectionWorldId=id;a.primaryRainbowLandId=id;save();
   const ownedDecor=a.decorations[id]||[];
   const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
-  const treasures=a.collectedWorldItems||[];
+  const treasures=[...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])])];
   const decorationCards=ownedDecor.map(key=>{
     const d=findDecoration(key);if(!d)return '';
     const placed=!a.hiddenDecorations[id]?.includes(key);
@@ -577,7 +577,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
     if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);else hidden.push(key);
-    save();computer(id,'decor');
+    save();refresh();
   });
   document.querySelectorAll('[data-stuff-friend]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffFriend,friend=a.worldFriends?.[key];if(!friend)return;
