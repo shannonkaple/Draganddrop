@@ -20,9 +20,19 @@ export function fitScreen(){
  const top=Math.ceil(document.querySelector('body>header').getBoundingClientRect().bottom)+4;
  const left=guided&&!document.body.classList.contains('lab-map-active')&&!document.body.classList.contains('lab-collection-active')?Math.min(260,Math.max(190,vw*.23)):0;
  document.documentElement.style.setProperty('--screen-top',top+'px');document.documentElement.style.setProperty('--guide-width',left+'px');document.documentElement.style.setProperty('--screen-height',(vh-top-8)+'px');
- app.style.transform='none';app.style.left=left+'px';app.style.width=(vw-left)+'px';app.style.height='auto';
- if(document.body.classList.contains('playing')){app.style.height=(vh-top-8)+'px';return}
- const natural=app.scrollHeight,scale=Math.min(1,(vh-top-8)/Math.max(1,natural));app.style.transform='scale('+scale+')';app.style.left=(left+(vw-left)*(1-scale)/2)+'px';
+ // Never shrink the entire Arrow Adventure UI: keep full-size controls,
+ // scroll longer screens and reserve the visible viewport for maze play.
+ app.style.transform='none';
+ app.style.left=left+'px';
+ app.style.width=(vw-left)+'px';
+ app.style.maxWidth=(vw-left)+'px';
+ app.style.height=(vh-top-8)+'px';
+ app.style.minHeight='0';
+ app.style.overflowX='hidden';
+ app.style.overflowY=document.body.classList.contains('playing')?'hidden':'auto';
+ if(document.body.classList.contains('adventure-mode'))return;
+ // Login/teacher selection uses the same readable, scrollable layout.
+ app.style.overflowY='auto';
 }
 function schedule(){if(!pending){pending=true;requestAnimationFrame(fitScreen)}}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['open','hidden']});
