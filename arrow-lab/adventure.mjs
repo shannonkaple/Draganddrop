@@ -110,6 +110,9 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  // Existing world and scenery purchases remain owned; the first world is free.
  a.ownedWorldIds=[...new Set([...(a.ownedWorldIds||[]),...(a.ownedBackgroundIds||[]),'background_candy'])];
  a.friendGifts??={};a.friendGiftEquipped??={};a.homeBackgrounds??={};
+ // One durable run per maze. Migrate the previous single active run without losing progress.
+ a.mazeRuns=(a.mazeRuns&&typeof a.mazeRuns==='object'&&!Array.isArray(a.mazeRuns))?a.mazeRuns:{};
+ if(a.activeRun?.id&&!a.activeRun.complete&&!a.completedLevelIds.includes(a.activeRun.id))a.mazeRuns[a.activeRun.id]??=a.activeRun;
  if(!a.primaryRainbowLandId)a.primaryRainbowLandId='background_candy';
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
  const pic=id=>img(look(id).image,char(id).name,'friend-art');
@@ -117,7 +120,18 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||id;
  const itemArt=id=>objectArtPaths[id]||data.computer_collectibles.find(i=>i.id===id)?.thumbnail;
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
- function save(){try{const old=JSON.parse(localStorage.getItem(key)||'{}');localStorage.setItem(key,JSON.stringify({...old,adventure:{...a,activeRun:r||a.activeRun||null}}));saved=true}catch{saved=false}}
+ function save(){
+  try{
+    if(r?.id){
+      if(r.complete)delete a.mazeRuns[r.id];
+      else a.mazeRuns[r.id]=r;
+      a.activeRun=r;
+    }
+    const old=JSON.parse(localStorage.getItem(key)||'{}');
+    localStorage.setItem(key,JSON.stringify({...old,adventure:{...a,activeRun:r||a.activeRun||null}}));
+    saved=true;
+  }catch{saved=false}
+ }
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
  function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
@@ -196,11 +210,11 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
    view='world-select';
    const positions=[[6.7,41.7],[20.8,53.7],[33.1,70.6],[39.4,42.3],[53.5,57.0],[69.2,51.5],[84.2,69.8],[92.1,37.4]];
    const points=levels.slice(0,8).map((l,k)=>{
-     const done=a.completedLevelIds.includes(l.id),unlocked=l.number<=a.highestUnlockedLevel;
-     return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" aria-disabled="'+(!unlocked)+'"'+
-       ' aria-label="Candy maze '+(k+1)+': '+candyNames[k]+(done?', completed':unlocked?', play':', locked')+'">'+
+     const done=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],unlocked=l.number<=a.highestUnlockedLevel;
+     return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':started?' started':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" aria-disabled="'+(!unlocked)+'"'+
+       ' aria-label="Candy maze '+(k+1)+': '+candyNames[k]+(done?', completed':started?', in progress':unlocked?', ready to play':', locked')+'">'+
        '<span class="lab-map-node-number" aria-hidden="true">'+(k+1)+'</span>'+
-       '<span class="lab-map-node-indicator" aria-hidden="true">'+(done?'✓':unlocked?'▶':'🔒')+'</span></button>';
+       '<span class="lab-map-node-indicator" aria-hidden="true">'+(done?'✓':started?'↪':unlocked?'▶':'🔒')+'</span></button>';
    }).join('');
    shell('Candy World',
      '<section class="lab-candy-world" aria-label="Candy World map with eight playable mazes">'+
@@ -227,11 +241,11 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
    const world=worldThemes[i];
    view='world-select';
    const cards=levels.slice(i*8,i*8+8).map((l,k)=>{
-     const cleared=a.completedLevelIds.includes(l.id),open=l.number<=a.highestUnlockedLevel;
-     return '<button type="button" class="lab-activity-card'+(cleared?' cleared':'')+'" data-level="'+l.number+'" '+(open?'':'disabled')+'>'+
-       '<span class="lab-activity-icon">'+(cleared?'⭐':open?world.icon:'🔒')+'</span>'+
+     const cleared=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],open=l.number<=a.highestUnlockedLevel;
+     return '<button type="button" class="lab-activity-card'+(cleared?' cleared':started?' started':'')+'" data-level="'+l.number+'" '+(open?'':'disabled')+'>'+
+       '<span class="lab-activity-icon">'+(cleared?'✓':started?'↪':open?'▶':'🔒')+'</span>'+
        '<span class="lab-activity-number">MAZE '+(k+1)+'</span><strong>'+esc(stageNames[world.id]?.[k]||activityNames[k])+'</strong>'+
-       '<small>'+(cleared?'COMPLETED ✓':open?'▶ PLAY':'LOCKED')+'</small></button>';
+       '<small>'+(cleared?'✓ ALREADY PLAYED':started?'↪ CONTINUE SAVED MAZE':open?'▶ READY TO PLAY':'🔒 LOCKED')+'</small></button>';
    }).join('');
    shell(world.name+' World',
     '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+');background-size:cover,cover;background-position:center,center">'+
@@ -485,8 +499,20 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
  function startLevel(n,restart=false){
  clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;
- const old=a.activeRun,valid=old&&old.id===def.id&&!old.complete&&old.w===def.mazeGrid.width&&old.h===def.mazeGrid.height&&Array.isArray(old.grid)&&old.grid.length===old.h&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0&&(!def.collectibleIds||def.collectibleIds.every(id=>old.items.some(i=>i.id===id)));
- report='Start at the star. Use your arrow keys.';r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');a.activeRun=r;save();maze();
+ if(a.completedLevelIds.includes(def.id)&&!restart){
+   modal('Maze '+def.worldStage+' Completed!','<p>You already finished this maze. It is saved, and you do not have to play it again.</p><button type="button" id="done-level-back" class="primary">← World Map</button><button type="button" id="done-level-replay">Play Again (Optional)</button>',()=>{
+     $('done-level-back').onclick=()=>{closeModal();openWorld(def.worldIndex)};
+     $('done-level-replay').onclick=()=>{closeModal();startLevel(n,true)};
+   });
+   return;
+ }
+ const old=a.mazeRuns?.[def.id]||a.activeRun;
+ const valid=old&&old.id===def.id&&!old.complete&&old.w===def.mazeGrid.width&&old.h===def.mazeGrid.height&&Array.isArray(old.grid)&&old.grid.length===old.h&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0&&(!def.collectibleIds||def.collectibleIds.every(id=>old.items.some(i=>i.id===id)));
+ if(restart)delete a.mazeRuns[def.id];
+ report=valid&&!restart?'Welcome back! Keep going from your saved spot.':'Start at the star. Use your arrow keys.';
+ r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
+ if(a.completedLevelIds.includes(def.id))r.rewarded=true;
+ a.activeRun=r;save();maze();
  if(def.worldStage===8&&tile(r.player)===tile(r.goal)&&r.items.every(i=>i.collected)&&(!r.skill||r.skill.done)&&(r.finalArrowIndex||0)<10){finalArrowChallenge();return}
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
  }
