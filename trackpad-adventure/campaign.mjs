@@ -27,7 +27,7 @@ export function campaign(state){
  if(c.level>c.completed[c.current])c.level=Math.min(7,c.completed[c.current]);
  return c;
 }
-export const mapPath=(world)=>'trackpad-adventure/maps/'+(typeof world==='string'?world:world.id)+'.jpg?v=20261027-blank-jpg';
+export const mapPath=(world)=>{const id=typeof world==='string'?world:world.id;return 'trackpad-adventure/maps/'+(id==='candy'?'candy-user-upload.jpg':id+'.jpg')+'?v=20261027-original-candy-2048';};
 export function friendForWorld(index){return adventureWorlds[index]?.friend}
 export function isWorldUnlocked(state,index){return index===0||campaign(state).completed[index-1]===8}
 export function activityStatus(state,index,level){
