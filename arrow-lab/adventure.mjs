@@ -121,7 +121,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
  function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
- function modal(title,body,bind){clearClock();let d=$('adventure-dialog');if(!d){d=document.createElement('dialog');d.id='adventure-dialog';d.className='dialog adventure-dialog';document.body.append(d)}if($('kaple-guide'))document.body.append($('kaple-guide'));d.setAttribute('aria-labelledby','adventure-dialog-title');d.innerHTML='<h2 id="adventure-dialog-title">'+title+'</h2>'+body;tellGuide(d.querySelector('p')?.textContent||title,'⭐ → ✓');d.oncancel=e=>e.preventDefault();if(!d.open)d.showModal();bind?.(d);return d}
+ function modal(title,body,bind){clearClock();let d=$('adventure-dialog');if(!d){d=document.createElement('dialog');d.id='adventure-dialog';d.className='dialog adventure-dialog';document.body.append(d)}if($('kaple-guide'))document.body.append($('kaple-guide'));d.setAttribute('aria-labelledby','adventure-dialog-title');d.innerHTML='<h2 id="adventure-dialog-title">'+title+'</h2>'+body;tellGuide(d.querySelector('p')?.textContent||title,'⭐ → ✓');d.oncancel=e=>e.preventDefault();if(!d.open)d.showModal();const home=document.createElement('button');home.type='button';home.className='modal-home';home.textContent='🏠 HOME';home.setAttribute('aria-label','Leave this activity and return home');home.onclick=()=>{challengeKeys=null;save();d.close();map()};d.prepend(home);bind?.(d);return d}
  function closeModal(){const guide=$('kaple-guide');if(guide)document.body.append(guide);$('adventure-dialog')?.close();if(view==='maze')clock()}
  function celebrate(title,id,after){
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
@@ -129,7 +129,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
  $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
- const nav=ready?(view==='map'?'':'<div class="actions"><button data-nav="map"><span>🏠</span>Home</button><button data-nav="shop"><span>⭐</span>Star Shop</button><button data-nav="computer"><span>💻</span>My Collections</button></div>'):'<span class="setup-steps">'+(!a.selectedPlayerCharacterId?'1. Pick a player':'2. Pick a home')+'</span>';
+ const nav=ready?(view==='map'?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="myworlds">🌍 My Worlds</button><button data-nav="computer">💻 My Collections</button></div>'):'<span class="setup-steps">'+(!a.selectedPlayerCharacterId?'1. Pick a player':'2. Pick a home')+'</span>';
  $('app').innerHTML='<nav class="adventure-nav"><strong>'+esc(teacherName)+' · #'+number+' <span class="star-wallet">⭐ '+a.wallet.rainbowStars+'</span></strong>'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play mazes to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit one you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first)first.hidden=true;
@@ -464,7 +464,41 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
 }
  });
  }
+ function finalArrowChallenge(){
+  // World finales require ten separate arrow presses before completion or rescue.
+  clearClock();
+  if(!Array.isArray(r.finalArrowSequence)||r.finalArrowSequence.length!==10){
+    const keys=Object.keys(directions),random=new Uint32Array(10);
+    crypto.getRandomValues(random);
+    r.finalArrowSequence=Array.from(random,x=>keys[x%keys.length]);
+    r.finalArrowIndex=0;save();
+  }
+  let at=Math.min(10,Math.max(0,Number(r.finalArrowIndex)||0));
+  const symbols={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
+  const bg=asset(def.backgroundImage);
+  const contents='<p class="final-arrow-instruction">The final challenge! Watch each flashing arrow. Press the matching arrow key 10 times to rescue your friend!</p>'+
+   '<div class="final-arrow-scene" style="background-image:url('+bg+')">'+
+   '<div class="final-arrow-frost"><div id="final-arrow-count" class="final-arrow-count" aria-live="polite"></div>'+
+   '<div id="final-arrow-big" class="final-arrow-big" role="img" aria-label="Follow this arrow"></div>'+
+   '<div id="final-arrow-feedback" class="final-arrow-feedback" role="status">Look at the arrow. Press the matching key!</div></div></div>'+
+   '<div class="final-arrow-keyboard" aria-label="Optional on-screen arrow keys"><button data-final-key="ArrowUp" aria-label="Up">↑</button><button data-final-key="ArrowLeft" aria-label="Left">←</button><button data-final-key="ArrowDown" aria-label="Down">↓</button><button data-final-key="ArrowRight" aria-label="Right">→</button></div>';
+  modal('Final Arrow Rescue Challenge!',contents,d=>{
+    d.classList.add('final-arrow-modal');
+    const count=d.querySelector('#final-arrow-count'),big=d.querySelector('#final-arrow-big'),feedback=d.querySelector('#final-arrow-feedback');
+    const show=()=>{count.textContent='ARROW '+(at+1)+' / 10';big.textContent=symbols[r.finalArrowSequence[at]];big.setAttribute('aria-label',r.finalArrowSequence[at].slice(5));
+      big.classList.remove('flash-arrow');void big.offsetWidth;big.classList.add('flash-arrow')};
+    challengeKeys=k=>{
+      if(k!==r.finalArrowSequence[at]){feedback.textContent='Not quite! Look again and try the same arrow.';big.classList.remove('flash-arrow');void big.offsetWidth;big.classList.add('flash-arrow');return}
+      at++;r.finalArrowIndex=at;save();sound();
+      if(at===10){challengeKeys=null;d.classList.remove('final-arrow-modal');d.close();finish();return}
+      feedback.textContent='Great! Here is your next arrow.';show();
+    };
+    d.querySelectorAll('[data-final-key]').forEach(b=>b.onclick=()=>challengeKeys?.(b.dataset.finalKey));
+    show();
+  });
+ }
  function finish(){
+ if(def.worldStage===8&&(r.finalArrowIndex||0)<10){finalArrowChallenge();return}
  r.complete=true;if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
  modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'maze':'mazes')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
  try{const old=JSON.parse(localStorage.getItem(key)||'{}');if(old.wallet){old.wallet.total+=5;old.wallet.earned+=5;old.wallet.finished+=1;localStorage.setItem(key,JSON.stringify(old))}}catch{}
