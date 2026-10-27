@@ -203,3 +203,204 @@ body.lab-map-active .lab-main-nav{gap:7px!important;padding-left:clamp(8px,12vw,
  body.lab-map-active .lab-main-nav{padding-left:8px!important;}
  body.lab-map-active .lab-main-nav button{font-size:11px!important;padding:5px!important;}
 }
+
+/* Collections: a full-size, usable world with its objects and a compact control shelf. */
+body.lab-collection-active #kaple-guide{display:none!important;}
+body.lab-collection-active #app{
+  box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+  height:var(--screen-height,calc(100dvh - 210px))!important;
+  max-height:var(--screen-height,calc(100dvh - 210px))!important;
+  width:100%!important;left:0!important;
+  gap:4px!important;overflow:hidden!important;padding:4px 12px 8px!important;
+}
+body.lab-collection-active .adventure-nav{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  flex:0 0 auto!important;min-height:40px!important;max-height:54px!important;
+  gap:12px!important;margin:0!important;padding:3px 12px!important;
+}
+body.lab-collection-active .adventure-nav .actions{display:flex!important;gap:6px!important;}
+body.lab-collection-active .adventure-nav .actions button{
+  min-height:34px!important;padding:5px 10px!important;font-size:12px!important;
+}
+body.lab-collection-active .adventure-title{display:none!important;}
+body.lab-collection-active .lab-collection-page{
+  box-sizing:border-box!important;display:grid!important;
+  grid-template-rows:52px minmax(150px,1fr) 48px minmax(130px,30%)!important;
+  flex:1 1 auto!important;min-height:0!important;min-width:0!important;
+  width:100%!important;height:auto!important;gap:7px!important;
+  background:linear-gradient(145deg,#e4f7ff,#f5e7ff 50%,#ffefdb);
+  border:2px solid #fff;border-radius:22px;padding:9px!important;overflow:hidden!important;
+}
+.lab-collection-page .collection-heading{
+  display:flex;justify-content:space-between;align-items:center;gap:9px;
+  min-width:0!important;min-height:0!important;padding:2px 11px;
+}
+.lab-collection-page .collection-heading small{font:11px VAG,Arial,sans-serif;color:#38578d;}
+.lab-collection-page .collection-heading h2{
+  font:clamp(23px,2.3vw,36px)/1.05 Homebody,VAG,Arial,sans-serif;
+  margin:0!important;color:#253777;
+}
+.lab-collection-page .collection-heading-actions{display:flex;gap:8px;flex-wrap:nowrap;}
+.lab-collection-page .collection-heading-actions button,
+.lab-collection-page .collection-feature-button{
+  white-space:nowrap;border-radius:14px;background:linear-gradient(#fff9ca,#fbd058);
+  border:2px solid #fff;color:#5a3f1a;
+  font:clamp(12px,1.2vw,17px) VAG,Arial,sans-serif;
+  padding:8px 15px;min-height:40px;
+}
+.lab-collection-page .collection-world-showcase{
+  box-sizing:border-box;display:grid;grid-template-rows:minmax(0,1fr) auto;
+  gap:3px;min-height:0!important;height:100%!important;
+  padding:4px 5px 2px;overflow:hidden!important;background:#ffffff88;border-radius:16px;
+}
+body.lab-collection-active .collection-scene.land-scene.free-world{
+  display:block!important;position:relative!important;box-sizing:border-box!important;
+  width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+  margin:0!important;aspect-ratio:auto!important;border:2px solid white!important;
+  background-color:#e8f6ff!important;background-size:contain!important;
+  background-repeat:no-repeat!important;background-position:center!important;
+  border-radius:16px!important;overflow:hidden!important;
+  cursor:default;
+}
+.lab-collection-page .collection-world-hint{
+  font:clamp(11px,1.1vw,14px) VAG,Arial,sans-serif;text-align:center;
+  color:#2d4b78;padding:2px 7px;line-height:1.15;max-height:20px;
+}
+.lab-collection-page .collection-tabs{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;
+  width:100%;height:100%;min-height:0!important;
+}
+.lab-collection-page .collection-tabs button{
+  font:clamp(12px,1.45vw,19px) Homebody,VAG,Arial,sans-serif;
+  border:2px solid #fff!important;color:white!important;border-radius:14px!important;
+  background:linear-gradient(#c99eff,#8a54ce)!important;
+  padding:5px 7px!important;min-width:0!important;min-height:0!important;
+}
+.lab-collection-page .collection-tabs button[aria-pressed="true"]{
+  background:linear-gradient(#77d0ff,#2384d4)!important;
+  box-shadow:0 0 0 3px #fff6a5!important;
+}
+.lab-collection-page .collection-panel{
+  box-sizing:border-box!important;min-height:0!important;
+  width:100%!important;overflow:auto!important;padding:8px 12px!important;
+  border:2px solid white;border-radius:16px;background:#fff9;
+}
+.lab-collection-page .collection-panel-description{
+  font:clamp(12px,1.2vw,15px) VAG,Arial,sans-serif;
+  line-height:1.2;margin:0 0 8px!important;color:#385582;
+}
+.lab-collection-page .collection-cards{
+  display:flex;flex-wrap:nowrap;align-items:stretch;gap:10px;
+  overflow-x:auto;overflow-y:hidden;max-width:100%;padding:4px;
+}
+.lab-collection-page .collection-friend-card{
+  display:flex;align-items:center;gap:9px;flex:0 0 260px;min-width:0;
+  border:2px solid #ded4ff;background:white;border-radius:14px;padding:7px;
+}
+.lab-collection-page .collection-friend-card .world-friend-art{width:55px!important;height:63px!important;}
+.lab-collection-page .collection-friend-card .world-friend-icon{font-size:51px!important;}
+.lab-collection-page .collection-friend-card>div{min-width:0;display:flex;flex-direction:column;gap:2px;}
+.lab-collection-page .collection-friend-card strong{font-size:14px!important;}
+.lab-collection-page .collection-friend-card small{font-size:11px!important;}
+.lab-collection-page .collection-friend-card button{font-size:11px;padding:6px;max-width:86px;}
+.lab-collection-page .collection-mini-card{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  flex:0 0 115px;max-width:115px;min-width:0;
+  text-align:center;padding:5px;border:1px solid #dfd7f0;background:white;border-radius:12px;
+}
+.lab-collection-page .collection-mini-card .shop-decoration,
+.lab-collection-page .collection-mini-card img{
+  width:80px!important;height:68px!important;object-fit:contain!important;
+}
+.lab-collection-page .collection-mini-card strong{font-size:12px!important;}
+.lab-collection-page .collection-world-option{
+  flex:0 0 185px;display:flex;flex-direction:column;gap:3px;
+  align-items:center;justify-content:center;padding:5px;
+  border:2px solid white;border-radius:14px;background:#f5f7ff!important;
+  min-width:0;color:#253e7b!important;font-size:12px!important;
+}
+.lab-collection-page .collection-world-option[aria-pressed="true"]{border-color:#ffac33!important;background:#fff2bb!important;}
+.lab-collection-page .collection-world-option img{
+  width:100%;height:72px!important;object-fit:contain!important;
+}
+.lab-collection-page .collection-panel .collection-feature-button{
+  margin:8px 0 0;font-size:12px!important;padding:7px!important;
+}
+body.lab-collection-active .collection-scene .world-object img{
+  width:clamp(72px,8vw,120px)!important;
+  height:clamp(72px,12vh,118px)!important;object-fit:contain!important;
+}
+body.lab-collection-active .collection-scene .world-object span:not(.world-friend-gift){
+  font-size:clamp(10px,1vw,13px)!important;
+}
+/* Dialogs have an escape home control; the challenge remains unfinished if exited. */
+#adventure-dialog .modal-home{
+  float:right!important;position:sticky!important;top:0!important;right:0!important;
+  z-index:6!important;background:#e1f4ff!important;color:#1d4576!important;
+  border:2px solid #6bc6ef!important;border-radius:12px!important;
+  padding:7px 12px!important;font-size:13px!important;
+}
+body.adventure-mode #app>.adventure-nav .always-home{
+  min-height:36px!important;padding:6px 12px!important;
+  background:linear-gradient(#ddfaff,#8ddcff)!important;
+  color:#23518a!important;border:2px solid #fff!important;border-radius:13px!important;
+}
+#adventure-dialog.final-arrow-modal{
+  box-sizing:border-box!important;width:min(900px,calc(100vw - 30px))!important;
+  max-width:min(900px,calc(100vw - 30px))!important;
+  max-height:calc(100dvh - 18px)!important;
+  overflow:auto!important;padding:12px 20px!important;
+  text-align:center;
+}
+#adventure-dialog.final-arrow-modal h2{font-size:clamp(20px,2.3vw,32px)!important;margin:8px 0!important;}
+.final-arrow-instruction{
+  font-size:clamp(14px,1.5vw,19px)!important;line-height:1.3!important;max-width:60ch!important;
+}
+.final-arrow-scene{
+  position:relative;box-sizing:border-box;width:100%;height:clamp(215px,38vh,380px);
+  overflow:hidden;border:4px solid white;border-radius:22px;
+  background-size:contain!important;background-position:center!important;
+  background-repeat:no-repeat!important;background-color:#d6efff!important;
+  box-shadow:0 4px 18px #30416c55;
+}
+.final-arrow-frost{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;
+  background:radial-gradient(ellipse,#ffffffe8 3%,#ffffff55 60%,transparent 85%);
+}
+.final-arrow-count{
+  color:#273d7a;font:clamp(18px,2vw,26px) Homebody,VAG,sans-serif;
+  background:#fff9;border-radius:25px;padding:3px 22px;
+}
+.final-arrow-big{
+  display:grid;place-items:center;color:#263da6;
+  font:900 clamp(100px,15vw,200px)/.95 Arial,sans-serif;
+  text-shadow:-5px -5px white,5px 5px white,0 9px 0 #846ce077;
+  width:min(230px,38vw);height:clamp(118px,25vh,215px);
+}
+.final-arrow-big.flash-arrow{animation:finalArrowFlash .6s ease-out;}
+@keyframes finalArrowFlash{
+  0%{opacity:.15;transform:scale(.75)}
+  38%{opacity:1;transform:scale(1.14)}
+  100%{opacity:1;transform:scale(1)}
+}
+.final-arrow-feedback{padding:5px 10px;background:#fffc;border-radius:14px;color:#2a4b7c;font-size:14px;max-width:90%;}
+.final-arrow-keyboard{display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 0;}
+.final-arrow-keyboard button{
+  display:grid;place-items:center;width:clamp(55px,6vw,78px);height:clamp(53px,6vw,72px);
+  background:linear-gradient(#fff5b7,#ffd165);border:3px solid white;border-radius:15px;
+  color:#213b8a;font:900 clamp(34px,3.8vw,50px)/1 Arial,sans-serif;
+}
+@media(max-height:690px){
+ body.lab-collection-active .lab-collection-page{grid-template-rows:44px minmax(115px,1fr) 43px minmax(96px,31%)!important;padding:6px!important;gap:4px!important;}
+ .lab-collection-page .collection-heading h2{font-size:22px!important;}
+ .lab-collection-page .collection-panel{padding:5px 8px!important;}
+ .final-arrow-scene{height:clamp(150px,31vh,235px);}
+}
+@media(max-width:740px){
+ .lab-collection-page .collection-heading small{font-size:9px;}
+ .lab-collection-page .collection-tabs{gap:4px;}
+ .lab-collection-page .collection-tabs button{font-size:11px!important;padding:4px!important;}
+ .lab-collection-page .collection-heading-actions button{font-size:11px!important;padding:5px!important;}
+ .lab-collection-page .collection-friend-card{flex-basis:220px;}
+}
