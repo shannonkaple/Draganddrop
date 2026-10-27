@@ -420,3 +420,43 @@ body>header.lab-image-header .actions{
  body>header.lab-image-header .lab-banner-type strong{font-size:clamp(19px,4.8vw,25px)!important;}
  body>header.lab-image-header .lab-banner-subtitle{font-size:clamp(12px,3vw,16px)!important;}
 }
+
+/* Final arrow rescue is a real compact popup, not a full-screen blank panel. */
+html body dialog#adventure-dialog.final-arrow-modal{
+ display:none!important;position:fixed!important;
+ inset:auto!important;top:50%!important;left:50%!important;
+ transform:translate(-50%,-50%)!important;
+ width:min(860px,calc(100vw - 22px))!important;
+ min-width:0!important;height:fit-content!important;min-height:0!important;
+ max-height:calc(100dvh - 20px)!important;
+ padding:clamp(9px,1.5vw,17px)!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ border-radius:22px!important;background:#fffefa!important;color:#1b2b4b!important;
+}
+html body dialog#adventure-dialog.final-arrow-modal[open]{display:block!important;}
+html body dialog#adventure-dialog.final-arrow-modal .final-arrow-scene{
+ max-height:min(42dvh,355px)!important;width:100%!important;
+ aspect-ratio:16/9!important;object-fit:contain!important;
+ margin:5px auto!important;
+}
+html body dialog#adventure-dialog.final-arrow-modal h2{
+ font-size:clamp(22px,2.7vw,32px)!important;line-height:1.1!important;
+ margin:4px auto 7px!important;
+}
+html body dialog#adventure-dialog.final-arrow-modal .final-arrow-instruction{
+ font-size:clamp(14px,1.25vw,18px)!important;margin:4px auto!important;
+}
+html body dialog#adventure-dialog.final-arrow-modal .final-arrow-frost{
+ padding:5px 14px!important;min-width:145px!important;min-height:100px!important;
+}
+html body dialog#adventure-dialog.final-arrow-modal .final-arrow-big{
+ font-size:clamp(76px,12dvh,145px)!important;
+}
+@media(max-height:550px){
+ html body dialog#adventure-dialog.final-arrow-modal .final-arrow-scene{
+   max-height:38dvh!important;
+ }
+ html body dialog#adventure-dialog.final-arrow-modal h2{
+   font-size:20px!important;
+ }
+}
