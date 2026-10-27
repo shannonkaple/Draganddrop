@@ -46,6 +46,7 @@ const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config','computer_collectibles'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
 
+const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations','arrowLabCharacters',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations,arrowLabCharacters);
 const allCharacters=arrowLabCharacters(data.characters);
 assert.equal(pendingCharacters.length,10,'ten legacy characters are available in Arrow Lab only');
 assert.equal(allCharacters.length,data.characters.length+10,'all ten missing character IDs restored');
@@ -82,7 +83,7 @@ assert.match(missingPortrait,/ART COMING SOON/,'portrait has honest placeholder 
 assert.doesNotMatch(missingPortrait,/<img/,'no broken image URL');
 assert.match(source,/const p=at\(c,i\),name=char\(c\)\?\.name/,'unknown saved friends render safely in MY STUFF');
 
-const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations','arrowLabCharacters',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations,arrowLabCharacters);
+
 
 const starterMigration=source.slice(source.indexOf(" const starterWorldId='background_candy';"),source.indexOf(' const char='));
 assert.ok(starterMigration.includes('ownedWorldIds'),'locate the real starter-world migration');
