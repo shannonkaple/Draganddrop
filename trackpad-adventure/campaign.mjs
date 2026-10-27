@@ -27,7 +27,7 @@ export function campaign(state){
  if(c.level>c.completed[c.current])c.level=Math.min(7,c.completed[c.current]);
  return c;
 }
-export const mapPath=(world)=>'trackpad-adventure/maps/'+(typeof world==='string'?world:world.id)+'.jpg?v=20261027-eight-stops';
+export const mapPath=(world)=>'trackpad-adventure/maps/'+(typeof world==='string'?world:world.id)+'.jpg?v=20261027-blank-jpg';
 export function friendForWorld(index){return adventureWorlds[index]?.friend}
 export function isWorldUnlocked(state,index){return index===0||campaign(state).completed[index-1]===8}
 export function activityStatus(state,index,level){

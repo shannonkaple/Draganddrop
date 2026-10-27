@@ -3,7 +3,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'trackpad-adventure/maps/overview.jpg'
+      - 'trackpad-adventure/maps/*.jpg'
+      - 'trackpad-adventure/campaign.mjs'
       - 'trackpad-adventure/game.mjs'
       - 'trackpad-adventure/arrow-home.css'
       - 'trackpad-adventure.html'

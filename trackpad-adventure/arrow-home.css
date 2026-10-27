@@ -190,3 +190,99 @@ body:has(.arrow-style-home) .game-menu button{min-height:41px}
 .world-map-hotspot small{position:absolute;top:83%;font:clamp(8px,.85vw,12px) VAG,Arial,sans-serif;background:#ffffe5dd;border-radius:12px;padding:2px 5px;color:#3f3065;white-space:nowrap}
 .world-map-hotspot:focus-visible{outline:5px solid #ffec27!important;outline-offset:2px}
 @media(max-height:650px){.campaign-level-screen.world-map-page{min-height:0;height:calc(var(--screen-height,610px) - 32px);gap:5px}.campaign-level-screen .world-map-art{min-height:210px!important}.world-map-hotspot{width:56px;height:56px}}
+
+
+/* CRISP JPEG MAPS ONLY. The image is an ordinary <img>, preserving intrinsic
+   aspect ratio. Buttons are invisible real hotspots over already-blank circles.
+   No SVG paths, CSS-drawn circles, numbers, labels or duplicate ornaments. */
+.arrow-style-home{
+ height:auto!important;max-height:none!important;min-height:0!important;
+ overflow:visible!important;width:min(100%,1140px)!important;
+}
+.arrow-style-home .arrow-world-stage{
+ background-image:none!important;background:none!important;
+ flex:0 0 auto!important;width:100%!important;min-height:0!important;
+ height:auto!important;max-height:none!important;aspect-ratio:1600 / 760!important;
+ display:block!important;position:relative!important;
+ overflow:hidden!important;box-sizing:border-box!important;
+}
+.arrow-world-stage>.map-jpeg-backdrop{
+ display:block!important;position:relative!important;width:100%!important;
+ height:auto!important;max-height:none!important;
+ aspect-ratio:1600 / 760!important;object-fit:contain!important;
+}
+.arrow-style-home .arrow-world-node.blank-map-hotspot{
+ position:absolute!important;display:block!important;
+ min-width:0!important;min-height:0!important;width:8%!important;
+ height:auto!important;aspect-ratio:1/1!important;
+ transform:translate(-50%,-50%)!important;
+ background:transparent!important;border:0!important;
+ outline:0!important;box-shadow:none!important;
+ padding:0!important;opacity:1!important;filter:none!important;
+ cursor:pointer!important;
+}
+.arrow-style-home .arrow-world-node.blank-map-hotspot:disabled{
+ cursor:default!important;pointer-events:none!important;
+}
+.arrow-style-home .arrow-world-node.blank-map-hotspot:focus-visible{
+ outline:4px solid #fff53a!important;outline-offset:1px!important;
+}
+.campaign-level-screen.world-map-page{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ align-items:center!important;gap:7px!important;
+ width:min(100%,1220px)!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ margin:0 auto!important;padding:0 7px 8px!important;overflow:visible!important;
+}
+.world-map-toolbar{
+ width:100%;display:flex;align-items:center;gap:12px;justify-content:flex-end;
+ min-height:45px;background:#ffffffed;border:2px solid #fff;border-radius:16px;
+ padding:3px 12px;color:#283d71;
+}
+.world-map-toolbar button{
+ margin-right:auto;min-width:51px;min-height:38px!important;
+ padding:2px 9px!important;border:2px solid #d5e7ff!important;
+ border-radius:12px!important;background:#f5fbff!important;
+ font-size:26px!important;box-shadow:none!important;
+}
+.world-map-reward{font-size:27px;line-height:1;filter:grayscale(.7);opacity:.55}
+.world-map-reward.earned{filter:none;opacity:1}
+.world-map-stars{font:17px VAG,Arial,sans-serif;white-space:nowrap}
+.campaign-level-screen .world-map-art{
+ display:block!important;position:relative!important;box-sizing:border-box!important;
+ flex:0 0 auto!important;width:100%!important;height:auto!important;
+ min-width:0!important;min-height:0!important;max-height:none!important;
+ aspect-ratio:16 / 9!important;margin:0!important;padding:0!important;
+ background:none!important;background-image:none!important;
+ overflow:hidden!important;border:3px solid #ffffffdf!important;
+ border-radius:19px!important;box-shadow:0 6px 15px #143d7877!important;
+}
+.world-map-art>.map-jpeg-backdrop{
+ display:block!important;position:relative!important;
+ width:100%!important;height:auto!important;min-height:0!important;
+ max-height:none!important;object-fit:contain!important;
+ aspect-ratio:16 / 9!important;pointer-events:none!important;
+}
+.campaign-level-screen .world-map-hotspot{
+ position:absolute!important;display:block!important;box-sizing:border-box!important;
+ transform:translate(-50%,-50%)!important;
+ width:8%!important;min-width:0!important;min-height:0!important;
+ height:auto!important;aspect-ratio:1/1!important;
+ padding:0!important;background:transparent!important;
+ border:0!important;box-shadow:none!important;
+ opacity:1!important;filter:none!important;outline:0!important;
+ border-radius:50%!important;cursor:pointer!important;z-index:4;
+}
+.campaign-level-screen .world-map-hotspot:disabled{
+ cursor:default!important;pointer-events:none!important;
+}
+.campaign-level-screen .world-map-hotspot:focus-visible{
+ outline:5px solid #ffee42!important;outline-offset:2px!important;
+}
+@media(max-width:660px){
+ .campaign-level-screen.world-map-page{padding:0 2px!important;gap:4px!important}
+ .world-map-toolbar{min-height:36px;padding:1px 8px}
+ .world-map-toolbar button{min-height:30px!important;font-size:20px!important}
+ .world-map-reward{font-size:23px}
+ .arrow-style-home{width:100%!important}
+}
