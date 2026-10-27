@@ -1,5 +1,5 @@
 {
-  "project": "Ms. Kaple's A-MAZE-ING Arrow Adventure \u2014 Arrow Lab asset production",
+  "project": "Ms. Kaple's A-MAZE-ING Arrow Adventure — Arrow Lab asset production",
   "updated_on": "2026-10-27",
   "scope": "shannonkaple/Draganddrop/arrow-lab/ only",
   "rules": {
@@ -20,13 +20,23 @@
     },
     "game": {
       "paired_collectibles_per_maze": 2,
-      "background_css": "background-size:cover",
+      "background_css": "background-size:contain; regenerate artwork in correct aspect rather than stretching or cropping",
       "preserve_progress": true,
       "return_to_current_world": true,
       "never_modify_original_game": true,
-      "uppercase_homebody_club": true
+      "uppercase_homebody_club": true,
+      "collections": "Large arranged world with saved object coordinates, friends/decor/world changer beneath; Home available throughout.",
+      "final_mazes": "After each eighth maze, ten animated randomized distinct consecutive arrow prompts over that world's scenery must be completed before awarding rescue."
     },
-    "style": "Match existing Candy artwork: glossy cute dimensional cartoon; chunky rounded shapes, playful colors, smooth toy-like surfaces. Reject realistic rocks, wood grain, sand and water."
+    "style": "Match existing Candy artwork: glossy cute dimensional cartoon; chunky rounded shapes, playful colors, smooth toy-like surfaces. Reject realistic rocks, wood grain, sand and water.",
+    "artwork_integrity": {
+      "never_stretch": true,
+      "never_crop_approved_images": true,
+      "generate_new_illustration_at_target_dimensions_if_asset_does_not_fit": true,
+      "approved_ms_kaple_and_rigby_exactness": "Preserve original approved Ms. Kaple and Rigby illustration, no substitutions or reimagining",
+      "no_status_baked_into_scenery": "Headings and scenery only. Stars, locks, rewards, progress, captions, buttons, statuses are changeable HTML controls.",
+      "portrait_policy": "No alternate Ms. Kaple or Rigby depictions without explicit user approval."
+    }
   },
   "worlds": [
     {
