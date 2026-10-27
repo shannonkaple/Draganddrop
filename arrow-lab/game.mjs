@@ -83,6 +83,18 @@ async function toggleArrowLabFullscreen(){
 window.arrowLabToggleFullscreen=toggleArrowLabFullscreen;
 fullscreenButton.addEventListener('click',toggleArrowLabFullscreen);
 document.addEventListener('fullscreenchange',syncFullscreenButton);
+// Arrow Lab is deliberately a TRACKPAD + PHYSICAL KEYBOARD activity.
+// Blocking touch starts also suppresses synthesized touch clicks on UI buttons;
+// real mouse/trackpad clicks, keyboard focus and wheel scrolling remain available.
+document.addEventListener('touchstart',event=>{
+  if(event.cancelable)event.preventDefault();
+},{capture:true,passive:false});
+document.addEventListener('pointerdown',event=>{
+  if(event.pointerType && event.pointerType!=='mouse'){
+    event.preventDefault();event.stopImmediatePropagation();
+  }
+},true);
+
 document.addEventListener('fullscreenerror',()=>{
   fullscreenButton.title='Full screen was blocked by your browser.';
 });
