@@ -146,3 +146,60 @@ body.guided.adventure-mode.playing .adventure-title {
   }
   body.lab-map-active .lab-main-nav button {height:47px!important;}
 }
+/* Visible navigation for every purchased world and friend. */
+body.adventure-mode .world-hub-actions {
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+  gap:9px;margin:6px 0 12px;padding:4px;
+}
+body.adventure-mode .world-hub-actions button {
+  border:2px solid #ffffff;border-radius:14px;
+  background:linear-gradient(#e9d6ff,#b28afa);color:#2e205d;
+  padding:8px 12px;min-height:42px;box-shadow:0 4px 8px #2d32603d;
+  font:clamp(12px,1.1vw,16px) VAG,Arial,sans-serif;
+}
+body.adventure-mode .world-hub-actions button:hover {background:#fff5ac;}
+body.adventure-mode .decoration-cards>article,
+body.adventure-mode .land-cards>article{
+  min-width:0;display:flex;flex-direction:column;justify-content:space-between;
+  align-items:center;text-align:center;border:2px solid #a99bdb;border-radius:18px;
+  background:linear-gradient(#fff,#f5f2ff);padding:12px;gap:6px;
+}
+body.adventure-mode .decoration-cards>article .shop-decoration,
+body.adventure-mode .decoration-cards>article img {
+  width:100%;max-width:140px;height:115px;object-fit:contain;
+}
+body.adventure-mode .land-cards>article img {
+  width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;
+}
+body.adventure-mode .decoration-cards>article button,
+body.adventure-mode .land-cards>article button {
+  width:100%;min-height:40px;border-radius:11px;background:#d5f9cf;
+  color:#204e32;font-size:13px;padding:7px;
+}
+body.adventure-mode .decoration-cards>article button:disabled,
+body.adventure-mode .land-cards>article button:disabled{
+  background:#f1f1f1;color:#6e6e6e;opacity:1;
+}
+body.adventure-mode .world-friend-gift {
+  position:absolute;top:-13px;right:-21px;z-index:5;pointer-events:none;
+  background:#fffceb;border:2px solid #ffe680;border-radius:50%;
+  padding:3px;box-shadow:0 3px 7px #1f236055;
+}
+body.adventure-mode .world-friend-gift img{
+  width:clamp(34px,4.5vw,53px)!important;height:clamp(34px,4.5vw,53px)!important;
+  object-fit:contain;
+}
+body.adventure-mode .land-scene.free-world {
+  /* Never stretch an existing picture to fill a differently shaped world. */
+  background-size:contain!important;background-position:center!important;
+  background-repeat:no-repeat!important;background-color:#eef9ff;
+}
+body.adventure-mode .world-tabs button{font-size:clamp(11px,1.1vw,14px);padding:7px 9px;}
+body.adventure-mode .lab-main-nav button{min-width:0!important;white-space:nowrap;font-size:clamp(11px,1.4vw,20px)!important;}
+body.lab-map-active .lab-main-nav{gap:7px!important;padding-left:clamp(8px,12vw,210px)!important;padding-right:12px!important;}
+@media(max-width:800px){
+ body.adventure-mode .world-hub-actions{gap:5px;}
+ body.adventure-mode .world-hub-actions button{font-size:11px;padding:6px;}
+ body.lab-map-active .lab-main-nav{padding-left:8px!important;}
+ body.lab-map-active .lab-main-nav button{font-size:11px!important;padding:5px!important;}
+}
