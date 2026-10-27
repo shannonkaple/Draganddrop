@@ -720,3 +720,33 @@ body>header.lab-image-header .actions button{
    font-size:clamp(10px,1.7vw,12px)!important;
  }
 }
+
+/* 2026-10-27: honest neutral portraits for ten unpublished Arrow Lab characters.
+   These are visibly labelled placeholders, NOT replacement character designs. */
+body.adventure-mode .pending-character-art {
+  flex-direction:column!important;gap:3px!important;
+  background:linear-gradient(145deg,#f5f7fa,#dce4ec)!important;
+  color:#25364b!important;border:2px dashed #7a899c!important;
+  text-align:center!important;padding:3px!important;
+}
+body.adventure-mode .pending-character-art .pending-character-initial {
+  font-family:Arial,sans-serif!important;font-weight:900!important;
+  font-size:clamp(18px,3.2vw,44px)!important;line-height:1!important;
+  letter-spacing:-.04em!important;
+}
+body.adventure-mode .pending-character-art .pending-character-note {
+  display:block!important;font-family:Arial,sans-serif!important;
+  font-size:clamp(8px,.9vw,11px)!important;font-weight:800!important;
+  line-height:1.1!important;letter-spacing:.01em!important;
+  color:#42566d!important;
+}
+body.adventure-mode.playing .character-player .pending-character-art {
+  border:1px dashed #566579!important;border-radius:25%!important;
+  padding:0!important;gap:0!important;
+}
+body.adventure-mode.playing .character-player .pending-character-art .pending-character-initial {
+  font-size:clamp(12px,2.4vw,24px)!important;
+}
+body.adventure-mode.playing .character-player .pending-character-art .pending-character-note {
+  display:none!important;
+}
