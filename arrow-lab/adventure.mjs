@@ -375,7 +375,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   shell('Change '+companion(id).name+'’s World','<p>Choose one of your purchased worlds.</p><div class="adventure-cards land-cards">'+
    lands.filter(l=>owned(l.id)).map(l=>'<button data-move-to="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong></button>').join('')+'</div><button id="move-back">← Friends</button>');
   $('move-back').onclick=rescuedFriends;
-  document.querySelectorAll('[data-move-to]').forEach(b=>b.onclick=()=>{a.worldFriends[id].homeLandId=b.dataset.moveTo;save();visit(b.dataset.moveTo)});
+  document.querySelectorAll('[data-move-to]').forEach(b=>b.onclick=()=>{a.worldFriends[id].homeLandId=b.dataset.moveTo;save();computer(b.dataset.moveTo,'friends')});
  }
 
  function decorShop(){
@@ -392,12 +392,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      return '<article>'+shopArt(d)+'<strong>'+esc(d.name)+'</strong><span>'+(has?'✓ Purchased':'⭐ '+d.cost)+'</span>'+
       '<button data-buy-decor="'+d.id+'" '+(has||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+(has?'Already in world':'Buy Decoration')+'</button></article>';
    }).join('')+'</div>');
-  $('shop-home').onclick=()=>visit(id);$('decor-change').onclick=myWorlds;$('decor-gifts').onclick=()=>friendGiftShop();
+  $('shop-home').onclick=()=>computer(id,'decor');$('decor-change').onclick=myWorlds;$('decor-gifts').onclick=()=>friendGiftShop();
   document.querySelectorAll('[data-decor-world]').forEach(b=>b.onclick=()=>{a.primaryRainbowLandId=b.dataset.decorWorld;save();decorShop()});
   document.querySelectorAll('[data-buy-decor]').forEach(b=>b.onclick=()=>{
    const d=goods.find(x=>x.id===b.dataset.buyDecor);
    if(!d||!owned(id)||a.wallet.rainbowStars<d.cost||(a.decorations[id]||[]).includes(d.id))return;
-   a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();visit(id);
+   a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();computer(id,'decor');
   });
  }
  function friendGiftShop(selectedId=null){
@@ -461,7 +461,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  pendingFriend=id;view='place';const worlds=lands.filter(l=>owned(l.id));
  shell('Where will '+esc(char(id).name)+' live?','<p>'+(worlds.length?'Choose one of your worlds. Adding a friend is free.':'Your friend needs a home. Visit Worlds to buy your first world, then come back to place your friend.')+'</p><div class="placing-friend">'+pic(id)+'</div><div class="adventure-cards land-cards">'+worlds.map(l=>'<button data-land="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><span>Owned ✓ · Add friend free</span></button>').join('')+'</div>'+(!worlds.length?'<button id="placement-worlds" class="primary">🌍 Go to Worlds</button>':'')+'<button id="place-back">← '+(rescuing?'Choose a different friend':'Upgrades')+'</button>');
  $('placement-worlds')?.addEventListener('click',homeMap);$('place-back').onclick=()=>{if(rescuing){a.pendingRescueFriendId=null;save();rescue()}else friends()};
- document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{const world=b.dataset.land;if(!owned(world))return;const placed=placeFriend(a,id,world);if(!placed)return;pendingFriend=null;save();sound();visit(world,rescuing?id:null)});
+ document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{const world=b.dataset.land;if(!owned(world))return;const placed=placeFriend(a,id,world);if(!placed)return;pendingFriend=null;save();sound();computer(world,rescuing?'friends':'decor')});
  }
  const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
 
