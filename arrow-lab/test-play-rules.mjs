@@ -7,6 +7,17 @@ a.completedLevelIds.push('lab_candy_7');assert.equal(pendingWorldRescue(a),null,
 a.completedLevelIds.push('lab_candy_8');assert.equal(pendingWorldRescue(a),'candy');
 assert.equal(rescueWorld(a,'pirate','background_candy'),false);assert.equal(rescueWorld(a,'candy','unowned'),false);
 assert.equal(rescueWorld(a,'candy','background_candy'),true);assert.equal(rescueWorld(a,'candy','background_candy'),false);assert.equal(pendingWorldRescue(a),null);
+for(const worldId of worldIds){
+ const state={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:0}};
+ for(let stage=1;stage<8;stage++){
+   state.completedLevelIds.push(`lab_${worldId}_${stage}`);
+   assert.equal(pendingWorldRescue(state),null,`${worldId}: rescue must wait for maze eight`);
+ }
+ state.completedLevelIds.push(`lab_${worldId}_8`);
+ assert.equal(pendingWorldRescue(state),worldId,`${worldId}: rescue after eight distinct mazes`);
+ assert.equal(rescueWorld(state,worldId,'background_candy'),true,`${worldId}: rescue into free starter home`);
+ assert.equal(pendingWorldRescue(state),null,`${worldId}: no duplicate rescues`);
+}
 const patterns=Array.from({length:12},(_,i)=>arrowPattern(123,i));assert.equal(new Set(patterns.map(JSON.stringify)).size,6);assert.notDeepEqual(patterns[0],patterns[1]);
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
