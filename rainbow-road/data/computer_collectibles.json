@@ -38,5 +38,85 @@
     "thumbnail": "/game-assets/collectibles/computer/mouse_256.png",
     "type": "computer_gear",
     "requiredForFinale": true
+  },
+  {
+    "id": "microscope",
+    "name": "Microscope",
+    "image": "generated:item:microscope",
+    "thumbnail": "generated:item:microscope",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "flask",
+    "name": "Chemistry Flask",
+    "image": "generated:item:flask",
+    "thumbnail": "generated:item:flask",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "magnet",
+    "name": "Horseshoe Magnet",
+    "image": "generated:item:magnet",
+    "thumbnail": "generated:item:magnet",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "solar_panel",
+    "name": "Solar Panel",
+    "image": "generated:item:solar_panel",
+    "thumbnail": "generated:item:solar_panel",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "wind_turbine",
+    "name": "Wind Turbine",
+    "image": "generated:item:wind_turbine",
+    "thumbnail": "generated:item:wind_turbine",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "robot_arm",
+    "name": "Robot Arm",
+    "image": "generated:item:robot_arm",
+    "thumbnail": "generated:item:robot_arm",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "telescope",
+    "name": "Telescope",
+    "image": "generated:item:telescope",
+    "thumbnail": "generated:item:telescope",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "dna",
+    "name": "DNA Model",
+    "image": "generated:item:dna",
+    "thumbnail": "generated:item:dna",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "circuit_board",
+    "name": "Circuit Board",
+    "image": "generated:item:circuit_board",
+    "thumbnail": "generated:item:circuit_board",
+    "type": "stem_gear",
+    "requiredForFinale": false
+  },
+  {
+    "id": "printer_3d",
+    "name": "3D Printer",
+    "image": "generated:item:printer_3d",
+    "thumbnail": "generated:item:printer_3d",
+    "type": "stem_gear",
+    "requiredForFinale": false
   }
 ]
