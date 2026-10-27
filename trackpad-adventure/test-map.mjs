@@ -61,6 +61,9 @@ try{
   return report;
  };
  const home=await inspect('.arrow-world-stage',1600,760,islands);
+ // A typical school Chromebook viewport must preserve the SAME blank JPEG and hotspot alignment.
+ await page.setViewportSize({width:1366,height:768});
+ await inspect('.arrow-world-stage',1600,760,islands);
  assert.ok(home.src.includes('.jpg'),'Home must show a JPEG');
  const homeButtons=page.locator('.arrow-world-node');
  assert.equal(await homeButtons.count(),8);
@@ -70,6 +73,8 @@ try{
  await homeButtons.first().click();
  await page.waitForSelector('.world-map-art .map-jpeg-backdrop');
  const candy=await inspect('.world-map-art',1600,900,levels);
+ await page.setViewportSize({width:1024,height:600});
+ await inspect('.world-map-art',1600,900,levels);
  assert.ok(candy.src.includes('/candy.jpg'));
  const spots=page.locator('.world-map-hotspot');
  assert.equal(await spots.count(),8);
