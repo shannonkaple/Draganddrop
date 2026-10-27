@@ -1,0 +1,385 @@
+[
+  {
+    "number": 1,
+    "id": "level_01",
+    "title": "First Steps",
+    "backgroundId": "rainbow_meadow_day",
+    "backgroundImage": "/game-assets/backgrounds/rainbow_meadow_day.webp",
+    "primarySkill": "arrows",
+    "computerGearIds": [
+      "mouse"
+    ],
+    "skillBadgeIds": [],
+    "enemyIds": [],
+    "rescueFriendOpportunity": false,
+    "rescueChoice": null,
+    "ducking": "none",
+    "mazeDifficulty": 1,
+    "mazeGrid": {
+      "width": 7,
+      "height": 5
+    },
+    "designIntent": "Use the arrow keys to reach the finish; no enemies",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 2,
+    "id": "level_02",
+    "title": "Friends in the Clouds",
+    "backgroundId": "cloud_kingdom_day",
+    "backgroundImage": "/game-assets/backgrounds/cloud_kingdom_day.webp",
+    "primarySkill": "click",
+    "computerGearIds": [],
+    "skillBadgeIds": [
+      "click"
+    ],
+    "enemyIds": [
+      "storm_cloud"
+    ],
+    "rescueFriendOpportunity": true,
+    "rescueChoice": "choose_one_from_unrescued",
+    "ducking": "none",
+    "mazeDifficulty": 1,
+    "mazeGrid": {
+      "width": 7,
+      "height": 5
+    },
+    "designIntent": "Meet and rescue your first friend; static cloud blocks a shortcut",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 3,
+    "id": "level_03",
+    "title": "Key Quest",
+    "backgroundId": "candy_clouds_day",
+    "backgroundImage": "/game-assets/backgrounds/candy_clouds_day.webp",
+    "primarySkill": "arrows",
+    "computerGearIds": [
+      "keyboard"
+    ],
+    "skillBadgeIds": [],
+    "enemyIds": [
+      "prickly_cactus"
+    ],
+    "rescueFriendOpportunity": true,
+    "rescueChoice": "choose_one_from_unrescued",
+    "ducking": "none",
+    "mazeDifficulty": 2,
+    "mazeGrid": {
+      "width": 7,
+      "height": 5
+    },
+    "designIntent": "Navigate branching paths around stationary blockers",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 4,
+    "id": "level_04",
+    "title": "Crabby Crossing",
+    "backgroundId": "rainbow_reef_day",
+    "backgroundImage": "/game-assets/backgrounds/rainbow_reef_day.webp",
+    "primarySkill": "drag_and_drop",
+    "computerGearIds": [
+      "trackpad"
+    ],
+    "skillBadgeIds": [],
+    "enemyIds": [
+      "cranky_crab"
+    ],
+    "rescueFriendOpportunity": false,
+    "rescueChoice": null,
+    "ducking": "intro",
+    "mazeDifficulty": 2,
+    "mazeGrid": {
+      "width": 9,
+      "height": 7
+    },
+    "designIntent": "Slow side-to-side crab and a gentle low barrier to duck under",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 5,
+    "id": "level_05",
+    "title": "Starry Double Click",
+    "backgroundId": "galaxy_gardens_day",
+    "backgroundImage": "/game-assets/backgrounds/galaxy_gardens_day.webp",
+    "primarySkill": "double_click",
+    "computerGearIds": [],
+    "skillBadgeIds": [
+      "double_click"
+    ],
+    "enemyIds": [
+      "purple_slime"
+    ],
+    "rescueFriendOpportunity": true,
+    "rescueChoice": "choose_one_from_unrescued",
+    "ducking": "none",
+    "mazeDifficulty": 2,
+    "mazeGrid": {
+      "width": 9,
+      "height": 7
+    },
+    "designIntent": "Choose a side path and complete an easy double-click challenge",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 6,
+    "id": "level_06",
+    "title": "Laptop Launch",
+    "backgroundId": "star_trophy_land_day",
+    "backgroundImage": "/game-assets/backgrounds/star_trophy_land_day.webp",
+    "primarySkill": "arrows",
+    "computerGearIds": [
+      "laptop"
+    ],
+    "skillBadgeIds": [],
+    "enemyIds": [
+      "whirly_tornado",
+      "storm_cloud"
+    ],
+    "rescueFriendOpportunity": true,
+    "rescueChoice": "choose_one_from_unrescued",
+    "ducking": "intro",
+    "mazeDifficulty": 3,
+    "mazeGrid": {
+      "width": 9,
+      "height": 7
+    },
+    "designIntent": "Time your passage around slowly moving hazards",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 7,
+    "id": "level_07",
+    "title": "Sunset Adventure",
+    "backgroundId": "rainbow_meadow_twilight",
+    "backgroundImage": "/game-assets/backgrounds/rainbow_meadow_twilight.webp",
+    "primarySkill": "click",
+    "computerGearIds": [
+      "desktop"
+    ],
+    "skillBadgeIds": [],
+    "enemyIds": [
+      "rock_golem"
+    ],
+    "rescueFriendOpportunity": false,
+    "rescueChoice": null,
+    "ducking": "intro",
+    "mazeDifficulty": 3,
+    "mazeGrid": {
+      "width": 11,
+      "height": 9
+    },
+    "designIntent": "Dodge a moving blocker, and collect your final computer device",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 8,
+    "id": "level_08",
+    "title": "Type to the Clouds",
+    "backgroundId": "cloud_kingdom_twilight",
+    "backgroundImage": "/game-assets/backgrounds/cloud_kingdom_twilight.webp",
+    "primarySkill": "typing",
+    "computerGearIds": [],
+    "skillBadgeIds": [
+      "typing"
+    ],
+    "enemyIds": [
+      "purple_slime",
+      "prickly_cactus"
+    ],
+    "rescueFriendOpportunity": true,
+    "rescueChoice": "choose_one_from_unrescued",
+    "ducking": "intro",
+    "mazeDifficulty": 3,
+    "mazeGrid": {
+      "width": 11,
+      "height": 9
+    },
+    "designIntent": "Type a short word to open a gate and rescue a friend",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 9,
+    "id": "level_09",
+    "title": "Rainbow Dodge",
+    "backgroundId": "candy_clouds_twilight",
+    "backgroundImage": "/game-assets/backgrounds/candy_clouds_twilight.webp",
+    "primarySkill": "arrows",
+    "computerGearIds": [],
+    "skillBadgeIds": [],
+    "enemyIds": [
+      "lava_slime",
+      "storm_cloud"
+    ],
+    "rescueFriendOpportunity": false,
+    "rescueChoice": null,
+    "ducking": "intro",
+    "mazeDifficulty": 4,
+    "mazeGrid": {
+      "width": 11,
+      "height": 9
+    },
+    "designIntent": "Two predictable moving hazards and optional safe shortcuts",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 10,
+    "id": "level_10",
+    "title": "Bubbles and Bridges",
+    "backgroundId": "rainbow_reef_twilight",
+    "backgroundImage": "/game-assets/backgrounds/rainbow_reef_twilight.webp",
+    "primarySkill": "drag_and_drop",
+    "computerGearIds": [],
+    "skillBadgeIds": [],
+    "enemyIds": [
+      "cranky_crab",
+      "chomper_plant"
+    ],
+    "rescueFriendOpportunity": true,
+    "rescueChoice": "choose_one_from_unrescued",
+    "ducking": "intro",
+    "mazeDifficulty": 4,
+    "mazeGrid": {
+      "width": 13,
+      "height": 11
+    },
+    "designIntent": "Combine ducking, dodging, and one simple drag/drop task",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 11,
+    "id": "level_11",
+    "title": "Arrow Expert",
+    "backgroundId": "galaxy_gardens_twilight",
+    "backgroundImage": "/game-assets/backgrounds/galaxy_gardens_twilight.webp",
+    "primarySkill": "arrows",
+    "computerGearIds": [],
+    "skillBadgeIds": [
+      "arrows"
+    ],
+    "enemyIds": [
+      "whirly_tornado",
+      "rock_golem"
+    ],
+    "rescueFriendOpportunity": false,
+    "rescueChoice": null,
+    "ducking": "intro",
+    "mazeDifficulty": 4,
+    "mazeGrid": {
+      "width": 13,
+      "height": 11
+    },
+    "designIntent": "Collect your Arrow Keys badge and master several turns",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  },
+  {
+    "number": 12,
+    "id": "level_12",
+    "title": "Build the Rainbow Computer",
+    "backgroundId": "star_trophy_land_twilight",
+    "backgroundImage": "/game-assets/backgrounds/star_trophy_land_twilight.webp",
+    "primarySkill": "mixed",
+    "computerGearIds": [],
+    "skillBadgeIds": [],
+    "enemyIds": [
+      "storm_cloud",
+      "purple_slime",
+      "chomper_plant"
+    ],
+    "rescueFriendOpportunity": true,
+    "rescueChoice": "choose_one_from_unrescued",
+    "ducking": "intro",
+    "mazeDifficulty": 5,
+    "mazeGrid": {
+      "width": 13,
+      "height": 11
+    },
+    "designIntent": "Final maze, guaranteed last friend rescue, and a device/skills assembly celebration",
+    "starsAvailable": 3,
+    "requiredToExit": "collect_level_required_items_then_reach_exit",
+    "generationRequirements": [
+      "solvable_route",
+      "reachable_required_items",
+      "at_least_one_safe_path",
+      "no_unavoidable_enemy_collision"
+    ]
+  }
+]

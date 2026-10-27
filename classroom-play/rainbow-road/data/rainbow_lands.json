@@ -1,0 +1,56 @@
+[
+  {
+    "id": "rainbow_meadow",
+    "name": "Rainbow Meadow",
+    "description": "Green hills, flowers, and a winding rainbow road",
+    "homeBackground": "/game-assets/backgrounds/rainbow_meadow_day.webp",
+    "cardPreview": "/game-assets/land_previews/rainbow_meadow.jpg",
+    "availableAtStart": true,
+    "acceptsRescuedFriends": true
+  },
+  {
+    "id": "cloud_kingdom",
+    "name": "Cloud Kingdom",
+    "description": "Rainbow bridges between sunny floating islands",
+    "homeBackground": "/game-assets/backgrounds/cloud_kingdom_day.webp",
+    "cardPreview": "/game-assets/land_previews/cloud_kingdom.jpg",
+    "availableAtStart": true,
+    "acceptsRescuedFriends": true
+  },
+  {
+    "id": "candy_clouds",
+    "name": "Candy Cloud Castle",
+    "description": "Colorful blocks, clouds, and rainbow platforms",
+    "homeBackground": "/game-assets/backgrounds/candy_clouds_day.webp",
+    "cardPreview": "/game-assets/land_previews/candy_clouds.jpg",
+    "availableAtStart": true,
+    "acceptsRescuedFriends": true
+  },
+  {
+    "id": "rainbow_reef",
+    "name": "Rainbow Reef",
+    "description": "Underwater rainbows, bubbles, and coral",
+    "homeBackground": "/game-assets/backgrounds/rainbow_reef_day.webp",
+    "cardPreview": "/game-assets/land_previews/rainbow_reef.jpg",
+    "availableAtStart": true,
+    "acceptsRescuedFriends": true
+  },
+  {
+    "id": "galaxy_gardens",
+    "name": "Galaxy Gardens",
+    "description": "Sparkling rainbow paths among planets and stars",
+    "homeBackground": "/game-assets/backgrounds/galaxy_gardens_day.webp",
+    "cardPreview": "/game-assets/land_previews/galaxy_gardens.jpg",
+    "availableAtStart": true,
+    "acceptsRescuedFriends": true
+  },
+  {
+    "id": "star_trophy_land",
+    "name": "Starshine Summit",
+    "description": "Celebration road with a shining star trophy",
+    "homeBackground": "/game-assets/backgrounds/star_trophy_land_day.webp",
+    "cardPreview": "/game-assets/land_previews/star_trophy_land.jpg",
+    "availableAtStart": true,
+    "acceptsRescuedFriends": true
+  }
+]

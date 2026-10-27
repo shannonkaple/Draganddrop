@@ -1,0 +1,25 @@
+{
+  "manifestVersion": "1.0.0",
+  "title": "Ms. Kaple’s A-Mazing Arrow Adventure",
+  "dataFiles": {
+    "game_config.json": "data/game_config.json",
+    "characters.json": "data/characters.json",
+    "enemies.json": "data/enemies.json",
+    "computer_collectibles.json": "data/computer_collectibles.json",
+    "skill_badges.json": "data/skill_badges.json",
+    "rainbow_lands.json": "data/rainbow_lands.json",
+    "backgrounds.json": "data/backgrounds.json",
+    "levels.json": "data/levels.json",
+    "example_student_save.json": "data/example_student_save.json"
+  },
+  "assetPathConvention": "All asset urls start at /game-assets and point into public/game-assets inside this ZIP.",
+  "totalCharacters": 8,
+  "characterLookVariants": 24,
+  "enemyCount": 8,
+  "computerItemCount": 5,
+  "skillBadgeCount": 4,
+  "rainbowLandCount": 6,
+  "levelBackgroundCount": 12,
+  "levelCount": 12,
+  "implementationStatus": "DESIGN HANDOFF: assets and configs are supplied; game logic/UI must be integrated into the existing application. Static backgrounds are decorative only, not navigation collision maps."
+}
