@@ -40,8 +40,8 @@ assert.match(source,/decorationCards\+friendCards\+treasureCards/,'MY STUFF show
 assert.match(source,/collectedComputerGearIds\|\|\[\]/,'computer equipment is available to decorate the scene');
 assert.match(source,/earnedSkillBadgeIds\|\|\[\]/,'earned skill badges are available to decorate the scene');
 assert.doesNotMatch(source,/data-stuff-tab/,'no hidden collection category tabs should interrupt scene play');
-assert.match(source,/const appScroll=\\$\\('app'\\)\\.scrollTop, pageScroll=window\\.scrollY/,'adding items preserves page and tray scroll positions');
-assert.match(source,/Object\\.values\\(a\\.decorations\\|\\|\\{\\}\\)\\.flat\\(\\)/,'MY STUFF shows all decorations purchased across all owned worlds');
+assert.ok(source.includes("const appScroll=$('app').scrollTop, pageScroll=window.scrollY"),'adding items preserves page and tray scroll positions');
+assert.ok(source.includes('Object.values(a.decorations||{}).flat()'),'MY STUFF shows all decorations purchased across all owned worlds');
 assert.match(source,/Move to This World/,'MY STUFF offers cross-world decoration moves without buying again');
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
 const decorHandler=source.slice(source.indexOf("  document.querySelectorAll('[data-stuff-decor]')"),source.indexOf("  document.querySelectorAll('[data-stuff-friend]')"));
