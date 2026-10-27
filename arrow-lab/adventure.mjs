@@ -138,7 +138,35 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  {id:'ocean_pufferfish',name:'Pufferfish Buddy',world:'ocean',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/ocean/pufferfish.png'},
  {id:'ocean_message',name:'Bottle Message Gift',world:'ocean',kind:'gift',cost:3,artPath:'arrow-lab/collectibles/ocean/ocean_message_bottle.png'}
  ];
- const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods];
+  // SHOP ONLY: new stable IDs not present in level pickups or completion rewards.
+ // Native artwork is temporarily reused until original themed PNGs can be published.
+ const shopExclusives=[
+  {id:'shop_candy_sweet_tree',name:'Candy Tree',world:'candy',kind:'decor',shopOnly:true,cost:5,art:'tree'},
+  {id:'shop_candy_butterfly_bench',name:'Butterfly Bench',world:'candy',kind:'decor',shopOnly:true,cost:7,art:'bench'},
+  {id:'shop_candy_mushroom_cottage',name:'Candy Cottage',world:'candy',kind:'decor',shopOnly:true,cost:10,art:'cottage'},
+  {id:'shop_pirate_treasure_display',name:'Captain’s Treasure Chest',world:'pirate',kind:'decor',shopOnly:true,cost:7,art:'treasure'},
+  {id:'shop_pirate_trail_sign',name:'Pirate Trail Sign',world:'pirate',kind:'decor',shopOnly:true,cost:4,art:'signpost'},
+  {id:'shop_pirate_crossing_bridge',name:'Island Crossing Bridge',world:'pirate',kind:'decor',shopOnly:true,cost:8,art:'bridge'},
+  {id:'shop_arctic_ice_crystals',name:'Sparkling Ice Crystals',world:'arctic',kind:'decor',shopOnly:true,cost:6,art:'crystals'},
+  {id:'shop_arctic_snow_cottage',name:'Cozy Snow Cottage',world:'arctic',kind:'decor',shopOnly:true,cost:10,art:'cottage'},
+  {id:'shop_arctic_aurora_bench',name:'Aurora Watching Bench',world:'arctic',kind:'decor',shopOnly:true,cost:7,art:'bench'},
+  {id:'shop_castle_garden_flowers',name:'Royal Garden Flowers',world:'castle',kind:'decor',shopOnly:true,cost:5,art:'flowers'},
+  {id:'shop_castle_garden_bridge',name:'Royal Garden Bridge',world:'castle',kind:'decor',shopOnly:true,cost:8,art:'bridge'},
+  {id:'shop_castle_treasure_chest',name:'Castle Treasure Chest',world:'castle',kind:'decor',shopOnly:true,cost:9,art:'treasure'},
+  {id:'shop_space_command_monitor',name:'Rocket Command Monitor',world:'space',kind:'decor',shopOnly:true,cost:6,art:'monitor'},
+  {id:'shop_space_navigation_keyboard',name:'Starship Navigation Keyboard',world:'space',kind:'decor',shopOnly:true,cost:6,art:'keyboard'},
+  {id:'shop_space_astro_headphones',name:'Astronaut Headphones',world:'space',kind:'decor',shopOnly:true,cost:7,art:'headphones'},
+  {id:'shop_jurassic_jungle_tree',name:'Dinosaur Jungle Tree',world:'jurassic',kind:'decor',shopOnly:true,cost:5,art:'tree'},
+  {id:'shop_jurassic_trail_sign',name:'Explorer Trail Sign',world:'jurassic',kind:'decor',shopOnly:true,cost:4,art:'signpost'},
+  {id:'shop_jurassic_river_bridge',name:'Dino River Bridge',world:'jurassic',kind:'decor',shopOnly:true,cost:8,art:'bridge'},
+  {id:'shop_ocean_sea_crystals',name:'Mermaid Crystal Garden',world:'ocean',kind:'decor',shopOnly:true,cost:6,art:'crystals'},
+  {id:'shop_ocean_seaside_bench',name:'Seaside Bench',world:'ocean',kind:'decor',shopOnly:true,cost:7,art:'bench'},
+  {id:'shop_ocean_sunken_chest',name:'Sunken Treasure Chest',world:'ocean',kind:'decor',shopOnly:true,cost:9,art:'treasure'},
+  {id:'shop_lava_fire_crystals',name:'Volcano Crystal Garden',world:'lava',kind:'decor',shopOnly:true,cost:6,art:'crystals'},
+  {id:'shop_lava_magma_bridge',name:'Magma Crossing Bridge',world:'lava',kind:'decor',shopOnly:true,cost:8,art:'bridge'},
+  {id:'shop_lava_treasure_chest',name:'Volcano Treasure Chest',world:'lava',kind:'decor',shopOnly:true,cost:9,art:'treasure'}
+ ];
+ const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives];
  const findDecoration=id=>fullDecorations.find(d=>d.id===id);
  const enemyRosters=[
    ['purple_slime','chomper_plant','storm_cloud','prickly_cactus'], // Candy: four different playful monsters
@@ -400,7 +428,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   a.primaryRainbowLandId=id;save();return true;
  }
  function shopArt(d){return d.artPath?img(d.artPath,d.name,'shop-decoration'):d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+(d.emoji||'⭐')+'</span>'}
- function starShop(){
+ function buyShopExclusive(worldId,itemId){
+   const item=shopExclusives.find(x=>x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
+   if(!item||!owned(worldId)||Object.values(a.decorations||{}).some(list=>list.includes(itemId))||a.wallet.rainbowStars<item.cost)return false;
+   a.wallet.rainbowStars-=item.cost;
+   (a.decorations[worldId]??=[]).push(itemId);
+   if(a.hiddenDecorations?.[worldId])a.hiddenDecorations[worldId]=a.hiddenDecorations[worldId].filter(x=>x!==itemId);
+   save();return true;
+  }
+  function starShop(){
   view='shop';shell('Star Shop',
   '<p>Earn stars to buy worlds, decorate them, and give presents to rescued friends!</p>'+
   '<div class="home-menu shop-menu"><button data-nav="lands">'+img(backgroundHomes[0].cardPreview,'World Shop')+'<strong>🌍 Buy Worlds</strong></button>'+
@@ -434,21 +470,23 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   if(!owned(a.primaryRainbowLandId))a.primaryRainbowLandId=a.ownedWorldIds.find(id=>land(id))||'background_candy';
   const id=a.primaryRainbowLandId,world=land(id),theme=backgroundHomes.find(x=>x.id===id)?.theme||'all';
   const goods=fullDecorations.filter(d=>d.kind==='decor'&&(d.world==='all'||d.world===theme));
-  shell('Decorate My World','<p>Every world has different treasures to collect. Your purchased decorations appear in that world, where you can drag them to any spot.</p>'+
+  shell('Decorate My World','<p>Buy special decorations you cannot collect in mazes. Then arrange them in MY STUFF using your trackpad.</p>'+
    '<div class="world-tabs">'+lands.filter(l=>owned(l.id)).map(l=>'<button data-decor-world="'+l.id+'" aria-pressed="'+(l.id===id)+'">'+esc(l.name)+'</button>').join('')+'</div>'+
    '<h2>For '+esc(world.name)+'</h2><p>⭐ '+a.wallet.rainbowStars+' stars</p>'+
    '<div class="world-hub-actions"><button id="shop-home">🏡 Visit My World</button><button id="decor-change">🌍 Change World</button><button id="decor-gifts">🎁 Friend Gifts</button></div>'+
    '<div class="adventure-cards decoration-cards">'+goods.map(d=>{
-     const has=(a.decorations[id]||[]).includes(d.id);
-     return '<article>'+shopArt(d)+'<strong>'+esc(d.name)+'</strong><span>'+(has?'✓ Purchased':'⭐ '+d.cost)+'</span>'+
-      '<button data-buy-decor="'+d.id+'" '+(has||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+(has?'Already in world':'Buy Decoration')+'</button></article>';
+     const has=(a.decorations[id]||[]).includes(d.id),ownedAnywhere=d.shopOnly&&Object.values(a.decorations||{}).some(list=>list.includes(d.id));
+     return '<article>'+shopArt(d)+'<strong>'+esc(d.name)+'</strong>'+(d.shopOnly?'<span class="shop-only-label">⭐ SHOP ONLY · NOT IN MAZES</span>':'')+'<span>'+(has?'✓ Purchased':ownedAnywhere?'✓ Owned in MY STUFF':'⭐ '+d.cost)+'</span>'+
+      '<button data-buy-decor="'+d.id+'" '+(has||ownedAnywhere||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+(has?'Already in world':ownedAnywhere?'Move from MY STUFF':'Buy Decoration')+'</button></article>';
    }).join('')+'</div>');
   $('shop-home').onclick=()=>computer(id,'decor');$('decor-change').onclick=myWorlds;$('decor-gifts').onclick=()=>friendGiftShop();
   document.querySelectorAll('[data-decor-world]').forEach(b=>b.onclick=()=>{a.primaryRainbowLandId=b.dataset.decorWorld;save();decorShop()});
   document.querySelectorAll('[data-buy-decor]').forEach(b=>b.onclick=()=>{
    const d=goods.find(x=>x.id===b.dataset.buyDecor);
    if(!d||!owned(id)||a.wallet.rainbowStars<d.cost||(a.decorations[id]||[]).includes(d.id))return;
-   a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();refresh();
+   if(d.shopOnly){if(!buyShopExclusive(id,d.id))return;}
+   else{a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();}
+   decorShop();
   });
  }
  function friendGiftShop(selectedId=null){
@@ -596,6 +634,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
   }).join('');
   const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
+  const worldOnlyGoods=shopExclusives.filter(d=>d.world===backgroundHomes.find(w=>w.id===id)?.theme);
+  const exclusiveStore='<section class="my-stuff-exclusive-store" aria-label="Shop-only decorations for '+esc(land(id).name)+'">'+
+   '<h3>⭐ '+esc(land(id).name)+' · SHOP ONLY</h3><p>These items cannot be collected in mazes. Spend stars to buy them for your world!</p>'+
+   '<div class="my-stuff-exclusive-cards">'+worldOnlyGoods.map(d=>{
+    const here=(a.decorations[id]||[]).includes(d.id),ownedAnywhere=Object.values(a.decorations||{}).some(list=>list.includes(d.id));
+    return '<article class="my-stuff-exclusive-item">'+shopArt(d)+'<strong>'+esc(d.name)+'</strong><small>⭐ '+d.cost+' stars · Shop Only</small>'+
+      '<button type="button" data-buy-shop-only="'+d.id+'" '+(ownedAnywhere||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+
+      (here?'✓ Owned':ownedAnywhere?'✓ Owned · Move from Tray':a.wallet.rainbowStars<d.cost?'Earn More Stars':'⭐ Buy for '+d.cost+' Stars')+'</button></article>';
+   }).join('')+'</div></section>';
   const tray='<p>Pick anything you have earned or bought. Add it to your world, then drag it where you want!</p>'+
     '<div class="my-stuff-tray" aria-label="All my earned decorations, rescued friends and treasures">'+
       (hasObjects?decorationCards+friendCards+treasureCards:
@@ -613,7 +660,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
           '<button type="button" data-stuff-world="'+l.id+'" aria-label="Show my '+esc(l.name)+' world" aria-pressed="'+(l.id===id)+'">'+
           img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
-        '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
+        '<div class="my-stuff-tray-panel">'+tray+'</div>'+exclusiveStore+'</div></section>');
   enableCollectionDrag(id);
   $('stuff-home').onclick=map;
   $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
@@ -655,6 +702,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const key=b.dataset.stuffTreasure,active=(a.collectionExtraObjects[id]??=[]);
     if(active.includes(key))a.collectionExtraObjects[id]=active.filter(x=>x!==key);else active.push(key);
     save();refresh();
+  });
+  document.querySelectorAll('[data-buy-shop-only]').forEach(button=>button.onclick=()=>{
+    if(buyShopExclusive(id,button.dataset.buyShopOnly))refresh();
   });
   $('stuff-decor-shop')?.addEventListener('click',()=>{a.primaryRainbowLandId=id;save();decorShop()});
   $('stuff-buy-world')?.addEventListener('click',homeMap);
