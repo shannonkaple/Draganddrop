@@ -43,6 +43,39 @@ assert.doesNotMatch(source,/data-stuff-tab/,'no hidden collection category tabs 
 assert.ok(source.includes("const appScroll=$('app').scrollTop, pageScroll=window.scrollY"),'adding items preserves page and tray scroll positions');
 assert.ok(source.includes('Object.values(a.decorations||{}).flat()'),'MY STUFF shows all decorations purchased across all owned worlds');
 assert.match(source,/Move to This World/,'MY STUFF offers cross-world decoration moves without buying again');
+
+assert.doesNotMatch(source,/💻 MY COLLECTIONS/,'Candy World navigation uses MY STUFF');
+assert.match(source,/class="lab-activity-card.*aria-disabled=/,'other world level cards keep click handlers while locked');
+const lockedHandler=source.match(/document\.querySelectorAll\('\.lab-activity-card\[data-level\]'\)\.forEach\(b=>b\.onclick=\(\)=>\{([\s\S]*?)\n   \}\);/);
+assert.ok(lockedHandler,'locate real non-Candy maze click handler');
+const stageClick=new Function('b','i','world','modal','startLevel','esc','$','closeModal',lockedHandler[1]);
+let launches=[],notices=[],backs=0,backButton={};
+const showModal=(title,body,bind)=>{notices.push({title,body});bind({})};
+const findButton=id=>{assert.equal(id,'locked-maze-back');return backButton};
+const context=[1,{name:'Pirate'},showModal,n=>launches.push(n),s=>s,findButton,()=>backs++];
+stageClick({dataset:{level:'11'},getAttribute:()=> 'true'},...context);
+assert.equal(launches.length,0,'locked maze must not start');
+assert.match(notices[0].body,/Pirate maze 2/,'identifies preceding maze');
+backButton.onclick();assert.equal(backs,1,'return button works');
+stageClick({dataset:{level:'10'},getAttribute:()=> 'false'},...context);
+assert.deepEqual(launches,[10],'unlocked maze launches');
+
+const enemyHit=source.match(/function hit\(\)\{([\s\S]*?)\n \}/);
+assert.ok(enemyHit,'locate actual enemy collision handler');
+const executeHit=new Function('r','status','save','draw',enemyHit[1]);
+const hitState={start:{x:1,y:1},checkpoint:{x:7,y:7},player:{x:9,y:8},trail:[[1,1],[4,5]],items:[{id:'candy',collected:true}],hazards:[{id:'enemy',index:2}],finalArrowIndex:3};
+let hitSaves=0,hitDraws=0,hitMessage='';
+executeHit(hitState,message=>hitMessage=message,()=>hitSaves++,()=>hitDraws++);
+assert.deepEqual(hitState.player,hitState.start,'bad guy contact returns player to maze start');
+assert.deepEqual(hitState.checkpoint,hitState.start,'next bad guy cannot bounce player to old checkpoint');
+assert.equal(hitState.items[0].collected,true,'collision does not erase collected objectives');
+assert.equal(hitState.hazards[0].index,2,'collision does not reroll enemy patrol');
+assert.equal(hitState.finalArrowIndex,3,'collision preserves saved final arrow progress');
+assert.equal(hitSaves,1);assert.equal(hitDraws,1);
+assert.match(hitMessage,/START/,'student hears the start reset rule');
+assert.match(source,/class="enemy-direction"/,'moving bad guys show direction arrows');
+assert.match(source,/enemy-path-next/,'next planned enemy tile remains visible');
+
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
 const decorHandler=source.slice(source.indexOf("  document.querySelectorAll('[data-stuff-decor]')"),source.indexOf("  document.querySelectorAll('[data-stuff-friend]')"));
 assert.ok(decorHandler.includes("a.decorations[from].splice"),'moves remove one source-world item, not all saved purchases');
