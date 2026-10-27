@@ -167,7 +167,7 @@ body.adventure-mode .lab-map-title {
 body.lab-map-active #continue-adventure.lab-next-play{top:169px!important;height:51px!important;max-height:51px!important;}
 
 
-/* Rescue remains available when students return to Candy World after their third maze. */
+/* Rescue remains available when students return to Candy World after all eight Candy mazes. */
 .lab-candy-heading .lab-candy-rescue {
   background:linear-gradient(#ffe58e,#f6b334);color:#523369;
   border:2px solid #fff;border-radius:17px;padding:7px 11px;
