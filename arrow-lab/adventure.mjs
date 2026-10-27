@@ -562,7 +562,11 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   if(!Array.isArray(r.finalArrowSequence)||r.finalArrowSequence.length!==10){
     const keys=Object.keys(directions),random=new Uint32Array(10);
     crypto.getRandomValues(random);
-    r.finalArrowSequence=Array.from(random,x=>keys[x%keys.length]);
+    r.finalArrowSequence=[];
+    for(let i=0;i<10;i++){
+      const options=i?keys.filter(key=>key!==r.finalArrowSequence[i-1]):keys;
+      r.finalArrowSequence.push(options[random[i]%options.length]);
+    }
     r.finalArrowIndex=0;save();
   }
   let at=Math.min(10,Math.max(0,Number(r.finalArrowIndex)||0));
