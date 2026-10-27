@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import {decorations} from '../trackpad-adventure/economy.mjs';
 import {buildLevel,tile,route,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure} from './adventure-core.mjs';
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
@@ -22,7 +23,7 @@ const patterns=Array.from({length:12},(_,i)=>arrowPattern(123,i));assert.equal(n
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
-const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test');
+const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations);
 assert.equal(backgroundHomes.length,8);assert.deepEqual(backgroundHomes.map(l=>l.id),worldIds.map(id=>'background_'+id));
 assert.equal(levels.length,64,'eight worlds with eight mazes each');
 for(const def of levels){
