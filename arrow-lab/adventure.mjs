@@ -188,8 +188,40 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
  function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
- function modal(title,body,bind){clearClock();let d=$('adventure-dialog');if(!d){d=document.createElement('dialog');d.id='adventure-dialog';d.className='dialog adventure-dialog';document.body.append(d)}if($('kaple-guide'))document.body.append($('kaple-guide'));d.classList.remove('final-arrow-modal');d.setAttribute('aria-labelledby','adventure-dialog-title');d.innerHTML='<h2 id="adventure-dialog-title">'+title+'</h2>'+body;tellGuide(d.querySelector('p')?.textContent||title,'⭐ → ✓');d.oncancel=e=>e.preventDefault();if(!d.open)d.showModal();const home=document.createElement('button');home.type='button';home.className='modal-home';home.textContent='🏠 HOME';home.setAttribute('aria-label','Leave this activity and return home');home.onclick=()=>{challengeKeys=null;save();d.close();map()};d.prepend(home);const fullscreen=document.createElement('button');fullscreen.type='button';fullscreen.className='modal-fullscreen';fullscreen.textContent='⛶ FULL SCREEN';fullscreen.setAttribute('aria-label','Toggle full screen');fullscreen.onclick=()=>window.arrowLabToggleFullscreen?.();d.insertBefore(fullscreen,home);bind?.(d);return d}
- function closeModal(){const guide=$('kaple-guide');if(guide)document.body.append(guide);$('adventure-dialog')?.close();if(view==='maze')clock()}
+ function modal(title,body,bind){
+  clearClock();
+  let d=$('adventure-dialog');
+  if(!d){
+    d=document.createElement('dialog');
+    d.id='adventure-dialog';
+    d.className='dialog adventure-dialog';
+    document.body.append(d);
+  }
+  // Keep the controls in a dedicated row, and all content in a separate sizing
+  // wrapper. A fresh wrapper prevents a stale, empty top-layer popup on reuse.
+  if($('kaple-guide'))document.body.append($('kaple-guide'));
+  d.classList.remove('final-arrow-modal');
+  d.setAttribute('aria-labelledby','adventure-dialog-title');
+  d.innerHTML='<div class="dialog-toolbar" role="group" aria-label="Popup navigation"></div><div class="dialog-content"><h2 id="adventure-dialog-title">'+esc(title)+'</h2>'+body+'</div>';
+  const toolbar=d.querySelector('.dialog-toolbar');
+  const home=document.createElement('button');
+  home.type='button';home.className='modal-home';home.textContent='🏠 HOME';
+  home.setAttribute('aria-label','Leave this activity and return home');
+  home.onclick=()=>{challengeKeys=null;save();d.close();map()};
+  const fullscreen=document.createElement('button');
+  fullscreen.type='button';fullscreen.className='modal-fullscreen';
+  fullscreen.textContent='⛶ FULL SCREEN';
+  fullscreen.setAttribute('aria-label','Toggle full screen');
+  fullscreen.onclick=()=>window.arrowLabToggleFullscreen?.();
+  toolbar.append(home,fullscreen);
+  tellGuide(d.querySelector('.dialog-content p')?.textContent||title,'⭐ → ✓');
+  d.oncancel=e=>e.preventDefault();
+  if(!d.open)d.showModal();
+  d.scrollTop=0;
+  bind?.(d);
+  return d;
+}
+ function closeModal(){const guide=$('kaple-guide');if(guide)document.body.append(guide);$('adventure-dialog')?.close();if(view==='maze'){clock();requestAnimationFrame(()=>$('adventure-maze')?.focus({preventScroll:true}))}}
  function celebrate(title,id,after){
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
  function shell(title,content){
