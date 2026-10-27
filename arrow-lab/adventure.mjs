@@ -31,11 +31,34 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const candyLabels=Object.fromEntries(candyObjects);
  const candyNames=['Lollipop Lane','Cupcake Creek','Ice Cream Island','Donut Ridge','Candy Castle','Gummy Grove','Chocolate Falls','Sweet Summit'];
  const candyStageBackgrounds=['01-lollipop-lane','02-cupcake-creek','03-ice-cream-island','04-donut-ridge','05-candy-castle','06-gummy-grove','07-chocolate-falls','08-sweet-summit'].map(n=>'/arrow-lab/candy-stages/'+n+'.jpg');
+
+ const pirateObjects=[
+ ['treasure_chest','Treasure Chest'],['pirate_hat','Pirate Hat'],['treasure_map','Treasure Map'],
+ ['compass','Pirate Compass'],['parrot','Pirate Parrot'],['ship_wheel','Ship Wheel'],
+ ['spyglass','Spyglass'],['anchor','Anchor'],['message_bottle','Message in a Bottle'],['gold_coins','Gold Coins']
+ ];
+ const oceanObjects=[
+ ['pearl_shell','Pearl Shell'],['seahorse','Seahorse'],['jellyfish','Jellyfish'],
+ ['dolphin','Dolphin'],['coral_cluster','Coral Reef'],['pufferfish','Pufferfish'],
+ ['sea_turtle','Sea Turtle'],['starfish','Starfish'],['ocean_message_bottle','Ocean Message Bottle'],
+ ['octopus','Octopus']
+ ];
+ const oceanStageNames=['Coral Cove','Pearl Lagoon','Seahorse Garden','Jellyfish Glow','Dolphin Bay','Turtle Trail','Octopus Grotto','Rainbow Reef'];
+ const pirateStageNames=['Treasure Cove',"Captain's Deck",'Palm Lagoon','Shipwreck Reef','Cannon Fort','Skull Rock','Mermaid Grotto','Treasure Island'];
+ const oceanStageBackgrounds=['/arrow-lab/ocean-stages/01-coral-cove.jpg'];
+ const objectGroups={candy:candyObjects,pirate:pirateObjects,ocean:oceanObjects};
+ const allWorldLabels=Object.fromEntries(Object.values(objectGroups).flat());
+ const objectArtPaths=Object.fromEntries(Object.entries(objectGroups).flatMap(([world,items])=>items.map(([id])=>[id,'arrow-lab/collectibles/'+world+'/'+id+'.png'])));
+ const pairFor=(worldIndex,stageIndex)=>{
+  if(worldIndex===0)return candyObjects.slice(stageIndex*2,stageIndex*2+2).map(x=>x[0]);
+  const objects=worldIndex===1?pirateObjects:worldIndex===6?oceanObjects:null;
+  return objects?[objects[(stageIndex*3)%10][0],objects[(stageIndex*3+4)%10][0]]:undefined;
+ };
  const chars=data.characters,lands=data.rainbow_lands,
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
-   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(wi===0?candyNames[ai]:title),
-     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:world.backgroundImage,sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:wi===0?candyObjects.slice(ai*2,ai*2+2).map(x=>x[0]):undefined,
+   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(wi===0?candyNames[ai]:wi===1?pirateStageNames[ai]:wi===6?oceanStageNames[ai]:title),
+     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai),
      mazeGrid:{...template.mazeGrid},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...template.enemyIds]};
  })),config=data.game_config,key=storageKey;
@@ -47,8 +70,8 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
  const pic=id=>img(look(id).image,char(id).name,'friend-art');
 
- const itemName=id=>candyLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||id;
- const itemArt=id=>candyLabels[id]?'arrow-lab/collectibles/candy/'+id+'.png':data.computer_collectibles.find(i=>i.id===id)?.thumbnail;
+ const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||id;
+ const itemArt=id=>objectArtPaths[id]||data.computer_collectibles.find(i=>i.id===id)?.thumbnail;
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
  function save(){try{const old=JSON.parse(localStorage.getItem(key)||'{}');localStorage.setItem(key,JSON.stringify({...old,adventure:{...a,activeRun:r||a.activeRun||null}}));saved=true}catch{saved=false}}
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
@@ -159,8 +182,9 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
     '<div class="lab-world-heading"><button id="lab-back-map" type="button">← World Map</button>'+
     '<div><span>WORLD '+(i+1)+' OF 8</span><h2>'+world.icon+' '+esc(world.name)+' World</h2><p>'+worldDoneCount(i)+' of 8 mazes finished</p></div></div>'+
     '<div class="lab-world-activities">'+cards+'</div>'+
-    '<p class="lab-world-tip">Use your arrow keys to move. Finish each maze to unlock the next!</p></section>');
+    '<p class="lab-world-tip">Use your arrow keys to move. Finish each maze to unlock the next!</p>'+(canRescue()?'<button class="lab-rescue" id="lab-world-rescue" type="button">🐾 Rescue a Friend!</button>':'')+'</section>');
    $('lab-back-map').onclick=map;
+   $('lab-world-rescue')?.addEventListener('click',continueRescue);
    document.querySelectorAll('.lab-activity-card[data-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.level)));
  }
 
@@ -203,10 +227,11 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  $('placement-worlds')?.addEventListener('click',homeMap);$('place-back').onclick=()=>{if(rescuing){a.pendingRescueFriendId=null;save();rescue()}else friends()};
  document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{const world=b.dataset.land;if(!owned(world))return;const placed=rescuing?rescueFriend(a,id,world,(r||a.activeRun)?.id):placeFriend(a,id,world);if(!placed)return;pendingFriend=null;save();sound();visit(world,rescuing?id:null)});
  }
+ const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
  function computer(){
  view='computer';const cards=(items,owned)=>items.map(i=>'<article class="'+(owned.includes(i.id)?'earned-item':'waiting-item')+'">'+img(i.image,i.name)+'<strong>'+esc(i.name)+'</strong><p>'+(owned.includes(i.id)?'✓ Collected':'Keep exploring')+'</p></article>').join('');
  const all=data.computer_collectibles.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
- shell('My Rainbow Computer','<h2>CANDY TREASURES</h2><div class="adventure-cards lab-candy-collection">'+candyObjects.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in Candy World')+'</p></article>').join('')+'</div><h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('lab_lava_8')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect all five items and four skill badges, then finish the Lava finale. Replay any maze to collect something you missed.</p>'));
+ shell('My Rainbow Computer','<h2>CANDY TREASURES</h2><div class="adventure-cards lab-candy-collection">'+candyObjects.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in Candy World')+'</p></article>').join('')+'</div>'+worldTreasureCards('Pirate',pirateObjects)+worldTreasureCards('Ocean',oceanObjects)+'<h2>My computer equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('lab_lava_8')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect all five items and four skill badges, then finish the Lava finale. Replay any maze to collect something you missed.</p>'));
  if($('build-computer'))$('build-computer').onclick=finale;
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
@@ -217,7 +242,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
  }
  function maze(){
- view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full">Full screen</button><div class="sr"><button data-direction="ArrowUp">↑</button><button data-direction="ArrowLeft">←</button><button data-direction="ArrowDown">↓</button><button data-direction="ArrowRight">→</button></div></div>');
+ view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':def.individualBackdrop?' lab-individual-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full">Full screen</button><div class="sr"><button data-direction="ArrowUp">↑</button><button data-direction="ArrowLeft">←</button><button data-direction="ArrowDown">↓</button><button data-direction="ArrowRight">→</button></div></div>');
  document.body.classList.add('playing');
  $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>startLevel(def.number,true);$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;const keys=route(r.grid,r.player,target);status(keys?.length?'Try '+keys[0].slice(5).toUpperCase()+' next.':'You are at your next stop.');};
  $('adventure-full').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.().catch(()=>{})};
@@ -250,7 +275,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(r.barrier&&tile(p)===tile(r.barrier)&&!duck){status('Low bridge! Hold SPACE and press your arrow to duck under.');return}
  r.player=p;r.steps++;if(r.hazards.some(e=>tile(e.path[e.index])===tile(p))){hit();return}
  if(r.safe.includes(tile(p))&&r.steps%5===0)r.checkpoint={...p};
- for(const item of r.items)if(!item.collected&&tile(item)===tile(p)){item.collected=true;const bucket=candyLabels[item.id]?(a.collectedWorldItems??=[]):a.collectedComputerGearIds;if(!bucket.includes(item.id))bucket.push(item.id);sound();status('You found the '+itemName(item.id)+'!');}
+ for(const item of r.items)if(!item.collected&&tile(item)===tile(p)){item.collected=true;const bucket=allWorldLabels[item.id]?(a.collectedWorldItems??=[]):a.collectedComputerGearIds;if(!bucket.includes(item.id))bucket.push(item.id);sound();status('You found the '+itemName(item.id)+'!');}
  save();draw();
  if(r.skill&&!r.skill.done&&tile(r.skill)===tile(p)){challenge(r.skill.type);return}
  if(tile(p)===tile(r.goal)){if(r.items.some(i=>!i.collected)||r.skill&&!r.skill.done){status('Collect your equipment and finish the keyboard skill stop, then return to the flag.');return}finish()}
@@ -288,11 +313,11 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  });
  }
  function finish(){
- r.complete=true;if(def.worldIndex===0)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=Math.max(0,3-a.mazesSinceRescue);
- modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?'You finished three mazes! A friend is ready to rescue.':chars.some(c=>!a.friends[c.id])?left+' more '+(left===1?'maze':'mazes')+' until your next rescue.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+(def.worldIndex===0?'🍬 Candy Map':ready?'🐾 Rescue a friend':'🏡 Home')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();afterLevel()}});
+ r.complete=true;if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=Math.max(0,3-a.mazesSinceRescue);
+ modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?'You finished three mazes! A friend is ready to rescue.':chars.some(c=>!a.friends[c.id])?left+' more '+(left===1?'maze':'mazes')+' until your next rescue.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();afterLevel()}});
  try{const old=JSON.parse(localStorage.getItem(key)||'{}');if(old.wallet){old.wallet.total+=5;old.wallet.earned+=5;old.wallet.finished+=1;localStorage.setItem(key,JSON.stringify(old))}}catch{}
  }
- function afterLevel(){if(def?.worldIndex===0){openCandyWorld();return}if(canRescue()){continueRescue();return}map()}
+ function afterLevel(){if(def?.worldIndex!=null){openWorld(def.worldIndex);return}map()}
  function rescue(){
  if(!canRescue()){map();return}view='rescue';shell('A friend is ready to come home!','<p>Choose one new friend. Then pick one of your owned worlds.</p><div class="adventure-cards">'+chars.filter(c=>!a.friends[c.id]).map(c=>'<button data-rescue="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
  document.querySelectorAll('[data-rescue]').forEach(b=>b.onclick=()=>{const id=b.dataset.rescue;if(!canRescue()||a.friends[id]||!char(id))return;a.pendingRescueFriendId=id;save();place(id,true)});
