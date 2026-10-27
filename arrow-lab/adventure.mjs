@@ -546,7 +546,13 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
  if(a.completedLevelIds.includes(def.id))r.rewarded=true;
  a.activeRun=r;save();maze();
- if(def.worldStage===8&&tile(r.player)===tile(r.goal)&&r.items.every(i=>i.collected)&&(!r.skill||r.skill.done)&&(r.finalArrowIndex||0)<10){finalArrowChallenge();return}
+ if(def.worldStage===8&&tile(r.player)===tile(r.goal)&&r.items.every(i=>i.collected)&&(!r.skill||r.skill.done)){
+   // A reload can happen after arrow 10 is saved but before the reward is committed.
+   // Never strand that student on the finish tile or force a second ten-arrow trial.
+   if((r.finalArrowIndex||0)>=10)finish();
+   else finalArrowChallenge();
+   return;
+ }
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
  }
  function maze(){
