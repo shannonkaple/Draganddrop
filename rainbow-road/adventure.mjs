@@ -5,7 +5,7 @@ import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,complete
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
-const readJSON=async n=>{const r=await fetch(new URL('./data/'+n+'.json?v=20261027-stem',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
+const readJSON=async n=>{const r=await fetch(new URL('./data/'+n+'.json?v=20261027-no-shapes',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
 export async function openAdventure({number,storageKey,teacherName,teachers,goPractice,onLogout}){
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
@@ -51,7 +51,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   flashRescue();
  }
  function selectCharacter(changing=false){
- view='select';const newest=chars.filter(c=>c.levels[0].image.startsWith('generated:')),classic=chars.filter(c=>!c.levels[0].image.startsWith('generated:'));const displayCharacters=[...newest,...classic];shell('Pick your player','<h2 class="new-choice-heading">CHOOSE YOUR CHARACTER</h2><p>Your rescued friends are saved in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+displayCharacters.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong>'+(c.levels[0].image.startsWith('generated:')?'<span class="new-character-label">NEW!</span>':'')+'</button>').join('')+'</div>');
+ view='select';const displayCharacters=chars;shell('Pick your player','<h2 class="new-choice-heading">CHOOSE YOUR CHARACTER</h2><p>Your rescued friends are saved in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+displayCharacters.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong>'+'</button>').join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});
  const choices=[...document.querySelectorAll('[data-hero]')];
  if(choices.length>8){
