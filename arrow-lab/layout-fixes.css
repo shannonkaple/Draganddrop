@@ -404,3 +404,55 @@ body.adventure-mode #app>.adventure-nav .always-home{
  .lab-collection-page .collection-heading-actions button{font-size:11px!important;padding:5px!important;}
  .lab-collection-page .collection-friend-card{flex-basis:220px;}
 }
+
+/* Collections are a full-sized scrollable room, not a scaled-down card wall. */
+body.lab-collection-active #app{
+  height:var(--screen-height,calc(100dvh - 210px))!important;
+  max-height:var(--screen-height,calc(100dvh - 210px))!important;
+  transform:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+}
+body.lab-collection-active .adventure-nav{
+  position:sticky!important;top:0!important;z-index:12!important;
+  background:#f8faffed!important;border-radius:12px!important;
+}
+body.lab-collection-active .lab-collection-page{
+  display:flex!important;flex-direction:column!important;
+  flex:0 0 auto!important;height:auto!important;
+  min-height:0!important;overflow:visible!important;
+  gap:11px!important;padding:12px!important;
+}
+body.lab-collection-active .collection-world-showcase{
+  display:flex!important;flex-direction:column!important;
+  flex:0 0 auto!important;align-items:center!important;
+  width:100%!important;height:auto!important;
+  min-height:0!important;max-height:none!important;
+  overflow:visible!important;
+}
+body.lab-collection-active .collection-scene.land-scene.free-world{
+  width:min(100%,1100px)!important;
+  height:auto!important;
+  aspect-ratio:16 / 9!important;
+  max-height:none!important;
+  margin:0 auto!important;
+  background-size:contain!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+body.lab-collection-active .collection-tabs{
+  flex:none!important;
+  min-height:56px!important;height:auto!important;
+}
+body.lab-collection-active .collection-panel{
+  flex:none!important;min-height:150px!important;
+  height:auto!important;max-height:none!important;
+  overflow:visible!important;
+}
+body.lab-collection-active .collection-cards{
+  flex-wrap:wrap!important;
+  overflow-x:auto!important;
+  overflow-y:visible!important;
+}
