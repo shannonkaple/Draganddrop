@@ -101,3 +101,33 @@ body.adventure-mode:has(.aa-home){
 @media(max-width:700px){
   .aa-home .aa-play-button{font-size:clamp(28px,5.8vw,53px);}
 }
+
+
+/* Live game: readable, keyboard-first flash rescue. */
+.adventure-dialog:has(.flash-arrow){
+  width:min(760px,calc(100vw - 28px));
+  max-width:760px;
+  max-height:calc(100dvh - 20px);
+  overflow:auto;
+  text-align:center;
+  padding:clamp(12px,2.3vw,26px);
+  background:linear-gradient(155deg,#fff,#ecfaff 70%,#fff4ff);
+}
+.adventure-dialog:has(.flash-arrow) h2{
+  font-size:clamp(22px,3.5vw,36px);
+  margin:0 0 8px;
+}
+.flash-help{font-size:clamp(15px,2vw,22px);line-height:1.25;margin:8px 0;}
+.flash-friend{height:90px;display:flex;justify-content:center;align-items:center;}
+.flash-friend img{display:block;width:95px;height:95px;object-fit:contain;}
+.flash-arrow{
+  display:grid;place-items:center;
+  width:min(330px,50vw);height:min(330px,39vh);min-height:160px;
+  margin:12px auto;background:#ffd600;border:6px solid #000;border-radius:36px;
+  box-shadow:0 9px 0 #ff2d8d,0 13px 24px #0003;
+  font:900 clamp(145px,29vh,255px)/1 Arial, sans-serif;color:#10285d;
+  user-select:none;
+}
+.flash-stats{display:flex;justify-content:center;gap:35px;font-size:clamp(16px,2vw,23px);font-weight:bold;}
+#flash-feedback{font-size:18px;margin:8px 0;}
+@media(max-height:650px){.flash-friend{height:50px}.flash-friend img{height:65px;width:65px}.flash-arrow{height:170px;width:230px;min-height:170px;font-size:150px}}
