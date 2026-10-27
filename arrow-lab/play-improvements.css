@@ -100,3 +100,48 @@ body.adventure-mode .lab-candy-node:focus-visible {
    width:min(100%,max(280px,calc(300dvh - 1110px)))!important;
  }
 }
+
+/* Illustrated map art stays untouched; numerals and lock states are live DOM. */
+body.adventure-mode .lab-candy-scenery {
+  background-image:none!important;
+  background-color:transparent!important;
+}
+body.adventure-mode .lab-candy-node {
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+  text-align:center!important;
+  min-width:42px!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:#ffffffdf!important;
+  box-shadow:0 2px 8px #382b78bb,0 0 0 3px #ffffffbb!important;
+  color:#3b247b!important;
+  text-shadow:none!important;
+  transition:box-shadow .12s ease-out!important;
+}
+body.adventure-mode .lab-candy-node .lab-map-node-number{
+  color:#382778!important;
+  font:900 clamp(20px,2vw,30px)/1.1 VAG,Arial,sans-serif!important;
+  pointer-events:none!important;
+}
+body.adventure-mode .lab-candy-node .lab-map-node-indicator{
+  font:900 clamp(12px,1.05vw,17px)/1 VAG,Arial,sans-serif!important;
+  color:#3c267e!important;
+  pointer-events:none!important;
+}
+body.adventure-mode .lab-candy-node.locked{
+  background:#f3eef7f2!important;opacity:1!important;
+}
+body.adventure-mode .lab-candy-node.done{
+  background:#e2ffdcf0!important;
+}
+body.adventure-mode .lab-candy-node[aria-disabled="false"]{
+  cursor:pointer!important;
+}
+body.adventure-mode .lab-candy-node:focus-visible{
+  outline:4px solid #f8d22e!important;
+  outline-offset:4px!important;
+}
