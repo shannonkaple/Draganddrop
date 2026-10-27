@@ -37,7 +37,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play mazes to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit a world you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first)first.hidden=true;
  }
  function navigate(where){if(r)save();if(where==='map'||where==='stuff')map();if(where==='shop')starShop();if(where==='play')playNext();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='decor')decorShop();if(where==='computer')computer()}
- function nextLevel(){const unfinished=levels.find(l=>!a.completedLevelIds.includes(l.id)&&l.number<=a.highestUnlockedLevel);const current=a.activeRun&&!a.activeRun.complete?levels.find(l=>l.id===a.activeRun.id):null;return current||unfinished||levels[11]}
+ function nextLevel(){const unfinished=levels.find(l=>!a.completedLevelIds.includes(l.id)&&l.number<=a.highestUnlockedLevel);const current=a.activeRun&&!a.activeRun.complete?levels.find(l=>l.id===a.activeRun.id):null;const missing=levels.find(l=>(l.computerGearIds||[]).some(id=>!a.collectedComputerGearIds.includes(id)));return current||unfinished||missing||levels[11]}
  function playNext(){startLevel(nextLevel().number)}
  function canRescue(){return rescueReady(a)&&chars.some(c=>!a.friends[c.id])}
  function continueRescue(){
@@ -99,7 +99,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   const path='<svg class="aa-rainbow-path" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="aa-colors" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#fa66c5"/><stop offset=".2" stop-color="#ad6bf7"/><stop offset=".4" stop-color="#4bc9ff"/><stop offset=".6" stop-color="#7ade70"/><stop offset=".8" stop-color="#ffe265"/><stop offset="1" stop-color="#ffab60"/></linearGradient></defs><path d="M -90 465 C 190 550 310 410 475 400 S 720 340 615 253 S 760 95 1090 130" stroke="#fff8" stroke-width="94" fill="none" stroke-linecap="round"/><path d="M -90 465 C 190 550 310 410 475 400 S 720 340 615 253 S 760 95 1090 130" stroke="url(#aa-colors)" stroke-width="72" fill="none" stroke-linecap="round"/><path d="M -90 465 C 190 550 310 410 475 400 S 720 340 615 253 S 760 95 1090 130" stroke="#fff9" stroke-width="4" stroke-dasharray="6 16" fill="none" stroke-linecap="round"/></svg>';
   shell('My Adventure Home','<section class="aa-home" aria-label="Rainbow maze adventure home">'+path+
    '<div class="aa-clouds" aria-hidden="true"><span>⭐</span><span>✨</span><span>⭐</span></div>'+
-   '<div class="aa-player-card">'+pic(playerId)+'<div class="aa-character-info"><span class="aa-mini-label">MY CHARACTER</span><h2>'+esc(char(playerId).name)+'</h2><span class="aa-level-pill">'+esc(currentStage(playerId))+'</span><button id="change-player" class="aa-change-player">Change Character ›</button></div></div>'+
+   '<div class="aa-player-card">'+pic(playerId)+'<div class="aa-character-info"><span class="aa-mini-label">MY CHARACTER</span><h2>'+esc(char(playerId).name)+'</h2><span class="aa-level-pill">'+esc(currentStage(playerId))+'</span><button id="change-player" class="aa-change-player">Change Character · '+chars.length+' choices ›</button></div></div>'+
    '<div class="aa-quest"><div><span class="aa-mini-label">NEXT FRIEND</span><p>'+esc(progressLabel)+'</p><div class="aa-progress" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="'+a.mazesSinceRescue+'"><span style="width:'+(a.mazesSinceRescue/5*100)+'%"></span></div><small>'+Math.min(5,a.mazesSinceRescue)+' / 5 mazes</small></div><div class="aa-friend-silhouette" aria-hidden="true">'+(hasMoreFriends?'❔':'⭐')+'</div>'+rescueAction+'</div>'+
    '<div class="aa-main-action"><span class="aa-world-label">🌈 '+worldName+'</span><button id="continue-adventure" class="aa-play-button"><span aria-hidden="true">▶</span> PLAY MAZE</button><span class="aa-next-label">'+(resume?'Continue maze ':'Next: Maze ')+next.number+' · '+esc(next.title)+'</span></div>'+
    '<div class="aa-bottom-menu" aria-label="Game navigation"><button data-nav="map" class="aa-nav-home"><span aria-hidden="true">🏠</span>Home</button><button data-nav="shop" class="aa-nav-shop"><span aria-hidden="true">⭐</span>Star Shop</button><button data-nav="computer" class="aa-nav-collection"><span aria-hidden="true">💻</span>My Collections</button></div>'+
@@ -152,12 +152,31 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{const world=b.dataset.land;if(!owned(world))return;const placed=rescuing?rescueFriend(a,id,world,(r||a.activeRun)?.id):placeFriend(a,id,world);if(!placed)return;pendingFriend=null;save();sound();visit(world,rescuing?id:null)});
  }
  function computer(){
- view='computer';const cards=(items,owned)=>items.map(i=>'<article class="'+(owned.includes(i.id)?'earned-item':'waiting-item')+'">'+img(i.image,i.name)+'<strong>'+esc(i.name)+'</strong><p>'+(owned.includes(i.id)?'✓ Collected':'Keep exploring')+'</p></article>').join('');
- const all=data.computer_collectibles.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
- const rescued=chars.filter(c=>a.friends[c.id]);
- const friendCards=rescued.map(c=>'<article class="earned-item">'+pic(c.id)+'<strong>'+esc(c.name)+'</strong><p>✓ Rescued friend</p></article>').join('');
- shell('My Collections','<h2>My Rescued Friends ('+rescued.length+')</h2><div class="adventure-cards friend-collection">'+friendCards+'</div><h2>My STEM equipment</h2><div class="adventure-cards">'+cards(data.computer_collectibles,a.collectedComputerGearIds)+'</div><h2>My computer skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+(all&&a.completedLevelIds.includes('level_12')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Collect the STEM equipment and four skill badges, then finish level 12. Replay any level to collect something you missed.</p>'));
- if($('build-computer'))$('build-computer').onclick=finale;
+  view='computer';
+  const cards=(items,owned,showMaze=false)=>items.map(i=>{
+    const collected=owned.includes(i.id),level=levels.find(l=>(l.computerGearIds||[]).includes(i.id));
+    const accessible=level&&level.number<=a.highestUnlockedLevel;
+    return '<article class="'+(collected?'earned-item':'waiting-item')+'">'+img(i.image,i.name)+
+      '<strong>'+esc(i.name)+'</strong><p>'+(collected?'✓ Collected':'Not collected yet')+'</p>'+
+      (showMaze&&level?'<small>Find in Maze '+level.number+'</small>':'')+
+      (showMaze&&!collected&&accessible?'<button type="button" class="stem-find" data-stem-level="'+level.number+'">▶ Find this item</button>':'')+
+      '</article>';
+  }).join('');
+  const newSTEM=data.computer_collectibles.filter(i=>i.type==='stem_gear'),
+        original=data.computer_collectibles.filter(i=>i.type!=='stem_gear'),
+        rescued=chars.filter(c=>a.friends[c.id]),
+        friendCards=rescued.map(c=>'<article class="earned-item">'+pic(c.id)+'<strong>'+esc(c.name)+'</strong><p>✓ Rescued friend</p></article>').join('');
+  const collectedSTEM=newSTEM.filter(i=>a.collectedComputerGearIds.includes(i.id)).length;
+  const all=original.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
+  shell('My Collections',
+    '<h2>NEW! STEM Discoveries · '+collectedSTEM+' / '+newSTEM.length+'</h2>'+
+    '<div class="adventure-cards stem-collection">'+cards(newSTEM,a.collectedComputerGearIds,true)+'</div>'+
+    '<h2>My Rescued Friends ('+rescued.length+')</h2><div class="adventure-cards friend-collection">'+friendCards+'</div>'+
+    '<h2>Computer Equipment</h2><div class="adventure-cards">'+cards(original,a.collectedComputerGearIds,true)+'</div>'+
+    '<h2>My Computer Skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+
+    (all&&a.completedLevelIds.includes('level_12')?'<button id="build-computer" class="primary">Build my Rainbow Computer! 🌈</button>':'<p>Complete the 12 mazes, collect the five original computer items, and earn the skill badges to build your Rainbow Computer.</p>'));
+  document.querySelectorAll('[data-stem-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.stemLevel)));
+  if($('build-computer'))$('build-computer').onclick=finale;
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
  function startLevel(n,restart=false){
