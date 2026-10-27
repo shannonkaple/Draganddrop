@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {decorations} from '../trackpad-adventure/economy.mjs';
 import {buildLevel,tile,route,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure} from './adventure-core.mjs';
+import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs';
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
 a.completedLevelIds.push('lab_candy_7');assert.equal(pendingWorldRescue(a),null,'replays cannot unlock rescue');
@@ -44,7 +45,44 @@ assert.equal(returning.wallet.rainbowStars,19,'earned stars survive');
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config','computer_collectibles'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
-const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations);
+
+const allCharacters=arrowLabCharacters(data.characters);
+assert.equal(pendingCharacters.length,10,'ten legacy characters are available in Arrow Lab only');
+assert.equal(allCharacters.length,data.characters.length+10,'all ten missing character IDs restored');
+assert.equal(new Set(allCharacters.map(c=>c.id)).size,allCharacters.length,'no duplicate IDs');
+for(const character of pendingCharacters){
+ assert.equal(character.levels.length,3,'all upgrade stages retained');
+ for(const level of character.levels)assert.equal(level.image,'pending:character:'+character.id,'never substitute an invalid image URL');
+}
+const legacyPlayerSave={
+ selectedPlayerCharacterId:'luna_axolotl',ownedWorldIds:['background_pirate'],primaryRainbowLandId:'background_pirate',
+ friends:{luna_axolotl:{isRescued:true,upgradeStage:'super_power',homeLandId:'background_pirate',customNote:'keep me'},
+          retired_friend:{isRescued:true,homeLandId:'background_candy',gift:'heart'}},
+ wallet:{rainbowStars:22},completedLevelIds:['lab_candy_1'],worldFriends:{candy:{homeLandId:'background_pirate'}}
+};
+const restoredPlayer=migrateAdventure(structuredClone(legacyPlayerSave),{},allCharacters,lands);
+assert.equal(restoredPlayer.selectedPlayerCharacterId,'luna_axolotl','saved character must not force new onboarding');
+assert.equal(restoredPlayer.friends.luna_axolotl.upgradeStage,'super_power','upgrade retained');
+assert.equal(restoredPlayer.friends.luna_axolotl.customNote,'keep me','custom metadata retained');
+assert.equal(restoredPlayer.friends.retired_friend.gift,'heart','unrecognized saved friend retained');
+assert.equal(restoredPlayer.wallet.rainbowStars,22,'stars retained');
+assert.equal(restoredPlayer.primaryRainbowLandId,'background_pirate','purchased home retained');
+assert.deepEqual(restoredPlayer.completedLevelIds,['lab_candy_1'],'completed maze retained');
+assert.deepEqual(restoredPlayer.worldFriends,legacyPlayerSave.worldFriends,'rescue retained');
+const unavailable=migrateAdventure({selectedPlayerCharacterId:'retired_friend',friends:{retired_friend:{homeLandId:'background_candy'}}},{},allCharacters,lands);
+assert.equal(unavailable.selectedPlayerCharacterId,null,'truly unknown character needs a new choice');
+assert.equal(unavailable.unavailableSelectedPlayerCharacterId,'retired_friend','retain unknown selected ID for later restoration');
+assert.ok(unavailable.friends.retired_friend,'retain original friend record');
+assert.match(source,/const chars=arrowLabCharacters\(data\.characters\)/,'local roster is merged only for Arrow Lab');
+assert.match(source,/pending-character-note/,'missing portraits visibly labelled');
+const markerSource=source.slice(source.indexOf("const img=(p,name,cls='')=>"),source.indexOf('const readJSON=async'));
+const markerRender=new Function('esc','asset',markerSource+';return img;')(s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;'),p=>p);
+const missingPortrait=markerRender('pending:character:luna_axolotl','Luna Axolotl','friend-art');
+assert.match(missingPortrait,/ART COMING SOON/,'portrait has honest placeholder label');
+assert.doesNotMatch(missingPortrait,/<img/,'no broken image URL');
+assert.match(source,/const p=at\(c,i\),name=char\(c\)\?\.name/,'unknown saved friends render safely in MY STUFF');
+
+const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations','arrowLabCharacters',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations,arrowLabCharacters);
 
 const starterMigration=source.slice(source.indexOf(" const starterWorldId='background_candy';"),source.indexOf(' const char='));
 assert.ok(starterMigration.includes('ownedWorldIds'),'locate the real starter-world migration');
