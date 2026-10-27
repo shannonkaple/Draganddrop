@@ -90,7 +90,29 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  {id:'ocean_shell',name:'Pearl Shell',world:'ocean',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/ocean/pearl_shell.png'},
  {id:'ocean_star',name:'Starfish Present',world:'ocean',kind:'gift',cost:2,artPath:'arrow-lab/collectibles/ocean/starfish.png'},
  {id:'lava_crystals',name:'Fire Crystal Garden',world:'lava',kind:'decor',cost:4,art:'crystals'},
- {id:'lava_gift',name:'Glowing Crystal Present',world:'lava',kind:'gift',cost:3,art:'crystals'}
+ {id:'lava_gift',name:'Glowing Crystal Present',world:'lava',kind:'gift',cost:3,art:'crystals'},
+ // Themed shop additions reuse only native collectible art at display size;
+ // no stretching and no borrowed world maps.
+ {id:'candy_donut',name:'Sweet Donut Seat',world:'candy',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/candy/donut.png'},
+ {id:'candy_icecream',name:'Ice Cream Sculpture',world:'candy',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/candy/ice_cream.png'},
+ {id:'candy_gingerbread',name:'Gingerbread Cottage',world:'candy',kind:'decor',cost:6,artPath:'arrow-lab/collectibles/candy/gingerbread_house.png'},
+ {id:'candy_cottoncandy',name:'Cotton Candy Tree',world:'candy',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/candy/cotton_candy.png'},
+ {id:'candy_apple_present',name:'Candy Apple Gift',world:'candy',kind:'gift',cost:3,artPath:'arrow-lab/collectibles/candy/candy_apple.png'},
+ {id:'pirate_shipwheel',name:'Captain’s Ship Wheel',world:'pirate',kind:'decor',cost:5,artPath:'arrow-lab/collectibles/pirate/ship_wheel.png'},
+ {id:'pirate_goldcoins',name:'Gold Coin Pile',world:'pirate',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/pirate/gold_coins.png'},
+ {id:'pirate_spyglass',name:'Pirate Spyglass',world:'pirate',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/pirate/spyglass.png'},
+ {id:'pirate_messagebottle',name:'Bottle From the Sea',world:'pirate',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/pirate/message_bottle.png'},
+ {id:'pirate_hat_present',name:'Captain’s Hat Gift',world:'pirate',kind:'gift',cost:3,artPath:'arrow-lab/collectibles/pirate/pirate_hat.png'},
+ {id:'arctic_bear',name:'Polar Bear Plush',world:'arctic',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/arctic/polar_bear_plush.png'},
+ {id:'arctic_snowflakelamp',name:'Snowflake Lantern',world:'arctic',kind:'decor',cost:5,artPath:'arrow-lab/collectibles/arctic/snowflake_lantern.png'},
+ {id:'arctic_iciclegem',name:'Ice Crystal Gem',world:'arctic',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/arctic/icicle_gem.png'},
+ {id:'arctic_skate',name:'Sparkly Ice Skate',world:'arctic',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/arctic/ice_skate.png'},
+ {id:'arctic_cocoa_present',name:'Warm Cocoa Gift',world:'arctic',kind:'gift',cost:3,artPath:'arrow-lab/collectibles/arctic/hot_cocoa.png'},
+ {id:'ocean_seahorse',name:'Seahorse Statue',world:'ocean',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/ocean/seahorse.png'},
+ {id:'ocean_turtle',name:'Sea Turtle Figure',world:'ocean',kind:'decor',cost:5,artPath:'arrow-lab/collectibles/ocean/sea_turtle.png'},
+ {id:'ocean_jellyfish',name:'Jellyfish Lamp',world:'ocean',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/ocean/jellyfish.png'},
+ {id:'ocean_pufferfish',name:'Pufferfish Buddy',world:'ocean',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/ocean/pufferfish.png'},
+ {id:'ocean_message',name:'Bottle Message Gift',world:'ocean',kind:'gift',cost:3,artPath:'arrow-lab/collectibles/ocean/ocean_message_bottle.png'}
  ];
  const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods];
  const findDecoration=id=>fullDecorations.find(d=>d.id===id);
