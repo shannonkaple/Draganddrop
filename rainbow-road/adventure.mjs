@@ -170,7 +170,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   const all=original.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
   shell('My Collections',
     '<h2>NEW! STEM Discoveries · '+collectedSTEM+' / '+newSTEM.length+'</h2>'+
-    '<div class="adventure-cards stem-collection">'+cards(newSTEM,a.collectedComputerGearIds,true)+'</div>'+
+    '<div class="stem-collection">'+cards(newSTEM,a.collectedComputerGearIds,true)+'</div>'+
     '<h2>My Rescued Friends ('+rescued.length+')</h2><div class="adventure-cards friend-collection">'+friendCards+'</div>'+
     '<h2>Computer Equipment</h2><div class="adventure-cards">'+cards(original,a.collectedComputerGearIds,true)+'</div>'+
     '<h2>My Computer Skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+
