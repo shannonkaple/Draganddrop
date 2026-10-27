@@ -76,6 +76,22 @@ assert.match(hitMessage,/START/,'student hears the start reset rule');
 assert.match(source,/class="enemy-direction"/,'moving bad guys show direction arrows');
 assert.match(source,/enemy-path-next/,'next planned enemy tile remains visible');
 
+const css=fs.readFileSync(new URL('./visual-hotfix-20261027.css',import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
+assert.match(source,/class="dialog-toolbar"/,'every in-game popup has a dedicated control row');
+assert.match(source,/class="dialog-content"/,'every popup has a separate content wrapper');
+assert.match(source,/d\.scrollTop=0/,'reused popups reset scroll to show the heading');
+assert.match(source,/requestAnimationFrame\(\(\)=>\$\('adventure-maze'\)\?\.focus/,'closing a maze popup restores keyboard focus');
+assert.match(css,/robust native-dialog sizing/,'native modal layout correction is installed');
+assert.match(css,/height:max-content!important/,'dialogs size to their content instead of stretching to viewport');
+assert.match(css,/max-height:calc\(100dvh - 24px\)/,'dialogs scroll inside the visible viewport');
+assert.match(css,/\.dialog-toolbar\{/,'popup navigation stays visible while content scrolls');
+assert.match(css,/\.dialog-content\{/,'popup content has independent safe sizing');
+assert.match(css,/body>header\.lab-image-header \.actions\{[\s\S]*?flex-flow:row wrap!important/,'header controls wrap rather than disappear');
+assert.match(html,/visual-hotfix-20261027\.css\?v=dialog-structure-20261027h/,'published page references new popup styles');
+assert.match(html,/game\.mjs\?v=dialog-structure-20261027h/,'published page references new game module');
+
+
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
 const decorHandler=source.slice(source.indexOf("  document.querySelectorAll('[data-stuff-decor]')"),source.indexOf("  document.querySelectorAll('[data-stuff-friend]')"));
 assert.ok(decorHandler.includes("a.decorations[from].splice"),'moves remove one source-world item, not all saved purchases');
