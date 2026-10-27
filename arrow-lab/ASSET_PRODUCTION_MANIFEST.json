@@ -1256,5 +1256,16 @@
     "pirate_ocean_pair_count_per_maze": 2,
     "artwork_export_and_alpha_validation": "pending for newly generated items",
     "deployed_browser_visual_review": "not performed"
+  },
+  "header": {
+    "path": "arrow-lab/assets/arrow-adventure-header.png",
+    "status": "integrated_pending_browser_review",
+    "source": "Exact user-selected upload; copied without alteration",
+    "dimensions": [
+      2048,
+      682
+    ],
+    "sha256": "04ff3a56c55fdb8ce75bb9a58ec2db98f33718b97c8a6967176dc61f8b5004e7",
+    "layout": "Fixed top banner; full image contained without cropping"
   }
 }

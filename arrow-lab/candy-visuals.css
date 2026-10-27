@@ -1,25 +1,5 @@
 
 /* Arrow Lab Candy pass — game interface, never change original classroom game. */
-/* Full-width JPEG heading; actual help/change-student buttons remain interactive. */
-body.adventure-mode>header {
-  height:108px!important;min-height:108px!important;max-height:none!important;
-  padding:10px 24px!important;
-  background: url('./title-banner.jpg?v=candy1') center center/100% 100% no-repeat!important;
-  border-bottom:2px solid #ffffffd9!important;
-  display:flex;align-items:center;justify-content:flex-end;
-}
-body.adventure-mode>header .brand {
-  position:absolute!important;clip-path:inset(50%);height:1px;width:1px;
-  overflow:hidden;white-space:nowrap;
-}
-body.adventure-mode>header .actions {
-  z-index:20;margin-left:auto;flex-wrap:nowrap;gap:10px;
-  border-radius:23px;padding:3px;
-}
-body.adventure-mode>header .actions button {
-  white-space:nowrap;background:#ffffffeb;border:2px solid #fff!important;
-  border-radius:17px;font:12px VAG,Arial,sans-serif;box-shadow:0 4px 0 #506a9d65;padding:9px 13px;
-}
 /* Main map: no HUD, character, heading or play button overlaps. */
 body.lab-map-active .lab-map-home {
   grid-template-rows:165px 55px minmax(295px,1fr) 69px!important;
@@ -146,7 +126,7 @@ body.adventure-mode .lab-map-title {
   text-transform:uppercase!important;
 }
 @media(max-width:1000px){
- body.adventure-mode>header {height:90px!important;min-height:90px!important;}
+ 
  body.lab-map-active .lab-map-home {grid-template-rows:139px 53px minmax(260px,1fr) 61px!important;min-height:555px!important;}
  body.lab-map-active #kaple-guide {width:185px!important;height:144px!important;}
  body.lab-map-active .lab-game-hud {padding:42px 6px 0 185px!important;gap:5px!important;}
@@ -158,9 +138,9 @@ body.adventure-mode .lab-map-title {
  body.lab-map-active .lab-main-nav {padding-left:170px!important;padding-right:12px!important;}
 }
 @media(max-width:700px){
- body.adventure-mode>header {height:78px!important;min-height:78px!important;padding-right:7px!important;}
- body.adventure-mode>header .actions {gap:3px!important;}
- body.adventure-mode>header .actions button {font-size:9px;padding:6px!important;}
+ 
+ 
+ 
  body.lab-map-active .lab-map-home {grid-template-rows:135px 56px minmax(260px,1fr) 65px!important;min-height:535px!important;}
  body.lab-map-active #kaple-guide {top:calc(var(--screen-top,85px) + 9px)!important;width:139px!important;height:130px!important;}
  body.lab-map-active .lab-game-hud {padding-left:138px!important;padding-top:34px!important;gap:4px!important;}

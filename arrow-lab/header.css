@@ -1,0 +1,60 @@
+/* The user's exact header art. Arrow Lab only; keep all lettering and characters visible. */
+body::before { display:none!important; }
+body>header.lab-image-header {
+  position:fixed!important;
+  inset:0 0 auto!important;
+  z-index:30;
+  width:100%!important;
+  height:clamp(112px,22vh,200px)!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0 12px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  background:linear-gradient(110deg,#c5ecff,#f7e4ff 65%,#d5eeff)!important;
+  border:0!important;
+  border-bottom:2px solid white!important;
+  box-shadow:0 3px 12px #4d56852b;
+}
+body>header.lab-image-header .brand {
+  position:static!important;
+  clip-path:none!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0;
+  overflow:hidden;
+  line-height:0;
+}
+.lab-header-art {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+body>header.lab-image-header .actions {
+  position:static!important;
+  margin:0!important;
+  display:flex;
+  flex-direction:column;
+  gap:7px!important;
+  padding:0!important;
+}
+body>header.lab-image-header::after { content:none!important; }
+@media(max-width:650px) {
+  body>header.lab-image-header {
+    height:clamp(105px,24vh,165px)!important;
+    padding:0 4px!important;
+    gap:4px;
+    grid-template-columns:minmax(0,1fr) 78px;
+  }
+  body>header.lab-image-header .actions button {
+    width:78px;
+    white-space:normal;
+    padding:6px 3px!important;
+    font-size:10px!important;
+  }
+}
