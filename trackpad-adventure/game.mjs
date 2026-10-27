@@ -119,14 +119,17 @@ function openCampaignWorld(i){
 }
 function worldLevelMap(){
  const c=campaign(state),w=adventureWorlds[c.current],finished=c.completed[c.current]===8;
- const buttons=Array.from({length:8},(_,i)=>{const status=activityStatus(state,c.current,i);
-  return `<button class="campaign-level ${status}" data-campaign-level="${i}" ${status==='locked'?'disabled':''} aria-label="${activityNames[i]} level ${i+1}, ${status}">
-   <span>${status==='locked'?'🔒':status==='complete'?'✓':i+1}</span><small>${activityNames[i]}</small></button>`;
+ const centers=[[14,37],[37,37],[60,37],[83,37],[14,74],[37,74],[60,74],[83,74]];
+ const buttons=centers.map(([x,y],i)=>{const status=activityStatus(state,c.current,i);
+  return `<button type="button" class="world-map-hotspot ${status}" data-campaign-level="${i}" style="left:${x}%;top:${y}%" ${status==='locked'?'disabled aria-disabled="true"':''} aria-label="${w.name} activity ${i+1}: ${activityNames[i]}, ${status}">
+    <span class="world-map-hotspot-label">${status==='locked'?'🔒':status==='complete'?'✓':i+1}</span>
+    ${i===7?'<small>RESCUE FRIEND</small>':''}
+   </button>`;
  }).join('');
- shell(`<section class="campaign-level-screen"><div class="campaign-level-header"><button id="back-worlds">← All Worlds</button><div><h2>${w.icon} ${w.name}</h2><p>${c.completed[c.current]} / 8 activities finished · ${w.action}</p></div><strong>⭐ ${state.stars}</strong></div>
- <div class="campaign-level-map" style="background-image:url('${mapPath(w)}')" role="group" aria-label="Eight levels in ${w.name}">${buttons}</div>
- <div class="campaign-level-footer"><span>World friend: <strong>${w.companionIcon} ${esc(w.companion)}</strong> ${finished?'✓ Rescued':'🔒 Finish level 8 to rescue'}</span>
- <button id="campaign-continue" class="primary">${finished?'Replay the World Challenge':'▶ Start Level '+(c.completed[c.current]+1)}</button></div></section>`);
+ shell(`<section class="campaign-level-screen world-map-page"><div class="campaign-level-header"><button id="back-worlds">← All Worlds</button><div><h2>${w.icon} ${w.name}</h2><p>${c.completed[c.current]} / 8 LEVELS · ${w.action}</p></div><strong>⭐ ${state.stars}</strong></div>
+ <div class="campaign-level-map world-map-art" style="background-image:url('${mapPath(w)}')" role="group" aria-label="Eight levels in ${w.name}">${buttons}</div>
+ <div class="campaign-level-footer"><span>${w.companionIcon} RESCUE <strong>${esc(w.companion)}</strong> AT LEVEL 8 ${finished?'✓ RESCUED':'🔒'}</span>
+ <button id="campaign-continue" class="primary">${finished?'Replay level 8':'▶ PLAY LEVEL '+(c.completed[c.current]+1)}</button></div></section>`);
  $('#back-worlds').onclick=home;
  app.querySelectorAll('[data-campaign-level]').forEach(b=>b.onclick=()=>startCampaignActivity(Number(b.dataset.campaignLevel)));
  $('#campaign-continue').onclick=()=>startCampaignActivity(finished?7:c.completed[c.current]);

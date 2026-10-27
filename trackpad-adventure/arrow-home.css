@@ -51,7 +51,7 @@ body:has(.arrow-style-home) .game-menu button{min-height:41px}
 .arrow-map-heading p{font:12px VAG,Arial,sans-serif;margin:0!important;color:#346394}
 .arrow-world-stage{
  flex:1;min-height:218px;position:relative;
- background-image:url('./maps/overview.jpg?v=20261026-original-hires-aligned-v3');background-position:center;
+ background-image:url('./maps/overview-clean.jpg?v=20261027-rescue8');background-position:center;
  background-size:100% 100%;background-repeat:no-repeat;
  border:3px solid #ffffffcb;border-radius:21px;box-shadow:inset 0 0 16px #fff6,0 5px 13px #27568039;
 }
@@ -178,3 +178,15 @@ body:has(.arrow-style-home) .game-menu button{min-height:41px}
  font-family:"HOMEBODY CLUB",Homebody,VAG,sans-serif!important;
  text-transform:uppercase!important;
 }
+
+/* Eight-map rescue campaign: identical coordinates on each JPEG. */
+.campaign-level-screen.world-map-page{width:min(100%,1320px);height:calc(var(--screen-height,760px) - 45px);min-height:480px;max-height:860px;display:grid;grid-template-rows:auto minmax(260px,1fr) auto;gap:10px}
+.campaign-level-screen .world-map-art{position:relative!important;display:block!important;padding:0!important;min-height:300px!important;aspect-ratio:auto!important;overflow:hidden;background-position:center;background-size:100% 100%;background-repeat:no-repeat;border:4px solid white;border-radius:23px;box-shadow:0 6px 12px #234b8a55}
+.world-map-hotspot{position:absolute!important;transform:translate(-50%,-50%);width:clamp(54px,7vw,106px);height:clamp(54px,7vw,106px);min-height:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:50%;box-shadow:none!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;z-index:2;cursor:pointer}
+.world-map-hotspot-label{width:clamp(29px,3.7vw,54px);height:clamp(29px,3.7vw,54px);display:grid;place-items:center;border:3px solid #fff;border-radius:50%;font:clamp(16px,1.8vw,29px) VAG,Arial,sans-serif;background:linear-gradient(#d6ff9f,#56c85a);color:#234d43;box-shadow:0 2px 6px #21457999}
+.world-map-hotspot.locked .world-map-hotspot-label{background:#dce0e9;color:#5b6377}
+.world-map-hotspot.complete .world-map-hotspot-label{background:#fff39c;color:#876116}
+.world-map-hotspot.next .world-map-hotspot-label{box-shadow:0 0 0 6px #ffff94,0 2px 10px #184c8b9b}
+.world-map-hotspot small{position:absolute;top:83%;font:clamp(8px,.85vw,12px) VAG,Arial,sans-serif;background:#ffffe5dd;border-radius:12px;padding:2px 5px;color:#3f3065;white-space:nowrap}
+.world-map-hotspot:focus-visible{outline:5px solid #ffec27!important;outline-offset:2px}
+@media(max-height:650px){.campaign-level-screen.world-map-page{min-height:0;height:calc(var(--screen-height,610px) - 32px);gap:5px}.campaign-level-screen .world-map-art{min-height:210px!important}.world-map-hotspot{width:56px;height:56px}}
