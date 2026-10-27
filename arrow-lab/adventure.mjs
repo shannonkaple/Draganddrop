@@ -4,7 +4,19 @@ import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24'
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend} from './adventure-core.mjs?v=four-enemies-20261027b';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
-const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
+// Extra character entries were assigned generated: placeholder identifiers, not URLs.
+// Never render an invalid <img>; show an honest named temporary illustration marker
+// until each original high-resolution file has actually been published.
+const missingCharacterSymbols={luna_axolotl:'🦎',cosmo_fox:'🦊',nova_panda:'🐼',pixel_pig:'🐷',zippy_turtle:'🐢',coco_koala:'🐨',berry_bunny:'🐰',sparky_dragon:'🐉',mochi_otter:'🦦',bolt_bot:'🤖'};
+const img=(p,name,cls='')=>{
+ const value=String(p||'');
+ if(value.startsWith('generated:character:')){
+   const id=value.slice('generated:character:'.length),symbol=missingCharacterSymbols[id]||'✨';
+   return '<span class="'+cls+' pending-character-art" role="img" aria-label="'+esc(name)+' artwork being prepared"><span aria-hidden="true">'+symbol+'</span></span>';
+ }
+ if(!value)return '<span class="'+cls+' pending-character-art" role="img" aria-label="'+esc(name)+'">✨</span>';
+ return '<img class="'+cls+'" src="'+asset(value)+'" alt="'+esc(name)+'" loading="eager" draggable="false">';
+};
 const readJSON=async n=>{const r=await fetch(new URL('../rainbow-road/data/'+n+'.json',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
 export async function openAdventure({number,storageKey,teacherName,teachers,goPractice,onLogout}){
@@ -67,7 +79,10 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   const objects=worldIndex===1?pirateObjects:worldIndex===2?arcticObjects:worldIndex===6?oceanObjects:null;
   return objects?[objects[(stageIndex*3)%10][0],objects[(stageIndex*3+4)%10][0]]:undefined;
  };
- const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Seal','🦭'],['Castle Griffin','🦅'],['Space Alien','👽'],['Baby Dino','🦖'],['Ocean Dolphin','🐬'],['Lava Lizard','🦎']].map(([name,icon],i)=>({id:worldThemes[i].id,name,icon,art:i===0?'arrow-lab/friends/candy-bunny.png':i===1?'arrow-lab/collectibles/pirate/parrot.png':null}));
+ // Use the exact seven characters supplied by the teacher as the definitive rescue art.
+// The approved 1254×1254 transparent PNGs must be uploaded unchanged to these paths.
+const approvedFriendFiles={pirate:'arrow-lab/friends/pirate-parrot.png',arctic:'arrow-lab/friends/arctic-penguin.png',castle:'arrow-lab/friends/royal-dragon.png',space:'arrow-lab/friends/space-alien.png',jurassic:'arrow-lab/friends/explorer-dino.png',ocean:'arrow-lab/friends/ocean-dolphin.png',lava:'arrow-lab/friends/lava-dragon.png'};
+const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Penguin','🐧'],['Royal Dragon','🐉'],['Space Alien','👽'],['Explorer Dino','🦖'],['Ocean Dolphin','🐬'],['Lava Dragon','🐲']].map(([name,icon],i)=>({id:worldThemes[i].id,name,icon,art:i===0?'arrow-lab/friends/candy-bunny.png':null,approvedArtPath:i===0?'arrow-lab/friends/candy-bunny.png':approvedFriendFiles[worldThemes[i].id]}));
  const homeArt=[candyStageBackgrounds[0],pirateStageBackgrounds[0],arcticStageBackgrounds[0],worldThemes[3].backgroundImage,worldThemes[4].backgroundImage,worldThemes[5].backgroundImage,oceanStageBackgrounds[0],worldThemes[7].backgroundImage];
  const backgroundHomes=worldThemes.map((w,i)=>({id:'background_'+w.id,name:w.name+' World',homeBackground:homeArt[i],cardPreview:homeArt[i],availableAtStart:i===0,theme:w.id}));
  const themedGoods=[
@@ -191,7 +206,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function playNext(){startLevel(nextLevel().number)}
  function canRescue(){return rescueReady(a)}
  const companion=id=>companions.find(c=>c.id===id);
- const companionArt=id=>{const c=companion(id);return c.art?img(c.art,c.name,'world-friend-art'):'<span class="world-friend-icon" role="img" aria-label="'+c.name+'">'+c.icon+'</span>'};
+ const companionArt=id=>{const c=companion(id);return c.art?img(c.art,c.name,'world-friend-art'):'<span class="world-friend-icon" role="img" aria-label="'+esc(c.name)+'">'+c.icon+'</span>'};
  function continueRescue(){rescue()}
  function selectCharacter(changing=false){
  view='select';
