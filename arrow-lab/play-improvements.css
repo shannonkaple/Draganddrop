@@ -145,3 +145,16 @@ body.adventure-mode .lab-candy-node:focus-visible{
   outline:4px solid #f8d22e!important;
   outline-offset:4px!important;
 }
+
+/* A started maze is saved and can be continued; finished ones never require replay. */
+body.adventure-mode .lab-candy-node.started:not(.done){
+  background:#e8f2fff0!important;
+  box-shadow:0 2px 8px #293e87bb,0 0 0 3px #98c6ff!important;
+}
+body.adventure-mode .lab-candy-node.started .lab-map-node-indicator{
+  color:#1a56ba!important;
+}
+body.adventure-mode .lab-activity-card.started:not(.cleared){
+  border-color:#729de6!important;
+  background:#eef6ff!important;
+}
