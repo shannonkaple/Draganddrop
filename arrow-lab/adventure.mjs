@@ -1,4 +1,4 @@
-import {tellGuide,starIcon} from './viewport.mjs?v=collections-final-20261027c';
+import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend} from './adventure-core.mjs?v=worldrescue-20261027';
