@@ -77,10 +77,22 @@ export function migrateAdventure(previous,legacy,characters,lands){
  // onboarding choice: a first-time Arrow Lab student must explicitly choose once.
  // Keep legacy rescued friends, purchases and rewards separately below.
  const main=ids.includes(a.selectedPlayerCharacterId)?a.selectedPlayerCharacterId:null;
- for(const[id,f]of Object.entries(a.friends||{}))if(ids.includes(id))friends[id]={isRescued:true,upgradeStage:['starter','power_up','super_power'].includes(f.upgradeStage)?f.upgradeStage:'starter',homeLandId:landIds.includes(f.homeLandId)?f.homeLandId:landIds[0]};
+ // Do not erase a selected character if a shared character roster temporarily
+ // stops publishing it. Prompt for an available choice, but retain the old ID.
+ const unavailableSelectedPlayerCharacterId=main
+   ?(a.unavailableSelectedPlayerCharacterId||null)
+   :(a.selectedPlayerCharacterId||a.unavailableSelectedPlayerCharacterId||null);
+ for(const [id,f] of Object.entries(a.friends||{})){
+   if(!f||typeof f!=='object')continue;
+   // Preserve even temporarily unavailable characters and custom friend fields.
+   // Rendering uses a neutral placeholder until their original art returns.
+   friends[id]=ids.includes(id)
+     ?{...f,isRescued:true,upgradeStage:['starter','power_up','super_power'].includes(f.upgradeStage)?f.upgradeStage:'starter',homeLandId:landIds.includes(f.homeLandId)?f.homeLandId:landIds[0]}
+     :{...f};
+ }
  for(const id of legacy?.rescued||[])if(ids.includes(id)&&!friends[id])friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
  if(main&&!friends[main])friends[main]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
- return {...a,mazesSinceRescue:Math.max(0,Math.min(3,Math.floor(Number(a.mazesSinceRescue)||0))),pendingRescueFriendId:ids.includes(a.pendingRescueFriendId)&&!friends[a.pendingRescueFriendId]?a.pendingRescueFriendId:null,ownedWorldIds:Array.isArray(a.ownedWorldIds)?a.ownedWorldIds:[...new Set(Object.values(friends).map(f=>f.homeLandId))],decorations:a.decorations||{},positions:a.positions||{},schemaVersion:1,selectedPlayerCharacterId:main,primaryRainbowLandId:landIds.includes(a.primaryRainbowLandId)?a.primaryRainbowLandId:null,friends,unlockedCharacterIds:Object.keys(friends),completedLevelIds:Array.isArray(a.completedLevelIds)?a.completedLevelIds:[],rescuedAtLevelIds:Array.isArray(a.rescuedAtLevelIds)?a.rescuedAtLevelIds:[],highestUnlockedLevel:Math.max(1,Math.min(64,Number(a.highestUnlockedLevel)||1)),wallet:{rainbowStars:Math.max(0,Number(a.wallet?.rainbowStars)||0)},lifetimeStarsEarned:Math.max(0,Number(a.lifetimeStarsEarned)||0),collectedComputerGearIds:Array.isArray(a.collectedComputerGearIds)?a.collectedComputerGearIds:[],earnedSkillBadgeIds:Array.isArray(a.earnedSkillBadgeIds)?a.earnedSkillBadgeIds:[],settings:{soundEnabled:false,reducedMotion:false,...a.settings}};
+ return {...a,mazesSinceRescue:Math.max(0,Math.min(3,Math.floor(Number(a.mazesSinceRescue)||0))),pendingRescueFriendId:ids.includes(a.pendingRescueFriendId)&&!friends[a.pendingRescueFriendId]?a.pendingRescueFriendId:null,ownedWorldIds:Array.isArray(a.ownedWorldIds)?a.ownedWorldIds:[...new Set(Object.values(friends).map(f=>f.homeLandId))],decorations:a.decorations||{},positions:a.positions||{},schemaVersion:1,selectedPlayerCharacterId:main,unavailableSelectedPlayerCharacterId,primaryRainbowLandId:landIds.includes(a.primaryRainbowLandId)?a.primaryRainbowLandId:null,friends,unlockedCharacterIds:Object.keys(friends),completedLevelIds:Array.isArray(a.completedLevelIds)?a.completedLevelIds:[],rescuedAtLevelIds:Array.isArray(a.rescuedAtLevelIds)?a.rescuedAtLevelIds:[],highestUnlockedLevel:Math.max(1,Math.min(64,Number(a.highestUnlockedLevel)||1)),wallet:{rainbowStars:Math.max(0,Number(a.wallet?.rainbowStars)||0)},lifetimeStarsEarned:Math.max(0,Number(a.lifetimeStarsEarned)||0),collectedComputerGearIds:Array.isArray(a.collectedComputerGearIds)?a.collectedComputerGearIds:[],earnedSkillBadgeIds:Array.isArray(a.earnedSkillBadgeIds)?a.earnedSkillBadgeIds:[],settings:{soundEnabled:false,reducedMotion:false,...a.settings}};
 }
 export function upgradeFriend(a,id,costs){
  const f=a.friends[id];if(!f||f.upgradeStage==='super_power')return false;
