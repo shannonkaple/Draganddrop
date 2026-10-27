@@ -90,7 +90,8 @@ body.lab-map-active #kaple-guide .guide-cast::after{
 .lab-world-count{font:10px VAG,sans-serif;border-radius:6px;background:#ffffffd9;color:#254477;padding:2px 5px;}
 .lab-world-node.current .lab-world-pin{background:linear-gradient(#adffc0,#49de6a);border-color:#fffa89;box-shadow:0 0 0 6px #fff47cbb,0 5px 12px #255f4c70;}
 .lab-world-node.completed .lab-world-pin{background:linear-gradient(#fffd9b,#ffc445);border-color:#fff7c9;}
-.lab-world-node:disabled{opacity:.82;cursor:not-allowed;}
+.lab-world-node[aria-disabled="true"]{opacity:.88;cursor:help;}
+.lab-world-node[aria-disabled="true"]:hover .lab-world-pin{box-shadow:0 0 0 3px #ffdc77,0 4px 9px #273f656e;}
 .lab-world-node:disabled .lab-world-name{color:#52647e;}
 .lab-world-node:hover:not(:disabled) .lab-world-pin,.lab-world-node:focus-visible .lab-world-pin{transform:translateY(-5px);box-shadow:0 10px 16px #2b4b7a5d;}
 .lab-next-play{
