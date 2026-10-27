@@ -1,5 +1,6 @@
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
+import {arrowLabCharacters} from './character-placeholders.mjs?v=restored-ten-20261027a';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend} from './adventure-core.mjs?v=first-character-choice-20261027a';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -7,12 +8,12 @@ const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),r
 // Extra character entries were assigned generated: placeholder identifiers, not URLs.
 // Never render an invalid <img>; show an honest named temporary illustration marker
 // until each original high-resolution file has actually been published.
-const missingCharacterSymbols={luna_axolotl:'🦎',cosmo_fox:'🦊',nova_panda:'🐼',pixel_pig:'🐷',zippy_turtle:'🐢',coco_koala:'🐨',berry_bunny:'🐰',sparky_dragon:'🐉',mochi_otter:'🦦',bolt_bot:'🤖'};
+// A neutral labelled marker, not an invented or substituted illustration.
 const img=(p,name,cls='')=>{
  const value=String(p||'');
- if(value.startsWith('generated:character:')){
-   const id=value.slice('generated:character:'.length),symbol=missingCharacterSymbols[id]||'✨';
-   return '<span class="'+cls+' pending-character-art" role="img" aria-label="'+esc(name)+' artwork being prepared"><span aria-hidden="true">'+symbol+'</span></span>';
+ if(value.startsWith('generated:character:')||value.startsWith('pending:character:')){
+   const initials=String(name||'?').trim().split(/\\s+/).slice(0,2).map(word=>word.charAt(0)).join('').toUpperCase();
+   return '<span class="'+cls+' pending-character-art" role="img" aria-label="'+esc(name)+' — character art coming soon"><span class="pending-character-initial" aria-hidden="true">'+esc(initials)+'</span><small class="pending-character-note" aria-hidden="true">ART COMING SOON</small></span>';
  }
  if(!value)return '<span class="'+cls+' pending-character-art" role="img" aria-label="'+esc(name)+'">✨</span>';
  return '<img class="'+cls+'" src="'+asset(value)+'" alt="'+esc(name)+'" loading="eager" draggable="false">';
@@ -149,7 +150,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    ['cranky_crab','purple_slime','chomper_plant','storm_cloud'],   // Ocean
    ['lava_slime','rock_golem','whirly_tornado','prickly_cactus']   // Lava
  ];
- const chars=data.characters,lands=[...backgroundHomes,...data.rainbow_lands],worldCosts=lands.map((_,i)=>i<8?4+i*2:4+(i-8)*2),
+ const chars=arrowLabCharacters(data.characters),lands=[...backgroundHomes,...data.rainbow_lands],worldCosts=lands.map((_,i)=>i<8?4+i*2:4+(i-8)*2),
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
@@ -176,7 +177,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // A saved student must never have to choose a new home merely to continue playing.
  if(!a.primaryRainbowLandId)a.primaryRainbowLandId=starterWorldId;
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
- const pic=id=>img(look(id).image,char(id).name,'friend-art');
+ const pic=id=>{const c=char(id);return c?img(look(id).image,c.name,'friend-art'):'<span class="friend-art pending-character-art" role="img" aria-label="'+esc(id)+' saved friend, illustration unavailable"><span class="pending-character-initial">?</span><small class="pending-character-note">SAVED FRIEND</small></span>';};
 
  const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
  const itemArt=id=>objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
@@ -507,14 +508,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
 
  function collectionStage(id){
-  const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c].homeLandId===id);
+  const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c]?.homeLandId===id);
   const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
   const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
   const treasureGoods=(a.collectionExtraObjects?.[id]||[]).filter(key=>[...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])].includes(key));
   const positions=a.positions[id]||{};
   const at=(key,i)=>positions[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
   const personArt=residents.map((c,i)=>{
-    const p=at(c,i);return '<div class="world-object world-friend" data-world-object="'+c+'" style="left:'+p.x+'%;top:'+p.y+'%" role="img" aria-label="'+esc(char(c).name)+'">'+pic(c)+'<span>'+esc(char(c).name)+'</span></div>';
+    const p=at(c,i),name=char(c)?.name||c.replaceAll('_',' ');return '<div class="world-object world-friend" data-world-object="'+c+'" style="left:'+p.x+'%;top:'+p.y+'%" role="img" aria-label="'+esc(name)+'">'+pic(c)+'<span>'+esc(name)+'</span></div>';
   }).join('');
   const friendArt=companionsHere.map((c,i)=>{
     const p=at('companion:'+c.id,residents.length+i);
