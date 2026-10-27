@@ -167,8 +167,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
      const done=a.completedLevelIds.includes(l.id),unlocked=l.number<=a.highestUnlockedLevel;
      return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" '+(unlocked?'':'disabled')+
        ' aria-label="Candy maze '+(k+1)+': '+candyNames[k]+(done?', completed':unlocked?', play':', locked')+'">'+
-       '<span class="lab-candy-status">'+(done?'⭐ DONE':unlocked?'▶ PLAY':'🔒 LOCKED')+'</span>'+
-       '<span class="lab-candy-name">'+candyNames[k].toUpperCase()+'</span></button>';
+       '</button>';
    }).join('');
    shell('Candy World',
      '<section class="lab-candy-world" aria-label="Candy World map with eight playable mazes">'+
