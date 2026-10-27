@@ -74,6 +74,14 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const objectGroups={candy:candyObjects,pirate:pirateObjects,arctic:arcticObjects,ocean:oceanObjects};
  const allWorldLabels=Object.fromEntries(Object.values(objectGroups).flat());
  const objectArtPaths=Object.fromEntries(Object.entries(objectGroups).flatMap(([world,items])=>items.map(([id])=>[id,'arrow-lab/collectibles/'+world+'/'+id+'.png'])));
+ // Until the remaining four worlds' original transparent treasure art is
+ // available, use two DISTINCT published computer-gear PNGs per maze instead
+ // of the previous zero/one objectives. Do not invent missing art URLs.
+ const fallbackGearPair=(stageIndex,legacyIds=[])=>{
+   const ids=data.computer_collectibles.map(i=>i.id);
+   const schedule=[[4,2],[3,1],[2,0],[3,4],[1,2],[1,0],[0,3],[4,1]];
+   return [...new Set([...legacyIds.filter(id=>ids.includes(id)),...schedule[stageIndex].map(i=>ids[i])])].slice(0,2);
+ };
  const pairFor=(worldIndex,stageIndex)=>{
   if(worldIndex===0)return candyObjects.slice(stageIndex*2,stageIndex*2+2).map(x=>x[0]);
   const objects=worldIndex===1?pirateObjects:worldIndex===2?arcticObjects:worldIndex===6?oceanObjects:null;
@@ -145,7 +153,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
-     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai),
+     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai)||fallbackGearPair(ai,template.computerGearIds),
      mazeGrid:{width:Math.max(11,template.mazeGrid.width),height:Math.max(9,template.mazeGrid.height)},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...enemyRosters[wi]]};
  })),config=data.game_config,key=storageKey;
@@ -651,6 +659,33 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   $('stuff-buy-world')?.addEventListener('click',homeMap);
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
+ // Non-destructive migration for existing unfinished maze saves created
+ // before two objectives were guaranteed in every world. Keep their original
+ // maze, player position, enemy patrols, collected items and rewards intact.
+ function ensureRunObjectives(run,definition){
+   const required=definition.collectibleIds||[];
+   if(!required.length||!Array.isArray(run.items))return;
+   const occupied=new Set([
+     ...run.items.map(tile),tile(run.start||{x:1,y:1}),tile(run.goal),tile(run.player),
+     ...(run.skill?[tile(run.skill)]:[]),...(run.barrier?[tile(run.barrier)]:[]),
+     ...run.hazards.flatMap(enemy=>enemy.path.map(tile))
+   ]);
+   const distance=(p,q)=>Math.abs(p.x-q.x)+Math.abs(p.y-q.y);
+   for(const id of required){
+     if(run.items.some(item=>item.id===id))continue;
+     let best=null,bestScore=-Infinity;
+     for(let y=1;y<run.h-1;y++)for(let x=1;x<run.w-1;x++){
+       const p={x,y};
+       if(run.grid[y][x]!==0||occupied.has(tile(p))||!route(run.grid,run.player,p))continue;
+       const anchors=[run.player,run.start||{x:1,y:1},run.goal,...run.items];
+       const score=Math.min(...anchors.map(q=>distance(p,q)))*100+distance(p,run.player);
+       if(score>bestScore){best=p;bestScore=score}
+     }
+     if(!best)continue; // Never discard a saved run just to add an objective.
+     run.items.push({id,x:best.x,y:best.y,collected:false});
+     occupied.add(tile(best));
+   }
+ }
  function startLevel(n,restart=false){
  clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;
  if(a.completedLevelIds.includes(def.id)&&!restart){
@@ -661,10 +696,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    return;
  }
  const old=a.mazeRuns?.[def.id]||a.activeRun;
- const valid=old&&old.id===def.id&&!old.complete&&Number.isInteger(old.w)&&old.w>=5&&Number.isInteger(old.h)&&old.h>=5&&Array.isArray(old.grid)&&old.grid.length===old.h&&old.grid.every(row=>Array.isArray(row)&&row.length===old.w)&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0&&(!def.collectibleIds||def.collectibleIds.every(id=>old.items.some(i=>i.id===id)));
+ const valid=old&&old.id===def.id&&!old.complete&&Number.isInteger(old.w)&&old.w>=5&&Number.isInteger(old.h)&&old.h>=5&&Array.isArray(old.grid)&&old.grid.length===old.h&&old.grid.every(row=>Array.isArray(row)&&row.length===old.w)&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0;
  if(restart)delete a.mazeRuns[def.id];
  report=valid&&!restart?'Welcome back! Keep going from your saved spot.':'Start at the star. Use your arrow keys.';
  r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
+ if(valid&&!restart)ensureRunObjectives(r,def);
  if(a.completedLevelIds.includes(def.id))r.rewarded=true;
  a.activeRun=r;save();maze();
  if(def.worldStage===8&&tile(r.player)===tile(r.goal)&&r.items.every(i=>i.collected)&&(!r.skill||r.skill.done)){
