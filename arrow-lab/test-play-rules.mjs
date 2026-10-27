@@ -21,12 +21,14 @@ for(const worldId of worldIds){
 }
 const patterns=Array.from({length:12},(_,i)=>arrowPattern(123,i));assert.equal(new Set(patterns.map(JSON.stringify)).size,6);assert.notDeepEqual(patterns[0],patterns[1]);
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
-const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
+const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config','computer_collectibles'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
 const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations);
 assert.equal(backgroundHomes.length,8);assert.deepEqual(backgroundHomes.map(l=>l.id),worldIds.map(id=>'background_'+id));
 assert.equal(levels.length,64,'eight worlds with eight mazes each');
 for(const def of levels){
+ assert.equal(def.collectibleIds.length,2,`${def.id} must have two objective pickups`);
+ assert.equal(new Set(def.collectibleIds).size,2,`${def.id} must have two distinct pickups`);
  assert.equal(def.enemyIds.length,4,`${def.id} must have four enemies`);
  assert.equal(new Set(def.enemyIds).size,4,`${def.id} must have four DIFFERENT enemy types`);
  assert.ok(def.mazeGrid.width>=11&&def.mazeGrid.height>=9,`${def.id} needs enough safe space for four enemies`);
@@ -75,6 +77,22 @@ assert.equal(hitSaves,1);assert.equal(hitDraws,1);
 assert.match(hitMessage,/START/,'student hears the start reset rule');
 assert.match(source,/class="enemy-direction"/,'moving bad guys show direction arrows');
 assert.match(source,/enemy-path-next/,'next planned enemy tile remains visible');
+
+const migrateObjectives=source.slice(source.indexOf(' function ensureRunObjectives('),source.indexOf(' function startLevel('));
+assert.ok(migrateObjectives.includes('run.items.push'),'old saved mazes gain missing objectives in-place');
+const reconcile=new Function('tile','route',migrateObjectives+';return ensureRunObjectives')(tile,route);
+const oldDef=levels.find(d=>d.id==='lab_space_2');
+const savedOldRun=buildLevel(oldDef,317);
+savedOldRun.items=[];savedOldRun.player={x:1,y:1};savedOldRun.checkpoint={x:3,y:3};savedOldRun.finalArrowIndex=4;
+const savedGrid=structuredClone(savedOldRun.grid),savedEnemies=structuredClone(savedOldRun.hazards);
+reconcile(savedOldRun,oldDef);
+assert.equal(savedOldRun.items.length,2,'old zero-item maze gains two objectives without rerolling');
+assert.deepEqual(savedOldRun.grid,savedGrid,'existing maze layout preserved');
+assert.deepEqual(savedOldRun.hazards,savedEnemies,'enemy positions and paths preserved');
+assert.deepEqual(savedOldRun.player,{x:1,y:1},'player position preserved');
+assert.deepEqual(savedOldRun.checkpoint,{x:3,y:3},'saved checkpoint preserved');
+assert.equal(savedOldRun.finalArrowIndex,4,'final arrow trial progress preserved');
+
 
 const css=fs.readFileSync(new URL('./visual-hotfix-20261027.css',import.meta.url),'utf8');
 const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
