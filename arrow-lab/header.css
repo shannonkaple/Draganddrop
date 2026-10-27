@@ -82,3 +82,43 @@ body>header.lab-image-header .actions button {
   background:#fffffff5!important;
   box-shadow:0 2px 8px #172c5266!important;
 }
+
+/* Four persistent controls must fit into the fixed banner on Chromebooks.
+   Do not compress the approved artwork or let bottom buttons fall offscreen. */
+body>header.lab-image-header .actions {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(95px,1fr))!important;
+  grid-auto-rows:minmax(34px,auto)!important;
+  align-content:center!important;
+  justify-items:stretch!important;
+  gap:6px!important;
+  flex-direction:unset!important;
+  min-width:0!important;
+  max-width:280px!important;
+}
+body>header.lab-image-header .actions button {
+  box-sizing:border-box!important;
+  margin:0!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:35px!important;
+  padding:6px 8px!important;
+  line-height:1.15!important;
+  font-size:clamp(11px,1vw,15px)!important;
+  white-space:normal!important;
+  border-radius:11px!important;
+}
+@media(max-width:800px){
+  body>header.lab-image-header {
+    grid-template-columns:minmax(0,1fr) minmax(154px,190px)!important;
+    gap:5px!important;
+    padding:0 6px!important;
+  }
+  body>header.lab-image-header .actions {
+    grid-template-columns:repeat(2,minmax(72px,1fr))!important;
+    gap:3px!important;
+  }
+  body>header.lab-image-header .actions button {
+    font-size:10px!important;min-height:33px!important;padding:4px 3px!important;
+  }
+}
