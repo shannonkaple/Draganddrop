@@ -517,54 +517,80 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function computer(worldId=null,section=null){
   view='computer';
+  a.hiddenDecorations??={};a.hiddenCompanions??=[];a.collectionExtraObjects??={};
   const purchased=lands.filter(l=>owned(l.id));
-  const id=purchased.some(l=>l.id===(worldId||a.collectionWorldId))?(worldId||a.collectionWorldId):(owned(a.primaryRainbowLandId)?a.primaryRainbowLandId:purchased[0]?.id);
+  const requested=worldId||a.collectionWorldId||a.primaryRainbowLandId;
+  const id=purchased.some(l=>l.id===requested)?requested:purchased[0]?.id;
   if(!id)return homeMap();
-  const allowed=['friends','decor','worlds','treasures'];
-  const tab=allowed.includes(section||a.collectionTab)?(section||a.collectionTab):'friends';
-  a.collectionWorldId=id;a.collectionTab=tab;save();
-  const found=companions.filter(c=>a.worldFriends?.[c.id]);
-  const here=found.filter(c=>a.worldFriends[c.id].homeLandId===id);
-  const props=a.decorations[id]||[];
-  const tabNav='<div class="collection-tabs" role="group" aria-label="What do you want to see or change?">'+
-    [['friends','🐾 Friends'],['decor','🌷 Decorations'],['worlds','🌍 Change World'],['treasures','⭐ Treasures']].map(([key,label])=>
-      '<button type="button" data-collection-tab="'+key+'" aria-pressed="'+(tab===key)+'">'+label+'</button>').join('')+'</div>';
-  let pane='';
-  if(tab==='friends'){
-    pane='<p class="collection-panel-description">'+here.length+' rescued world friends live here. Choose any friend to change their world.</p>'+
-      '<div class="collection-cards">'+(found.length?found.map(c=>
-        '<article class="collection-friend-card">'+companionArt(c.id)+'<div><strong>'+esc(c.name)+'</strong><small>'+esc(land(a.worldFriends[c.id].homeLandId)?.name||'My World')+'</small></div><button data-collection-move="'+c.id+'">Move Friend</button></article>'
-      ).join(''):'<p>Rescue your first friend by finishing all eight mazes in a world!</p>')+'</div>';
-  }else if(tab==='decor'){
-    pane='<p class="collection-panel-description">These '+props.length+' decorations belong to '+esc(land(id).name)+'. Drag them above to rearrange!</p>'+
-      '<div class="collection-cards">'+props.map(key=>{
-        const d=findDecoration(key);return d?'<article class="collection-mini-card">'+shopArt(d)+'<strong>'+esc(d.name)+'</strong></article>':'';
-      }).join('')+'</div><button type="button" id="collection-buy-decor" class="collection-feature-button">⭐ Shop for Decorations</button>';
+  const valid=['decor','friends','worlds','treasures'];
+  const tab=valid.includes(section)?section:valid.includes(a.collectionTab)?a.collectionTab:'decor';
+  a.collectionWorldId=id;a.collectionTab=tab;a.primaryRainbowLandId=id;save();
+  const ownedDecor=a.decorations[id]||[],rescued=companions.filter(c=>a.worldFriends?.[c.id]),treasures=a.collectedWorldItems||[];
+  let tray='';
+  if(tab==='decor'){
+    tray='<p>Choose the decorations you want to see in your world. Put them away any time. You never lose what you bought!</p>'+
+      '<div class="my-stuff-tray">'+(ownedDecor.length?ownedDecor.map(key=>{
+        const d=findDecoration(key);if(!d)return '';
+        const placed=!a.hiddenDecorations[id]?.includes(key);
+        return '<article class="my-stuff-item">'+shopArt(d)+'<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'">'+
+          (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
+      }).join(''):'<p class="my-stuff-empty">Your world is ready for decorating! Earn stars to buy decorations in the shop.</p>')+'</div>'+
+      '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Shop for Decorations</button>';
+  }else if(tab==='friends'){
+    tray='<p>Bring your rescued friends into the big scene or put them away. You can move them between purchased worlds.</p>'+
+      '<div class="my-stuff-tray">'+(rescued.length?rescued.map(c=>{
+        const here=a.worldFriends[c.id].homeLandId===id,placed=here&&!a.hiddenCompanions.includes(c.id);
+        return '<article class="my-stuff-item">'+companionArt(c.id)+'<strong>'+esc(c.name)+'</strong><button type="button" data-stuff-friend="'+c.id+'" aria-pressed="'+placed+'">'+
+          (placed?'✓ Here · Put Away':here?'＋ Add to Scene':'＋ Bring to This World')+'</button></article>';
+      }).join(''):'<p class="my-stuff-empty">When you rescue a friend, their picture will appear here for you to play with!</p>')+'</div>';
   }else if(tab==='worlds'){
-    pane='<p class="collection-panel-description">Choose which purchased world you want to view, decorate, or rearrange.</p>'+
-      '<div class="collection-cards">'+purchased.map(l=>'<button type="button" class="collection-world-option" data-collection-world="'+l.id+'" aria-pressed="'+(l.id===id)+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong></button>').join('')+'</div>'+
-      '<button type="button" id="collection-buy-world" class="collection-feature-button">⭐ Buy Another World</button>';
+    tray='<p>Here are your worlds! Click a mini world picture to switch your entire scene.</p>'+
+      '<div class="my-stuff-worlds">'+purchased.map(l=>
+        '<button class="my-stuff-world-preview" type="button" data-stuff-world="'+l.id+'" aria-pressed="'+(l.id===id)+'">'+
+          img(l.cardPreview,l.name,'my-stuff-thumb')+'<strong>'+esc(l.name)+'</strong><span>'+(l.id===id?'✓ My Current World':'Go to This World')+'</span></button>').join('')+'</div>'+
+      '<button id="stuff-buy-world" type="button" class="my-stuff-action">⭐ Get Another World</button>';
   }else{
-    const treasures=[...(a.collectedWorldItems||[])];
-    const equipment=data.computer_collectibles.filter(x=>a.collectedComputerGearIds.includes(x.id));
-    const badges=data.skill_badges.filter(x=>a.earnedSkillBadgeIds.includes(x.id));
-    pane='<p class="collection-panel-description">Your treasures and computer awards collected from completed mazes!</p>'+
-      '<div class="collection-cards">'+treasures.map(id=>'<article class="collection-mini-card">'+img(itemArt(id),itemName(id))+'<strong>'+esc(itemName(id))+'</strong></article>').join('')+
-      equipment.map(item=>'<article class="collection-mini-card">'+img(item.thumbnail||item.image,item.name)+'<strong>'+esc(item.name)+'</strong></article>').join('')+
-      badges.map(item=>'<article class="collection-mini-card">'+img(item.thumbnail||item.image,item.name)+'<strong>'+esc(item.name)+'</strong></article>').join('')+'</div>'+
-      (!treasures.length&&!equipment.length&&!badges.length?'<p>Explore a maze to find your first treasure.</p>':'');
+    tray='<p>Use the treasures you earn in mazes to decorate your world, too!</p>'+
+      '<div class="my-stuff-tray">'+(treasures.length?treasures.map(key=>{
+        const placed=(a.collectionExtraObjects[id]||[]).includes(key);
+        return '<article class="my-stuff-item">'+img(itemArt(key),itemName(key),'my-stuff-thumb')+'<strong>'+esc(itemName(key))+'</strong>'+
+          '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'">'+(placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
+      }).join(''):'<p class="my-stuff-empty">Explore the mazes and you will find treasures to display!</p>')+'</div>';
   }
-  shell('My Collections','<section class="lab-collection-page" aria-label="My Collection and Arranged World">'+
-    '<div class="collection-heading"><div><small>MY WORLD, MY FRIENDS, MY TREASURES</small><h2>'+esc(land(id).name)+'</h2></div><div class="collection-heading-actions"><button id="collection-home" type="button">🏠 HOME</button><button id="collection-edit" type="button">✋ Rearrange</button></div></div>'+
-    '<div class="collection-world-showcase">'+collectionStage(id)+'<div class="collection-world-hint" id="collection-report" role="status">Click and hold to move your friends and decorations. Their places save!</div></div>'+
-    tabNav+'<div class="collection-panel" id="collection-panel">'+pane+'</div></section>');
+  const tabs=[['decor','🌷 Decorations'],['friends','🐾 Friends'],['worlds','🌍 Change World'],['treasures','⭐ Treasures']]
+    .map(([key,label])=>'<button type="button" data-stuff-tab="'+key+'" aria-pressed="'+(key===tab)+'">'+label+'</button>').join('');
+  shell('MY STUFF','<section class="lab-collection-page my-stuff-room" aria-label="My Stuff: make and play with my world">'+
+      '<div class="my-stuff-heading"><div><small>MY WORLD • MY SCENE • MY FRIENDS</small><h2>'+esc(land(id).name)+'</h2></div>'+
+        '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
+      '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
+       '<p id="collection-report" role="status">This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!</p></div>'+
+      '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
+        '<div class="my-stuff-tabs" role="group" aria-label="What can I put in my world?">'+tabs+'</div>'+
+        '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
   enableCollectionDrag(id);
-  $('collection-home').onclick=map;$('collection-edit').onclick=()=>visit(id);
-  document.querySelectorAll('[data-collection-tab]').forEach(b=>b.onclick=()=>computer(id,b.dataset.collectionTab));
-  document.querySelectorAll('[data-collection-world]').forEach(b=>b.onclick=()=>computer(b.dataset.collectionWorld,'worlds'));
-  document.querySelectorAll('[data-collection-move]').forEach(b=>b.onclick=()=>moveCompanion(b.dataset.collectionMove));
-  $('collection-buy-decor')?.addEventListener('click',()=>{a.primaryRainbowLandId=id;save();decorShop()});
-  $('collection-buy-world')?.addEventListener('click',homeMap);
+  $('stuff-home').onclick=map;
+  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
+  document.querySelectorAll('[data-stuff-tab]').forEach(b=>b.onclick=()=>computer(id,b.dataset.stuffTab));
+  document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld,'worlds'));
+  document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
+    const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
+    if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);else hidden.push(key);
+    save();computer(id,'decor');
+  });
+  document.querySelectorAll('[data-stuff-friend]').forEach(b=>b.onclick=()=>{
+    const key=b.dataset.stuffFriend,friend=a.worldFriends?.[key];if(!friend)return;
+    const here=friend.homeLandId===id,hidden=a.hiddenCompanions.includes(key);
+    if(here&&!hidden)a.hiddenCompanions.push(key);
+    else{friend.homeLandId=id;a.hiddenCompanions=a.hiddenCompanions.filter(x=>x!==key);}
+    save();computer(id,'friends');
+  });
+  document.querySelectorAll('[data-stuff-treasure]').forEach(b=>b.onclick=()=>{
+    const key=b.dataset.stuffTreasure,active=(a.collectionExtraObjects[id]??=[]);
+    if(active.includes(key))a.collectionExtraObjects[id]=active.filter(x=>x!==key);else active.push(key);
+    save();computer(id,'treasures');
+  });
+  $('stuff-decor-shop')?.addEventListener('click',()=>{a.primaryRainbowLandId=id;save();decorShop()});
+  $('stuff-buy-world')?.addEventListener('click',homeMap);
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
  function startLevel(n,restart=false){
