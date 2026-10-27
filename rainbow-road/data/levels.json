@@ -7,8 +7,7 @@
     "backgroundImage": "/game-assets/backgrounds/rainbow_meadow_day.webp",
     "primarySkill": "arrows",
     "computerGearIds": [
-      "mouse",
-      "microscope"
+      "mouse"
     ],
     "skillBadgeIds": [],
     "enemyIds": [],
@@ -37,9 +36,7 @@
     "backgroundId": "cloud_kingdom_day",
     "backgroundImage": "/game-assets/backgrounds/cloud_kingdom_day.webp",
     "primarySkill": "click",
-    "computerGearIds": [
-      "flask"
-    ],
+    "computerGearIds": [],
     "skillBadgeIds": [
       "click"
     ],
@@ -72,8 +69,7 @@
     "backgroundImage": "/game-assets/backgrounds/candy_clouds_day.webp",
     "primarySkill": "arrows",
     "computerGearIds": [
-      "keyboard",
-      "magnet"
+      "keyboard"
     ],
     "skillBadgeIds": [],
     "enemyIds": [
@@ -105,8 +101,7 @@
     "backgroundImage": "/game-assets/backgrounds/rainbow_reef_day.webp",
     "primarySkill": "drag_and_drop",
     "computerGearIds": [
-      "trackpad",
-      "solar_panel"
+      "trackpad"
     ],
     "skillBadgeIds": [],
     "enemyIds": [
@@ -137,9 +132,7 @@
     "backgroundId": "galaxy_gardens_day",
     "backgroundImage": "/game-assets/backgrounds/galaxy_gardens_day.webp",
     "primarySkill": "double_click",
-    "computerGearIds": [
-      "wind_turbine"
-    ],
+    "computerGearIds": [],
     "skillBadgeIds": [
       "double_click"
     ],
@@ -172,8 +165,7 @@
     "backgroundImage": "/game-assets/backgrounds/star_trophy_land_day.webp",
     "primarySkill": "arrows",
     "computerGearIds": [
-      "laptop",
-      "robot_arm"
+      "laptop"
     ],
     "skillBadgeIds": [],
     "enemyIds": [
@@ -206,8 +198,7 @@
     "backgroundImage": "/game-assets/backgrounds/rainbow_meadow_twilight.webp",
     "primarySkill": "click",
     "computerGearIds": [
-      "desktop",
-      "telescope"
+      "desktop"
     ],
     "skillBadgeIds": [],
     "enemyIds": [
@@ -238,9 +229,7 @@
     "backgroundId": "cloud_kingdom_twilight",
     "backgroundImage": "/game-assets/backgrounds/cloud_kingdom_twilight.webp",
     "primarySkill": "typing",
-    "computerGearIds": [
-      "dna"
-    ],
+    "computerGearIds": [],
     "skillBadgeIds": [
       "typing"
     ],
@@ -273,9 +262,7 @@
     "backgroundId": "candy_clouds_twilight",
     "backgroundImage": "/game-assets/backgrounds/candy_clouds_twilight.webp",
     "primarySkill": "arrows",
-    "computerGearIds": [
-      "circuit_board"
-    ],
+    "computerGearIds": [],
     "skillBadgeIds": [],
     "enemyIds": [
       "lava_slime",
@@ -306,9 +293,7 @@
     "backgroundId": "rainbow_reef_twilight",
     "backgroundImage": "/game-assets/backgrounds/rainbow_reef_twilight.webp",
     "primarySkill": "drag_and_drop",
-    "computerGearIds": [
-      "printer_3d"
-    ],
+    "computerGearIds": [],
     "skillBadgeIds": [],
     "enemyIds": [
       "cranky_crab",
