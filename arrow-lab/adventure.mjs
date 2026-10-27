@@ -196,12 +196,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
  $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
- const nav=ready?(view==='map'?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="myworlds">🌍 My Worlds</button><button data-nav="computer">💻 My Collections</button></div>'):'<button id="setup-home" type="button" class="always-home">🏠 HOME</button><span class="setup-steps">First time? Choose your character!</span>';
+ const nav=ready?(view==='map'?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="computer" class="lab-my-stuff-entry">🧸 MY STUFF</button></div>'):'<button id="setup-home" type="button" class="always-home">🏠 HOME</button><span class="setup-steps">First time? Choose your character!</span>';
  $('app').innerHTML='<nav class="adventure-nav"><strong>'+esc(teacherName)+' · #'+number+' <span class="star-wallet">⭐ '+a.wallet.rainbowStars+'</span></strong>'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>{save();cleanup();onLogout()});
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play mazes to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit one you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first&&view!=='select')first.hidden=true;
  }
- function navigate(where){if(r)save();if(where==='map'||where==='stuff')map();if(where==='shop')starShop();if(where==='play')playNext();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='myworlds')myWorlds();if(where==='rescuegallery')rescuedFriends();if(where==='gifts')friendGiftShop();if(where==='decor')decorShop();if(where==='computer')computer()}
+ function navigate(where){if(r)save();if(where==='map')map();if(where==='stuff')computer();if(where==='shop')starShop();if(where==='play')playNext();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='myworlds')myWorlds();if(where==='rescuegallery')rescuedFriends();if(where==='gifts')friendGiftShop();if(where==='decor')decorShop();if(where==='computer')computer()}
  function nextLevel(){const unfinished=levels.find(l=>!a.completedLevelIds.includes(l.id)&&l.number<=a.highestUnlockedLevel);const current=a.activeRun&&!a.activeRun.complete?levels.find(l=>l.id===a.activeRun.id):null;return current||unfinished||levels[levels.length-1]}
  function playNext(){startLevel(nextLevel().number)}
  function canRescue(){return rescueReady(a)}
@@ -264,8 +264,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<div class="lab-map-title"><span>🌈 8 magical worlds · 8 mazes each</span><h2>Choose Your World!</h2><p>Follow the rainbow road. Earn stars. Unlock new lands!</p></div>'+
     '<div class="lab-map-canvas" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+nodes+'</div>'+
     '<button id="continue-adventure" type="button" class="lab-next-play">▶ PLAY NEXT <small>'+esc(now.name)+' · Maze '+next.worldStage+'</small></button>'+
-    '<nav class="lab-main-nav" aria-label="Game navigation"><button type="button" data-nav="map">🏠 <span>Home</span></button><button type="button" data-nav="shop">⭐ <span>Star Shop</span></button><button type="button" data-nav="myworlds">🌍 <span>My Worlds</span></button><button type="button" data-nav="computer">💻 <span>My Collections</span></button></nav>'+
-    '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="myworlds">My Worlds & Friends</button><button type="button" id="endless">Arrow Practice</button><button type="button" id="teacher-settings">Teacher Settings</button></details>'+
+    '<nav class="lab-main-nav" aria-label="Game navigation"><button type="button" data-nav="map">🏠 <span>Home</span></button><button type="button" data-nav="shop">⭐ <span>Star Shop</span></button><button type="button" data-nav="computer" class="lab-my-stuff-entry">🧸 <span>MY STUFF</span></button></nav>'+
+    '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="computer">🧸 MY STUFF — Make My Scene</button><button type="button" id="endless">Arrow Practice</button><button type="button" id="teacher-settings">Teacher Settings</button></details>'+
    '</section>'
   );
   $('change-player').onclick=()=>selectCharacter(true);
@@ -353,25 +353,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   view='shop';shell('Star Shop',
   '<p>Earn stars to buy worlds, decorate them, and give presents to rescued friends!</p>'+
   '<div class="home-menu shop-menu"><button data-nav="lands">'+img(backgroundHomes[0].cardPreview,'World Shop')+'<strong>🌍 Buy Worlds</strong></button>'+
-  '<button data-nav="myworlds">'+img(land(a.primaryRainbowLandId).cardPreview,'My Worlds')+'<strong>🏡 My Worlds</strong></button>'+
+  '<button data-nav="computer">'+img(land(a.primaryRainbowLandId).cardPreview,'My Stuff')+'<strong>🧸 MY STUFF</strong></button>'+
   '<button data-nav="decor">'+img('trackpad-adventure/decorations/cottage.webp','Decorations')+'<strong>🌷 Decorations</strong></button>'+
   '<button id="shop-rescued">'+img('arrow-lab/friends/candy-bunny.png','Friends')+'<strong>🐾 Rescued Friends</strong></button>'+
   '<button data-nav="friends">'+pic(a.selectedPlayerCharacterId)+'<strong>🌟 Player Upgrades</strong></button></div>');
   $('shop-rescued').onclick=rescuedFriends;
  }
- function myWorlds(){
-  view='myworlds';const purchased=lands.filter(l=>owned(l.id));
-  shell('My Worlds & Friends','<p>Visit your purchased worlds to see the decorations and friends just where you left them.</p>'+
-   '<div class="world-hub-actions"><button id="myworlds-shop">⭐ Buy a World</button><button id="myworlds-friends">🐾 Rescued Friends</button></div>'+
-   '<div class="adventure-cards land-cards">'+purchased.map(l=>{
-    const count=(a.decorations[l.id]||[]).length;
-    const friendsHere=Object.values(a.friends).filter(f=>f.homeLandId===l.id).length+Object.values(a.worldFriends||{}).filter(f=>f.homeLandId===l.id).length;
-    return '<article>'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><p>'+friendsHere+' friends · '+count+' decorations</p><button data-visit-world="'+l.id+'">🏡 Visit & Arrange</button><button data-decor-owned="'+l.id+'">🌷 Buy Decorations</button></article>';
-   }).join('')+'</div>');
-  $('myworlds-shop').onclick=homeMap;$('myworlds-friends').onclick=rescuedFriends;
-  document.querySelectorAll('[data-visit-world]').forEach(b=>b.onclick=()=>visit(b.dataset.visitWorld));
-  document.querySelectorAll('[data-decor-owned]').forEach(b=>b.onclick=()=>{a.primaryRainbowLandId=b.dataset.decorOwned;save();decorShop()});
- }
+ function myWorlds(){computer();}
  function rescuedFriends(){
   view='rescue-gallery';
   shell('My Rescued Friends','<p>Finish all 8 mazes in a world to rescue its friend.</p>'+
@@ -442,14 +430,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function homeMap(){
   view='lands';shell('World Shop','<p>Buy a whole world to visit, arrange, decorate, and share with rescued friends. Maze worlds unlock through play, not spending stars.</p>'+
-   '<div class="world-hub-actions"><button id="shop-owned-worlds">🏡 My Worlds</button><strong>⭐ '+a.wallet.rainbowStars+'</strong></div>'+
+   '<div class="world-hub-actions"><button id="shop-owned-worlds">🧸 MY STUFF</button><strong>⭐ '+a.wallet.rainbowStars+'</strong></div>'+
    '<div class="adventure-cards land-cards">'+backgroundHomes.map(w=>{
      const has=owned(w.id),price=worldCosts[lands.indexOf(w)];
      return '<article>'+img(w.cardPreview,w.name)+'<strong>'+esc(w.name)+'</strong><p>'+(has?'✓ Owned':'⭐ '+price+' stars')+'</p>'+
       '<button data-world-to-buy="'+w.id+'" '+(!has&&a.wallet.rainbowStars<price?'disabled':'')+'>'+(has?'Visit World':'Buy World')+'</button></article>';
    }).join('')+'</div>');
-  $('shop-owned-worlds').onclick=myWorlds;
-  document.querySelectorAll('[data-world-to-buy]').forEach(b=>b.onclick=()=>{if(buyHome(b.dataset.worldToBuy))visit(b.dataset.worldToBuy)});
+  $('shop-owned-worlds').onclick=()=>computer();
+  document.querySelectorAll('[data-world-to-buy]').forEach(b=>b.onclick=()=>{if(buyHome(b.dataset.worldToBuy))computer(b.dataset.worldToBuy,"worlds")});
  }
  function visit(id,newFriend=null){
  if(!owned(id)){homeMap();return}a.primaryRainbowLandId=id;save();view='land';const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c].homeLandId===id),props=a.decorations[id]||[],worldResidents=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id);
@@ -479,8 +467,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
 
  function collectionStage(id){
   const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c].homeLandId===id);
-  const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id);
-  const goods=a.decorations[id]||[],positions=a.positions[id]||{};
+  const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
+  const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
+  const treasureGoods=a.collectionExtraObjects?.[id]||[];
+  const positions=a.positions[id]||{};
   const at=(key,i)=>positions[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
   const personArt=residents.map((c,i)=>{
     const p=at(c,i);return '<div class="world-object world-friend" data-world-object="'+c+'" style="left:'+p.x+'%;top:'+p.y+'%" role="img" aria-label="'+esc(char(c).name)+'">'+pic(c)+'<span>'+esc(char(c).name)+'</span></div>';
@@ -495,8 +485,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const p=at('decor:'+d,residents.length+companionsHere.length+i);
     return '<div class="world-object world-prop" data-world-object="decor:'+d+'" style="left:'+p.x+'%;top:'+p.y+'%" role="img" aria-label="'+esc(item.name)+'">'+shopArt(item)+'</div>';
   }).join('');
+  const treasureArt=treasureGoods.map((key,i)=>{const p=at('treasure:'+key,residents.length+companionsHere.length+goods.length+i);
+    return '<div class="world-object world-prop" data-world-object="treasure:'+key+'" role="img" aria-label="Move '+esc(itemName(key))+'" style="left:'+p.x+'%;top:'+p.y+'%">'+img(itemArt(key),itemName(key),'shop-decoration')+'</div>';
+  }).join('');
   const picture=id.startsWith('background_')?l.homeBackground:(backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.homeBackground||l.homeBackground);
-  return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+personArt+friendArt+decorArt+'</div>';
+  return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+personArt+friendArt+decorArt+treasureArt+'</div>';
  }
  function enableCollectionDrag(id){
   const scene=$('collection-scene');if(!scene)return;let drag=null;
@@ -719,7 +712,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const id=pendingWorldRescue(a);if(!id){map();return}const c=companion(id);view='rescue';
  shell('You rescued '+c.name+'!','<p>You finished all 8 '+worldThemes[companions.indexOf(c)].name+' mazes! Choose a world for '+c.name+'.</p><div class="placing-friend">'+companionArt(id)+'</div><div class="adventure-cards land-cards">'+lands.filter(l=>owned(l.id)).map(l=>'<button data-companion-home="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong></button>').join('')+'</div><button id="rescue-background-shop">Buy a World</button>');
  $('rescue-background-shop').onclick=homeMap;
- document.querySelectorAll('[data-companion-home]').forEach(b=>b.onclick=()=>{if(rescueWorld(a,id,b.dataset.companionHome)){save();sound();visit(b.dataset.companionHome)}});
+ document.querySelectorAll('[data-companion-home]').forEach(b=>b.onclick=()=>{if(rescueWorld(a,id,b.dataset.companionHome)){save();sound();computer(b.dataset.companionHome,"friends")}});
  }
  function teacher(){
  const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label>Challenge <select id="set-difficulty"><option value="standard">Standard</option><option value="gentle">Gentle · no obstacles</option></select></label><label>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show hints'],['sound','Celebration sound'],['reducedMotion','Reduce motion']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
