@@ -182,8 +182,8 @@ assert.match(css,/max-height:calc\(100dvh - 24px\)/,'dialogs scroll inside the v
 assert.match(css,/\.dialog-toolbar\{/,'popup navigation stays visible while content scrolls');
 assert.match(css,/\.dialog-content\{/,'popup content has independent safe sizing');
 assert.match(css,/body>header\.lab-image-header \.actions\{[\s\S]*?flex-flow:row wrap!important/,'header controls wrap rather than disappear');
-assert.match(html,/visual-hotfix-20261027\.css\?v=dialog-structure-20261027h/,'published page references new popup styles');
-assert.match(html,/game\.mjs\?v=two-pickups-20261027i/,'published page references new game module');
+assert.match(html,/visual-hotfix-20261027\.css\?v=restore-characters-20261027b/,'published page references updated popup and placeholder styles');
+assert.match(html,/game\.mjs\?v=restore-characters-20261027b/,'published page references new game module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
