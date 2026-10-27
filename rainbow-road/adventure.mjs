@@ -52,7 +52,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   flashRescue();
  }
  function selectCharacter(changing=false){
- view='select';shell('Pick your player','<p>Who will you be? Click one picture. Rescue friends to unlock more players.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+(changing?chars.filter(c=>a.friends[c.id]):chars).map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
+ view='select';shell('Pick your player','<p>Choose any character! Your rescued friends are saved separately in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+chars.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});
  const choices=[...document.querySelectorAll('[data-hero]')];
  if(choices.length>8){
