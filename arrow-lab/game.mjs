@@ -43,7 +43,7 @@ function pickNumber(teacher){
 }
 async function launchAdventure(){adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
 function play(){document.body.classList.add('playing');$('who').classList.remove('hidden');$('app').innerHTML='<div class="row" style="margin-bottom:16px"><span class="pill" id="road-level"></span><span class="small">'+esc(identity.teacherName)+' · #'+identity.number+'</span><span class="pill">'+gem+' <span id="wallet"></span></span></div><div class="play-layout"><section><div class="board-wrap"><div id="maze" class="maze" role="img" aria-label="Rainbow maze. Start at the star and finish at the checkered flag."></div></div><p class="caption" id="status" role="status">Find the flag. Look, choose, press and release, check.</p></section><aside class="side"><section class="panel"><h3>Use your keys</h3><div class="keypad" aria-label="Keyboard arrow layout"><div class="key up" id="ArrowUp">↑</div><div class="key left" id="ArrowLeft">←</div><div class="key down" id="ArrowDown">↓</div><div class="key right" id="ArrowRight">→</div></div><p>One press. One move.<br>Let the key come up.</p><p class="small">Use your keyboard. Touching the screen does not move the rider.</p></section><section class="panel"><h3>My Arrow Amethysts</h3><div class="stat" id="gem-total"></div><p id="finished" class="small"></p><button id="rescue-friends" class="small">Rescue friends</button></section><div class="actions tools"><button id="reset" class="small">Back to the star</button><button id="full" class="small">Full screen</button></div></aside></div><p class="footnote" id="storage-note"></p>';
- $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0;save();board();$('status').textContent='Back at the star. Try your route again.'};$('full').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.().catch(()=>{})};board();stats();requestAnimationFrame(fitMaze);}
+ $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0;save();board();$('status').textContent='Back at the star. Try your route again.'};$('full').onclick=()=>window.arrowLabToggleFullscreen();board();stats();requestAnimationFrame(fitMaze);}
 function fitMaze(){document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||window.innerHeight)+'px');if(!run||!$('maze'))return;const box=document.querySelector('.board-wrap');if(!box)return;const viewport=window.visualViewport?.height||window.innerHeight,caption=document.getElementById('status')?.getBoundingClientRect().height||30,foot=document.getElementById('storage-note')?.getBoundingClientRect().height||20;const availableH=Math.min(box.clientHeight-24,viewport-box.getBoundingClientRect().top-caption-foot-58);const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/run.w,availableH/run.h)));$('maze').style.width=(size*run.w)+'px';$('maze').style.height=(size*run.h)+'px';}
 window.addEventListener('resize',()=>requestAnimationFrame(fitMaze));window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitMaze));document.addEventListener('fullscreenchange',()=>requestAnimationFrame(fitMaze));
 if('ResizeObserver'in window)new ResizeObserver(()=>requestAnimationFrame(fitMaze)).observe(document.getElementById('app'));
@@ -58,18 +58,34 @@ function syncFullscreenButton(){
   fullscreenButton.textContent=active?'⛶ Exit Full Screen':'⛶ Full Screen';
   fullscreenButton.setAttribute('aria-pressed',String(active));
   fullscreenButton.setAttribute('aria-label',active?'Exit full screen':'Enter full screen');
-  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+  requestAnimationFrame(()=>{
+    window.dispatchEvent(new Event('resize'));
+    window.visualViewport?.dispatchEvent?.(new Event('resize'));
+  });
 }
-fullscreenButton.onclick=async()=>{
+async function toggleArrowLabFullscreen(){
   try{
-    if(document.fullscreenElement)await document.exitFullscreen();
-    else await document.documentElement.requestFullscreen();
+    if(document.fullscreenElement){
+      if(typeof document.exitFullscreen==='function') await document.exitFullscreen();
+      else throw new Error('The browser does not support exiting full screen.');
+    }else{
+      const element=document.documentElement;
+      if(typeof element.requestFullscreen!=='function')throw new Error('Full Screen API unavailable.');
+      // Invoke requestFullscreen directly from the physical trackpad click.
+      await element.requestFullscreen();
+    }
   }catch(error){
-    fullscreenButton.title='Full screen is not available in this browser.';
+    const message='Browser full screen was blocked. Click this button in the full browser tab, or press F11 on your Chromebook/keyboard.';
+    alert(message);
   }
   syncFullscreenButton();
-};
+}
+window.arrowLabToggleFullscreen=toggleArrowLabFullscreen;
+fullscreenButton.addEventListener('click',toggleArrowLabFullscreen);
 document.addEventListener('fullscreenchange',syncFullscreenButton);
+document.addEventListener('fullscreenerror',()=>{
+  fullscreenButton.title='Full screen was blocked by your browser.';
+});
 $('global-home').onclick=()=>{
  if(adventureActive&&adventureController?.goHome){adventureController.goHome();return}
  if(identity){
