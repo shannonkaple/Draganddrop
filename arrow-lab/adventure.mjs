@@ -516,15 +516,19 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // A playroom, not four inventory pages: show every usable object together.
   // The old collectionTab is left intact for save compatibility, but never gates the tray.
   a.collectionWorldId=id;a.primaryRainbowLandId=id;save();
-  const ownedDecor=a.decorations[id]||[];
+  // The playroom tray is a student's complete inventory, not just the items in this world.
+  // Keep the legacy per-world decoration arrays so old saves and arrangements survive.
+  const ownedDecor=[...new Set(Object.values(a.decorations||{}).flat())];
   const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
   const treasures=[...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])])];
   const decorationCards=ownedDecor.map(key=>{
     const d=findDecoration(key);if(!d)return '';
-    const placed=!a.hiddenDecorations[id]?.includes(key);
+    const here=(a.decorations[id]||[]).includes(key);
+    const placed=here&&!a.hiddenDecorations[id]?.includes(key);
+    const elsewhere=!here&&Object.entries(a.decorations||{}).some(([world,items])=>world!==id&&items.includes(key));
     return '<article class="my-stuff-item" data-stuff-kind="decoration">'+shopArt(d)+
       '<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'">'+
-      (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
+      (placed?'✓ In Scene · Put Away':elsewhere?'＋ Move to This World':'＋ Add to Scene')+'</button></article>';
   }).join('');
   const friendCards=rescued.map(c=>{
     const here=a.worldFriends[c.id].homeLandId===id;
@@ -563,11 +567,30 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   $('stuff-home').onclick=map;
   $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
   // Keep the tray in view after adding/putting away several objects in a row.
-  const refresh=()=>{const y=$('app').scrollTop;computer(id);$('app').scrollTop=y;};
+  const refresh=()=>{
+    const appScroll=$('app').scrollTop, pageScroll=window.scrollY;
+    computer(id);
+    $('app').scrollTop=appScroll;
+    // Depending on Chromebook viewport, either the page or the app is scrollable.
+    window.scrollTo(0,pageScroll);
+    requestAnimationFrame(()=>{$('app').scrollTop=appScroll;window.scrollTo(0,pageScroll)});
+  };
   document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld,'worlds'));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
-    if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);else hidden.push(key);
+    if((a.decorations[id]||[]).includes(key)){
+      if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);
+      else hidden.push(key);
+    }else{
+      // Move one purchased item, without charging stars, duplicating it or clearing other saves.
+      const from=Object.keys(a.decorations||{}).find(world=>world!==id&&a.decorations[world]?.includes(key));
+      if(!from)return;
+      a.decorations[from]=a.decorations[from].filter((item,index)=>item!==key||index!==a.decorations[from].indexOf(key));
+      if(a.hiddenDecorations[from])a.hiddenDecorations[from]=a.hiddenDecorations[from].filter(item=>item!==key);
+      if(a.positions[from])delete a.positions[from]['decor:'+key];
+      (a.decorations[id]??=[]).push(key);
+      a.hiddenDecorations[id]=hidden.filter(item=>item!==key);
+    }
     save();refresh();
   });
   document.querySelectorAll('[data-stuff-friend]').forEach(b=>b.onclick=()=>{
