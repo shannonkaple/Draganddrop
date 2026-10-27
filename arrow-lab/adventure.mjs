@@ -706,6 +706,6 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(settings.costs)config.progression.upgradeCost={...settings.costs};
  $('help').onclick=()=>{const t='Start at the star. Use your keyboard arrows. Press and release to move one space. Collect your computer equipment. Follow the arrows at each arrow stop. Hold the space bar to duck under a striped bridge. Finish at the checkered flag.';if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;speechSynthesis.speak(u)}else alert(t)};
  if(!a.selectedPlayerCharacterId)selectCharacter();else if(canRescue())continueRescue();else map();
- return {cleanup,goHome:()=>{challengeKeys=null;$('adventure-dialog')?.close();map()}};
+ return {cleanup,goHome:()=>{challengeKeys=null;$('adventure-dialog')?.close();if(a.selectedPlayerCharacterId)map();else{cleanup();onLogout()}}};
 }
 
