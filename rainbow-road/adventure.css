@@ -189,3 +189,5 @@ body.adventure-mode:has(.aa-home){
 .friend-collection article{padding:10px;border:3px solid #7bbcf3;border-radius:17px;text-align:center;background:#effaff}
 .friend-collection article img{height:108px;width:100%;object-fit:contain}
 .friend-collection article p{margin:4px}
+
+.aa-bottom-menu .aa-new-stem{display:block;font:12px VAG,Arial,sans-serif;line-height:1.1;background:#ffd600;color:#102b67;padding:3px 8px;border-radius:99px;margin-top:4px}
