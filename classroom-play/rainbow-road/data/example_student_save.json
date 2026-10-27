@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "studentId": "APP_DEFINED_ANONYMOUS_STUDENT_KEY",
+  "homeroomId": "EXISTING_CLASS_IDENTIFIER",
+  "selectedPlayerCharacterId": "astro_ace",
+  "primaryRainbowLandId": "rainbow_meadow",
+  "unlockedCharacterIds": [
+    "astro_ace"
+  ],
+  "friends": {
+    "astro_ace": {
+      "isRescued": true,
+      "upgradeStage": "starter",
+      "homeLandId": "rainbow_meadow"
+    }
+  },
+  "completedLevelIds": [
+    "level_01"
+  ],
+  "highestUnlockedLevel": 2,
+  "wallet": {
+    "rainbowStars": 3
+  },
+  "lifetimeStarsEarned": 3,
+  "collectedComputerGearIds": [
+    "mouse"
+  ],
+  "earnedSkillBadgeIds": [],
+  "settings": {
+    "soundEnabled": false,
+    "reducedMotion": false
+  }
+}

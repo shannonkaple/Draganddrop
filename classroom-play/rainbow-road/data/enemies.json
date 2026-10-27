@@ -1,0 +1,82 @@
+[
+  {
+    "id": "storm_cloud",
+    "name": "Grumble Cloud",
+    "image": "/game-assets/enemies/storm_cloud_512.png",
+    "thumbnail": "/game-assets/enemies/storm_cloud_256.png",
+    "behavior": "static_or_patrol",
+    "description": "Blocks the path; later drifts slowly side to side",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  },
+  {
+    "id": "purple_slime",
+    "name": "Wobble Slime",
+    "image": "/game-assets/enemies/purple_slime_512.png",
+    "thumbnail": "/game-assets/enemies/purple_slime_256.png",
+    "behavior": "slow_patrol",
+    "description": "Wobbles across open corridors",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  },
+  {
+    "id": "cranky_crab",
+    "name": "Cranky Crab",
+    "image": "/game-assets/enemies/cranky_crab_512.png",
+    "thumbnail": "/game-assets/enemies/cranky_crab_256.png",
+    "behavior": "side_to_side",
+    "description": "Walks left and right across a corridor",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  },
+  {
+    "id": "prickly_cactus",
+    "name": "Prickly Pete",
+    "image": "/game-assets/enemies/prickly_cactus_512.png",
+    "thumbnail": "/game-assets/enemies/prickly_cactus_256.png",
+    "behavior": "stationary",
+    "description": "A stationary spiky maze block",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  },
+  {
+    "id": "rock_golem",
+    "name": "Rumble Rock",
+    "image": "/game-assets/enemies/rock_golem_512.png",
+    "thumbnail": "/game-assets/enemies/rock_golem_256.png",
+    "behavior": "stationary_or_patrol",
+    "description": "Blocks narrow routes; later takes a few steps",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  },
+  {
+    "id": "lava_slime",
+    "name": "Lava Blob",
+    "image": "/game-assets/enemies/lava_slime_512.png",
+    "thumbnail": "/game-assets/enemies/lava_slime_256.png",
+    "behavior": "slow_patrol",
+    "description": "Creates a short slow-moving hazard path",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  },
+  {
+    "id": "whirly_tornado",
+    "name": "Whirly Wind",
+    "image": "/game-assets/enemies/whirly_tornado_512.png",
+    "thumbnail": "/game-assets/enemies/whirly_tornado_256.png",
+    "behavior": "loop_patrol",
+    "description": "Moves on a slow predictable loop",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  },
+  {
+    "id": "chomper_plant",
+    "name": "Chomper Plant",
+    "image": "/game-assets/enemies/chomper_plant_512.png",
+    "thumbnail": "/game-assets/enemies/chomper_plant_256.png",
+    "behavior": "stationary",
+    "description": "Blocks a tile and gently opens and closes mouth",
+    "contactRule": "return_to_checkpoint",
+    "combat": false
+  }
+]

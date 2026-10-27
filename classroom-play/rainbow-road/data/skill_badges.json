@@ -1,0 +1,38 @@
+[
+  {
+    "id": "click",
+    "name": "Click Skill",
+    "image": "/game-assets/collectibles/skills/click_512.png",
+    "thumbnail": "/game-assets/collectibles/skills/click_256.png",
+    "type": "skill_badge",
+    "miniChallenge": "Click one glowing target once",
+    "requiredForFinale": true
+  },
+  {
+    "id": "double_click",
+    "name": "Double Click Skill",
+    "image": "/game-assets/collectibles/skills/double_click_512.png",
+    "thumbnail": "/game-assets/collectibles/skills/double_click_256.png",
+    "type": "skill_badge",
+    "miniChallenge": "Double-click one target within a generous time window",
+    "requiredForFinale": true
+  },
+  {
+    "id": "typing",
+    "name": "Typing Skill",
+    "image": "/game-assets/collectibles/skills/typing_512.png",
+    "thumbnail": "/game-assets/collectibles/skills/typing_256.png",
+    "type": "skill_badge",
+    "miniChallenge": "Type a short displayed word or letter sequence",
+    "requiredForFinale": true
+  },
+  {
+    "id": "arrows",
+    "name": "Arrow Keys Skill",
+    "image": "/game-assets/collectibles/skills/arrows_512.png",
+    "thumbnail": "/game-assets/collectibles/skills/arrows_256.png",
+    "type": "skill_badge",
+    "miniChallenge": "Move through a short maze using arrow keys",
+    "requiredForFinale": true
+  }
+]
