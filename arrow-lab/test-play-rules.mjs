@@ -31,6 +31,19 @@ for(const def of levels){
  assert.equal(new Set(def.enemyIds).size,4,`${def.id} must have four DIFFERENT enemy types`);
  assert.ok(def.mazeGrid.width>=11&&def.mazeGrid.height>=9,`${def.id} needs enough safe space for four enemies`);
 }
+
+assert.match(source,/my-stuff-world-quickstrip/,'MY STUFF shows owned world previews beneath the scene without opening a separate page');
+assert.match(source,/const decorationCards=ownedDecor\.map/,'MY STUFF shows all owned world decorations');
+assert.match(source,/const friendCards=rescued\.map/,'MY STUFF shows all rescued friends');
+assert.match(source,/const treasureCards=treasures\.map/,'MY STUFF shows all earned treasures');
+assert.match(source,/decorationCards\+friendCards\+treasureCards/,'MY STUFF shows everything together in one tray');
+assert.match(source,/collectedComputerGearIds\|\|\[\]/,'computer equipment is available to decorate the scene');
+assert.match(source,/earnedSkillBadgeIds\|\|\[\]/,'earned skill badges are available to decorate the scene');
+assert.doesNotMatch(source,/data-stuff-tab/,'no hidden collection category tabs should interrupt scene play');
+assert.match(source,/const refresh=\(\)=>\{const y=\$\('app'\)\.scrollTop;computer\(id\);\$\('app'\)\.scrollTop=y;/,'adding several items preserves tray scroll position');
+assert.match(source,/hiddenDecorations/,'students can put decorations away without losing purchases');
+assert.match(source,/hiddenCompanions/,'students can put friends away without losing rescues');
+assert.match(source,/collectionExtraObjects/,'students can add or put away earned items without losing progress');
 assert.match(source,/const starterWorldId='background_candy'/,'every new student gets a free starter world');
 assert.match(source,/if\(!a\.selectedPlayerCharacterId\)selectCharacter\(\)/,'first-time student must choose a character');
 assert.match(source,/if\(!changing\)enterWithStarterWorld\(\)/,'first-time character choice goes straight to starter world');
