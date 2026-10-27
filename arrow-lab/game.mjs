@@ -52,6 +52,15 @@ function board(){const m=$('maze');m.style.setProperty('--w',run.w);m.style.setP
 function showWin(earned=true){$('earned').innerHTML=gem+(earned?' +5 Arrow Amethysts!':'This maze is already finished.')+'<br>You have '+wallet.total+' Arrow Amethysts.';if(!$('win').open)$('win').showModal();}
 function next(){if(!run?.complete)return;$('win').close();run=nextRun(run);save();board();$('status').textContent='New maze! Start at the star and find the flag.';}
 function openShop(){$('shop-items').innerHTML=colors.map(c=>'<button data-color="'+c.id+'"><span class="swatch" style="background:'+c.hex+'"></span>'+c.name+'<br><span class="small">'+(wallet.color===c.id?'Using now':wallet.owned.includes(c.id)?'Choose this color':c.cost+' Arrow Amethysts')+'</span></button>').join('');document.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{const c=colors.find(c=>c.id===b.dataset.color);if(!wallet.owned.includes(c.id)){if(wallet.total<c.cost){$('shop-note').textContent='Keep exploring! Finish more mazes to unlock this color.';return}wallet.total-=c.cost;wallet.owned.push(c.id)}wallet.color=c.id;save();board();$('shop-note').textContent=c.name+' is ready!';openShop()});if(!$('shop').open)$('shop').showModal();}
+$('global-home').onclick=()=>{
+ if(adventureActive&&adventureController?.goHome){adventureController.goHome();return}
+ if(identity){
+   for(const id of ['win','shop','characters'])document.getElementById(id)?.close?.();
+   if(!adventureActive)launchAdventure();
+   return;
+ }
+ login();
+};
 $('close-shop').onclick=()=>$('shop').close();$('next').onclick=next;$('win').addEventListener('cancel',e=>{e.preventDefault();next()});$('who').onclick=()=>{save();login()};
 document.addEventListener('keydown',e=>{if(adventureActive||!run)return;if($('win').open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)next()}else if(e.key.startsWith('Arrow'))e.preventDefault();return}if($('shop').open||$('characters')?.open)return;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();if(e.repeat)return;const keyEl=$(e.key);keyEl?.classList.add('on');setTimeout(()=>keyEl?.classList.remove('on'),150);const r=step(run,e.key);if(r.moved){if(run.trail.length>500)run.trail=run.trail.slice(-500);if(r.won)wallet=awardWallet(wallet);save();board();$('status').textContent=r.won?'You reached the checkered flag!':'You moved '+e.key.slice(5).toLowerCase()+'.';if(r.won)showWin()}else $('status').textContent='There is a wall. Stop, look, and try another arrow.';});
 const legacyHelp=()=>{const t='Start at the star. Use the four arrow keys on your keyboard. Up, down, left, right. Press and let go to move one space. Follow the rainbow road to the checkered flag. Each maze earns five Arrow Amethysts. There is no timer. Take your time.';if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;speechSynthesis.speak(u)}else alert(t)};$('help').onclick=legacyHelp;
