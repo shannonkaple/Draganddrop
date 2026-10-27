@@ -116,7 +116,10 @@ function openCampaignWorld(i){
 }
 function worldLevelMap(){
  const c=campaign(state),w=adventureWorlds[c.current],finished=c.completed[c.current]===8;
- const centers=[[14,37],[37,37],[60,37],[83,37],[14,74],[37,74],[60,74],[83,74]];
+ // Original Candy map: measured circle centers in 2048 x 682 image pixels.
+ const centers=w.id==='candy'
+  ? [[136,283],[425,365],[679,477],[809,287],[1096,388],[1431,351],[1724,475],[1891,252]].map(([x,y])=>[x/2048*100,y/682*100])
+  : [[14,37],[37,37],[60,37],[83,37],[14,74],[37,74],[60,74],[83,74]];
  // Only transparent HTML hotspots sit over the eight EMPTY circles in the JPEG.
  const buttons=centers.map(([x,y],i)=>{
   const status=activityStatus(state,c.current,i);
@@ -130,8 +133,8 @@ function worldLevelMap(){
   <span class="world-map-reward ${finished?'earned':''}" aria-label="${esc(w.companion)}, ${finished?'rescued':'rescued after the eighth level'}">${w.companionIcon}</span>
   <span class="world-map-stars" aria-label="${state.stars} stars">⭐ ${state.stars}</span>
  </div>
- <div class="world-map-art" role="group" aria-label="Eight blank level circles in ${w.name}">
-  <img class="map-jpeg-backdrop" src="${mapPath(w)}" alt="" draggable="false">${buttons}
+ <div class="world-map-art ${w.id==='candy'?'candy-source-map':''}" role="group" aria-label="Eight blank level circles in ${w.name}">
+  <img class="map-jpeg-backdrop" src="${w.id==='candy'?'trackpad-adventure/maps/candy-original.png?v=20261027-exact':mapPath(w)}" alt="" draggable="false">${buttons}
  </div></section>`);
  $('#back-worlds').onclick=home;
  app.querySelectorAll('[data-campaign-level]').forEach(b=>b.onclick=()=>startCampaignActivity(Number(b.dataset.campaignLevel)));

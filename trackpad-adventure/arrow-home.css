@@ -286,3 +286,26 @@ body:has(.arrow-style-home) .game-menu button{min-height:41px}
  .world-map-reward{font-size:23px}
  .arrow-style-home{width:100%!important}
 }
+
+
+/* Original user-provided 2048x682 Candy map. Keep the artwork completely intact.
+   Transparent HTML hotspots use the very same image coordinate space. */
+.campaign-level-screen .world-map-art.candy-source-map{
+ aspect-ratio:2048 / 682!important;
+ height:auto!important;min-height:0!important;
+ width:100%!important;background:none!important;
+}
+.campaign-level-screen .world-map-art.candy-source-map > img.map-jpeg-backdrop{
+ aspect-ratio:2048 / 682!important;width:100%!important;
+ height:auto!important;object-fit:contain!important;
+}
+.campaign-level-screen .world-map-art.candy-source-map > .world-map-hotspot{
+ width:6.5%!important;height:auto!important;
+ aspect-ratio:1 / 1!important;border:0!important;
+ padding:0!important;background:transparent!important;box-shadow:none!important;
+}
+/* Hide every visible button label and decorative marker; screen readers keep aria-labels. */
+.campaign-level-screen .world-map-art.candy-source-map .world-map-hotspot::before,
+.campaign-level-screen .world-map-art.candy-source-map .world-map-hotspot::after{
+ display:none!important;content:none!important;
+}
