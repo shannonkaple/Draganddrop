@@ -39,7 +39,17 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  function nextLevel(){const unfinished=levels.find(l=>!a.completedLevelIds.includes(l.id)&&l.number<=a.highestUnlockedLevel);const current=a.activeRun&&!a.activeRun.complete?levels.find(l=>l.id===a.activeRun.id):null;return current||unfinished||levels[11]}
  function playNext(){startLevel(nextLevel().number)}
  function canRescue(){return rescueReady(a)&&chars.some(c=>!a.friends[c.id])}
- function continueRescue(){if(!canRescue()){map();return}if(a.pendingRescueFriendId)place(a.pendingRescueFriendId,true);else rescue()}
+ function continueRescue(){
+  if(!canRescue()){map();return}
+  const available=chars.filter(c=>!a.friends[c.id]);
+  if(!available.length){map();return}
+  if(!a.pendingRescueFriendId||a.friends[a.pendingRescueFriendId]){
+    // Stable selection saved before the flash challenge; children cannot choose or reroll friends.
+    a.pendingRescueFriendId=available[(a.rescuedAtLevelIds?.length||0)%available.length].id;
+    save();
+  }
+  flashRescue();
+ }
  function selectCharacter(changing=false){
  view='select';shell('Pick your player','<p>Who will you be? Click one picture. Rescue friends to unlock more players.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+(changing?chars.filter(c=>a.friends[c.id]):chars).map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});if(changing)$('cancel-player').onclick=map;
@@ -53,18 +63,18 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   view='map';
   const next=nextLevel();
   const resume=a.activeRun&&!a.activeRun.complete&&a.activeRun.id===next.id;
-  const remaining=Math.max(0,3-a.mazesSinceRescue);
+  const remaining=Math.max(0,5-a.mazesSinceRescue);
   const playerId=a.selectedPlayerCharacterId;
   const hasMoreFriends=chars.some(c=>!a.friends[c.id]);
-  const progressLabel=canRescue()?'A new friend is ready!':hasMoreFriends?(remaining+' more '+(remaining===1?'maze':'mazes')+' to your next friend'):'All 8 friends rescued!';
-  const rescueAction=canRescue()?'<button id="ready-rescue" class="aa-rescue-button">🐾 Rescue Friend</button>':'';
+  const progressLabel=canRescue()?'A new friend is ready!':hasMoreFriends?(remaining+' more '+(remaining===1?'maze':'mazes')+' to your next friend'):'All '+chars.length+' friends rescued!';
+  const rescueAction=canRescue()?'<button id="ready-rescue" class="aa-rescue-button">⚡ HELP rescue a friend!</button>':'';
   const allLevels=levels.map(l=>'<button data-level="'+l.number+'" '+(l.number>a.highestUnlockedLevel?'disabled':'')+'>'+img(l.backgroundImage,l.title)+'<strong>Maze '+l.number+'</strong><span>'+(a.completedLevelIds.includes(l.id)?'✓ Play again':l.number>a.highestUnlockedLevel?'🔒 Locked':'▶ Play')+'</span></button>').join('');
   const worldName=esc(land(a.primaryRainbowLandId)?.name||'Rainbow Sky');
   const path='<svg class="aa-rainbow-path" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="aa-colors" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#fa66c5"/><stop offset=".2" stop-color="#ad6bf7"/><stop offset=".4" stop-color="#4bc9ff"/><stop offset=".6" stop-color="#7ade70"/><stop offset=".8" stop-color="#ffe265"/><stop offset="1" stop-color="#ffab60"/></linearGradient></defs><path d="M -90 465 C 190 550 310 410 475 400 S 720 340 615 253 S 760 95 1090 130" stroke="#fff8" stroke-width="94" fill="none" stroke-linecap="round"/><path d="M -90 465 C 190 550 310 410 475 400 S 720 340 615 253 S 760 95 1090 130" stroke="url(#aa-colors)" stroke-width="72" fill="none" stroke-linecap="round"/><path d="M -90 465 C 190 550 310 410 475 400 S 720 340 615 253 S 760 95 1090 130" stroke="#fff9" stroke-width="4" stroke-dasharray="6 16" fill="none" stroke-linecap="round"/></svg>';
   shell('My Adventure Home','<section class="aa-home" aria-label="Rainbow maze adventure home">'+path+
    '<div class="aa-clouds" aria-hidden="true"><span>⭐</span><span>✨</span><span>⭐</span></div>'+
    '<div class="aa-player-card">'+pic(playerId)+'<div class="aa-character-info"><span class="aa-mini-label">MY CHARACTER</span><h2>'+esc(char(playerId).name)+'</h2><span class="aa-level-pill">'+esc(currentStage(playerId))+'</span><button id="change-player" class="aa-change-player">Change Character ›</button></div></div>'+
-   '<div class="aa-quest"><div><span class="aa-mini-label">NEXT FRIEND</span><p>'+esc(progressLabel)+'</p><div class="aa-progress" role="progressbar" aria-valuemin="0" aria-valuemax="3" aria-valuenow="'+a.mazesSinceRescue+'"><span style="width:'+(a.mazesSinceRescue/3*100)+'%"></span></div><small>'+Math.min(3,a.mazesSinceRescue)+' / 3 mazes</small></div><div class="aa-friend-silhouette" aria-hidden="true">'+(hasMoreFriends?'❔':'⭐')+'</div>'+rescueAction+'</div>'+
+   '<div class="aa-quest"><div><span class="aa-mini-label">NEXT FRIEND</span><p>'+esc(progressLabel)+'</p><div class="aa-progress" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="'+a.mazesSinceRescue+'"><span style="width:'+(a.mazesSinceRescue/5*100)+'%"></span></div><small>'+Math.min(5,a.mazesSinceRescue)+' / 5 mazes</small></div><div class="aa-friend-silhouette" aria-hidden="true">'+(hasMoreFriends?'❔':'⭐')+'</div>'+rescueAction+'</div>'+
    '<div class="aa-main-action"><span class="aa-world-label">🌈 '+worldName+'</span><button id="continue-adventure" class="aa-play-button"><span aria-hidden="true">▶</span> PLAY MAZE</button><span class="aa-next-label">'+(resume?'Continue maze ':'Next: Maze ')+next.number+' · '+esc(next.title)+'</span></div>'+
    '<div class="aa-bottom-menu" aria-label="Game navigation"><button data-nav="map" class="aa-nav-home"><span aria-hidden="true">🏠</span>Home</button><button data-nav="shop" class="aa-nav-shop"><span aria-hidden="true">⭐</span>Star Shop</button><button data-nav="computer" class="aa-nav-collection"><span aria-hidden="true">💻</span>My Collections</button></div>'+
    '<details class="aa-more"><summary>⋯ More</summary><div class="aa-more-menu"><button data-nav="lands">🌍 My Worlds</button><button id="endless">More Arrow Practice</button><button id="teacher-settings">Teacher Settings</button><details><summary>Choose Another Maze</summary><div class="level-cards">'+allLevels+'</div></details></div></details>'+
@@ -200,14 +210,51 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  });
  }
  function finish(){
- r.complete=true;const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=Math.max(0,3-a.mazesSinceRescue);
- modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?'You finished three mazes! A friend is ready to rescue.':chars.some(c=>!a.friends[c.id])?left+' more '+(left===1?'maze':'mazes')+' until your next rescue.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+(ready?'🐾 Rescue a friend':'🏡 Home')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();afterLevel()}});
+ r.complete=true;const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=Math.max(0,5-a.mazesSinceRescue);
+ modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?'Five mazes complete! PLAY THE 15-SECOND FLASH ROUND to rescue your next friend.':chars.some(c=>!a.friends[c.id])?left+' more '+(left===1?'maze':'mazes')+' until your next rescue.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+(ready?'⚡ HELP rescue a friend!':'🏡 Home')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();afterLevel()}});
  try{const old=JSON.parse(localStorage.getItem(key)||'{}');if(old.wallet){old.wallet.total+=5;old.wallet.earned+=5;old.wallet.finished+=1;localStorage.setItem(key,JSON.stringify(old))}}catch{}
  }
  function afterLevel(){if(canRescue()){continueRescue();return}map()}
- function rescue(){
- if(!canRescue()){map();return}view='rescue';shell('A friend is ready to come home!','<p>Choose one new friend. Then pick one of your owned worlds.</p><div class="adventure-cards">'+chars.filter(c=>!a.friends[c.id]).map(c=>'<button data-rescue="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
- document.querySelectorAll('[data-rescue]').forEach(b=>b.onclick=()=>{const id=b.dataset.rescue;if(!canRescue()||a.friends[id]||!char(id))return;a.pendingRescueFriendId=id;save();place(id,true)});
+ function rescue(){continueRescue()}
+ function flashRescue(){
+  if(!canRescue()){map();return}
+  const friend=char(a.pendingRescueFriendId);
+  if(!friend){a.pendingRescueFriendId=null;continueRescue();return}
+  view='flash';
+  let pressed=0,started=0,finished=false,timer=null;
+  const keys=Object.keys(directions),symbols={ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→'};
+  let current=keys[Math.floor(Math.random()*4)];
+  const body='<p class="flash-help">HELP rescue <strong>'+esc(friend.name)+'</strong>! Press the giant arrow shown using your keyboard. Keep going for 15 seconds!</p>'+
+    '<div class="flash-friend">'+pic(friend.id)+'</div>'+
+    '<div class="flash-arrow" id="flash-arrow" aria-label="Current arrow" aria-live="polite">'+symbols[current]+'</div>'+
+    '<div class="flash-stats"><span id="flash-clock">15 seconds</span><span id="flash-count">0 arrows</span></div>'+
+    '<p id="flash-feedback" role="status">Press the arrow to begin!</p>';
+  const finishFlash=()=>{
+    if(finished)return;finished=true;clearInterval(timer);timer=null;challengeKeys=null;
+    const target=friend.id,home=a.primaryRainbowLandId||lands[0].id;
+    if(!rescueFriend(a,target,home,(r||a.activeRun)?.id)){closeModal();map();return}
+    save();closeModal();celebrate('You rescued '+esc(friend.name)+'!',target,()=>map());
+  };
+  const update=()=>{
+    const elapsed=started?Date.now()-started:0;
+    const left=Math.max(0,Math.ceil((15000-elapsed)/1000));
+    const label=$('flash-clock');if(label)label.textContent=left+' seconds';
+    if(started&&elapsed>=15000){
+      if(pressed>=5)finishFlash();
+      else {$('flash-feedback').textContent='Press '+(5-pressed)+' more arrows to rescue '+friend.name+'!';}
+    }
+  };
+  modal('⚡ 15-SECOND ARROW FLASH ROUND!',body,()=>{
+    const nextArrow=()=>{let k=keys[Math.floor(Math.random()*keys.length)];if(k===current)k=keys[(keys.indexOf(k)+1)%keys.length];current=k;$('flash-arrow').textContent=symbols[current];};
+    challengeKeys=k=>{
+      if(finished)return;
+      if(!started){started=Date.now();timer=setInterval(update,80)}
+      if(k!==current){$('flash-feedback').textContent='Find the '+symbols[current]+' arrow!';return}
+      pressed++;$('flash-count').textContent=pressed+' arrows';$('flash-feedback').textContent='Great! Keep going!';
+      nextArrow();update();
+    };
+    $('flash-arrow')?.setAttribute('tabindex','-1');
+  });
  }
  function teacher(){
  const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label>Challenge <select id="set-difficulty"><option value="standard">Standard</option><option value="gentle">Gentle · no obstacles</option></select></label><label>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show hints'],['sound','Celebration sound'],['reducedMotion','Reduce motion'],['touchArrows','Allow on-screen arrow buttons']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
