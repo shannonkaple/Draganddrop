@@ -83,6 +83,9 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-lab-teacher-settings')||'{}')}catch{settings={}}
  settings={difficulty:'standard',speed:2200,hints:true,sound:false,reducedMotion:false,touchArrows:false,...settings};
+ // A background is a cosmetic scene, not a world or a new home to buy.
+ a.ownedBackgroundIds??=[...new Set(['background_candy',...(a.ownedWorldIds||[]).filter(id=>id.startsWith('background_'))])];
+ a.homeBackgrounds??={};
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
  const pic=id=>img(look(id).image,char(id).name,'friend-art');
 
@@ -118,8 +121,14 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});if(changing)$('cancel-player').onclick=map;
  }
  function chooseLand(){
- view='select';shell('Pick your home','<p>Choose your training camp. Finish mazes to earn stars and buy a home for your friends.</p>'+landCards());
- document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{a.primaryRainbowLandId=b.dataset.land;a.friends[a.selectedPlayerCharacterId].homeLandId=b.dataset.land;if(!owned(b.dataset.land))a.ownedWorldIds.push(b.dataset.land);save();map()});
+ // Every student starts with one free home. The shop changes its appearance,
+ // without charging for or unlocking a playable world.
+ const homeId=(a.ownedWorldIds||[]).find(id=>data.rainbow_lands.some(l=>l.id===id))||data.rainbow_lands[0].id;
+ a.primaryRainbowLandId=homeId;
+ if(!a.ownedWorldIds.includes(homeId))a.ownedWorldIds.push(homeId);
+ a.friends[a.selectedPlayerCharacterId].homeLandId=homeId;
+ a.homeBackgrounds[homeId]??='background_candy';
+ save();map();
  }
  function landCards(){return '<div class="adventure-cards land-cards">'+backgroundHomes.map(l=>'<button data-land="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><span>'+(view==='select'?'Training camp':owned(l.id)?'Owned ✓':'Buy · ⭐ '+worldCosts[lands.indexOf(l)])+'</span></button>').join('')+'</div>'}
 
@@ -207,7 +216,16 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
 
  function stuff(){map()}
  function owned(id){return a.ownedWorldIds.includes(id)}
- function buyHome(id){const ok=buyWorld(a,id,lands,worldCosts);if(ok)save();return ok}
+ function buyHome(id){
+  const bg=backgroundHomes.find(b=>b.id===id);if(!bg)return false;
+  if(!a.ownedBackgroundIds.includes(id)){
+   const price=worldCosts[lands.indexOf(bg)];
+   if(a.wallet.rainbowStars<price)return false;
+   a.wallet.rainbowStars-=price;a.ownedBackgroundIds.push(id);
+  }
+  a.homeBackgrounds[a.primaryRainbowLandId]=id;
+  save();return true;
+ }
  function shopArt(d){return d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+d.emoji+'</span>'}
  function starShop(){view='shop';shell('Star Shop','<div class="home-menu shop-menu"><button data-nav="friends">'+pic(a.selectedPlayerCharacterId)+'<strong>🌟 Upgrades</strong></button><button data-nav="lands">'+img(land(a.primaryRainbowLandId).cardPreview,'Worlds')+'<strong>🌍 Backgrounds</strong></button><button data-nav="decor">'+img('trackpad-adventure/decorations/cottage.webp','Decorations')+'<strong>🌷 Decorations</strong></button></div>');tellGuide('Spend your stars! Choose upgrades, worlds, or decorations.','🌟 · 🌍 · 🌷')}
  function decorShop(){
@@ -218,13 +236,20 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  document.querySelectorAll('[data-buy-decor]').forEach(b=>b.onclick=()=>{const d=decorations.find(d=>d.id===b.dataset.buyDecor);if(!d||!owned(id)||a.wallet.rainbowStars<d.cost||(a.decorations[id]||[]).includes(d.id))return;a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();celebrate('Your '+esc(d.name)+' is ready!',null,()=>visit(id))});
  }
  function homeMap(){
- view='lands';shell('Background Shop','<p>Buy a background from each adventure world for your friends. Maze worlds unlock by playing, never by spending stars.</p>'+(canRescue()?'<p class="notice">Choose a home background for '+companion(pendingWorldRescue(a)).name+'.</p>':'')+'<div class="adventure-cards land-cards">'+lands.filter(l=>backgroundHomes.includes(l)||owned(l.id)).map(l=>'<button data-buy-land="'+l.id+'" '+(!owned(l.id)&&a.wallet.rainbowStars<worldCosts[lands.indexOf(l)]?'disabled':'')+'>'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><span>'+(owned(l.id)?'Owned ✓ · Visit free':'Buy background · ⭐ '+worldCosts[lands.indexOf(l)])+'</span></button>').join('')+'</div>');
- document.querySelectorAll('[data-buy-land]').forEach(b=>b.onclick=()=>{if(!buyHome(b.dataset.buyLand))return;a.primaryRainbowLandId=b.dataset.buyLand;save();if(canRescue())rescue();else visit(b.dataset.buyLand)});
+ view='lands';
+ const active=a.homeBackgrounds[a.primaryRainbowLandId]||'background_candy';
+ shell('Background Shop','<p>Change the picture behind your own home. Buying a background does not buy or unlock a maze world. You have ⭐ '+a.wallet.rainbowStars+'.</p><button id="background-home" class="primary">🏡 Visit My Home</button><div class="adventure-cards land-cards">'+backgroundHomes.map(bg=>{
+  const mine=a.ownedBackgroundIds.includes(bg.id),price=worldCosts[lands.indexOf(bg)],selected=active===bg.id;
+  return '<button type="button" data-buy-background="'+bg.id+'" '+(!mine&&a.wallet.rainbowStars<price?'disabled':'')+'>'+img(bg.cardPreview,bg.name)+'<strong>'+esc(bg.name)+'</strong><span>'+(selected?'✓ Currently using':mine?'✓ Owned · Use background':'Buy BACKGROUND · ⭐ '+price)+'</span></button>';
+ }).join('')+'</div>');
+ $('background-home').onclick=()=>visit(a.primaryRainbowLandId);
+ document.querySelectorAll('[data-buy-background]').forEach(b=>b.onclick=()=>{if(buyHome(b.dataset.buyBackground))homeMap()});
  }
  function visit(id,newFriend=null){
  if(!owned(id)){homeMap();return}a.primaryRainbowLandId=id;save();view='land';const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c].homeLandId===id),props=a.decorations[id]||[],worldResidents=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id);
  const position=(key,i)=>a.positions[id]?.[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
- shell(esc(l.name),(newFriend?'<p class="welcome-friend" role="status">Welcome home, '+esc(char(newFriend).name)+'! Here are all the friends who live in this world.</p>':'')+'<p>CLICK AND HOLD a friend or item. DRAG it. DROP to put it down. Your layout saves.</p><p><button hidden id="world-star-shop">🌷 Decorations · '+a.wallet.rainbowStars+' stars</button></p><div id="arrow-world" class="land-scene free-world" style="background-image:url('+asset(l.homeBackground)+')">'+residents.map((c,i)=>{const p=position(c,i);return '<div class="world-object world-friend '+(c===newFriend?'new-resident':'')+'" data-world-object="'+c+'" role="img" aria-label="Drag '+esc(char(c).name)+'" style="left:'+p.x+'%;top:'+p.y+'%">'+pic(c)+'<span>'+esc(char(c).name)+'</span></div>'}).join('')+worldResidents.map((c,i)=>{const p=position('companion:'+c.id,i+residents.length);return '<div class="world-object world-companion" data-world-object="companion:'+c.id+'" role="img" aria-label="Drag '+c.name+'" style="left:'+p.x+'%;top:'+p.y+'%">'+companionArt(c.id)+'<span>'+c.name+'</span></div>'}).join('')+props.map((d,i)=>{const item=decorations.find(x=>x.id===d),p=position('decor:'+d,i+residents.length);return '<div class="world-object world-prop" data-world-object="decor:'+d+'" role="img" aria-label="Drag '+esc(item.name)+'" style="left:'+p.x+'%;top:'+p.y+'%">'+shopArt(item)+'</div>'}).join('')+'</div><p id="world-report" role="status">Drag your friends and decorations to their new places.</p><button id="make-home">Make this my main home</button> <button id="visit-friends">Move or upgrade friends</button>');
+ const homeBackground=backgroundHomes.find(bg=>bg.id===a.homeBackgrounds[id])?.homeBackground||l.homeBackground;
+ shell(esc(l.name),(newFriend?'<p class="welcome-friend" role="status">Welcome home, '+esc(char(newFriend).name)+'! Here are all the friends who live in this world.</p>':'')+'<p>CLICK AND HOLD a friend or item. DRAG it. DROP to put it down. Your layout saves.</p><p><button hidden id="world-star-shop">🌷 Decorations · '+a.wallet.rainbowStars+' stars</button></p><div id="arrow-world" class="land-scene free-world" style="background-image:url('+asset(homeBackground)+')">'+residents.map((c,i)=>{const p=position(c,i);return '<div class="world-object world-friend '+(c===newFriend?'new-resident':'')+'" data-world-object="'+c+'" role="img" aria-label="Drag '+esc(char(c).name)+'" style="left:'+p.x+'%;top:'+p.y+'%">'+pic(c)+'<span>'+esc(char(c).name)+'</span></div>'}).join('')+worldResidents.map((c,i)=>{const p=position('companion:'+c.id,i+residents.length);return '<div class="world-object world-companion" data-world-object="companion:'+c.id+'" role="img" aria-label="Drag '+c.name+'" style="left:'+p.x+'%;top:'+p.y+'%">'+companionArt(c.id)+'<span>'+c.name+'</span></div>'}).join('')+props.map((d,i)=>{const item=decorations.find(x=>x.id===d),p=position('decor:'+d,i+residents.length);return '<div class="world-object world-prop" data-world-object="decor:'+d+'" role="img" aria-label="Drag '+esc(item.name)+'" style="left:'+p.x+'%;top:'+p.y+'%">'+shopArt(item)+'</div>'}).join('')+'</div><p id="world-report" role="status">Drag your friends and decorations to their new places.</p><button id="make-home">Make this my main home</button> <button id="visit-friends">Move or upgrade friends</button>');
  $('world-star-shop').onclick=decorShop;$('make-home').onclick=()=>{a.primaryRainbowLandId=id;save();$('make-home').textContent='✓ My main home'};$('visit-friends').onclick=friends;
  const scene=$('arrow-world');let drag=null;
  scene.onpointerdown=e=>{const el=e.target.closest('[data-world-object]');if(!el)return;e.preventDefault();if(e.pointerType!=='mouse'){$('world-report').textContent='Use your trackpad to click and hold, drag, and drop.';return}if(e.button!==0||drag)return;const r=el.getBoundingClientRect();drag={el,key:el.dataset.worldObject,pointer:e.pointerId,dx:e.clientX-r.left-r.width/2,dy:e.clientY-r.top-r.height/2,left:el.style.left,top:el.style.top};el.setPointerCapture(e.pointerId);el.classList.add('moving')};
