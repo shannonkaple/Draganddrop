@@ -342,3 +342,81 @@ body.lab-collection-active .my-stuff-empty{
    width:clamp(42px,13vw,95px)!important;
  }
 }
+
+/* Banner heading is real editable text, not a stretched recycled map.
+   The original approved Ms. Kaple & Rigby artwork remains EXACTLY unchanged. */
+body>header.lab-image-header {
+  flex-direction:column!important;
+  justify-content:space-between!important;
+  height:clamp(158px,22vh,220px)!important;
+  padding:5px 12px 8px!important;
+}
+body>header.lab-image-header .brand{
+  display:flex!important;flex-direction:row!important;
+  align-items:center!important;justify-content:center!important;
+  gap:clamp(8px,2vw,34px)!important;
+  min-height:0!important;width:100%!important;
+  max-width:1500px!important;flex:1 1 auto!important;
+  overflow:hidden!important;margin-inline:auto!important;
+}
+body>header.lab-image-header .lab-approved-portrait{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 clamp(200px,23vw,355px)!important;
+  height:100%!important;min-height:0!important;max-width:34vw!important;
+  overflow:hidden!important;
+}
+body>header.lab-image-header .lab-approved-portrait img.lab-header-art{
+  display:block!important;flex:none!important;
+  width:100%!important;height:auto!important;
+  max-height:100%!important;max-width:100%!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 2px 6px #ffffffcf)!important;
+}
+body>header.lab-image-header .lab-banner-type{
+  display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  text-align:center!important;flex:1 1 auto!important;min-width:0!important;
+  line-height:1!important;color:#4c237c!important;
+  font-family:Homebody,VAG,"Arial Rounded MT Bold",Arial,sans-serif!important;
+  text-shadow:2px 3px 0 #ffffff,0 1px 7px #fff!important;
+}
+body>header.lab-image-header .lab-banner-eyebrow{
+  color:#6c39a1!important;font-size:clamp(17px,2.15vw,30px)!important;
+  letter-spacing:.035em!important;
+}
+body>header.lab-image-header .lab-banner-type strong{
+  display:block!important;
+  font-weight:900!important;
+  font-size:clamp(29px,4.3vw,65px)!important;
+  line-height:.96!important;
+  letter-spacing:-.025em!important;
+  background:linear-gradient(90deg,#f326b6,#a246ef,#196fdd,#00a4ae,#36b76d,#f7aa1c)!important;
+  background-clip:text!important;-webkit-background-clip:text!important;
+  color:transparent!important;-webkit-text-fill-color:transparent!important;
+  -webkit-text-stroke:.3px #4c237c!important;
+}
+body>header.lab-image-header .lab-banner-subtitle{
+  display:block!important;color:#7139bd!important;
+  font-size:clamp(17px,2.5vw,38px)!important;
+  line-height:1.03!important;letter-spacing:.015em!important;
+}
+body>header.lab-image-header .actions{
+  flex:0 0 auto!important;min-height:38px!important;
+  margin:2px auto 0!important;
+  width:max-content!important;max-width:100%!important;
+  justify-content:center!important;
+}
+@media(max-width:850px){
+ body>header.lab-image-header {height:clamp(140px,21vh,190px)!important;padding:3px 6px 6px!important;}
+ body>header.lab-image-header .lab-approved-portrait{flex:0 0 clamp(125px,26vw,210px)!important;max-width:31vw!important;}
+ body>header.lab-image-header .lab-banner-eyebrow{font-size:clamp(12px,2vw,18px)!important;}
+ body>header.lab-image-header .lab-banner-type strong{font-size:clamp(21px,4.1vw,35px)!important;}
+ body>header.lab-image-header .lab-banner-subtitle{font-size:clamp(13px,2.6vw,24px)!important;}
+}
+@media(max-width:510px){
+ body>header.lab-image-header .lab-approved-portrait{flex-basis:24vw!important;max-width:24vw!important;}
+ body>header.lab-image-header .brand{gap:5px!important;}
+ body>header.lab-image-header .lab-banner-eyebrow{font-size:11px!important;}
+ body>header.lab-image-header .lab-banner-type strong{font-size:clamp(19px,4.8vw,25px)!important;}
+ body>header.lab-image-header .lab-banner-subtitle{font-size:clamp(12px,3vw,16px)!important;}
+}
