@@ -197,9 +197,10 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
    const positions=[[6.7,41.7],[20.8,53.7],[33.1,70.6],[39.4,42.3],[53.5,57.0],[69.2,51.5],[84.2,69.8],[92.1,37.4]];
    const points=levels.slice(0,8).map((l,k)=>{
      const done=a.completedLevelIds.includes(l.id),unlocked=l.number<=a.highestUnlockedLevel;
-     return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" '+(unlocked?'':'disabled')+
+     return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" aria-disabled="'+(!unlocked)+'"'+
        ' aria-label="Candy maze '+(k+1)+': '+candyNames[k]+(done?', completed':unlocked?', play':', locked')+'">'+
-       '</button>';
+       '<span class="lab-map-node-number" aria-hidden="true">'+(k+1)+'</span>'+
+       '<span class="lab-map-node-indicator" aria-hidden="true">'+(done?'✓':unlocked?'▶':'🔒')+'</span></button>';
    }).join('');
    shell('Candy World',
      '<section class="lab-candy-world" aria-label="Candy World map with eight playable mazes">'+
@@ -211,7 +212,13 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
      '</section>');
    $('lab-back-map').onclick=map;
    $('lab-candy-rescue')?.addEventListener('click',continueRescue);
-   document.querySelectorAll('.lab-candy-node[data-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.level)));
+   document.querySelectorAll('.lab-candy-node[data-level]').forEach(b=>b.onclick=()=>{
+     if(b.getAttribute('aria-disabled')==='true'){
+       const number=Number(b.dataset.level);const needed=Math.max(1,number-1);
+       alert('Maze '+number+' is locked. Complete maze '+needed+' first.');return;
+     }
+     startLevel(Number(b.dataset.level));
+   });
  }
 
  function openWorld(i){
