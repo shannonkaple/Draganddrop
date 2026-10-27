@@ -20,10 +20,48 @@ for(const worldId of worldIds){
  assert.equal(pendingWorldRescue(state),null,`${worldId}: no duplicate rescues`);
 }
 const patterns=Array.from({length:12},(_,i)=>arrowPattern(123,i));assert.equal(new Set(patterns.map(JSON.stringify)).size,6);assert.notDeepEqual(patterns[0],patterns[1]);
+
+const onboardingCharacters=[{id:'astro_ace'},{id:'sunny_kitten'}];
+const onboardingLands=[{id:'background_candy'},{id:'background_pirate'}];
+const practiceWallet={character:'astro_ace',rescued:['astro_ace']};
+const firstTime=migrateAdventure(null,practiceWallet,onboardingCharacters,onboardingLands);
+assert.equal(firstTime.selectedPlayerCharacterId,null,'first Arrow Lab visit must show character choice');
+assert.ok(firstTime.friends.astro_ace,'legacy practice rescues are preserved while asking for a choice');
+const returning=migrateAdventure({
+ selectedPlayerCharacterId:'sunny_kitten',
+ primaryRainbowLandId:'background_pirate',
+ ownedWorldIds:['background_pirate'],
+ friends:{sunny_kitten:{isRescued:true,upgradeStage:'power_up',homeLandId:'background_pirate'}},
+ completedLevelIds:['lab_candy_1'],worldFriends:{candy:{homeLandId:'background_pirate'}},
+ wallet:{rainbowStars:19}
+},practiceWallet,onboardingCharacters,onboardingLands);
+assert.equal(returning.selectedPlayerCharacterId,'sunny_kitten','returning student keeps their chosen player');
+assert.equal(returning.primaryRainbowLandId,'background_pirate','existing purchased/home world survives');
+assert.deepEqual(returning.completedLevelIds,['lab_candy_1'],'existing completed maze survives');
+assert.equal(returning.friends.sunny_kitten.upgradeStage,'power_up','player upgrade survives');
+assert.equal(returning.worldFriends.candy.homeLandId,'background_pirate','rescued world friend survives');
+assert.equal(returning.wallet.rainbowStars,19,'earned stars survive');
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config','computer_collectibles'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
 const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations);
+
+const starterMigration=source.slice(source.indexOf(" const starterWorldId='background_candy';"),source.indexOf(' const char='));
+assert.ok(starterMigration.includes('ownedWorldIds'),'locate the real starter-world migration');
+const grantStarter=new Function('a','lands',starterMigration+';return a');
+const newStudent=grantStarter({ownedWorldIds:[],friends:{}},onboardingLands);
+assert.ok(newStudent.ownedWorldIds.includes('background_candy'),'new student receives free Candy world');
+assert.equal(newStudent.primaryRainbowLandId,'background_candy','new student has a world without home selection');
+const existingStudent=grantStarter({
+ ownedWorldIds:['background_pirate'],primaryRainbowLandId:'background_pirate',
+ friends:{sunny_kitten:{homeLandId:'background_pirate'}},completedLevelIds:['lab_candy_1'],
+ wallet:{rainbowStars:19}
+},onboardingLands);
+assert.ok(existingStudent.ownedWorldIds.includes('background_candy'),'returning student also owns free starter');
+assert.equal(existingStudent.primaryRainbowLandId,'background_pirate','do not override returning student chosen home');
+assert.equal(existingStudent.friends.sunny_kitten.homeLandId,'background_pirate','preserve friend home');
+assert.deepEqual(existingStudent.completedLevelIds,['lab_candy_1'],'preserve maze completion');
+assert.equal(existingStudent.wallet.rainbowStars,19,'do not change stars');
 assert.equal(backgroundHomes.length,8);assert.deepEqual(backgroundHomes.map(l=>l.id),worldIds.map(id=>'background_'+id));
 assert.equal(levels.length,64,'eight worlds with eight mazes each');
 for(const def of levels){
