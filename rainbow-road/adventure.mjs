@@ -52,7 +52,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   flashRescue();
  }
  function selectCharacter(changing=false){
- view='select';shell('Pick your player','<p>Choose any character! Your rescued friends are saved separately in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+chars.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
+ view='select';const newest=chars.filter(c=>c.levels[0].image.startsWith('generated:')),classic=chars.filter(c=>!c.levels[0].image.startsWith('generated:'));const displayCharacters=[...newest,...classic];shell('Pick your player','<p>10 NEW CHARACTERS! Choose anyone below. Your rescued friends stay saved in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+displayCharacters.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong>'+(c.levels[0].image.startsWith('generated:')?'<span class="new-character-label">NEW!</span>':'')+'</button>').join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});
  const choices=[...document.querySelectorAll('[data-hero]')];
  if(choices.length>8){
@@ -63,9 +63,9 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
    choices[0].parentElement.after(pager);
    const previous=$('characters-back'),next=$('characters-next');
    const show=()=>{
-     choices.forEach((b,i)=>{b.hidden=i<page*8||i>=(page+1)*8});
-     previous.disabled=page===0;next.disabled=(page+1)*8>=choices.length;
-     $('characters-page').textContent=(page+1)+' / '+Math.ceil(choices.length/8);
+     choices.forEach((b,i)=>{b.hidden=i<page*10||i>=(page+1)*10});
+     previous.disabled=page===0;next.disabled=(page+1)*10>=choices.length;
+     $('characters-page').textContent=(page+1)+' / '+Math.ceil(choices.length/10);
      requestAnimationFrame(fit);
    };
    previous.onclick=()=>{page--;show()};
