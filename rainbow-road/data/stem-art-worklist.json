@@ -1,0 +1,80 @@
+{
+  "purpose": "Pending individual real STEM PNG/JPEG collectibles for Arrow Adventure; not shown until actual images exist",
+  "requirements": [
+    "Generate each complete item as a distinct standalone PNG or JPEG, never a collage or cutout from a sheet",
+    "No SVG, canvas-generated shapes, or placeholders",
+    "Do not disturb saved student progress and five-maze flash rescue progression"
+  ],
+  "items": [
+    {
+      "id": "microscope",
+      "name": "Microscope",
+      "expectedImage": "/game-assets/collectibles/stem/microscope.png",
+      "plannedMaze": 1,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "flask",
+      "name": "Chemistry Flask",
+      "expectedImage": "/game-assets/collectibles/stem/flask.png",
+      "plannedMaze": 2,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "magnet",
+      "name": "Horseshoe Magnet",
+      "expectedImage": "/game-assets/collectibles/stem/magnet.png",
+      "plannedMaze": 3,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "solar_panel",
+      "name": "Solar Panel",
+      "expectedImage": "/game-assets/collectibles/stem/solar_panel.png",
+      "plannedMaze": 4,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "wind_turbine",
+      "name": "Wind Turbine",
+      "expectedImage": "/game-assets/collectibles/stem/wind_turbine.png",
+      "plannedMaze": 5,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "robot_arm",
+      "name": "Robot Arm",
+      "expectedImage": "/game-assets/collectibles/stem/robot_arm.png",
+      "plannedMaze": 6,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "telescope",
+      "name": "Telescope",
+      "expectedImage": "/game-assets/collectibles/stem/telescope.png",
+      "plannedMaze": 7,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "dna",
+      "name": "DNA Model",
+      "expectedImage": "/game-assets/collectibles/stem/dna.png",
+      "plannedMaze": 8,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "circuit_board",
+      "name": "Circuit Board",
+      "expectedImage": "/game-assets/collectibles/stem/circuit_board.png",
+      "plannedMaze": 9,
+      "status": "missing image artwork"
+    },
+    {
+      "id": "printer_3d",
+      "name": "3D Printer",
+      "expectedImage": "/game-assets/collectibles/stem/printer_3d.png",
+      "plannedMaze": 10,
+      "status": "missing image artwork"
+    }
+  ]
+}
