@@ -549,3 +549,33 @@ body.lab-collection-active .my-stuff-toolbox .my-stuff-shop-actions .my-stuff-ac
     width:100%!important;
   }
 }
+
+
+/* Enemy patrol telegraph: an always-visible next tile, and a directional arrow
+   on the moving enemy. Bright pulse only during the short pre-move warning. */
+body.adventure-mode.playing .adventure-layout .cell.enemy-path-next.road {
+  box-shadow:inset 0 0 0 3px #f8b400, inset 0 0 0 6px #fff6b0;
+}
+body.adventure-mode.playing .adventure-layout .cell.enemy-path-next .enemy-next-tile {
+  position:absolute;inset:15%;display:grid;place-items:center;
+  z-index:2;pointer-events:none;line-height:1;font-size:clamp(16px,2.5vw,30px);
+  font-weight:900;color:#543500;background:#ffe480b8;border:2px dashed #754700;
+  border-radius:50%;
+}
+body.adventure-mode.playing .adventure-layout .enemy-direction {
+  position:absolute;right:-3px;top:-8px;z-index:6;display:grid;place-items:center;
+  pointer-events:none;border:2px solid #402170;border-radius:999px;
+  width:clamp(20px,2.4vw,31px);height:clamp(20px,2.4vw,31px);
+  background:#fff9aa;color:#27154d;font:bold clamp(18px,2vw,26px)/1 Arial,sans-serif;
+  box-shadow:0 2px 0 #3724507a;
+}
+body.adventure-mode.playing .adventure-layout .cell.enemy-path-next.hazard-warning {
+  outline:4px solid #ed3457;outline-offset:-4px;
+  box-shadow:inset 0 0 0 4px #ffec65, inset 0 0 0 8px #db4059;
+}
+@media(prefers-reduced-motion:no-preference) {
+ body.adventure-mode.playing .adventure-layout .cell.enemy-path-next.hazard-warning .enemy-next-tile {
+   animation:enemy-next-alert .45s ease-in-out infinite alternate;
+ }
+ @keyframes enemy-next-alert { from{transform:scale(.9)} to{transform:scale(1.1)} }
+}
