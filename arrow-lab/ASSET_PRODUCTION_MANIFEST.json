@@ -1,0 +1,981 @@
+{
+  "project": "Ms. Kaple's A-MAZE-ING Arrow Adventure — Arrow Lab asset production",
+  "updated_on": "2026-10-27",
+  "scope": "shannonkaple/Draganddrop/arrow-lab/ only",
+  "rules": {
+    "background": {
+      "ratio": "16:9",
+      "preferred_dimensions": "3840x2160",
+      "format": "JPEG",
+      "dpi": 300,
+      "scenery": "outer edge details, calm playable center",
+      "no": "characters, collectibles, walls, text, UI, baked maze graphics"
+    },
+    "collectible": {
+      "format": "PNG",
+      "alpha": "verified transparent",
+      "dimensions": "square >=1024x1024",
+      "quantity_per_unfinished_world": 10,
+      "one_object_per_file": true
+    },
+    "game": {
+      "paired_collectibles_per_maze": 2,
+      "background_css": "background-size:cover",
+      "preserve_progress": true,
+      "return_to_current_world": true,
+      "never_modify_original_game": true,
+      "uppercase_homebody_club": true
+    }
+  },
+  "worlds": [
+    {
+      "name": "candy",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Lollipop Lane",
+          "path": "arrow-lab/candy-stages/01-lollipop-lane.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/01-lollipop-lane.jpg"
+        },
+        {
+          "index": 2,
+          "name": "Cupcake Creek",
+          "path": "arrow-lab/candy-stages/02-cupcake-creek.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/02-cupcake-creek.jpg"
+        },
+        {
+          "index": 3,
+          "name": "Ice Cream Island",
+          "path": "arrow-lab/candy-stages/03-ice-cream-island.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/03-ice-cream-island.jpg"
+        },
+        {
+          "index": 4,
+          "name": "Donut Ridge",
+          "path": "arrow-lab/candy-stages/04-donut-ridge.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/04-donut-ridge.jpg"
+        },
+        {
+          "index": 5,
+          "name": "Candy Castle",
+          "path": "arrow-lab/candy-stages/05-candy-castle.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/05-candy-castle.jpg"
+        },
+        {
+          "index": 6,
+          "name": "Gummy Grove",
+          "path": "arrow-lab/candy-stages/06-gummy-grove.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/06-gummy-grove.jpg"
+        },
+        {
+          "index": 7,
+          "name": "Chocolate Falls",
+          "path": "arrow-lab/candy-stages/07-chocolate-falls.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/07-chocolate-falls.jpg"
+        },
+        {
+          "index": 8,
+          "name": "Sweet Summit",
+          "path": "arrow-lab/candy-stages/08-sweet-summit.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/candy-stages/08-sweet-summit.jpg"
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "lollipop",
+          "path": "arrow-lab/collectibles/candy/lollipop.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "gummy_bear",
+          "path": "arrow-lab/collectibles/candy/gummy_bear.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "cupcake",
+          "path": "arrow-lab/collectibles/candy/cupcake.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "candy_cane",
+          "path": "arrow-lab/collectibles/candy/candy_cane.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "ice_cream",
+          "path": "arrow-lab/collectibles/candy/ice_cream.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "wrapped_candy",
+          "path": "arrow-lab/collectibles/candy/wrapped_candy.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "donut",
+          "path": "arrow-lab/collectibles/candy/donut.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "candy_necklace",
+          "path": "arrow-lab/collectibles/candy/candy_necklace.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "chocolate_bar",
+          "path": "arrow-lab/collectibles/candy/chocolate_bar.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "jellybean_jar",
+          "path": "arrow-lab/collectibles/candy/jellybean_jar.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "star_cookie",
+          "path": "arrow-lab/collectibles/candy/star_cookie.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "gumdrop",
+          "path": "arrow-lab/collectibles/candy/gumdrop.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "marshmallow",
+          "path": "arrow-lab/collectibles/candy/marshmallow.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "cotton_candy",
+          "path": "arrow-lab/collectibles/candy/cotton_candy.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "candy_apple",
+          "path": "arrow-lab/collectibles/candy/candy_apple.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "gingerbread_house",
+          "path": "arrow-lab/collectibles/candy/gingerbread_house.png",
+          "status": "present_in_repo"
+        }
+      ]
+    },
+    {
+      "name": "pirate",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Treasure Cove",
+          "path": "arrow-lab/pirate-stages/01-treasure-cove.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 2,
+          "name": "Captain's Deck",
+          "path": "arrow-lab/pirate-stages/02-captains-deck.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 3,
+          "name": "Palm Lagoon",
+          "path": "arrow-lab/pirate-stages/03-palm-lagoon.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 4,
+          "name": "Shipwreck Reef",
+          "path": "arrow-lab/pirate-stages/04-shipwreck-reef.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 5,
+          "name": "Cannon Fort",
+          "path": "arrow-lab/pirate-stages/05-cannon-fort.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 6,
+          "name": "Skull Rock",
+          "path": "arrow-lab/pirate-stages/06-skull-rock.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 7,
+          "name": "Mermaid Grotto",
+          "path": "arrow-lab/pirate-stages/07-mermaid-grotto.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 8,
+          "name": "Treasure Island",
+          "path": "arrow-lab/pirate-stages/08-treasure-island.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "treasure_chest",
+          "path": "arrow-lab/collectibles/pirate/treasure_chest.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "pirate_hat",
+          "path": "arrow-lab/collectibles/pirate/pirate_hat.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "treasure_map",
+          "path": "arrow-lab/collectibles/pirate/treasure_map.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "compass",
+          "path": "arrow-lab/collectibles/pirate/compass.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "parrot",
+          "path": "arrow-lab/collectibles/pirate/parrot.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "ship_wheel",
+          "path": "arrow-lab/collectibles/pirate/ship_wheel.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "spyglass",
+          "path": "arrow-lab/collectibles/pirate/spyglass.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "anchor",
+          "path": "arrow-lab/collectibles/pirate/anchor.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "message_bottle",
+          "path": "arrow-lab/collectibles/pirate/message_bottle.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "gold_coins",
+          "path": "arrow-lab/collectibles/pirate/gold_coins.png",
+          "status": "present_in_repo"
+        }
+      ]
+    },
+    {
+      "name": "arctic",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Snowflake Meadow",
+          "path": "arrow-lab/arctic-stages/01-snowflake-meadow.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 2,
+          "name": "Glacier Valley",
+          "path": "arrow-lab/arctic-stages/02-glacier-valley.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 3,
+          "name": "Penguin Cove",
+          "path": "arrow-lab/arctic-stages/03-penguin-cove.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 4,
+          "name": "Igloo Village",
+          "path": "arrow-lab/arctic-stages/04-igloo-village.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 5,
+          "name": "Crystal Cavern",
+          "path": "arrow-lab/arctic-stages/05-crystal-cavern.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 6,
+          "name": "Aurora Lake",
+          "path": "arrow-lab/arctic-stages/06-aurora-lake.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 7,
+          "name": "Polar Palace",
+          "path": "arrow-lab/arctic-stages/07-polar-palace.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        },
+        {
+          "index": 8,
+          "name": "Blizzard Summit",
+          "path": "arrow-lab/arctic-stages/08-blizzard-summit.jpg",
+          "status": "generation_requested_not_exported",
+          "existing_path": null
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "snowflake_crystal",
+          "path": "arrow-lab/collectibles/arctic/snowflake_crystal.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "mitten",
+          "path": "arrow-lab/collectibles/arctic/mitten.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "snow_globe",
+          "path": "arrow-lab/collectibles/arctic/snow_globe.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "polar_bear_plush",
+          "path": "arrow-lab/collectibles/arctic/polar_bear_plush.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "igloo",
+          "path": "arrow-lab/collectibles/arctic/igloo.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "ice_skate",
+          "path": "arrow-lab/collectibles/arctic/ice_skate.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "winter_scarf",
+          "path": "arrow-lab/collectibles/arctic/winter_scarf.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "hot_cocoa",
+          "path": "arrow-lab/collectibles/arctic/hot_cocoa.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "icicle_gem",
+          "path": "arrow-lab/collectibles/arctic/icicle_gem.png",
+          "status": "generation_requested_not_exported"
+        },
+        {
+          "id": "snowflake_lantern",
+          "path": "arrow-lab/collectibles/arctic/snowflake_lantern.png",
+          "status": "generation_requested_not_exported"
+        }
+      ]
+    },
+    {
+      "name": "castle",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Royal Courtyard",
+          "path": "arrow-lab/castle-stages/01-royal-courtyard.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 2,
+          "name": "Castle Gardens",
+          "path": "arrow-lab/castle-stages/02-castle-gardens.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 3,
+          "name": "Knight's Bridge",
+          "path": "arrow-lab/castle-stages/03-knights-bridge.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 4,
+          "name": "Enchanted Library",
+          "path": "arrow-lab/castle-stages/04-enchanted-library.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 5,
+          "name": "Tower Hall",
+          "path": "arrow-lab/castle-stages/05-tower-hall.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 6,
+          "name": "Royal Ballroom",
+          "path": "arrow-lab/castle-stages/06-royal-ballroom.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 7,
+          "name": "Dragon Gate",
+          "path": "arrow-lab/castle-stages/07-dragon-gate.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 8,
+          "name": "Throne Room",
+          "path": "arrow-lab/castle-stages/08-throne-room.jpg",
+          "status": "not_created",
+          "existing_path": null
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "golden_key",
+          "path": "arrow-lab/collectibles/castle/golden_key.png",
+          "status": "not_created"
+        },
+        {
+          "id": "royal_crown",
+          "path": "arrow-lab/collectibles/castle/royal_crown.png",
+          "status": "not_created"
+        },
+        {
+          "id": "spellbook",
+          "path": "arrow-lab/collectibles/castle/spellbook.png",
+          "status": "not_created"
+        },
+        {
+          "id": "magic_wand",
+          "path": "arrow-lab/collectibles/castle/magic_wand.png",
+          "status": "not_created"
+        },
+        {
+          "id": "knight_shield",
+          "path": "arrow-lab/collectibles/castle/knight_shield.png",
+          "status": "not_created"
+        },
+        {
+          "id": "royal_chalice",
+          "path": "arrow-lab/collectibles/castle/royal_chalice.png",
+          "status": "not_created"
+        },
+        {
+          "id": "enchanted_rose",
+          "path": "arrow-lab/collectibles/castle/enchanted_rose.png",
+          "status": "not_created"
+        },
+        {
+          "id": "jeweled_ring",
+          "path": "arrow-lab/collectibles/castle/jeweled_ring.png",
+          "status": "not_created"
+        },
+        {
+          "id": "treasure_pouch",
+          "path": "arrow-lab/collectibles/castle/treasure_pouch.png",
+          "status": "not_created"
+        },
+        {
+          "id": "dragon_egg",
+          "path": "arrow-lab/collectibles/castle/dragon_egg.png",
+          "status": "not_created"
+        }
+      ]
+    },
+    {
+      "name": "space",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Starfield Gate",
+          "path": "arrow-lab/space-stages/01-starfield-gate.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 2,
+          "name": "Moonbase",
+          "path": "arrow-lab/space-stages/02-moonbase.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 3,
+          "name": "Ringed Planet",
+          "path": "arrow-lab/space-stages/03-ringed-planet.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 4,
+          "name": "Comet Trail",
+          "path": "arrow-lab/space-stages/04-comet-trail.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 5,
+          "name": "Nebula Gardens",
+          "path": "arrow-lab/space-stages/05-nebula-gardens.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 6,
+          "name": "Meteor Fields",
+          "path": "arrow-lab/space-stages/06-meteor-fields.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 7,
+          "name": "Cosmic Observatory",
+          "path": "arrow-lab/space-stages/07-cosmic-observatory.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 8,
+          "name": "Galaxy Palace",
+          "path": "arrow-lab/space-stages/08-galaxy-palace.jpg",
+          "status": "not_created",
+          "existing_path": null
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "moon_rock",
+          "path": "arrow-lab/collectibles/space/moon_rock.png",
+          "status": "not_created"
+        },
+        {
+          "id": "miniature_planet",
+          "path": "arrow-lab/collectibles/space/miniature_planet.png",
+          "status": "not_created"
+        },
+        {
+          "id": "rocket",
+          "path": "arrow-lab/collectibles/space/rocket.png",
+          "status": "not_created"
+        },
+        {
+          "id": "satellite",
+          "path": "arrow-lab/collectibles/space/satellite.png",
+          "status": "not_created"
+        },
+        {
+          "id": "star_compass",
+          "path": "arrow-lab/collectibles/space/star_compass.png",
+          "status": "not_created"
+        },
+        {
+          "id": "alien_crystal",
+          "path": "arrow-lab/collectibles/space/alien_crystal.png",
+          "status": "not_created"
+        },
+        {
+          "id": "asteroid_gem",
+          "path": "arrow-lab/collectibles/space/asteroid_gem.png",
+          "status": "not_created"
+        },
+        {
+          "id": "astronaut_helmet",
+          "path": "arrow-lab/collectibles/space/astronaut_helmet.png",
+          "status": "not_created"
+        },
+        {
+          "id": "galactic_telescope",
+          "path": "arrow-lab/collectibles/space/galactic_telescope.png",
+          "status": "not_created"
+        },
+        {
+          "id": "ufo",
+          "path": "arrow-lab/collectibles/space/ufo.png",
+          "status": "not_created"
+        }
+      ]
+    },
+    {
+      "name": "jurassic",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Fern Forest",
+          "path": "arrow-lab/jurassic-stages/01-fern-forest.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 2,
+          "name": "Dinosaur Valley",
+          "path": "arrow-lab/jurassic-stages/02-dinosaur-valley.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 3,
+          "name": "Fossil Cliffs",
+          "path": "arrow-lab/jurassic-stages/03-fossil-cliffs.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 4,
+          "name": "Prehistoric River",
+          "path": "arrow-lab/jurassic-stages/04-prehistoric-river.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 5,
+          "name": "Amber Cave",
+          "path": "arrow-lab/jurassic-stages/05-amber-cave.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 6,
+          "name": "Dinosaur Nest",
+          "path": "arrow-lab/jurassic-stages/06-dinosaur-nest.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 7,
+          "name": "Volcano Trail",
+          "path": "arrow-lab/jurassic-stages/07-volcano-trail.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 8,
+          "name": "Jurassic Summit",
+          "path": "arrow-lab/jurassic-stages/08-jurassic-summit.jpg",
+          "status": "not_created",
+          "existing_path": null
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "dinosaur_egg",
+          "path": "arrow-lab/collectibles/jurassic/dinosaur_egg.png",
+          "status": "not_created"
+        },
+        {
+          "id": "fossil",
+          "path": "arrow-lab/collectibles/jurassic/fossil.png",
+          "status": "not_created"
+        },
+        {
+          "id": "prehistoric_fern",
+          "path": "arrow-lab/collectibles/jurassic/prehistoric_fern.png",
+          "status": "not_created"
+        },
+        {
+          "id": "amber_gem",
+          "path": "arrow-lab/collectibles/jurassic/amber_gem.png",
+          "status": "not_created"
+        },
+        {
+          "id": "ancient_shell",
+          "path": "arrow-lab/collectibles/jurassic/ancient_shell.png",
+          "status": "not_created"
+        },
+        {
+          "id": "dinosaur_bone",
+          "path": "arrow-lab/collectibles/jurassic/dinosaur_bone.png",
+          "status": "not_created"
+        },
+        {
+          "id": "jungle_compass",
+          "path": "arrow-lab/collectibles/jurassic/jungle_compass.png",
+          "status": "not_created"
+        },
+        {
+          "id": "dinosaur_footprint",
+          "path": "arrow-lab/collectibles/jurassic/dinosaur_footprint.png",
+          "status": "not_created"
+        },
+        {
+          "id": "volcanic_rock",
+          "path": "arrow-lab/collectibles/jurassic/volcanic_rock.png",
+          "status": "not_created"
+        },
+        {
+          "id": "tropical_leaf",
+          "path": "arrow-lab/collectibles/jurassic/tropical_leaf.png",
+          "status": "not_created"
+        }
+      ]
+    },
+    {
+      "name": "ocean",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Coral Cove",
+          "path": "arrow-lab/ocean-stages/01-coral-cove.jpg",
+          "status": "present_in_repo",
+          "existing_path": "arrow-lab/ocean-stages/01-coral-cove.jpg"
+        },
+        {
+          "index": 2,
+          "name": "Pearl Lagoon",
+          "path": "arrow-lab/ocean-stages/02-pearl-lagoon.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 3,
+          "name": "Seahorse Garden",
+          "path": "arrow-lab/ocean-stages/03-seahorse-garden.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 4,
+          "name": "Jellyfish Glow",
+          "path": "arrow-lab/ocean-stages/04-jellyfish-glow.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 5,
+          "name": "Dolphin Bay",
+          "path": "arrow-lab/ocean-stages/05-dolphin-bay.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 6,
+          "name": "Turtle Trail",
+          "path": "arrow-lab/ocean-stages/06-turtle-trail.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 7,
+          "name": "Octopus Grotto",
+          "path": "arrow-lab/ocean-stages/07-octopus-grotto.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 8,
+          "name": "Rainbow Reef",
+          "path": "arrow-lab/ocean-stages/08-rainbow-reef.jpg",
+          "status": "not_created",
+          "existing_path": null
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "pearl_shell",
+          "path": "arrow-lab/collectibles/ocean/pearl_shell.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "seahorse",
+          "path": "arrow-lab/collectibles/ocean/seahorse.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "jellyfish",
+          "path": "arrow-lab/collectibles/ocean/jellyfish.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "dolphin",
+          "path": "arrow-lab/collectibles/ocean/dolphin.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "coral_cluster",
+          "path": "arrow-lab/collectibles/ocean/coral_cluster.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "pufferfish",
+          "path": "arrow-lab/collectibles/ocean/pufferfish.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "sea_turtle",
+          "path": "arrow-lab/collectibles/ocean/sea_turtle.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "starfish",
+          "path": "arrow-lab/collectibles/ocean/starfish.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "ocean_message_bottle",
+          "path": "arrow-lab/collectibles/ocean/ocean_message_bottle.png",
+          "status": "present_in_repo"
+        },
+        {
+          "id": "octopus",
+          "path": "arrow-lab/collectibles/ocean/octopus.png",
+          "status": "present_in_repo"
+        }
+      ]
+    },
+    {
+      "name": "lava",
+      "levelCount": 8,
+      "backgrounds": [
+        {
+          "index": 1,
+          "name": "Ember Trail",
+          "path": "arrow-lab/lava-stages/01-ember-trail.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 2,
+          "name": "Magma Falls",
+          "path": "arrow-lab/lava-stages/02-magma-falls.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 3,
+          "name": "Fire Crystal Cavern",
+          "path": "arrow-lab/lava-stages/03-fire-crystal-cavern.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 4,
+          "name": "Volcanic Bridge",
+          "path": "arrow-lab/lava-stages/04-volcanic-bridge.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 5,
+          "name": "Obsidian Valley",
+          "path": "arrow-lab/lava-stages/05-obsidian-valley.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 6,
+          "name": "Molten River",
+          "path": "arrow-lab/lava-stages/06-molten-river.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 7,
+          "name": "Phoenix Crater",
+          "path": "arrow-lab/lava-stages/07-phoenix-crater.jpg",
+          "status": "not_created",
+          "existing_path": null
+        },
+        {
+          "index": 8,
+          "name": "Lava Throne",
+          "path": "arrow-lab/lava-stages/08-lava-throne.jpg",
+          "status": "not_created",
+          "existing_path": null
+        }
+      ],
+      "collectibles": [
+        {
+          "id": "magma_gem",
+          "path": "arrow-lab/collectibles/lava/magma_gem.png",
+          "status": "not_created"
+        },
+        {
+          "id": "flame_crown",
+          "path": "arrow-lab/collectibles/lava/flame_crown.png",
+          "status": "not_created"
+        },
+        {
+          "id": "glowing_lava_pearl",
+          "path": "arrow-lab/collectibles/lava/glowing_lava_pearl.png",
+          "status": "not_created"
+        },
+        {
+          "id": "obsidian_crystal",
+          "path": "arrow-lab/collectibles/lava/obsidian_crystal.png",
+          "status": "not_created"
+        },
+        {
+          "id": "fire_potion",
+          "path": "arrow-lab/collectibles/lava/fire_potion.png",
+          "status": "not_created"
+        },
+        {
+          "id": "ember_star",
+          "path": "arrow-lab/collectibles/lava/ember_star.png",
+          "status": "not_created"
+        },
+        {
+          "id": "volcanic_rock",
+          "path": "arrow-lab/collectibles/lava/volcanic_rock.png",
+          "status": "not_created"
+        },
+        {
+          "id": "phoenix_feather",
+          "path": "arrow-lab/collectibles/lava/phoenix_feather.png",
+          "status": "not_created"
+        },
+        {
+          "id": "golden_fire_shield",
+          "path": "arrow-lab/collectibles/lava/golden_fire_shield.png",
+          "status": "not_created"
+        },
+        {
+          "id": "molten_coin",
+          "path": "arrow-lab/collectibles/lava/molten_coin.png",
+          "status": "not_created"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "maze_generator_runs_checked": 2560,
+    "unreachable_objectives_found": 0,
+    "pirate_ocean_pair_count_per_maze": 2,
+    "artwork_export_and_alpha_validation": "pending for newly generated items",
+    "deployed_browser_visual_review": "not performed"
+  }
+}
