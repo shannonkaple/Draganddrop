@@ -47,6 +47,40 @@ const data=Object.fromEntries(['characters','rainbow_lands','levels','game_confi
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
 
 const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey','decorations','arrowLabCharacters',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test',decorations,arrowLabCharacters);
+
+const shopText=source.slice(source.indexOf('const shopExclusives=['),source.indexOf('const fullDecorations=['));
+const shopExclusives=new Function(shopText+';return shopExclusives;')();
+assert.equal(shopExclusives.length,24,'24 genuinely shop-only decoration IDs');
+assert.equal(new Set(shopExclusives.map(d=>d.id)).size,24,'no duplicate store item ID');
+for(const world of worldIds){
+ const offers=shopExclusives.filter(d=>d.world===world);
+ assert.equal(offers.length,3,world+' must have three shop-only offers');
+ for(const item of offers){
+   assert.ok(item.shopOnly&&item.kind==='decor'&&item.cost>0);
+   assert.ok(!levels.some(level=>level.collectibleIds?.includes(item.id)),'shop-only item never appears as a maze collectible');
+   assert.ok(!levels.some(level=>level.computerGearIds?.includes(item.id)||level.skillBadgeIds?.includes(item.id)),'shop-only item never awarded during level completion');
+ }
+}
+assert.match(source,/const worldOnlyGoods=shopExclusives\.filter/,'MY STUFF shows only current world store offers');
+assert.match(source,/data-buy-shop-only/,'MY STUFF contains direct purchase controls');
+assert.match(source,/exclusiveStore\+/, 'shop is on MY STUFF page below existing earned-items tray');
+const purchaseBody=source.slice(source.indexOf('function buyShopExclusive('),source.indexOf('function starShop(){'));
+const buyState={wallet:{rainbowStars:50},ownedWorldIds:['background_candy','background_pirate'],decorations:{background_candy:['legacy_cupcake'],background_pirate:['legacy_anchor']},hiddenDecorations:{background_candy:['shop_candy_sweet_tree']},completedLevelIds:['lab_candy_1'],mazeRuns:{lab_candy_2:{player:{x:4,y:5}}},worldFriends:{candy:{homeLandId:'background_candy'}}};
+const beforeBuying=structuredClone({completedLevelIds:buyState.completedLevelIds,mazeRuns:buyState.mazeRuns,worldFriends:buyState.worldFriends});
+let purchaseSaves=0;
+const purchaseExclusive=new Function('shopExclusives','backgroundHomes','owned','a','save',purchaseBody+';return buyShopExclusive;')(shopExclusives,backgroundHomes,id=>buyState.ownedWorldIds.includes(id),buyState,()=>purchaseSaves++);
+assert.equal(purchaseExclusive('background_candy','shop_candy_sweet_tree'),true);
+assert.equal(purchaseExclusive('background_candy','shop_candy_sweet_tree'),false,'never charge twice');
+assert.equal(purchaseExclusive('background_pirate','shop_candy_sweet_tree'),false,'shop excludes wrong-world offers');
+assert.equal(purchaseExclusive('background_arctic','shop_arctic_ice_crystals'),false,'cannot buy into an unowned world');
+assert.equal(purchaseExclusive('background_pirate','shop_pirate_trail_sign'),true);
+assert.equal(buyState.wallet.rainbowStars,41,'deduct five Candy and four Pirate stars once only');
+assert.equal(purchaseSaves,2,'save each successful purchase');
+assert.deepEqual(buyState.decorations.background_candy,['legacy_cupcake','shop_candy_sweet_tree'],'legacy purchases retained');
+assert.deepEqual(buyState.decorations.background_pirate,['legacy_anchor','shop_pirate_trail_sign'],'other world retained');
+assert.ok(!buyState.hiddenDecorations.background_candy.includes('shop_candy_sweet_tree'),'purchased item starts available to place');
+assert.deepEqual({completedLevelIds:buyState.completedLevelIds,mazeRuns:buyState.mazeRuns,worldFriends:buyState.worldFriends},beforeBuying,'purchases never erase saved game or rescues');
+
 const allCharacters=arrowLabCharacters(data.characters);
 assert.equal(pendingCharacters.length,10,'ten legacy characters are available in Arrow Lab only');
 assert.equal(allCharacters.length,data.characters.length+10,'all ten missing character IDs restored');
