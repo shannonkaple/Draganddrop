@@ -299,7 +299,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
        '<div><small>WORLD 1 • 8 SWEET MAZES</small><h2>🍬 CANDY WORLD</h2></div>'+
        '<div class="lab-candy-progress">'+worldDoneCount(0)+' / 8 COMPLETE</div>'+(canRescue()?'<button class="lab-candy-rescue" id="lab-candy-rescue" type="button">🐾 RESCUE A FRIEND!</button>':'')+'</div>'+
        '<div class="lab-candy-scenery" role="group" aria-label="Eight stops along the Candyland rainbow road">'+'<img class="lab-candy-map-art" src="'+asset('arrow-lab/assets/candy-world-map-original.png')+'" width="2048" height="682" alt="Candy World: eight islands connected by a rainbow road">'+points+'</div>'+
-       '<nav class="lab-candy-actions"><button data-nav="map">🏠 HOME</button><button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">💻 MY COLLECTIONS</button></nav>'+
+       '<nav class="lab-candy-actions"><button data-nav="map">🏠 HOME</button><button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">🧸 MY STUFF</button></nav>'+
      '</section>');
    $('lab-back-map').onclick=map;
    $('lab-candy-rescue')?.addEventListener('click',continueRescue);
@@ -319,7 +319,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    view='world-select';
    const cards=levels.slice(i*8,i*8+8).map((l,k)=>{
      const cleared=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],open=l.number<=a.highestUnlockedLevel;
-     return '<button type="button" class="lab-activity-card'+(cleared?' cleared':started?' started':'')+'" data-level="'+l.number+'" '+(open?'':'disabled')+'>'+
+     return '<button type="button" class="lab-activity-card'+(cleared?' cleared':started?' started':open?'':' locked')+'" data-level="'+l.number+'" aria-disabled="'+(!open)+'" aria-label="'+esc(world.name)+' maze '+(k+1)+(cleared?', completed':started?', in progress':open?', ready to play':', locked')+'">'+
        '<span class="lab-activity-icon">'+(cleared?'✓':started?'↪':open?'▶':'🔒')+'</span>'+
        '<span class="lab-activity-number">MAZE '+(k+1)+'</span><strong>'+esc(stageNames[world.id]?.[k]||activityNames[k])+'</strong>'+
        '<small>'+(cleared?'✓ ALREADY PLAYED':started?'↪ CONTINUE SAVED MAZE':open?'▶ READY TO PLAY':'🔒 LOCKED')+'</small></button>';
@@ -332,7 +332,17 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<p class="lab-world-tip">Use your arrow keys to move. Finish each maze to unlock the next!</p>'+(canRescue()?'<button class="lab-rescue" id="lab-world-rescue" type="button">🐾 Rescue a Friend!</button>':'')+'</section>');
    $('lab-back-map').onclick=map;
    $('lab-world-rescue')?.addEventListener('click',continueRescue);
-   document.querySelectorAll('.lab-activity-card[data-level]').forEach(b=>b.onclick=()=>startLevel(Number(b.dataset.level)));
+   document.querySelectorAll('.lab-activity-card[data-level]').forEach(b=>b.onclick=()=>{
+     const number=Number(b.dataset.level);
+     if(b.getAttribute('aria-disabled')==='true'){
+       const needed=Math.max(1,number-1)-(i*8);
+       modal('Maze '+(number-i*8)+' is locked','<p>First finish '+esc(world.name)+' maze '+needed+'.</p><button id="locked-maze-back" type="button" class="primary">Back to '+esc(world.name)+' World</button>',()=>{
+         $('locked-maze-back').onclick=closeModal;
+       });
+       return;
+     }
+     startLevel(number);
+   });
  }
 
  function stuff(){map()}
