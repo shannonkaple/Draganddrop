@@ -617,3 +617,106 @@ body.guided.adventure-mode.playing .adventure-layout .maze .cell.enemy-path-next
  body.guided.adventure-mode.playing .adventure-layout .maze .cell.wall{background:#17254b!important;}
  body.guided.adventure-mode.playing .adventure-layout .maze .cell.road{background:#fff!important;}
 }
+
+/* 2026-10-27: robust native-dialog sizing.
+   Browser top-layer centering uses auto margins; don't translate an auto-sized
+   dialog, which can leave a tall, seemingly blank white panel on Chromebooks. */
+html body dialog#adventure-dialog,
+html body dialog#adventure-dialog:not(.final-arrow-modal),
+html body dialog#adventure-dialog.final-arrow-modal {
+  position:fixed!important;
+  inset:0!important;
+  top:0!important;right:0!important;bottom:0!important;left:0!important;
+  margin:auto!important;
+  transform:none!important;
+  display:none!important;
+  box-sizing:border-box!important;
+  width:fit-content!important;
+  min-width:min(310px,calc(100vw - 24px))!important;
+  max-width:min(700px,calc(100vw - 24px))!important;
+  height:max-content!important;
+  min-height:0!important;
+  max-height:calc(100dvh - 24px)!important;
+  padding:clamp(10px,1.5vw,20px)!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  border:3px solid #25215c!important;
+  border-radius:22px!important;
+  background:#fffefb!important;color:#18264a!important;
+}
+html body dialog#adventure-dialog[open],
+html body dialog#adventure-dialog.final-arrow-modal[open] {
+  display:block!important;
+}
+html body dialog#adventure-dialog.final-arrow-modal{
+  width:min(820px,calc(100vw - 24px))!important;
+  max-width:min(820px,calc(100vw - 24px))!important;
+}
+html body dialog#adventure-dialog .dialog-toolbar{
+  position:sticky!important;top:0!important;z-index:12!important;
+  display:flex!important;flex-flow:row wrap!important;
+  align-items:center!important;justify-content:center!important;
+  gap:6px!important;width:100%!important;
+  margin:0 auto 8px!important;padding:2px 0 6px!important;
+  background:#fffefb!important;
+  border-bottom:1px solid #d9e4f3!important;
+}
+html body dialog#adventure-dialog .dialog-toolbar button{
+  position:static!important;float:none!important;
+  flex:0 0 auto!important;min-height:34px!important;
+  margin:0!important;padding:5px 10px!important;
+  white-space:nowrap!important;
+}
+html body dialog#adventure-dialog .dialog-content{
+  display:flow-root!important;min-width:0!important;
+  max-width:100%!important;overflow-wrap:anywhere!important;
+  color:#18264a!important;
+}
+html body dialog#adventure-dialog .dialog-content>h2{
+  margin:4px auto 10px!important;
+  color:#25376b!important;
+}
+html body dialog#adventure-dialog .dialog-content img{
+  max-width:100%!important;object-fit:contain!important;
+}
+html body dialog#adventure-dialog .dialog-content button{
+  max-width:100%!important;
+}
+@media(max-height:640px){
+ html body dialog#adventure-dialog,
+ html body dialog#adventure-dialog:not(.final-arrow-modal),
+ html body dialog#adventure-dialog.final-arrow-modal{
+   max-height:calc(100dvh - 12px)!important;
+   padding:8px 11px!important;
+ }
+ html body dialog#adventure-dialog .dialog-toolbar{
+   margin-bottom:4px!important;padding-bottom:3px!important;
+ }
+ html body dialog#adventure-dialog .dialog-content>h2{
+   font-size:clamp(19px,3.5dvh,27px)!important;
+ }
+}
+/* Keep four persistent header controls in a true horizontal toolbar.
+   They wrap only on narrow screens instead of vanishing off the right edge. */
+body>header.lab-image-header .actions{
+  display:flex!important;flex-flow:row wrap!important;
+  align-items:center!important;justify-content:center!important;
+  gap:5px!important;max-width:100%!important;
+  width:100%!important;min-width:0!important;
+  overflow:visible!important;
+}
+body>header.lab-image-header .actions button{
+  flex:0 0 auto!important;min-width:0!important;
+  max-width:100%!important;white-space:nowrap!important;
+}
+@media(max-width:720px){
+ body>header.lab-image-header{
+   height:clamp(165px,27dvh,215px)!important;
+ }
+ body>header.lab-image-header .actions{
+   row-gap:3px!important;column-gap:5px!important;
+ }
+ body>header.lab-image-header .actions button{
+   min-height:32px!important;padding:4px 7px!important;
+   font-size:clamp(10px,1.7vw,12px)!important;
+ }
+}
