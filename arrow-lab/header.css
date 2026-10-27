@@ -122,3 +122,64 @@ body>header.lab-image-header .actions button {
     font-size:10px!important;min-height:33px!important;padding:4px 3px!important;
   }
 }
+
+/* ONE horizontal toolbar; never stack page controls in columns.
+   Preserve the approved illustration's aspect ratio until regenerated. */
+body>header.lab-image-header {
+  grid-template-columns:minmax(0,1fr) max-content!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+body>header.lab-image-header .actions {
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  grid-template-columns:none!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  max-width:none!important;
+  width:max-content!important;
+  gap:5px!important;
+}
+body>header.lab-image-header .actions button {
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:39px!important;
+  padding:7px 8px!important;
+  font-size:clamp(10px,.85vw,13px)!important;
+  white-space:nowrap!important;
+}
+@media(max-width:1050px) {
+  body>header.lab-image-header {
+    height:clamp(150px,22vh,215px)!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:minmax(72px,1fr) auto!important;
+    gap:2px!important;
+    padding:4px 8px!important;
+  }
+  body>header.lab-image-header .brand{
+    height:100%!important;
+    min-height:0!important;
+  }
+  body>header.lab-image-header .actions{
+    width:100%!important;
+    justify-content:center!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding-bottom:4px!important;
+  }
+  body>header.lab-image-header .actions button{
+    font-size:clamp(10px,1.65vw,13px)!important;
+    min-height:35px!important;
+    padding:5px 9px!important;
+  }
+}
+@media(max-width:460px) {
+  body>header.lab-image-header .actions {justify-content:flex-start!important;}
+  body>header.lab-image-header .actions button{
+    padding:4px 7px!important;font-size:10px!important;
+  }
+}
