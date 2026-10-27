@@ -191,3 +191,26 @@ body.adventure-mode:has(.aa-home){
 .friend-collection article p{margin:4px}
 
 .aa-bottom-menu .aa-new-stem{display:block;font:12px VAG,Arial,sans-serif;line-height:1.1;background:#ffd600;color:#102b67;padding:3px 8px;border-radius:99px;margin-top:4px}
+
+
+/* Collections need readable, scrollable cards instead of shrinking the entire screen. */
+body.adventure-mode:has(.stem-collection) #app{
+  position:fixed;
+  top:var(--screen-top,72px)!important;
+  left:var(--guide-width,0px)!important;
+  width:calc(100vw - var(--guide-width,0px))!important;
+  height:var(--screen-height,calc(100dvh - 80px))!important;
+  max-height:var(--screen-height,calc(100dvh - 80px))!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  transform:none!important;
+  padding-bottom:32px;
+}
+.stem-collection{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:14px;
+  align-items:stretch;
+  margin:15px 0 26px;
+}
+@media(max-width:650px){.stem-collection{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}}
