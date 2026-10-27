@@ -1,10 +1,9 @@
-import {artJPEG} from './individual-art.mjs?v=20261027-jpegs';
 import {tellGuide,starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
 import {decorations,worldCosts} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=20261027-five';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const root=new URL('../',import.meta.url),asset=p=>p.startsWith('generated:')?artJPEG(p):new URL(p.replace(/^\//,''),root).href;
+const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
 const readJSON=async n=>{const r=await fetch(new URL('./data/'+n+'.json?v=20261027-stem',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
@@ -52,7 +51,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
   flashRescue();
  }
  function selectCharacter(changing=false){
- view='select';const newest=chars.filter(c=>c.levels[0].image.startsWith('generated:')),classic=chars.filter(c=>!c.levels[0].image.startsWith('generated:'));const displayCharacters=[...newest,...classic];shell('Pick your player','<h2 class="new-choice-heading">MEET 10 NEW CHARACTERS!</h2><p>Choose anyone below. Your rescued friends stay saved in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+displayCharacters.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong>'+(c.levels[0].image.startsWith('generated:')?'<span class="new-character-label">NEW!</span>':'')+'</button>').join('')+'</div>');
+ view='select';const newest=chars.filter(c=>c.levels[0].image.startsWith('generated:')),classic=chars.filter(c=>!c.levels[0].image.startsWith('generated:'));const displayCharacters=[...newest,...classic];shell('Pick your player','<h2 class="new-choice-heading">CHOOSE YOUR CHARACTER</h2><p>Your rescued friends are saved in My Collections.</p>'+(changing?'<button id="cancel-player">← Back</button>':'')+'<div class="adventure-cards">'+displayCharacters.map(c=>'<button data-hero="'+c.id+'">'+img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong>'+(c.levels[0].image.startsWith('generated:')?'<span class="new-character-label">NEW!</span>':'')+'</button>').join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{a.selectedPlayerCharacterId=b.dataset.hero;a.friends[b.dataset.hero]??={isRescued:true,upgradeStage:'starter',homeLandId:a.primaryRainbowLandId||lands[0].id};a.unlockedCharacterIds=Object.keys(a.friends);save();changing?map():chooseLand()});
  const choices=[...document.querySelectorAll('[data-hero]')];
  if(choices.length>8){
@@ -102,7 +101,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
    '<div class="aa-player-card">'+pic(playerId)+'<div class="aa-character-info"><span class="aa-mini-label">MY CHARACTER</span><h2>'+esc(char(playerId).name)+'</h2><span class="aa-level-pill">'+esc(currentStage(playerId))+'</span><button id="change-player" class="aa-change-player">Change Character · '+chars.length+' choices ›</button></div></div>'+
    '<div class="aa-quest"><div><span class="aa-mini-label">NEXT FRIEND</span><p>'+esc(progressLabel)+'</p><div class="aa-progress" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="'+a.mazesSinceRescue+'"><span style="width:'+(a.mazesSinceRescue/5*100)+'%"></span></div><small>'+Math.min(5,a.mazesSinceRescue)+' / 5 mazes</small></div><div class="aa-friend-silhouette" aria-hidden="true">'+(hasMoreFriends?'❔':'⭐')+'</div>'+rescueAction+'</div>'+
    '<div class="aa-main-action"><span class="aa-world-label">🌈 '+worldName+'</span><button id="continue-adventure" class="aa-play-button"><span aria-hidden="true">▶</span> PLAY MAZE</button><span class="aa-next-label">'+(resume?'Continue maze ':'Next: Maze ')+next.number+' · '+esc(next.title)+'</span></div>'+
-   '<div class="aa-bottom-menu" aria-label="Game navigation"><button data-nav="map" class="aa-nav-home"><span aria-hidden="true">🏠</span>Home</button><button data-nav="shop" class="aa-nav-shop"><span aria-hidden="true">⭐</span>Star Shop</button><button data-nav="computer" class="aa-nav-collection"><span aria-hidden="true">💻</span>My Collections<small class="aa-new-stem">10 NEW STEM ITEMS</small></button></div>'+
+   '<div class="aa-bottom-menu" aria-label="Game navigation"><button data-nav="map" class="aa-nav-home"><span aria-hidden="true">🏠</span>Home</button><button data-nav="shop" class="aa-nav-shop"><span aria-hidden="true">⭐</span>Star Shop</button><button data-nav="computer" class="aa-nav-collection"><span aria-hidden="true">💻</span>My Collections</button></div>'+
    '<details class="aa-more"><summary>⋯ More</summary><div class="aa-more-menu"><button data-nav="lands">🌍 My Worlds</button><button id="endless">More Arrow Practice</button><button id="teacher-settings">Teacher Settings</button><details><summary>Choose Another Maze</summary><div class="level-cards">'+allLevels+'</div></details></div></details>'+
    '</section>');
   $('change-player').onclick=()=>selectCharacter(true);
@@ -162,15 +161,11 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
       (showMaze&&!collected&&accessible?'<button type="button" class="stem-find" data-stem-level="'+level.number+'">▶ Find this item</button>':'')+
       '</article>';
   }).join('');
-  const newSTEM=data.computer_collectibles.filter(i=>i.type==='stem_gear'),
-        original=data.computer_collectibles.filter(i=>i.type!=='stem_gear'),
+  const original=data.computer_collectibles,
         rescued=chars.filter(c=>a.friends[c.id]),
         friendCards=rescued.map(c=>'<article class="earned-item">'+pic(c.id)+'<strong>'+esc(c.name)+'</strong><p>✓ Rescued friend</p></article>').join('');
-  const collectedSTEM=newSTEM.filter(i=>a.collectedComputerGearIds.includes(i.id)).length;
   const all=original.every(i=>a.collectedComputerGearIds.includes(i.id))&&data.skill_badges.every(i=>a.earnedSkillBadgeIds.includes(i.id));
   shell('My Collections',
-    '<h2>NEW! STEM Discoveries · '+collectedSTEM+' / '+newSTEM.length+'</h2>'+
-    '<div class="stem-collection">'+cards(newSTEM,a.collectedComputerGearIds,true)+'</div>'+
     '<h2>My Rescued Friends ('+rescued.length+')</h2><div class="adventure-cards friend-collection">'+friendCards+'</div>'+
     '<h2>Computer Equipment</h2><div class="adventure-cards">'+cards(original,a.collectedComputerGearIds,true)+'</div>'+
     '<h2>My Computer Skills</h2><div class="adventure-cards">'+cards(data.skill_badges,a.earnedSkillBadgeIds)+'</div>'+
