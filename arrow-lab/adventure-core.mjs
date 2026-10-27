@@ -14,9 +14,12 @@ export function buildLevel(def,seed,easy=false){
  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)if(grid[y][x]===1&&((x%2===0&&y%2===1)||(x%2===1&&y%2===0))&&random()<.18)grid[y][x]=0;
  const start={x:1,y:1},goal={x:w-2,y:h-2},roads=[];for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)if(!grid[y][x]&&(x!==1||y!==1)&&(x!==goal.x||y!==goal.y))roads.push({x,y});
  const shuffled=[...roads].sort(()=>0);for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}
- const items=(def.collectibleIds||def.computerGearIds||[]).map((id,i)=>({id,...shuffled[i],collected:false}));
+ const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+ const placed=[start,goal],available=[...shuffled];
+ const spread=()=>{let best=0,score=-1;available.forEach((p,i)=>{const n=Math.min(...placed.map(q=>dist(p,q)));if(n>score){score=n;best=i}});const p=available.splice(best,1)[0];placed.push(p);return p};
+ const items=(def.collectibleIds||def.computerGearIds||[]).map(id=>({id,...spread(),collected:false}));
  const needsSkill=def.primarySkill!=='arrows'&&def.primarySkill!=='mixed'||(def.skillBadgeIds||[]).length>0;
- const skill=needsSkill?{...shuffled[items.length],done:false,type:def.primarySkill}:null;
+ const skill=needsSkill?{...spread(),done:false,type:def.primarySkill}:null;
  const stops=[...items,...(skill?[skill]:[]),goal],safe=new Set([tile(start)]);let p=start;
  for(const stop of stops){for(const n of walk(p,route(grid,p,stop)))safe.add(tile(n));p=stop}
  const excluded=new Set([tile(start),tile(goal),...items.map(tile),...(skill?[tile(skill)]:[])]);
@@ -48,11 +51,15 @@ export function buildLevel(def,seed,easy=false){
      const path=[pos];
      // Moving enemies patrol only within their own isolated side branch.
      if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id)){
-       const secondary=side.filter(p=>dist(p,pos)===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
-       if(secondary.length){
-         secondary.sort((a,b)=>dist(b,start)-dist(a,start));
+       // Every patrol step is an open adjacent tile. Return along the same route,
+       // so looping the animation never teleports across a wall.
+       for(let step=0;step<4;step++){
+         const secondary=side.filter(p=>dist(p,path.at(-1))===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
+         if(!secondary.length)break;
+         secondary.sort((a,b)=>Math.min(...hazards.map(h=>dist(b,h.path[0])),99)-Math.min(...hazards.map(h=>dist(a,h.path[0])),99));
          path.push(secondary[0]);used.add(tile(secondary[0]));
        }
+       if(path.length>2)path.push(...path.slice(1,-1).reverse());
      }
      hazards.push({id,path,index:0});
    }
@@ -80,7 +87,11 @@ export function completeLevel(a,run,def,config){
  if(!a.completedLevelIds.includes(def.id))a.completedLevelIds.push(def.id);
  a.highestUnlockedLevel=Math.min(64,Math.max(a.highestUnlockedLevel,def.number+1));return n;
 }
-export function rescueReady(a){return (a.mazesSinceRescue||0)>=3}
+export const worldIds=['candy','pirate','arctic','castle','space','jurassic','ocean','lava'];
+export function pendingWorldRescue(a){return worldIds.find(id=>!a.worldFriends?.[id]&&Array.from({length:8},(_,i)=>`lab_${id}_${i+1}`).every(level=>a.completedLevelIds.includes(level)))||null}
+export function rescueReady(a){return !!pendingWorldRescue(a)}
+export function rescueWorld(a,id,home){if(pendingWorldRescue(a)!==id||!a.ownedWorldIds.includes(home))return false;(a.worldFriends??={})[id]={homeLandId:home};a.pendingRescueFriendId=null;return true}
+export function arrowPattern(seed,attempt=0){const patterns=[['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'],['ArrowRight','ArrowRight','ArrowUp','ArrowLeft'],['ArrowDown','ArrowLeft','ArrowUp','ArrowRight'],['ArrowLeft','ArrowUp','ArrowUp','ArrowRight'],['ArrowUp','ArrowLeft','ArrowDown','ArrowDown'],['ArrowRight','ArrowDown','ArrowLeft','ArrowUp']];return [...patterns[(Math.abs(seed)+attempt)%patterns.length]]}
 export function buyWorld(a,id,lands,costs){const index=lands.findIndex(l=>l.id===id);if(index<0)return false;if(a.ownedWorldIds.includes(id))return true;const cost=costs[index];if(!Number.isFinite(cost)||a.wallet.rainbowStars<cost)return false;a.wallet.rainbowStars-=cost;a.ownedWorldIds.push(id);return true}
 export function placeFriend(a,id,world){if(!a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id].homeLandId=world;return true}
 export function rescueFriend(a,id,world,levelId){if(!rescueReady(a)||a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:world};a.unlockedCharacterIds=Object.keys(a.friends);if(levelId&&!a.rescuedAtLevelIds.includes(levelId))a.rescuedAtLevelIds.push(levelId);a.mazesSinceRescue=0;a.pendingRescueFriendId=null;return true}

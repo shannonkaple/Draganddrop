@@ -744,7 +744,14 @@
         {
           "id": "golden_key",
           "path": "arrow-lab/collectibles/castle/golden_key.png",
-          "status": "not_created"
+          "status": "exported_pending_integration",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "alpha_verified": true,
+          "generation_method": "built-in image_gen",
+          "visual_review": "Glossy rounded cartoon golden key with heart bow and pink jewel; no realistic texture."
         },
         {
           "id": "royal_crown",
@@ -1259,7 +1266,7 @@
   },
   "header": {
     "path": "arrow-lab/assets/arrow-adventure-header.png",
-    "status": "integrated_pending_browser_review",
+    "status": "integrated_browser_verified",
     "source": "Exact user-selected upload; copied without alteration",
     "dimensions": [
       2048,
@@ -1267,5 +1274,33 @@
     ],
     "sha256": "04ff3a56c55fdb8ce75bb9a58ec2db98f33718b97c8a6967176dc61f8b5004e7",
     "layout": "Fixed top banner; full image contained without cropping"
+  },
+  "candy_world_map": {
+    "path": "arrow-lab/assets/candy-world-map-original.png",
+    "status": "integrated_pending_browser_review",
+    "source": "Exact user-selected upload, unaltered",
+    "dimensions": [
+      2048,
+      682
+    ],
+    "sha256": "fd3dd0817cf93b63e2e2d6ef7581fd00c58f41598f125caefeba6565ea3a20a3",
+    "layout": "Natural aspect ratio, no crop; eight interactive stops aligned to original circles"
+  },
+  "world_companions": {
+    "candy": {
+      "name": "Candy Bunny",
+      "path": "arrow-lab/friends/candy-bunny.png",
+      "status": "integrated_pending_browser_review",
+      "unlock": "All eight distinct Candy mazes completed",
+      "generation_method": "built-in image_gen"
+    }
+  },
+  "gameplay_changes": {
+    "status": "automated_tests_passed_pending_browser_review",
+    "rescue": "Fixed themed companion after all eight distinct mazes per world; preserve existing friends",
+    "patterns": "Six patterns, changed on each challenge; oversized arrow cards",
+    "patrols": "Up to five open adjacent tiles, reverse path without jumping; retain safe route",
+    "items": "Maximize minimum separation from other objectives",
+    "background_shop": "Eight themed background choices; preserve previously owned homes, furniture and positions"
   }
 }

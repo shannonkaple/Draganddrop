@@ -1,0 +1,53 @@
+/* Keep each pop-up as small as its content permits. */
+body.guided #adventure-dialog {
+  width:max-content!important;
+  min-width:0!important;
+  max-width:min(680px,calc(100vw - 32px))!important;
+  height:auto!important;
+  max-height:calc(100dvh - 32px)!important;
+  inset:0!important;
+  margin:auto!important;
+  padding:20px!important;
+  overflow:auto;
+}
+#adventure-dialog p {max-width:42ch;margin:12px auto;}
+#skill-sequence {display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:20px 0;}
+#skill-sequence .pattern-arrow {
+  display:grid;place-items:center;
+  width:clamp(66px,12vw,118px);height:clamp(76px,14vw,132px);
+  font:900 clamp(60px,10vw,108px)/1 Arial,sans-serif;
+  color:#25154e;background:#f1e7ff;border:4px solid #a888d7;border-radius:18px;
+}
+#skill-sequence .pattern-arrow.current {background:#ffe85e;border-color:#34234f;box-shadow:0 0 0 4px white,0 0 0 7px #ed70bd;}
+#skill-sequence .pattern-arrow.done {color:#185929;background:#cbffbd;border-color:#73b959;}
+.world-friend-art {width:180px;height:180px;object-fit:contain;}
+.world-friend-icon {font-size:100px;line-height:1.2;}
+.world-companion span:last-child {background:white;padding:3px 7px;border-radius:10px;}
+.world-companion .world-friend-icon {background:transparent;font-size:90px;}
+/* Exact 2048 x 682 uploaded Candy map; no background cropping or stretching. */
+body.adventure-mode .lab-candy-world {
+  height:auto!important;min-height:0!important;
+  grid-template-rows:auto auto auto!important;
+  width:100%;overflow:visible;
+}
+body.adventure-mode .lab-candy-scenery {
+  min-height:0!important;
+  aspect-ratio:2048/682;
+  width:100%;height:auto!important;
+  background:none!important;
+  border:0;
+}
+.lab-candy-map-art {display:block;width:100%;height:auto;aspect-ratio:2048/682;object-fit:contain;border-radius:19px;}
+body.adventure-mode .lab-candy-node {
+  width:9%!important;min-height:0!important;height:auto!important;
+  justify-content:center;gap:1px;
+}
+.lab-candy-node .lab-candy-status {font-size:clamp(8px,.85vw,12px);padding:3px 5px;}
+.lab-candy-node .lab-candy-name {font-size:clamp(7px,.75vw,11px);white-space:normal;padding:2px 4px;}
+body:has(.lab-candy-world) .adventure-title {display:none;}
+@media(max-width:700px) {
+  .lab-candy-heading {gap:4px;padding:5px;min-height:0;}
+  .lab-candy-heading h2 {font-size:18px;}
+  .lab-candy-heading small {font-size:8px;}
+  .lab-candy-heading button,.lab-candy-progress {font-size:9px;padding:5px;}
+}
