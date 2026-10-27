@@ -1,5 +1,5 @@
 import {starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
-import {adventureWorlds,campaign,activityStatus,activityNames,friendForWorld,isWorldUnlocked,mapPath,makeWorldTask} from './campaign.mjs?v=20261026-world8';
+import {adventureWorlds,campaign,activityStatus,activityNames,friendForWorld,isWorldUnlocked,mapPath,makeWorldTask} from './campaign.mjs?v=20261027-blank-jpg';
 import {downloadWorldMapJpegs} from './map-jpeg-export.mjs?v=20261026-mapjpg';
 import {queueStudentSync} from './central-sync.mjs?v=20261026-central';
 import {showClassReport} from './class-report.mjs?v=20261026-dated';
@@ -70,23 +70,20 @@ function home(){
  if(state.pendingRescue){rescueFlow();return}
  const c=campaign(state),allDone=c.completed.every(n=>n===8);
  // Align interactive world nodes to the new eight-island backdrop.
- const coords=[[13,31],[38.5,29],[63,31],[89,31],[10,79],[39,79],[63.5,79],[89,79]];
+ const coords=[[13,25.5],[38.5,23.5],[63,25.5],[89,25.5],[10,81.5],[39,81.5],[63.5,81.5],[89,81.5]];
  const nodes=adventureWorlds.map((w,i)=>{
   const unlocked=isWorldUnlocked(state,i),done=c.completed[i],active=unlocked&&!allDone&&i===c.unlocked;
   const position=coords[i],status=done===8?'completed':active?'current':unlocked?'available':'locked';
-  return '<button type="button" class="arrow-world-node '+status+'" data-map-world="'+i+'" '+
+  return '<button type="button" class="arrow-world-node blank-map-hotspot '+status+'" data-map-world="'+i+'" '+
    'style="left:'+position[0]+'%;top:'+position[1]+'%" '+(!unlocked?'disabled aria-disabled="true" ':'')+
-   'aria-label="'+esc(w.name)+': '+(unlocked?done+' of 8 levels complete':'locked')+'">'+
-   '<span class="arrow-world-pin" aria-hidden="true">'+(done===8?'⭐':unlocked?'▶':'🔒')+'</span>'+
-   '<span class="arrow-world-name">'+(i+1)+'. '+esc(w.name.replace(' World',''))+'</span>'+
-   '<span class="arrow-world-status">'+(unlocked?done+' / 8':'LOCKED')+'</span></button>';
+   'aria-label="'+esc(w.name)+': '+(unlocked?done+' of 8 levels complete':'locked')+'"></button>';
  }).join('');
  const next=adventureWorlds[allDone?7:c.unlocked],nextStep=allDone?8:c.completed[c.unlocked]+1;
  shell('<section class="arrow-style-home" aria-label="Ms. Kaple Trackpad rainbow adventure home">'+
     mapSummary()+
     '<div class="arrow-map-heading"><span>🌈 8 magical worlds · 8 activities each</span><h2>Choose Your World!</h2>'+
     '<p>Follow the rainbow road. Earn stars. Rescue friends!</p></div>'+
-    '<div class="arrow-world-stage" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+nodes+'</div>'+
+    '<div class="arrow-world-stage" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava"><img class="map-jpeg-backdrop" src="trackpad-adventure/maps/overview-clean.jpg?v=20261027-blank-jpg" alt="" draggable="false">'+nodes+'</div>'+
     '<div class="arrow-home-actions">'+
       '<button type="button" id="continue-world" class="arrow-next-play">'+(allDone?'↻ REPLAY WORLD':'▶ PLAY NEXT')+' <small>'+esc(next.name)+' · Level '+nextStep+'</small></button>'+
       '<nav class="arrow-home-nav" aria-label="Game navigation">'+
@@ -120,19 +117,24 @@ function openCampaignWorld(i){
 function worldLevelMap(){
  const c=campaign(state),w=adventureWorlds[c.current],finished=c.completed[c.current]===8;
  const centers=[[14,37],[37,37],[60,37],[83,37],[14,74],[37,74],[60,74],[83,74]];
- const buttons=centers.map(([x,y],i)=>{const status=activityStatus(state,c.current,i);
-  return `<button type="button" class="world-map-hotspot ${status}" data-campaign-level="${i}" style="left:${x}%;top:${y}%" ${status==='locked'?'disabled aria-disabled="true"':''} aria-label="${w.name} activity ${i+1}: ${activityNames[i]}, ${status}">
-    <span class="world-map-hotspot-label">${status==='locked'?'🔒':status==='complete'?'✓':i+1}</span>
-    ${i===7?'<small>RESCUE FRIEND</small>':''}
-   </button>`;
+ // Only transparent HTML hotspots sit over the eight EMPTY circles in the JPEG.
+ const buttons=centers.map(([x,y],i)=>{
+  const status=activityStatus(state,c.current,i);
+  return `<button type="button" class="world-map-hotspot ${status}" data-campaign-level="${i}"
+   style="left:${x}%;top:${y}%" ${status==='locked'?'disabled aria-disabled="true"':''}
+   aria-label="${w.name}: ${i===7?'rescue friend, ':' '}level ${i+1}, ${status}"></button>`;
  }).join('');
- shell(`<section class="campaign-level-screen world-map-page"><div class="campaign-level-header"><button id="back-worlds">← All Worlds</button><div><h2>${w.icon} ${w.name}</h2><p>${c.completed[c.current]} / 8 LEVELS · ${w.action}</p></div><strong>⭐ ${state.stars}</strong></div>
- <div class="campaign-level-map world-map-art" style="background-image:url('${mapPath(w)}')" role="group" aria-label="Eight levels in ${w.name}">${buttons}</div>
- <div class="campaign-level-footer"><span>${w.companionIcon} RESCUE <strong>${esc(w.companion)}</strong> AT LEVEL 8 ${finished?'✓ RESCUED':'🔒'}</span>
- <button id="campaign-continue" class="primary">${finished?'Replay level 8':'▶ PLAY LEVEL '+(c.completed[c.current]+1)}</button></div></section>`);
+ shell(`<section class="campaign-level-screen world-map-page" aria-label="${w.name} level map">
+ <div class="world-map-toolbar">
+  <button type="button" id="back-worlds" aria-label="Back to all eight worlds" title="All worlds">🏠</button>
+  <span class="world-map-reward ${finished?'earned':''}" aria-label="${esc(w.companion)}, ${finished?'rescued':'rescued after the eighth level'}">${w.companionIcon}</span>
+  <span class="world-map-stars" aria-label="${state.stars} stars">⭐ ${state.stars}</span>
+ </div>
+ <div class="world-map-art" role="group" aria-label="Eight blank level circles in ${w.name}">
+  <img class="map-jpeg-backdrop" src="${mapPath(w)}" alt="" draggable="false">${buttons}
+ </div></section>`);
  $('#back-worlds').onclick=home;
  app.querySelectorAll('[data-campaign-level]').forEach(b=>b.onclick=()=>startCampaignActivity(Number(b.dataset.campaignLevel)));
- $('#campaign-continue').onclick=()=>startCampaignActivity(finished?7:c.completed[c.current]);
 }
 function startCampaignActivity(i){
  const c=campaign(state),status=activityStatus(state,c.current,i);
