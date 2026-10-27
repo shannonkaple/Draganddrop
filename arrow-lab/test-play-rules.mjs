@@ -13,6 +13,18 @@ const data=Object.fromEntries(['characters','rainbow_lands','levels','game_confi
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
 const {levels,lands,backgroundHomes,worldCosts}=new Function('data','storageKey',defs+';return {levels,lands,backgroundHomes,worldCosts}')(data,'test');
 assert.equal(backgroundHomes.length,8);assert.deepEqual(backgroundHomes.map(l=>l.id),worldIds.map(id=>'background_'+id));
+assert.equal(levels.length,64,'eight worlds with eight mazes each');
+for(const def of levels){
+ assert.equal(def.enemyIds.length,4,`${def.id} must have four enemies`);
+ assert.equal(new Set(def.enemyIds).size,4,`${def.id} must have four DIFFERENT enemy types`);
+ assert.ok(def.mazeGrid.width>=11&&def.mazeGrid.height>=9,`${def.id} needs enough safe space for four enemies`);
+}
+assert.match(source,/const starterWorldId='background_candy'/,'every new student gets a free starter world');
+assert.match(source,/if\(!a\.selectedPlayerCharacterId\)selectCharacter\(\)/,'first-time student must choose a character');
+assert.match(source,/if\(!changing\)enterWithStarterWorld\(\)/,'first-time character choice goes straight to starter world');
+assert.doesNotMatch(source,/changing\?map\(\):chooseLand\(\)/,'no second home-selection screen');
+assert.match(source,/if\(def\.worldStage===8&&\(r\.finalArrowIndex\|\|0\)<10\)\{finalArrowChallenge\(\);return\}/,'world finale requires all ten arrows');
+assert.match(source,/const valid=old&&old\.id===def\.id/,'saved maze run can be resumed');
 assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);
 const old={selectedPlayerCharacterId:data.characters[0].id,primaryRainbowLandId:data.rainbow_lands[0].id,ownedWorldIds:[data.rainbow_lands[0].id],friends:{[data.characters[0].id]:{isRescued:true,upgradeStage:'power_up',homeLandId:data.rainbow_lands[0].id}},worldFriends:{candy:{homeLandId:'background_candy'}},positions:{rainbow_meadow:{astro_ace:{x:30,y:40}}},wallet:{rainbowStars:17},completedLevelIds:['lab_candy_1']};
 const migrated=migrateAdventure(structuredClone(old),{},data.characters,lands);for(const key of Object.keys(old))assert.deepEqual(migrated[key],old[key]);
@@ -21,6 +33,8 @@ for(const def of levels)for(let seed=1;seed<=40;seed++){
  const r=buildLevel(def,seed);runs++;const occupied=new Set();
  const distance=(p,q)=>Math.abs(p.x-q.x)+Math.abs(p.y-q.y);
  if(r.items.length===2)assert.ok(distance(r.items[0],r.items[1])>=2,'items must be separated');
+ assert.equal(r.hazards.length,4,`${def.id} seed ${seed}: missing enemy`);
+ assert.equal(new Set(r.hazards.map(enemy=>enemy.id)).size,4,`${def.id} seed ${seed}: duplicate enemy`);
  for(const enemy of r.hazards){const own=new Set(enemy.path.map(tile));for(const pos of own){assert.ok(!occupied.has(pos));occupied.add(pos)}
   if(own.size>2)longPatrols++;
   enemy.path.forEach((p,i)=>{assert.equal(r.grid[p.y][p.x],0);assert.ok(!r.items.some(q=>tile(p)===tile(q)));if(enemy.path.length>1)assert.equal(distance(p,enemy.path[(i+1)%enemy.path.length]),1,'no jumps through walls, including loop wrap')});
@@ -28,4 +42,4 @@ for(const def of levels)for(let seed=1;seed<=40;seed++){
  let p=r.start;for(const stop of [...r.items,...(r.skill?[r.skill]:[]),r.goal]){assert.ok(route(r.grid,p,stop,occupied));p=stop}
 }
 assert.ok(longPatrols>0,'moving enemies have longer patrols');
-console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable backgrounds; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings.`);
+console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings.`);
