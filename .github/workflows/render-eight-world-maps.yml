@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/render-eight-world-maps.yml'
+      - 'trackpad-adventure/build-eight-world-maps.py'
+      - 'arrow-lab/scenes/**'
+      - 'arrow-lab/candy-stages/**'
   workflow_dispatch:
 permissions:
   contents: write
