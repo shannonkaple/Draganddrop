@@ -579,3 +579,41 @@ body.adventure-mode.playing .adventure-layout .cell.enemy-path-next.hazard-warni
  }
  @keyframes enemy-next-alert { from{transform:scale(.9)} to{transform:scale(1.1)} }
 }
+
+/* 27 Oct classroom screenshot: the previous nearly transparent white paths on
+   decorative scenery were effectively invisible. Draw a legible grid and
+   distinguish navigable cells from blocking cells without stretching artwork. */
+body.guided.adventure-mode.playing .adventure-layout .maze {
+  border:4px solid #253868!important;
+  background:#f7fbff!important;
+  isolation:isolate;
+}
+body.guided.adventure-mode.playing .adventure-layout .maze .cell {
+  position:relative!important;
+  border-radius:1px!important;
+  min-width:0!important;
+  min-height:0!important;
+}
+body.guided.adventure-mode.playing .adventure-layout .maze .cell.wall {
+  background:rgba(23,39,87,.83)!important;
+  border:1px solid rgba(15,22,58,.95)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)!important;
+}
+body.guided.adventure-mode.playing .adventure-layout .maze .cell.road {
+  background:rgba(255,255,255,.74)!important;
+  border:1px solid rgba(42,56,101,.74)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)!important;
+}
+/* These effects augment, never replace, the corridor color boundaries. */
+body.guided.adventure-mode.playing .adventure-layout .maze .cell.enemy-path-next.road {
+  background:rgba(255,236,130,.89)!important;
+  box-shadow:inset 0 0 0 3px #efaa00!important;
+}
+body.guided.adventure-mode.playing .adventure-layout .maze .cell.enemy-path-next.hazard-warning.road {
+  background:rgba(255,185,153,.96)!important;
+  box-shadow:inset 0 0 0 3px #ec2349!important;
+}
+@media(prefers-contrast:more){
+ body.guided.adventure-mode.playing .adventure-layout .maze .cell.wall{background:#17254b!important;}
+ body.guided.adventure-mode.playing .adventure-layout .maze .cell.road{background:#fff!important;}
+}
