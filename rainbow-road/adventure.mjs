@@ -1,9 +1,10 @@
+import {artJPEG} from './individual-art.mjs?v=20261027-jpegs';
 import {tellGuide,starIcon} from '../game-ui/viewport.mjs?v=20261021-menu';
 import {decorations,worldCosts} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueFriend,rescueReady,buyWorld,placeFriend} from './adventure-core.mjs?v=20261021-menu';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
+const root=new URL('../',import.meta.url),asset=p=>p.startsWith('generated:')?artJPEG(p):new URL(p.replace(/^\//,''),root).href;
 const img=(p,name,cls='')=>'<img class="'+cls+'" src="'+asset(p)+'" alt="'+esc(name)+'" draggable="false">';
 const readJSON=async n=>{const r=await fetch(new URL('./data/'+n+'.json',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
