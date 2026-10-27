@@ -69,7 +69,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  };
  const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Seal','🦭'],['Castle Griffin','🦅'],['Space Alien','👽'],['Baby Dino','🦖'],['Ocean Dolphin','🐬'],['Lava Lizard','🦎']].map(([name,icon],i)=>({id:worldThemes[i].id,name,icon,art:i===0?'arrow-lab/friends/candy-bunny.png':i===1?'arrow-lab/collectibles/pirate/parrot.png':null}));
  const homeArt=[candyStageBackgrounds[0],pirateStageBackgrounds[0],arcticStageBackgrounds[0],worldThemes[3].backgroundImage,worldThemes[4].backgroundImage,worldThemes[5].backgroundImage,oceanStageBackgrounds[0],worldThemes[7].backgroundImage];
- const backgroundHomes=worldThemes.map((w,i)=>({id:'background_'+w.id,name:w.name+' World',homeBackground:homeArt[i],cardPreview:homeArt[i],availableAtStart:true}));
+ const backgroundHomes=worldThemes.map((w,i)=>({id:'background_'+w.id,name:w.name+' World',homeBackground:homeArt[i],cardPreview:homeArt[i],availableAtStart:i===0,theme:w.id}));
  const themedGoods=[
  {id:'candy_cupcake',name:'Giant Cupcake',world:'candy',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/candy/cupcake.png'},
  {id:'candy_lollipop',name:'Rainbow Lollipop',world:'candy',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/candy/lollipop.png'},
@@ -227,7 +227,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
        '<small>'+(cleared?'COMPLETED ✓':open?'▶ PLAY':'LOCKED')+'</small></button>';
    }).join('');
    shell(world.name+' World',
-    '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+');background-size:cover,400% 200%;background-position:center,0% 0%">'+
+    '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+');background-size:cover,cover;background-position:center,center">'+
     '<div class="lab-world-heading"><button id="lab-back-map" type="button">← World Map</button>'+
     '<div><span>WORLD '+(i+1)+' OF 8</span><h2>'+world.icon+' '+esc(world.name)+' World</h2><p>'+worldDoneCount(i)+' of 8 mazes finished</p></div></div>'+
     '<div class="lab-world-activities">'+cards+'</div>'+
