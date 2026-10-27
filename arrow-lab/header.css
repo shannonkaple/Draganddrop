@@ -62,11 +62,9 @@ body>header.lab-image-header::after { content:none!important; }
 /* Fill the entire top ribbon with already integrated panoramic world scenery.
    The approved title image is contained at native proportions, never stretched. */
 body>header.lab-image-header {
-  background-image:linear-gradient(90deg,#c5e9ff58,#f4e1ff29 50%,#d1ebff58),
-                   url('./map-background.jpg')!important;
-  background-repeat:no-repeat!important;
-  background-size:cover!important;
-  background-position:center 46%!important;
+  /* Do not reuse or stretch the world map behind the heading. */
+  background-image:linear-gradient(95deg,#bde8ff,#f4e5ff 35%,#ddfff0 70%,#ffe6f0)!important;
+  background-size:auto!important;
 }
 body>header.lab-image-header .brand {
   display:flex!important;
