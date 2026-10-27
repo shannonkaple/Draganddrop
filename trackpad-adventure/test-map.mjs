@@ -72,10 +72,11 @@ try{
  await page.screenshot({path:'trackpad-adventure/preview-fixed-map.png',fullPage:true});
  await homeButtons.first().click();
  await page.waitForSelector('.world-map-art .map-jpeg-backdrop');
- const candy=await inspect('.world-map-art',1600,900,levels);
+ const candyCoords=[[136,283],[425,365],[679,477],[809,287],[1096,388],[1431,351],[1724,475],[1891,252]].map(([x,y])=>[x/2048*100,y/682*100]);
+ const candy=await inspect('.world-map-art',2048,682,candyCoords);
  await page.setViewportSize({width:1024,height:600});
- await inspect('.world-map-art',1600,900,levels);
- assert.ok(candy.src.includes('/candy.jpg'));
+ await inspect('.world-map-art',2048,682,candyCoords);
+ assert.ok(candy.src.includes('/candy-original.png'));
  const spots=page.locator('.world-map-hotspot');
  assert.equal(await spots.count(),8);
  assert.equal(await spots.nth(0).isEnabled(),true);
