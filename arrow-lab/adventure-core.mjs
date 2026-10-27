@@ -73,7 +73,10 @@ export function buildLevel(def,seed,easy=false){
 }
 export function migrateAdventure(previous,legacy,characters,lands){
  const a=previous&&typeof previous==='object'?previous:{},ids=characters.map(c=>c.id),landIds=lands.map(l=>l.id),friends={};
- const main=ids.includes(a.selectedPlayerCharacterId)?a.selectedPlayerCharacterId:ids.includes(legacy?.character)?legacy.character:null;
+ // The practice-game wallet may have its own character. It is NOT an Arrow Lab
+ // onboarding choice: a first-time Arrow Lab student must explicitly choose once.
+ // Keep legacy rescued friends, purchases and rewards separately below.
+ const main=ids.includes(a.selectedPlayerCharacterId)?a.selectedPlayerCharacterId:null;
  for(const[id,f]of Object.entries(a.friends||{}))if(ids.includes(id))friends[id]={isRescued:true,upgradeStage:['starter','power_up','super_power'].includes(f.upgradeStage)?f.upgradeStage:'starter',homeLandId:landIds.includes(f.homeLandId)?f.homeLandId:landIds[0]};
  for(const id of legacy?.rescued||[])if(ids.includes(id)&&!friends[id])friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
  if(main&&!friends[main])friends[main]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
