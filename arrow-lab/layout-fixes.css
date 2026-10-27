@@ -1,0 +1,148 @@
+/* Arrow Adventure responsive layout fixes — never touches the original classroom game. */
+body.lab-map-active .lab-map-home {
+  box-sizing:border-box!important;
+  height:calc(var(--screen-height,720px) - 8px)!important;
+  min-height:0!important;
+  grid-template-rows:minmax(110px,144px) minmax(80px,90px) minmax(220px,1fr) 66px!important;
+  gap:5px!important;
+}
+body.lab-map-active .lab-map-title {
+  box-sizing:border-box!important;
+  padding:7px 255px 12px clamp(292px,21vw,360px)!important;
+  min-height:0!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+body.lab-map-active .lab-map-title>span {
+  font-size:13px!important;line-height:1.3!important;margin:0!important;
+}
+body.lab-map-active .lab-map-title h2 {
+  font-size:clamp(26px,2.5vw,38px)!important;
+  line-height:1.08!important;margin:2px 0 3px!important;
+  white-space:normal!important;
+}
+body.lab-map-active .lab-map-title p {
+  font-size:12px!important;line-height:1.25!important;
+  margin:0!important;
+}
+body.lab-map-active .lab-map-canvas {
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body.lab-map-active #continue-adventure.lab-next-play {
+  top:171px!important;
+  right:24px!important;
+  z-index:8!important;
+}
+body.lab-map-active .lab-main-nav {
+  min-height:0!important;
+  box-sizing:border-box!important;
+  padding-top:2px!important;
+  padding-bottom:3px!important;
+}
+body.lab-map-active .lab-main-nav button {
+  height:55px!important;
+  min-height:0!important;
+}
+/* The play surface must reserve room for its bottom controls. */
+body.guided.adventure-mode.playing #app {
+  display:flex!important;
+  flex-direction:column!important;
+  box-sizing:border-box!important;
+  height:var(--screen-height,calc(100dvh - 205px))!important;
+  max-height:var(--screen-height,calc(100dvh - 205px))!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  padding-bottom:8px!important;
+}
+body.guided.adventure-mode.playing #app>.adventure-nav,
+body.guided.adventure-mode.playing #app>.adventure-title {
+  flex:0 0 auto!important;
+}
+body.guided.adventure-mode.playing #app>.adventure-layout {
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body.guided.adventure-mode.playing .adventure-layout>section {
+  display:flex!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+body.guided.adventure-mode.playing .scenic-board {
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:100%!important;
+  display:grid!important;
+  place-items:center!important;
+}
+body.guided.adventure-mode.playing .maze-controls {
+  display:flex!important;
+  flex:0 0 auto!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  position:relative!important;
+  bottom:auto!important;
+  width:100%!important;
+  max-height:100px!important;
+  overflow:auto!important;
+  box-sizing:border-box!important;
+  padding:6px 5px 8px!important;
+  margin:5px 0 0!important;
+  background:#fffdf9f5!important;
+  z-index:8!important;
+}
+body.guided.adventure-mode.playing .maze-controls button {
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+  max-height:44px!important;
+}
+body.guided.adventure-mode.playing .adventure-title {
+  margin:2px 0 4px!important;
+  font-size:clamp(17px,2vw,26px)!important;
+}
+@media(max-width:1000px) {
+  body.lab-map-active .lab-map-home {
+    grid-template-rows:125px 90px minmax(185px,1fr) 59px!important;
+  }
+  body.lab-map-active .lab-map-title {
+    padding:6px 185px 10px 188px!important;
+  }
+  body.lab-map-active .lab-map-title h2 {font-size:clamp(18px,2.5vw,28px)!important;}
+  body.lab-map-active .lab-map-title p {font-size:10px!important;}
+  body.lab-map-active #continue-adventure.lab-next-play {
+    top:148px!important;
+    right:10px!important;
+  }
+}
+@media(max-width:700px) {
+  body.lab-map-active .lab-map-home {
+    grid-template-rows:112px 85px minmax(160px,1fr) 55px!important;
+  }
+  body.lab-map-active .lab-map-title {
+    padding:7px 117px 10px 138px!important;
+  }
+  body.lab-map-active .lab-map-title h2 {font-size:18px!important;}
+  body.lab-map-active .lab-map-title>span,
+  body.lab-map-active .lab-map-title p {font-size:9px!important;}
+  body.lab-map-active #continue-adventure.lab-next-play {
+    top:144px!important;right:7px!important;
+  }
+  body.lab-map-active .lab-main-nav button {height:50px!important;}
+  body.guided.adventure-mode.playing .maze-controls {max-height:108px!important;}
+}
+@media(max-height:700px) {
+  body.lab-map-active .lab-map-home {
+    grid-template-rows:93px 69px minmax(150px,1fr) 54px!important;
+  }
+  body.lab-map-active .lab-map-title h2 {font-size:21px!important;}
+  body.lab-map-active #continue-adventure.lab-next-play {
+    top:113px!important;height:47px!important;
+  }
+  body.lab-map-active .lab-main-nav button {height:47px!important;}
+}
