@@ -52,6 +52,24 @@ function board(){const m=$('maze');m.style.setProperty('--w',run.w);m.style.setP
 function showWin(earned=true){$('earned').innerHTML=gem+(earned?' +5 Arrow Amethysts!':'This maze is already finished.')+'<br>You have '+wallet.total+' Arrow Amethysts.';if(!$('win').open)$('win').showModal();}
 function next(){if(!run?.complete)return;$('win').close();run=nextRun(run);save();board();$('status').textContent='New maze! Start at the star and find the flag.';}
 function openShop(){$('shop-items').innerHTML=colors.map(c=>'<button data-color="'+c.id+'"><span class="swatch" style="background:'+c.hex+'"></span>'+c.name+'<br><span class="small">'+(wallet.color===c.id?'Using now':wallet.owned.includes(c.id)?'Choose this color':c.cost+' Arrow Amethysts')+'</span></button>').join('');document.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{const c=colors.find(c=>c.id===b.dataset.color);if(!wallet.owned.includes(c.id)){if(wallet.total<c.cost){$('shop-note').textContent='Keep exploring! Finish more mazes to unlock this color.';return}wallet.total-=c.cost;wallet.owned.push(c.id)}wallet.color=c.id;save();board();$('shop-note').textContent=c.name+' is ready!';openShop()});if(!$('shop').open)$('shop').showModal();}
+const fullscreenButton=$('global-fullscreen');
+function syncFullscreenButton(){
+  const active=!!document.fullscreenElement;
+  fullscreenButton.textContent=active?'⛶ Exit Full Screen':'⛶ Full Screen';
+  fullscreenButton.setAttribute('aria-pressed',String(active));
+  fullscreenButton.setAttribute('aria-label',active?'Exit full screen':'Enter full screen');
+  requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+}
+fullscreenButton.onclick=async()=>{
+  try{
+    if(document.fullscreenElement)await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  }catch(error){
+    fullscreenButton.title='Full screen is not available in this browser.';
+  }
+  syncFullscreenButton();
+};
+document.addEventListener('fullscreenchange',syncFullscreenButton);
 $('global-home').onclick=()=>{
  if(adventureActive&&adventureController?.goHome){adventureController.goHome();return}
  if(identity){
