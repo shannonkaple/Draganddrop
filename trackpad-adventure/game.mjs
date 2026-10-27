@@ -116,8 +116,8 @@ function openCampaignWorld(i){
 }
 function worldLevelMap(){
  const c=campaign(state),w=adventureWorlds[c.current],finished=c.completed[c.current]===8;
- const centers=[[14,37],[37,37],[60,37],[83,37],[14,74],[37,74],[60,74],[83,74]];
- // Only transparent HTML hotspots sit over the eight EMPTY circles in the JPEG.
+ const centers=w.id==='candy'?[[6.64,41.5],[20.75,53.52],[33.15,69.94],[39.50,42.08],[53.52,56.89],[69.87,51.47],[84.18,69.65],[92.33,37.10]]:[[14,37],[37,37],[60,37],[83,37],[14,74],[37,74],[60,74],[83,74]];
+ // Eight invisible HTML targets center directly over the eight pale oval landing spots; Candy uses the exact uploaded panorama.
  const buttons=centers.map(([x,y],i)=>{
   const status=activityStatus(state,c.current,i);
   return `<button type="button" class="world-map-hotspot ${status}" data-campaign-level="${i}"
@@ -130,7 +130,7 @@ function worldLevelMap(){
   <span class="world-map-reward ${finished?'earned':''}" aria-label="${esc(w.companion)}, ${finished?'rescued':'rescued after the eighth level'}">${w.companionIcon}</span>
   <span class="world-map-stars" aria-label="${state.stars} stars">⭐ ${state.stars}</span>
  </div>
- <div class="world-map-art" role="group" aria-label="Eight blank level circles in ${w.name}">
+ <div class="world-map-art ${w.id==='candy'?'candy-user-map':''}" role="group" aria-label="Eight blank level circles in ${w.name}">
   <img class="map-jpeg-backdrop" src="${mapPath(w)}" alt="" draggable="false">${buttons}
  </div></section>`);
  $('#back-worlds').onclick=home;
