@@ -35,28 +35,32 @@ export function buildLevel(def,seed,easy=false){
  }
  if(!easy){
    const used=new Set(),dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+   const positions=[];
+   // Reserve all four different enemy spawning tiles BEFORE allocating long patrols.
+   // Otherwise an early patrol can consume the fourth enemy's only open tile.
    for(const id of def.enemyIds||[]){
-     // Pick the farthest available side branch from other bad guys, the start,
-     // and the flag. Never place two on the same tile or an item/skill tile.
      const available=side.filter(p=>!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
      if(!available.length)break;
      const score=p=>{
-       const separation=hazards.length?Math.min(...hazards.map(h=>dist(p,h.path[0]))):Math.min(dist(p,start),dist(p,goal));
-       const entrances=Math.min(dist(p,start),dist(p,goal));
-       return separation*100+entrances*3+random();
+       const separation=positions.length?Math.min(...positions.map(h=>dist(p,h.pos))):Math.min(dist(p,start),dist(p,goal));
+       return separation*100+Math.min(dist(p,start),dist(p,goal))*3+random();
      };
      let pos=available[0],best=-Infinity;
      for(const p of available){const value=score(p);if(value>best){best=value;pos=p}}
+     positions.push({id,pos});
      used.add(tile(pos));
+   }
+   for(const {id,pos} of positions){
      const path=[pos];
-     // Moving enemies patrol only within their own isolated side branch.
      if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id)){
-       // Every patrol step is an open adjacent tile. Return along the same route,
-       // so looping the animation never teleports across a wall.
        for(let step=0;step<4;step++){
          const secondary=side.filter(p=>dist(p,path.at(-1))===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
          if(!secondary.length)break;
-         secondary.sort((a,b)=>Math.min(...hazards.map(h=>dist(b,h.path[0])),99)-Math.min(...hazards.map(h=>dist(a,h.path[0])),99));
+         // Keep patrols away from other reserved spawns and safe/required routes.
+         secondary.sort((a,b)=>{
+           const far=q=>Math.min(...positions.filter(h=>h.id!==id).map(h=>dist(q,h.pos)),99);
+           return far(b)-far(a);
+         });
          path.push(secondary[0]);used.add(tile(secondary[0]));
        }
        if(path.length>2)path.push(...path.slice(1,-1).reverse());
