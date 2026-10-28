@@ -85,7 +85,7 @@ export function unlockedFromSavedProgress(a){
  const active=[...Object.entries(a.mazeRuns&&typeof a.mazeRuns==='object'&&!Array.isArray(a.mazeRuns)?a.mazeRuns:{}),[a.activeRun?.id,a.activeRun]];
  for(const [id,run] of active){
   const n=numberFor(id);
-  if(n!==null&&run?.id===id&&!run.complete&&Array.isArray(run.grid)&&Array.isArray(run.items)&&Array.isArray(run.hazards))unlocked=Math.max(unlocked,n);
+  if(n!==null&&run?.id===id&&!run.complete&&Number.isInteger(run.w)&&run.w>=5&&Number.isInteger(run.h)&&run.h>=5&&Array.isArray(run.grid)&&run.grid.length===run.h&&run.grid.every(row=>Array.isArray(row)&&row.length===run.w)&&run.grid[run.player?.y]?.[run.player?.x]===0&&Array.isArray(run.items)&&Array.isArray(run.hazards))unlocked=Math.max(unlocked,n);
  }
  return Math.max(1,Math.min(64,Math.floor(unlocked)));
 }
