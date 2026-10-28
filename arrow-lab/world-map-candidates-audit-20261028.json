@@ -1,0 +1,584 @@
+{
+  "formatVersion": 1,
+  "status": "candidate-art-recovered-not-approved",
+  "baseImage": {
+    "width": 2048,
+    "height": 682
+  },
+  "referenceWorld": "candy",
+  "referenceStopCentersPercent": [
+    [
+      6.7,
+      41.7
+    ],
+    [
+      20.8,
+      53.7
+    ],
+    [
+      33.1,
+      70.6
+    ],
+    [
+      39.4,
+      42.3
+    ],
+    [
+      53.5,
+      57
+    ],
+    [
+      69.2,
+      51.5
+    ],
+    [
+      84.2,
+      69.8
+    ],
+    [
+      92.1,
+      37.4
+    ]
+  ],
+  "worlds": {
+    "pirate": {
+      "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/pirate-world-map.jpg",
+      "intendedGithubPath": "arrow-lab/world-maps/pirate-world-map.jpg",
+      "status": "not-approved-do-not-deploy",
+      "sha256": "a38fdef307ef30e499ded6f516ad64edd177248f5e58dad6b9c1472a16c40a3c",
+      "width": 2048,
+      "height": 682,
+      "maxDeviationFromCandyPx": 43.4,
+      "measuredStopCentersPercent": [
+        [
+          6.72,
+          35.96
+        ],
+        [
+          20.74,
+          48.97
+        ],
+        [
+          34.54,
+          65.93
+        ],
+        [
+          40.62,
+          39.95
+        ],
+        [
+          54.03,
+          55.59
+        ],
+        [
+          69.12,
+          49.55
+        ],
+        [
+          83.47,
+          67.23
+        ],
+        [
+          93.08,
+          35.86
+        ]
+      ],
+      "referenceStopCentersPercent": [
+        [
+          6.7,
+          41.7
+        ],
+        [
+          20.8,
+          53.7
+        ],
+        [
+          33.1,
+          70.6
+        ],
+        [
+          39.4,
+          42.3
+        ],
+        [
+          53.5,
+          57
+        ],
+        [
+          69.2,
+          51.5
+        ],
+        [
+          84.2,
+          69.8
+        ],
+        [
+          92.1,
+          37.4
+        ]
+      ]
+    },
+    "arctic": {
+      "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/arctic-world-map.jpg",
+      "intendedGithubPath": "arrow-lab/world-maps/arctic-world-map.jpg",
+      "status": "not-approved-do-not-deploy",
+      "sha256": "02df95f83184dbd4617aab4a6add24083cd731cb768ec4b0ee89fe3c3b680189",
+      "width": 2048,
+      "height": 682,
+      "maxDeviationFromCandyPx": 49.2,
+      "measuredStopCentersPercent": [
+        [
+          7.08,
+          38.73
+        ],
+        [
+          21.46,
+          51.93
+        ],
+        [
+          35.06,
+          66.46
+        ],
+        [
+          40.21,
+          43.22
+        ],
+        [
+          55.01,
+          59.52
+        ],
+        [
+          69.76,
+          52.89
+        ],
+        [
+          84.83,
+          67.78
+        ],
+        [
+          92.69,
+          40.64
+        ]
+      ],
+      "referenceStopCentersPercent": [
+        [
+          6.7,
+          41.7
+        ],
+        [
+          20.8,
+          53.7
+        ],
+        [
+          33.1,
+          70.6
+        ],
+        [
+          39.4,
+          42.3
+        ],
+        [
+          53.5,
+          57
+        ],
+        [
+          69.2,
+          51.5
+        ],
+        [
+          84.2,
+          69.8
+        ],
+        [
+          92.1,
+          37.4
+        ]
+      ]
+    },
+    "castle": {
+      "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/castle-world-map.jpg",
+      "intendedGithubPath": "arrow-lab/world-maps/castle-world-map.jpg",
+      "status": "not-approved-do-not-deploy",
+      "sha256": "373fbfe16795fa01afe12815633316d2be9f9c54edbae92b3dfc103ec00b6c3b",
+      "width": 2048,
+      "height": 682,
+      "maxDeviationFromCandyPx": 140.6,
+      "measuredStopCentersPercent": [
+        [
+          7.65,
+          36.48
+        ],
+        [
+          22.7,
+          49.2
+        ],
+        [
+          36.23,
+          67.36
+        ],
+        [
+          43.98,
+          49.3
+        ],
+        [
+          56.68,
+          59.17
+        ],
+        [
+          69.89,
+          52.27
+        ],
+        [
+          82.66,
+          67.88
+        ],
+        [
+          94.37,
+          56.86
+        ]
+      ],
+      "referenceStopCentersPercent": [
+        [
+          6.7,
+          41.7
+        ],
+        [
+          20.8,
+          53.7
+        ],
+        [
+          33.1,
+          70.6
+        ],
+        [
+          39.4,
+          42.3
+        ],
+        [
+          53.5,
+          57
+        ],
+        [
+          69.2,
+          51.5
+        ],
+        [
+          84.2,
+          69.8
+        ],
+        [
+          92.1,
+          37.4
+        ]
+      ]
+    },
+    "space": {
+      "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/space-world-map.jpg",
+      "intendedGithubPath": "arrow-lab/world-maps/space-world-map.jpg",
+      "status": "not-approved-do-not-deploy",
+      "sha256": "a16e2ffd29e32cbe1eb5bf8834afc13265ec04144f5d9edc3bfbeda86d6cec65",
+      "width": 2048,
+      "height": 682,
+      "maxDeviationFromCandyPx": 59.3,
+      "measuredStopCentersPercent": [
+        [
+          7.39,
+          36.09
+        ],
+        [
+          20.68,
+          49.84
+        ],
+        [
+          33.87,
+          64.94
+        ],
+        [
+          42.26,
+          40.99
+        ],
+        [
+          55.58,
+          57.1
+        ],
+        [
+          69.4,
+          51.48
+        ],
+        [
+          83.56,
+          65.05
+        ],
+        [
+          92.81,
+          36.49
+        ]
+      ],
+      "referenceStopCentersPercent": [
+        [
+          6.7,
+          41.7
+        ],
+        [
+          20.8,
+          53.7
+        ],
+        [
+          33.1,
+          70.6
+        ],
+        [
+          39.4,
+          42.3
+        ],
+        [
+          53.5,
+          57
+        ],
+        [
+          69.2,
+          51.5
+        ],
+        [
+          84.2,
+          69.8
+        ],
+        [
+          92.1,
+          37.4
+        ]
+      ]
+    },
+    "jurassic": {
+      "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/jurassic-world-map.jpg",
+      "intendedGithubPath": "arrow-lab/world-maps/jurassic-world-map.jpg",
+      "status": "not-approved-do-not-deploy",
+      "sha256": "5dd41b6dc807aebd3761ec98d3a60df69e2d25ceb942fd7ebeaac9d52c5f67f1",
+      "width": 2048,
+      "height": 682,
+      "maxDeviationFromCandyPx": 212.5,
+      "measuredStopCentersPercent": [
+        [
+          6.87,
+          38.14
+        ],
+        [
+          21.57,
+          49.48
+        ],
+        [
+          36.73,
+          53.19
+        ],
+        [
+          44.97,
+          68.59
+        ],
+        [
+          56.21,
+          56.34
+        ],
+        [
+          68.91,
+          65.56
+        ],
+        [
+          82.57,
+          54.8
+        ],
+        [
+          93.06,
+          41.12
+        ]
+      ],
+      "referenceStopCentersPercent": [
+        [
+          6.7,
+          41.7
+        ],
+        [
+          20.8,
+          53.7
+        ],
+        [
+          33.1,
+          70.6
+        ],
+        [
+          39.4,
+          42.3
+        ],
+        [
+          53.5,
+          57
+        ],
+        [
+          69.2,
+          51.5
+        ],
+        [
+          84.2,
+          69.8
+        ],
+        [
+          92.1,
+          37.4
+        ]
+      ]
+    },
+    "ocean": {
+      "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/ocean-world-map.jpg",
+      "intendedGithubPath": "arrow-lab/world-maps/ocean-world-map.jpg",
+      "status": "not-approved-do-not-deploy",
+      "sha256": "0ed0188772b7c05b9784ce8c987f1beebcec1c2fd4af595c70de8072173112e3",
+      "width": 2048,
+      "height": 682,
+      "maxDeviationFromCandyPx": 131.3,
+      "measuredStopCentersPercent": [
+        [
+          7.26,
+          25.3
+        ],
+        [
+          18.29,
+          44.52
+        ],
+        [
+          32.37,
+          62.48
+        ],
+        [
+          45.32,
+          39.39
+        ],
+        [
+          58.97,
+          58.27
+        ],
+        [
+          73.66,
+          37.69
+        ],
+        [
+          85.77,
+          60.63
+        ],
+        [
+          92.63,
+          25.64
+        ]
+      ],
+      "referenceStopCentersPercent": [
+        [
+          6.7,
+          41.7
+        ],
+        [
+          20.8,
+          53.7
+        ],
+        [
+          33.1,
+          70.6
+        ],
+        [
+          39.4,
+          42.3
+        ],
+        [
+          53.5,
+          57
+        ],
+        [
+          69.2,
+          51.5
+        ],
+        [
+          84.2,
+          69.8
+        ],
+        [
+          92.1,
+          37.4
+        ]
+      ]
+    },
+    "lava": {
+      "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/lava-world-map.jpg",
+      "intendedGithubPath": "arrow-lab/world-maps/lava-world-map.jpg",
+      "status": "not-approved-do-not-deploy",
+      "sha256": "18a57371c3e026c0bfc0d028be65eae38eacf5eee9f4edf4cb43ea47d51704a4",
+      "width": 2048,
+      "height": 682,
+      "maxDeviationFromCandyPx": 101.5,
+      "measuredStopCentersPercent": [
+        [
+          7.84,
+          27.22
+        ],
+        [
+          21.5,
+          47.92
+        ],
+        [
+          35.66,
+          63.12
+        ],
+        [
+          43.48,
+          40.38
+        ],
+        [
+          56.56,
+          57.62
+        ],
+        [
+          70.53,
+          49.79
+        ],
+        [
+          84.33,
+          66.62
+        ],
+        [
+          92.9,
+          36.39
+        ]
+      ],
+      "referenceStopCentersPercent": [
+        [
+          6.7,
+          41.7
+        ],
+        [
+          20.8,
+          53.7
+        ],
+        [
+          33.1,
+          70.6
+        ],
+        [
+          39.4,
+          42.3
+        ],
+        [
+          53.5,
+          57
+        ],
+        [
+          69.2,
+          51.5
+        ],
+        [
+          84.2,
+          69.8
+        ],
+        [
+          92.1,
+          37.4
+        ]
+      ]
+    }
+  }
+}
