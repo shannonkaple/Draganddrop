@@ -918,3 +918,53 @@ body>header.lab-image-header .brand>img#lab-jpeg-banner.lab-header-art{
 body>header.lab-image-header{
  height:clamp(150px,min(calc(100vw * 0.143333 + 46px),32dvh),260px)!important;
 }
+
+/* Oct 28 header safe area. No edit/reimagination of Ms. Kaple or Rigby CAT.
+   Intrinsic 3000x430 JPEG is contained exactly once; dynamic controls live below. */
+body>header.lab-image-header{
+  width:100%!important;max-width:100%!important;
+  height:min(calc(100vw * .143333333 + 40px),32dvh)!important;
+  min-height:0!important;max-height:none!important;
+  padding:0!important;margin:0!important;
+  display:flex!important;flex-direction:column!important;
+  justify-content:flex-start!important;align-items:stretch!important;
+  gap:0!important;overflow:visible!important;
+  background:#d7efff!important;
+  border-bottom:2px solid #fff!important;
+}
+body>header.lab-image-header .brand{
+  display:block!important;flex:1 1 auto!important;
+  min-height:0!important;max-width:100%!important;
+  width:100%!important;height:auto!important;
+  padding:0!important;margin:0!important;overflow:hidden!important;
+  line-height:0!important;
+}
+body>header.lab-image-header .brand>img#lab-jpeg-banner.lab-header-art{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;object-position:center center!important;
+  filter:none!important;transform:none!important;clip-path:none!important;
+  margin:0!important;padding:0!important;border:0!important;
+  background:#d7efff!important;
+}
+body>header.lab-image-header .actions{
+  display:flex!important;flex:0 0 38px!important;
+  align-items:center!important;justify-content:center!important;
+  flex-direction:row!important;flex-wrap:nowrap!important;
+  gap:clamp(4px,1vw,11px)!important;width:100%!important;
+  max-width:100%!important;min-height:38px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  padding:2px 5px!important;margin:0!important;
+  background:#e4effff5!important;
+}
+body>header.lab-image-header .actions button{
+  flex:0 0 auto!important;height:32px!important;
+  min-height:32px!important;width:auto!important;max-width:none!important;
+  font:clamp(10px,1vw,13px) VAG,Arial,sans-serif!important;
+  border-radius:10px!important;padding:4px 9px!important;
+  white-space:nowrap!important;
+}
+@media(max-width:650px){
+ body>header.lab-image-header .actions{justify-content:flex-start!important}
+ body>header.lab-image-header .actions button{font-size:10px!important;padding:3px 6px!important}
+}
