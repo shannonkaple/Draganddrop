@@ -31,6 +31,17 @@ function syncStudentBanner(){
 function seed(){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]}
 // The login screen runs before the adventure's own storage guard. Never let
 // its legacy-maze save overwrite an unreadable student adventure record.
+// A failed first save must be visible BEFORE a child begins an adventure.
+function showLoginStorageWarning(){
+ let warning=document.getElementById('arrow-lab-storage-warning');
+ if(warning)return;
+ warning=document.createElement('div');
+ warning.id='arrow-lab-storage-warning';
+ warning.className='arrow-lab-fullscreen-note';
+ warning.setAttribute('role','alert');
+ warning.textContent='Your adventure is NOT saving on this Chromebook. Tell your teacher before playing. Do not close this tab until the problem is fixed.';
+ document.body.append(warning);
+}
 function save(){
  try{
   const raw=localStorage.getItem(key());
@@ -45,7 +56,11 @@ function save(){
   }
   localStorage.setItem(key(),JSON.stringify({...previous,run,wallet,teacherId:identity.teacherId,teacherName:identity.teacherName,studentNumber:identity.number}));
   saving=true;
- }catch{saving=false}
+  document.getElementById('arrow-lab-storage-warning')?.remove();
+ }catch{
+  saving=false;
+  showLoginStorageWarning();
+ }
 }
 function restore(){let d;try{d=JSON.parse(localStorage.getItem(key())||'null')}catch{}const r=d?.run,w=d?.wallet;const valid=r&&Number.isInteger(r.level)&&r.level>0&&r.w>=5&&r.w<=9&&r.h>=5&&r.h<=9&&Array.isArray(r.grid)&&r.grid.length===r.h&&r.grid.every(row=>Array.isArray(row)&&row.length===r.w&&row.every(n=>n===0||n===1))&&Number.isInteger(r.player?.x)&&Number.isInteger(r.player?.y)&&r.grid[r.player.y]?.[r.player.x]===0&&r.start?.x===1&&r.start?.y===1&&r.goal?.x===r.w-2&&r.goal?.y===r.h-2&&Array.isArray(r.trail)&&r.trail.length<10000&&w&&[w.total,w.earned,w.finished].every(n=>Number.isSafeInteger(n)&&n>=0)&&Array.isArray(w.owned)&&colors.some(c=>c.id===w.color);
  if(valid){run=r;wallet=w}else{run=makeMaze(seed(),1);wallet={total:0,earned:0,finished:0,color:'violet',owned:['violet']}}}
