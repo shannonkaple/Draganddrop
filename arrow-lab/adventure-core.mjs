@@ -224,6 +224,12 @@ export function unlockedFromSavedProgress(a){
  }
  return Math.max(1,Math.min(64,Math.floor(unlocked)));
 }
+// Preserve saved character unlock IDs even when an older roster temporarily
+// omits a character or the student's friend record has not been loaded yet.
+function mergedUnlockedCharacterIds(previous,friends,selected){
+ const prior=Array.isArray(previous)?previous.filter(id=>typeof id==='string'&&id.trim()):[];
+ return [...new Set([...prior,...Object.keys(friends||{}),...(typeof selected==='string'&&selected?[selected]:[])])];
+}
 export function migrateAdventure(previous,legacy,characters,lands){
  const a=previous&&typeof previous==='object'?previous:{},ids=characters.map(c=>c.id),landIds=lands.map(l=>l.id),friends={};
  // The practice-game wallet may have its own character. It is NOT an Arrow Lab
@@ -245,7 +251,7 @@ export function migrateAdventure(previous,legacy,characters,lands){
  }
  for(const id of legacy?.rescued||[])if(ids.includes(id)&&!friends[id])friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
  if(main&&!friends[main])friends[main]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
- return {...a,mazesSinceRescue:Math.max(0,Math.min(3,Math.floor(Number(a.mazesSinceRescue)||0))),pendingRescueFriendId:ids.includes(a.pendingRescueFriendId)&&!friends[a.pendingRescueFriendId]?a.pendingRescueFriendId:null,ownedWorldIds:Array.isArray(a.ownedWorldIds)?a.ownedWorldIds:[...new Set(Object.values(friends).map(f=>f.homeLandId))],decorations:a.decorations||{},positions:a.positions||{},schemaVersion:1,selectedPlayerCharacterId:main,unavailableSelectedPlayerCharacterId,primaryRainbowLandId:landIds.includes(a.primaryRainbowLandId)?a.primaryRainbowLandId:null,friends,unlockedCharacterIds:Object.keys(friends),completedLevelIds:Array.isArray(a.completedLevelIds)?a.completedLevelIds:[],rescuedAtLevelIds:Array.isArray(a.rescuedAtLevelIds)?a.rescuedAtLevelIds:[],highestUnlockedLevel:unlockedFromSavedProgress(a),wallet:{rainbowStars:Math.max(0,Number(a.wallet?.rainbowStars)||0)},lifetimeStarsEarned:Math.max(0,Number(a.lifetimeStarsEarned)||0),collectedComputerGearIds:Array.isArray(a.collectedComputerGearIds)?a.collectedComputerGearIds:[],earnedSkillBadgeIds:Array.isArray(a.earnedSkillBadgeIds)?a.earnedSkillBadgeIds:[],settings:{soundEnabled:false,reducedMotion:false,...a.settings}};
+ return {...a,mazesSinceRescue:Math.max(0,Math.min(3,Math.floor(Number(a.mazesSinceRescue)||0))),pendingRescueFriendId:ids.includes(a.pendingRescueFriendId)&&!friends[a.pendingRescueFriendId]?a.pendingRescueFriendId:null,ownedWorldIds:Array.isArray(a.ownedWorldIds)?a.ownedWorldIds:[...new Set(Object.values(friends).map(f=>f.homeLandId))],decorations:a.decorations||{},positions:a.positions||{},schemaVersion:1,selectedPlayerCharacterId:main,unavailableSelectedPlayerCharacterId,primaryRainbowLandId:landIds.includes(a.primaryRainbowLandId)?a.primaryRainbowLandId:null,friends,unlockedCharacterIds:mergedUnlockedCharacterIds(a.unlockedCharacterIds,friends,a.selectedPlayerCharacterId||a.unavailableSelectedPlayerCharacterId),completedLevelIds:Array.isArray(a.completedLevelIds)?a.completedLevelIds:[],rescuedAtLevelIds:Array.isArray(a.rescuedAtLevelIds)?a.rescuedAtLevelIds:[],highestUnlockedLevel:unlockedFromSavedProgress(a),wallet:{rainbowStars:Math.max(0,Number(a.wallet?.rainbowStars)||0)},lifetimeStarsEarned:Math.max(0,Number(a.lifetimeStarsEarned)||0),collectedComputerGearIds:Array.isArray(a.collectedComputerGearIds)?a.collectedComputerGearIds:[],earnedSkillBadgeIds:Array.isArray(a.earnedSkillBadgeIds)?a.earnedSkillBadgeIds:[],settings:{soundEnabled:false,reducedMotion:false,...a.settings}};
 }
 export function upgradeFriend(a,id,costs){
  const f=a.friends[id];if(!f||f.upgradeStage==='super_power')return false;
@@ -266,7 +272,7 @@ export function rescueWorld(a,id,home){if(pendingWorldRescue(a)!==id||!a.ownedWo
 export function arrowPattern(seed,attempt=0){const patterns=[['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'],['ArrowRight','ArrowRight','ArrowUp','ArrowLeft'],['ArrowDown','ArrowLeft','ArrowUp','ArrowRight'],['ArrowLeft','ArrowUp','ArrowUp','ArrowRight'],['ArrowUp','ArrowLeft','ArrowDown','ArrowDown'],['ArrowRight','ArrowDown','ArrowLeft','ArrowUp']];return [...patterns[(Math.abs(seed)+attempt)%patterns.length]]}
 export function buyWorld(a,id,lands,costs){const index=lands.findIndex(l=>l.id===id);if(index<0)return false;if(a.ownedWorldIds.includes(id))return true;const cost=costs[index];if(!Number.isFinite(cost)||a.wallet.rainbowStars<cost)return false;a.wallet.rainbowStars-=cost;a.ownedWorldIds.push(id);return true}
 export function placeFriend(a,id,world){if(!a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id].homeLandId=world;return true}
-export function rescueFriend(a,id,world,levelId){if(!rescueReady(a)||a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:world};a.unlockedCharacterIds=Object.keys(a.friends);if(levelId&&!a.rescuedAtLevelIds.includes(levelId))a.rescuedAtLevelIds.push(levelId);a.mazesSinceRescue=0;a.pendingRescueFriendId=null;return true}
+export function rescueFriend(a,id,world,levelId){if(!rescueReady(a)||a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:world};a.unlockedCharacterIds=mergedUnlockedCharacterIds(a.unlockedCharacterIds,a.friends,id);if(levelId&&!a.rescuedAtLevelIds.includes(levelId))a.rescuedAtLevelIds.push(levelId);a.mazesSinceRescue=0;a.pendingRescueFriendId=null;return true}
 
 // Switching playable characters must never overwrite previously unlocked IDs,
 // earned stars, rescued friends, world ownership or arranged scene positions.
@@ -275,9 +281,6 @@ export function choosePlayerCharacter(a,id,starterWorldId){
  a.selectedPlayerCharacterId=id;
  a.friends??={};
  a.friends[id]??={isRescued:true,upgradeStage:'starter',homeLandId:starterWorldId};
- a.unlockedCharacterIds=[...new Set([
-   ...(Array.isArray(a.unlockedCharacterIds)?a.unlockedCharacterIds:[]),
-   ...Object.keys(a.friends),id
- ])];
+ a.unlockedCharacterIds=mergedUnlockedCharacterIds(a.unlockedCharacterIds,a.friends,id);
  return true;
 }

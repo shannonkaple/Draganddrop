@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {decorations} from '../trackpad-adventure/economy.mjs';
-import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs';
+import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress,choosePlayerCharacter,rescueFriend,restoreSavedEnemyRoster} from './adventure-core.mjs';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs';
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
@@ -121,6 +121,33 @@ assert.deepEqual(switching.friends.a,snapshot.friends.a);
 assert.equal(choosePlayerCharacter(switching,'a','background_candy'),true);
 assert.equal(switching.friends.a.upgradeStage,'super_power');
 assert.equal(choosePlayerCharacter(switching,'','background_candy'),false);
+// Regression: the previous migration silently dropped unlocked IDs not currently
+// present in the friends object. This happened again on every Chromebook reload.
+const savedUnlocks={
+ selectedPlayerCharacterId:'sunny_kitten',
+ friends:{sunny_kitten:{isRescued:true,upgradeStage:'super_power',homeLandId:'background_pirate'}},
+ unlockedCharacterIds:['sunny_kitten','legacy_guest','retired_friend','sunny_kitten'],
+ wallet:{rainbowStars:31},ownedWorldIds:['background_pirate'],
+ primaryRainbowLandId:'background_pirate',completedLevelIds:['lab_candy_1'],
+ positions:{background_pirate:{'decor:flowers':{x:34,y:58}}}
+};
+const preservedUnlocks=migrateAdventure(structuredClone(savedUnlocks),{},onboardingCharacters,onboardingLands);
+assert.deepEqual(preservedUnlocks.unlockedCharacterIds,['sunny_kitten','legacy_guest','retired_friend'],
+ 'loading a saved student must not discard previously unlocked character IDs');
+assert.deepEqual(migrateAdventure(structuredClone(preservedUnlocks),{},onboardingCharacters,onboardingLands).unlockedCharacterIds,
+ preservedUnlocks.unlockedCharacterIds,'a second reload must preserve the same unlocked roster');
+for(const field of ['wallet','ownedWorldIds','completedLevelIds','positions'])assert.deepEqual(preservedUnlocks[field],savedUnlocks[field]);
+assert.equal(preservedUnlocks.friends.sunny_kitten.upgradeStage,'super_power');
+const rescueKeepsUnlocks={
+ friends:{sunny_kitten:{upgradeStage:'power_up',homeLandId:'background_candy'}},
+ unlockedCharacterIds:['legacy_guest','sunny_kitten'],
+ completedLevelIds:Array.from({length:8},(_,i)=>'lab_candy_'+(i+1)),
+ rescuedAtLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy']
+};
+assert.equal(rescueFriend(rescueKeepsUnlocks,'new_rescue','background_candy','lab_candy_8'),true);
+assert.deepEqual(rescueKeepsUnlocks.unlockedCharacterIds,['legacy_guest','sunny_kitten','new_rescue'],
+ 'rescuing another character must not erase earlier unlock IDs');
+
 assert.match(source,/chars\.map\(c=>/);
 assert.match(source,/choosePlayerCharacter\(a,id,starterWorldId\)/);
 
@@ -350,9 +377,9 @@ assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
 assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
 assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header is never cropped or stretched');
 assert.match(html,/visual-hotfix-20261027\.css\?v=rainbow-wall-header-20261027g/,'published page references color and header fix');
-assert.match(html,/game\.mjs\?v=restore-saved-enemies-20261028a/,'published page references the updated game module');
+assert.match(html,/game\.mjs\?v=preserve-unlocks-20261028b/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
-assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=restore-saved-enemies-20261028a/,'published game requests the latest adventure module');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=preserve-unlocks-20261028b/,'published game requests the latest adventure module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
