@@ -1,5 +1,5 @@
-import {mountDragActivity} from './drag-activity.mjs?v=20261028-blockers';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261028-blockers';
+import {mountDragActivity} from './drag-activity.mjs?v=20261028-header';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261028-header';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
