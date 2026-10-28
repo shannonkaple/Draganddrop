@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {decorations} from '../trackpad-adventure/economy.mjs';
-import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure} from './adventure-core.mjs';
+import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress} from './adventure-core.mjs';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs';
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
@@ -42,6 +42,33 @@ assert.deepEqual(returning.completedLevelIds,['lab_candy_1'],'existing completed
 assert.equal(returning.friends.sunny_kitten.upgradeStage,'power_up','player upgrade survives');
 assert.equal(returning.worldFriends.candy.homeLandId,'background_pirate','rescued world friend survives');
 assert.equal(returning.wallet.rainbowStars,19,'earned stars survive');
+
+const oldProgress={
+ selectedPlayerCharacterId:'sunny_kitten',ownedWorldIds:['background_candy'],primaryRainbowLandId:'background_candy',
+ friends:{sunny_kitten:{isRescued:true,upgradeStage:'power_up',homeLandId:'background_candy'}},
+ completedLevelIds:['lab_candy_1','lab_candy_2','lab_candy_3'],
+ wallet:{rainbowStars:37},highestUnlockedLevel:1,
+ mazeRuns:{lab_candy_4:{id:'lab_candy_4',w:11,h:9,grid:[[0]],items:[],hazards:[],player:{x:1,y:1},seed:98}},
+ positions:{background_candy:{'decor:flowers':{x:40,y:52}}},
+ decorations:{background_candy:['flowers']},worldFriends:{candy:{homeLandId:'background_candy'}}
+};
+const recovered=migrateAdventure(structuredClone(oldProgress),{},onboardingCharacters,onboardingLands);
+assert.equal(recovered.highestUnlockedLevel,4,'completed Candy mazes restore next playable maze despite stale counter');
+assert.deepEqual(recovered.completedLevelIds,oldProgress.completedLevelIds,'completed mazes unchanged');
+assert.deepEqual(recovered.mazeRuns,oldProgress.mazeRuns,'in-progress run never reset or rerolled');
+assert.deepEqual(recovered.positions,oldProgress.positions,'world arrangements unchanged');
+assert.deepEqual(recovered.decorations,oldProgress.decorations,'purchased decorations unchanged');
+assert.deepEqual(recovered.worldFriends,oldProgress.worldFriends,'rescued friends unchanged');
+assert.equal(recovered.wallet.rainbowStars,37,'no stars granted or lost');
+assert.equal(recovered.friends.sunny_kitten.upgradeStage,'power_up','character upgrade retained');
+const highRun={id:'lab_space_6',w:11,h:9,grid:[[0]],items:[],hazards:[],complete:false};
+assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,mazeRuns:{lab_space_6:highRun}}),38,'valid unfinished Space maze stays reachable');
+assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,activeRun:highRun}),38,'legacy single active run stays reachable');
+assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_arctic_8']}),25,'completed Arctic world unlocks Castle maze one');
+assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:60,completedLevelIds:['lab_candy_1']}),60,'do not reduce a valid higher unlock');
+assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_fake_8','lab_candy_9'],mazeRuns:{lab_space_6:{id:'wrong'}}}),1,'ignore invalid stage IDs and mismatched runs');
+assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_lava_8']}),64,'final world is capped at maze 64');
+
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config','computer_collectibles'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
