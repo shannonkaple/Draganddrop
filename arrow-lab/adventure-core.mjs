@@ -154,7 +154,7 @@ export function restoreSavedEnemyRoster(run,definition,easy=false){
    const id=wanted.find(id=>!reserved.has(id));if(!id)continue;
    e.id=id;remapped=true;reserved.add(id);assigned.add(id);kept.push(e);
  }
- if(kept.length===4&&run.hazards.length===4&&run.hazards.every((e,i)=>e===kept[i]))return false;
+ if(!remapped&&kept.length===4&&run.hazards.length===4&&run.hazards.every((e,i)=>e===kept[i]))return false;
  const blocked=new Set(kept.flatMap(e=>e.path.map(tile)));
  const protectedTiles=new Set([run.start,run.goal,run.player,run.checkpoint,run.skill,run.barrier,
    ...(run.items||[]),...(run.trail||[]).slice(-5)].filter(inside).map(tile));
