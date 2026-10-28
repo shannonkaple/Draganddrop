@@ -971,8 +971,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  modal('Teacher settings',content,()=>{$('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;for(const k of ['hints','sound','reducedMotion'])$('set-'+k).checked=settings[k];
  $('save-settings').onclick=()=>{settings.difficulty=$('set-difficulty').value;settings.speed=Number($('set-speed').value);for(const k of ['hints','sound','reducedMotion'])settings[k]=$('set-'+k).checked;settings.touchArrows=false;settings.costs={power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))};config.progression.upgradeCost={...settings.costs};try{localStorage.setItem('arrow-lab-teacher-settings',JSON.stringify(settings))}catch{}save();closeModal();if(view==='maze')startLevel(def.number,false);else map()};
  $('skip-level').onclick=()=>{
-   // Skipping unlocks the next maze but does not complete the previous one,
-   // award stars, or discard that student's unfinished saved run.
+   // Unlock the next maze without completing the skipped maze, awarding stars,
+   // or deleting the student's unfinished saved run.
    const next=Math.min(levels.length,a.highestUnlockedLevel+1);
    if(next===a.highestUnlockedLevel){
      $('skip-level').textContent='All 64 mazes are already open';
