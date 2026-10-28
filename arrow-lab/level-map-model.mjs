@@ -13,7 +13,10 @@ export const APPROVED_WORLD_LEVEL_MAPS=Object.freeze({
 });
 export function worldStopStatus(level,progress){
   const completed=!!progress?.completedLevelIds?.includes(level.id);
-  const started=!completed&&!!progress?.mazeRuns?.[level.id]&&!progress.mazeRuns[level.id].complete;
+  // Some older student profiles kept only activeRun; do not hide their unfinished maze.
+  const saved=progress?.mazeRuns?.[level.id];
+  const active=progress?.activeRun?.id===level.id?progress.activeRun:null;
+  const started=!completed&&[saved,active].some(run=>run&&run.complete!==true);
   const unlocked=completed||level.number<=Number(progress?.highestUnlockedLevel||1);
   return Object.freeze({completed,started,unlocked,
     label:completed?'Completed — replay':started?'In progress — continue':unlocked?'Ready to play':'Locked',
