@@ -26,3 +26,6 @@ body>header.lab-image-header.drag-banner-header{display:flex!important;flex-dire
 body>header.lab-image-header.drag-banner-header .brand{display:block!important;flex:none!important;width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;overflow:visible!important;line-height:0!important}
 body>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art{display:block!important;width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;object-fit:contain!important;margin:0!important;border:0!important;border-radius:0!important}
 body>header.lab-image-header.drag-banner-header .actions{padding:5px 8px!important;min-height:40px!important;flex-wrap:wrap!important;justify-content:center!important;background:#d8efff!important}
+/* Compact banner: reserve screen space for the activity. */
+body>header.lab-image-header.drag-banner-header .brand{height:clamp(80px,14vh,125px)!important;overflow:hidden!important;background:#d8efff!important}
+body>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art{width:100%!important;height:100%!important;max-height:125px!important;object-fit:contain!important}
