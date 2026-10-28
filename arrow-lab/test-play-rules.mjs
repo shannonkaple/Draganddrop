@@ -327,7 +327,7 @@ for(const def of levels)for(let seed=1;seed<=40;seed++){
 }
 assert.ok(longPatrols>0,'moving enemies have longer patrols');
 assert.ok(extendedMovingPatrols>=7000,'new side pockets let over 7000 eligible enemies patrol at least two tiles out without crossing the safe route');
-assert.match(fs.readFileSync(new URL('./adventure-core.mjs',import.meta.url),'utf8'),/Carve a safe side pocket/,'new runs get connected side pockets instead of one-step patrol dead ends');
+assert.match(fs.readFileSync(new URL('./adventure-core.mjs',import.meta.url),'utf8'),/Open a connected side pocket/,'new runs get connected side pockets instead of one-step patrol dead ends');
 assert.match(source,/stuff-scroll-prev/,'MY STUFF has a previous button');
 assert.match(source,/stuff-scroll-next/,'MY STUFF has a next button');
 assert.match(source,/trayScroll=\$\('my-stuff-tray'\)/,'refresh preserves horizontal scroll position');
