@@ -660,3 +660,19 @@ html body.guided.adventure-mode.lab-world-active .lab-candy-actions button{
   font-size:25px!important;
  }
 }
+
+/* One on-screen heading only. The colorful illustrated map and its inner
+   heading already identify the world; avoid duplicate giant titles/nav rows
+   stealing Chromebook vertical space from the actual game. */
+html body.guided.adventure-mode.lab-map-active #app>.adventure-title,
+html body.guided.adventure-mode.lab-world-active #app>.adventure-title{
+ display:none!important;
+}
+html body.guided.adventure-mode.lab-map-active #app>.adventure-nav,
+html body.guided.adventure-mode.lab-world-active #app>.adventure-nav{
+ display:none!important;
+}
+html body.guided.adventure-mode.lab-map-active #app>.lab-map-home,
+html body.guided.adventure-mode.lab-world-active #app>.lab-candy-world{
+ margin-top:0!important;
+}
