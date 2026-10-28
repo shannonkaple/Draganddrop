@@ -17,8 +17,8 @@ assert.ok(game.includes('teachers,verifyTeacherCode,onLogout:login'),'Adventure 
 assert.ok(adventure.includes('verifyTeacherCode=()=>false'),'No validator must default to deny');
 assert.ok(adventure.includes('id="teacher-skip-code" type="password"'));
 assert.ok(adventure.includes('id="teacher-skip-feedback" role="status"'));
-assert.ok(game.includes('adventure.mjs?v=teacher-skip-guard-20261028a'));
-assert.ok(html.includes('game.mjs?v=teacher-skip-guard-20261028a'));
+assert.ok(game.includes('adventure.mjs?v=teacher-tools-guard-20261028b'));
+assert.ok(html.includes('game.mjs?v=teacher-tools-guard-20261028b'));
 
 assert.ok(adventure.includes(" $('save-settings').onclick=()=>{if(!requireTeacherCode())return;"),'Settings changes must require teacher confirmation');
 assert.ok(adventure.includes(" $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{\n if(!requireTeacherCode())return;"),'CSV export must require teacher confirmation');
