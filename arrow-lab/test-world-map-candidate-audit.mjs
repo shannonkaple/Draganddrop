@@ -8,9 +8,9 @@ const manifest=JSON.parse(fs.readFileSync(new URL('./world-map-candidates-audit-
 assert.deepEqual(Object.keys(manifest.worlds),['pirate','arctic','castle','space','jurassic','ocean','lava']);
 assert.deepEqual(manifest.baseImage,{width:2048,height:682});
 assert.deepEqual(manifest.referenceStopCentersPercent,WORLD_STOP_POINTS.map(p=>[p.x,p.y]));
-assert.deepEqual(Object.keys(APPROVED_WORLD_LEVEL_MAPS),['candy'],'Only approved Candy image is active');
+assert.deepEqual(Object.keys(APPROVED_WORLD_LEVEL_MAPS),['candy'],'Approved original Candy art is unchanged');
 for(const [world,entry] of Object.entries(manifest.worlds)){
- assert.equal(entry.status,'not-approved-do-not-deploy',world);
+ assert.equal(entry.status,'published-needs-live-visual-qa',world);
  assert.equal(entry.width,2048,world);
  assert.equal(entry.height,682,world);
  assert.match(entry.sha256,/^[0-9a-f]{64}$/,world);
@@ -26,4 +26,4 @@ for(const [world,entry] of Object.entries(manifest.worlds)){
 const adventure=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 assert.match(adventure,/const approved=APPROVED_WORLD_LEVEL_MAPS\[world\.id\]\|\|null/);
 assert.doesNotMatch(adventure,/asset\(['"]arrow-lab\/world-maps\/(?:pirate|arctic|castle|space|jurassic|ocean|lava)/,'Never hardwire unapproved map art');
-console.log('PASS: recovered seven original JPEG candidates and 56 center positions; student images remain approved-only');
+console.log('PASS: original seven world JPEGs published for visual QA, 56 image-matched centers retained');
