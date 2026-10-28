@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {decorations} from '../trackpad-adventure/economy.mjs';
-import {buildLevel,tile,route,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure} from './adventure-core.mjs';
+import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure} from './adventure-core.mjs';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs';
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
@@ -205,6 +205,28 @@ assert.deepEqual(savedOldRun.checkpoint,{x:3,y:3},'saved checkpoint preserved');
 assert.equal(savedOldRun.finalArrowIndex,4,'final arrow trial progress preserved');
 
 
+
+const skillSequenceSource=source.slice(source.indexOf(' function ensureSkillArrowSequence('),source.indexOf(' function challenge(kind)'));
+assert.ok(skillSequenceSource.includes('run.skillArrowSequence'),'the actual skill challenge must store its arrow sequence in the maze run');
+const ensureSkillArrowSequence=new Function('arrowPattern','directions',skillSequenceSource+';return ensureSkillArrowSequence;')(arrowPattern,directions);
+const interruptedSkill={seed:1234,patternAttempt:0,skill:{done:false},skillArrowIndex:0};
+const originalSkill=ensureSkillArrowSequence(interruptedSkill);
+assert.equal(originalSkill.length,4,'first skill pattern has four arrows');
+const attemptsAfterStart=interruptedSkill.patternAttempt;
+interruptedSkill.skillArrowIndex=2;
+const reloadedSkill=structuredClone(interruptedSkill);
+assert.deepEqual(ensureSkillArrowSequence(reloadedSkill),originalSkill,'returning to a skill tile reuses the saved sequence');
+assert.equal(reloadedSkill.skillArrowIndex,2,'returning student retains two correct presses');
+assert.equal(reloadedSkill.patternAttempt,attemptsAfterStart,'returning to challenge never increments pattern attempt');
+const anotherSkill={seed:1234,patternAttempt:2};
+assert.notDeepEqual(ensureSkillArrowSequence(anotherSkill),originalSkill,'a fresh later attempt uses a different arrow pattern');
+const legacySkill={seed:12,patternAttempt:3,skill:{done:false}};
+assert.equal(ensureSkillArrowSequence(legacySkill).length,4,'old saved maze without arrow fields migrates without a reset');
+assert.match(source,/if\(r\.skill&&!r\.skill\.done&&tile\(r\.player\)===tile\(r\.skill\)\)/,'resume on the skill tile automatically reopens the challenge');
+assert.match(source,/r\.skillArrowIndex=i;save\(\)/,'each correct keyboard press saves progress');
+assert.match(source,/sequenceHtml\(i\)/,'reopened challenge shows the saved progress');
+assert.doesNotMatch(source,/\$\('try-later'\)\.onclick=\(\)=>\{[^}]*r\.player=/,'leaving the skill popup does not teleport player to checkpoint');
+
 const css=fs.readFileSync(new URL('./visual-hotfix-20261027.css',import.meta.url),'utf8');
 const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
 assert.match(source,/class="dialog-toolbar"/,'every in-game popup has a dedicated control row');
@@ -217,8 +239,8 @@ assert.match(css,/max-height:calc\(100dvh - 24px\)/,'dialogs scroll inside the v
 assert.match(css,/\.dialog-toolbar\{/,'popup navigation stays visible while content scrolls');
 assert.match(css,/\.dialog-content\{/,'popup content has independent safe sizing');
 assert.match(css,/body>header\.lab-image-header \.actions\{[\s\S]*?flex-flow:row wrap!important/,'header controls wrap rather than disappear');
-assert.match(html,/visual-hotfix-20261027\.css\?v=restore-characters-20261027b/,'published page references updated popup and placeholder styles');
-assert.match(html,/game\.mjs\?v=restore-characters-20261027b/,'published page references new game module');
+assert.match(html,/visual-hotfix-20261027\.css\?v=world-shop-only-20261027c/,'published page references updated popup and shop styles');
+assert.match(html,/game\.mjs\?v=resume-skill-20261027d/,'published page references new game module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
