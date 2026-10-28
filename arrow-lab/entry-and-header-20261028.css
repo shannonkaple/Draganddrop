@@ -212,3 +212,64 @@ html body.guided.lab-teacher-active #app .lab-teacher-cards>button:hover,
 html body.guided.lab-number-active #app .lab-number-list .numbers button:hover{
  background:#FFD600!important;
 }
+
+/* Teacher and student number live alongside Change Student in the SAME
+   compact header. No second class/number label takes maze or map space.
+   Uses original Homebody/VAG type, white/black controls, and rainbow accents. */
+html body.lab-student-selected>header.lab-image-header,
+html body.guided.lab-student-selected>header.lab-image-header{
+ grid-template-columns:minmax(0,1fr) minmax(168px,215px) minmax(165px,210px)!important;
+ gap:6px!important;align-items:center!important;
+}
+html body>header.lab-image-header .lab-student-header,
+html body.guided>header.lab-image-header .lab-student-header{
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:center!important;
+ box-sizing:border-box!important;min-width:0!important;max-width:none!important;
+ width:100%!important;height:100%!important;max-height:100%!important;
+ padding:1px!important;margin:0!important;gap:3px!important;overflow:visible!important;
+}
+html body>header.lab-image-header .lab-student-header.hidden,
+html body.guided>header.lab-image-header .lab-student-header.hidden{display:none!important}
+html body>header.lab-image-header #lab-current-class{
+ display:block!important;
+ width:100%!important;max-width:100%!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;
+ white-space:nowrap!important;text-align:center!important;
+ font:clamp(12px,1.15vw,17px)/1.15 VAG,Arial,sans-serif!important;
+ color:#000!important;
+ text-shadow:0 1px 0 #fff!important;
+}
+html body>header.lab-image-header #who{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-height:31px!important;height:31px!important;
+ max-height:31px!important;
+ border:2px solid #000!important;border-radius:10px!important;
+ padding:4px 6px!important;margin:0!important;
+ background:#fff!important;color:#000!important;
+ font:clamp(11px,.95vw,14px)/1.15 VAG,Arial,sans-serif!important;
+ white-space:nowrap!important;cursor:pointer!important;
+}
+html body>header.lab-image-header #who:hover{background:#FFD600!important}
+html body>header.lab-image-header #who.hidden{display:none!important}
+html body.lab-student-selected>header.lab-image-header .actions{
+ grid-template-columns:repeat(2,minmax(75px,1fr))!important;
+ width:100%!important;min-width:0!important;
+ max-width:210px!important;gap:3px!important;
+}
+html body>header.lab-image-header .lab-student-header button:focus-visible{
+ outline:3px solid #FF8A00!important;outline-offset:1px!important;
+}
+@media(max-width:850px){
+ html body.lab-student-selected>header.lab-image-header,
+ html body.guided.lab-student-selected>header.lab-image-header{
+  grid-template-columns:minmax(0,1fr) minmax(125px,165px) minmax(144px,180px)!important;
+  gap:3px!important;padding:3px 5px!important;
+ }
+ html body>header.lab-image-header #lab-current-class{
+  font-size:12px!important;
+ }
+ html body>header.lab-image-header #who{
+  font-size:11px!important;padding:2px 3px!important;
+ }
+}
