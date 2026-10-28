@@ -345,4 +345,43 @@ assert.match(source,/Start this maze over\?/,'restart requires confirmation');
 assert.match(source,/id="keep-maze"/,'restart offers a safe cancel button');
 assert.match(source,/id="confirm-restart"/,'restart has explicit confirmation button');
 assert.match(source,/if\(restart\)delete a\.mazeRuns\[def\.id\]/,'restart removes only current maze run');
+
+// Exercise actual Chromebook wheel handler and prevent page-scroll trapping.
+const fixtureShelfCode=source.slice(source.indexOf("  const collectionShelf=$('my-stuff-tray');"),source.indexOf("  document.querySelectorAll('[data-stuff-world]')"));
+const fixtureListeners={};
+const fixtureShelf={scrollWidth:900,clientWidth:300,scrollLeft:100,addEventListener:(type,fn,opts)=>{fixtureListeners[type]={fn,opts}}};
+const fixtureSteps=[];
+new Function('$','scrollTray',fixtureShelfCode)(()=>fixtureShelf,d=>fixtureSteps.push(d));
+let fixturePrevent=0;
+const fixtureWheel=(dx,dy,ctrl=false)=>fixtureListeners.wheel.fn({deltaX:dx,deltaY:dy,ctrlKey:ctrl,preventDefault:()=>fixturePrevent++});
+fixtureWheel(0,85);assert.equal(fixtureShelf.scrollLeft,185,'two-finger vertical scroll moves shelf');
+fixtureWheel(-25,0);assert.equal(fixtureShelf.scrollLeft,160,'horizontal scroll still works');
+fixtureShelf.scrollLeft=0;fixtureWheel(0,-80);assert.equal(fixturePrevent,2,'scroll up at start passes to page');
+fixtureShelf.scrollLeft=600;fixtureWheel(0,80);assert.equal(fixturePrevent,2,'scroll down at end passes to page');
+fixtureShelf.scrollLeft=200;fixtureWheel(0,90,true);assert.equal(fixtureShelf.scrollLeft,200,'control-wheel zoom remains native');
+fixtureListeners.keydown.fn({key:'ArrowLeft',preventDefault:()=>{}});
+fixtureListeners.keydown.fn({key:'ArrowRight',preventDefault:()=>{}});
+assert.deepEqual(fixtureSteps,[-1,1],'focused shelf supports left/right keyboard');
+
+// A Start Over click is safe until the student explicitly confirms it.
+const fixtureRestartStart=source.indexOf("$('restart-level').onclick=()=>modal('Start this maze over?'");
+const fixtureRestartEnd=source.indexOf(";$('hint-route').onclick",fixtureRestartStart);
+assert.ok(fixtureRestartStart>0&&fixtureRestartEnd>fixtureRestartStart,'restart handler is present');
+const fixtureRestartCode=source.slice(fixtureRestartStart,fixtureRestartEnd)+';';
+const fixtureButtons={'restart-level':{},'keep-maze':{},'confirm-restart':{}};
+let fixtureDialogs=0,fixtureResets=[],fixtureCloses=0,fixtureNotice='';
+new Function('$','modal','closeModal','status','startLevel','def','challengeKeys',fixtureRestartCode)(
+ id=>fixtureButtons[id],
+ (title,html,bind)=>{fixtureDialogs++;assert.match(title,/Start this maze over/);assert.match(html,/other mazes, stars, friends/);bind()},
+ ()=>fixtureCloses++,message=>{fixtureNotice=message},(n,reset)=>fixtureResets.push([n,reset]),{number:17},null
+);
+fixtureButtons['restart-level'].onclick();
+assert.equal(fixtureDialogs,1);assert.equal(fixtureResets.length,0,'opening restart confirmation does not reset');
+fixtureButtons['keep-maze'].onclick();
+assert.equal(fixtureResets.length,0,'Keep My Progress preserves maze');
+assert.match(fixtureNotice,/progress is safe/);
+fixtureButtons['restart-level'].onclick();fixtureButtons['confirm-restart'].onclick();
+assert.deepEqual(fixtureResets,[[17,true]],'only explicit confirmation restarts current maze');
+assert.equal(fixtureCloses,2,'cancel and confirm close popup');
+
 console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back.`);
