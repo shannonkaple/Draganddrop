@@ -274,7 +274,7 @@ assert.match(css,/scroll-snap-type:x mandatory/,'items are organized in a one-ro
 assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
 assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
 assert.match(html,/visual-hotfix-20261027\.css\?v=rainbow-wall-header-20261027f/,'published page references color and header fix');
-assert.match(html,/game\.mjs\?v=header-and-patrol-20261027f/,'published page references the updated game module');
+assert.match(html,/game\.mjs\?v=patrol-pockets-20261027g/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
 
 
@@ -309,7 +309,7 @@ assert.match(source,/const valid=old&&old\.id===def\.id/,'saved maze run can be 
 assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);
 const old={selectedPlayerCharacterId:data.characters[0].id,primaryRainbowLandId:data.rainbow_lands[0].id,ownedWorldIds:[data.rainbow_lands[0].id],friends:{[data.characters[0].id]:{isRescued:true,upgradeStage:'power_up',homeLandId:data.rainbow_lands[0].id}},worldFriends:{candy:{homeLandId:'background_candy'}},positions:{rainbow_meadow:{astro_ace:{x:30,y:40}}},wallet:{rainbowStars:17},completedLevelIds:['lab_candy_1']};
 const migrated=migrateAdventure(structuredClone(old),{},data.characters,lands);for(const key of Object.keys(old))assert.deepEqual(migrated[key],old[key]);
-let longPatrols=0,runs=0;
+let longPatrols=0,runs=0,extendedMovingPatrols=0;
 for(const def of levels)for(let seed=1;seed<=40;seed++){
  const r=buildLevel(def,seed);runs++;const occupied=new Set();
  const distance=(p,q)=>Math.abs(p.x-q.x)+Math.abs(p.y-q.y);
@@ -318,13 +318,18 @@ for(const def of levels)for(let seed=1;seed<=40;seed++){
  assert.equal(new Set(r.hazards.map(enemy=>enemy.id)).size,4,`${def.id} seed ${seed}: duplicate enemy`);
  for(const enemy of r.hazards){const own=new Set(enemy.path.map(tile));for(const pos of own){assert.ok(!occupied.has(pos));occupied.add(pos)}
   if(own.size>2)longPatrols++;
+   if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(enemy.id)&&own.size>2)extendedMovingPatrols++;
+   assert.ok(enemy.path.length===1||(enemy.path.length>=2&&enemy.path.length<=8&&enemy.path.length%2===0),'patrols must be 1–4 connected squares out and back');
+   if(enemy.path.length>2){const out=enemy.path.length/2;for(let k=1;k<out;k++)assert.deepEqual(enemy.path[out+k],enemy.path[out-k],'return patrol retraces the exact outward path')};
   enemy.path.forEach((p,i)=>{assert.equal(r.grid[p.y][p.x],0);assert.ok(!r.items.some(q=>tile(p)===tile(q)));if(enemy.path.length>1)assert.equal(distance(p,enemy.path[(i+1)%enemy.path.length]),1,'no jumps through walls, including loop wrap')});
  }
  let p=r.start;for(const stop of [...r.items,...(r.skill?[r.skill]:[]),r.goal]){assert.ok(route(r.grid,p,stop,occupied));p=stop}
 }
 assert.ok(longPatrols>0,'moving enemies have longer patrols');
+assert.ok(extendedMovingPatrols>=7000,'new side pockets let over 7000 eligible enemies patrol at least two tiles out without crossing the safe route');
+assert.match(fs.readFileSync(new URL('./adventure-core.mjs',import.meta.url),'utf8'),/Carve a safe side pocket/,'new runs get connected side pockets instead of one-step patrol dead ends');
 assert.match(source,/stuff-scroll-prev/,'MY STUFF has a previous button');
 assert.match(source,/stuff-scroll-next/,'MY STUFF has a next button');
 assert.match(source,/trayScroll=\$\('my-stuff-tray'\)/,'refresh preserves horizontal scroll position');
 assert.match(source,/scrollBy\(\{left:dir\*Math\.max/,'trackpad shelf navigation moves horizontally by visible shelf width');
-console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings.`);
+console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back.`);
