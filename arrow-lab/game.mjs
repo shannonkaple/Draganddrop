@@ -85,22 +85,35 @@ function fullscreenNotice(message){
   note.querySelector('.arrow-lab-fullscreen-message').textContent=message;
 }
 async function toggleArrowLabFullscreen(){
+  // A native dialog and the fullscreen element both live in the browser top
+  // layer. A new fullscreen request can otherwise hide an already-open popup.
+  const dialogs=[...document.querySelectorAll('dialog[open]')];
+  const focused=document.activeElement;
+  const restoreFocus=dialogs.find(d=>d.contains(focused));
+  for(const d of dialogs)d.close();
   try{
     if(document.fullscreenElement){
-      if(typeof document.exitFullscreen==='function') await document.exitFullscreen();
+      if(typeof document.exitFullscreen==='function')await document.exitFullscreen();
       else throw new Error('The browser does not support exiting full screen.');
     }else{
       const element=document.documentElement;
       if(typeof element.requestFullscreen!=='function')throw new Error('Full Screen API unavailable.');
-      // Invoke requestFullscreen directly from the physical trackpad click.
       await element.requestFullscreen();
     }
     $('arrow-lab-fullscreen-note')?.remove();
   }catch(error){
-    const message='Browser full screen was blocked. Click this button in the full browser tab, or press F11 on your Chromebook/keyboard.';
-    fullscreenNotice(message);
+    fullscreenNotice('Browser full screen was blocked. Click Full Screen again in the browser tab, or press F11 on your Chromebook.');
+  }finally{
+    // Restore reward, challenge, instruction, rescue and help dialogs
+    // without reconstructing HTML or resetting their attached handlers.
+    for(const d of dialogs)if(d.isConnected&&!d.open){
+      try{d.showModal()}catch{fullscreenNotice('The popup could not reopen. Use Home to return to the map.')}
+    }
+    if(restoreFocus?.open&&focused?.isConnected){
+      try{focused.focus({preventScroll:true})}catch{}
+    }
+    syncFullscreenButton();
   }
-  syncFullscreenButton();
 }
 window.arrowLabToggleFullscreen=toggleArrowLabFullscreen;
 fullscreenButton.addEventListener('click',toggleArrowLabFullscreen);
