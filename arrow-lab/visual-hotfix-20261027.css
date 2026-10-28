@@ -901,3 +901,11 @@ body>header.lab-image-header .actions button{
  body>header.lab-image-header .actions{justify-content:flex-start!important}
  body>header.lab-image-header .actions button{font-size:11px!important;padding:4px 6px!important}
 }
+
+/* Approved banner must never be stretched OR cropped at Chromebook widths.
+   The pale sky color fills any extra side space naturally. */
+body>header.lab-image-header .brand>img#lab-jpeg-banner.lab-header-art{
+ object-fit:contain!important;
+ object-position:center center!important;
+ background:#d7efff!important;
+}
