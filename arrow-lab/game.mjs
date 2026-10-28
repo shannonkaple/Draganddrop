@@ -14,6 +14,19 @@ const flag='<img class="marker" src="./assets/flag-icon.png" alt="Checkered fini
 const gem='<img class="gem" src="./assets/gem-icon.png" alt="Arrow Amethysts">';
 let identity=null,run=null,wallet=null,saving=true;
 function key(){return classKey(identity.teacherId,identity.number)}
+function syncStudentBanner(){
+ const wrapper=$('lab-student-header'),caption=$('lab-current-class');
+ if(!wrapper||!caption)return;
+ if(!identity){
+  caption.textContent='';wrapper.classList.add('hidden');
+  document.body.classList.remove('lab-student-selected');
+  $('who')?.classList.add('hidden');return;
+ }
+ caption.textContent=identity.teacherName+' · #'+identity.number;
+ wrapper.classList.remove('hidden');
+ document.body.classList.add('lab-student-selected');
+}
+
 function seed(){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]}
 // The login screen runs before the adventure's own storage guard. Never let
 // its legacy-maze save overwrite an unreadable student adventure record.
@@ -51,7 +64,7 @@ async function chooseCharacter(){await charactersReady;if(!availableCharacters.l
 
 function login(){
  $('arrow-lab-help-dialog')?.close?.();
- $('help').onclick=legacyHelp;adventureController?.cleanup();adventureController=null;adventureActive=false;document.body.classList.remove('playing');identity=null;run=null;wallet=null;$('who').classList.add('hidden');
+ $('help').onclick=legacyHelp;adventureController?.cleanup();adventureController=null;adventureActive=false;document.body.classList.remove('playing');identity=null;run=null;wallet=null;$('who').classList.add('hidden');syncStudentBanner();
  // The artwork in the banner already names the game. Keep teacher login short,
  // readable, and scrollable instead of repeating a huge second title.
  document.body.classList.remove('lab-number-active');
@@ -84,11 +97,11 @@ function pickNumber(teacher){
     '<button type="button" data-number="'+(i+1)+'" aria-label="Play as classroom number '+(i+1)+'">'+(i+1)+'</button>').join('')+
   '</div></div><p class="lab-entry-note">Your stars, collected items and mazes save by teacher and number on this Chromebook.</p></section>';
  $('app').scrollTop=0;
- $('other-teacher').onclick=login;document.querySelectorAll('[data-number]').forEach(b=>b.onclick=()=>{identity={teacherId:teacher.id,teacherName:teacher.name,number:Number(b.dataset.number)};restore();save();launchAdventure()});
+ $('other-teacher').onclick=login;document.querySelectorAll('[data-number]').forEach(b=>b.onclick=()=>{identity={teacherId:teacher.id,teacherName:teacher.name,number:Number(b.dataset.number)};syncStudentBanner();restore();save();launchAdventure()});
  enablePickerArrows(document.querySelector('.numbers'));
 }
-async function launchAdventure(){document.body.classList.remove('lab-teacher-active','lab-number-active');adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
-function play(){document.body.classList.add('playing');$('who').classList.remove('hidden');$('app').innerHTML='<div class="row" style="margin-bottom:16px"><span class="pill" id="road-level"></span><span class="small">'+esc(identity.teacherName)+' · #'+identity.number+'</span><span class="pill">'+gem+' <span id="wallet"></span></span></div><div class="play-layout"><section><div class="board-wrap"><div id="maze" class="maze" role="img" aria-label="Rainbow maze. Start at the star and finish at the checkered flag."></div></div><p class="caption" id="status" role="status">Find the flag. Look, choose, press and release, check.</p></section><aside class="side"><section class="panel"><h3>Use your keys</h3><div class="keypad" aria-label="Keyboard arrow layout"><div class="key up" id="ArrowUp">↑</div><div class="key left" id="ArrowLeft">←</div><div class="key down" id="ArrowDown">↓</div><div class="key right" id="ArrowRight">→</div></div><p>One press. One move.<br>Let the key come up.</p><p class="small">Use your keyboard. Touching the screen does not move the rider.</p></section><section class="panel"><h3>My Arrow Amethysts</h3><div class="stat" id="gem-total"></div><p id="finished" class="small"></p><button id="rescue-friends" class="small">Rescue friends</button></section><div class="actions tools"><button id="reset" class="small">Back to the star</button><button id="full" class="small">Full screen</button></div></aside></div><p class="footnote" id="storage-note"></p>';
+async function launchAdventure(){document.body.classList.remove('lab-teacher-active','lab-number-active');syncStudentBanner();adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
+function play(){document.body.classList.add('playing');syncStudentBanner();$('who').classList.remove('hidden');$('app').innerHTML='<div class="row" style="margin-bottom:16px"><span class="pill" id="road-level"></span><span class="pill">'+gem+' <span id="wallet"></span></span></div><div class="play-layout"><section><div class="board-wrap"><div id="maze" class="maze" role="img" aria-label="Rainbow maze. Start at the star and finish at the checkered flag."></div></div><p class="caption" id="status" role="status">Find the flag. Look, choose, press and release, check.</p></section><aside class="side"><section class="panel"><h3>Use your keys</h3><div class="keypad" aria-label="Keyboard arrow layout"><div class="key up" id="ArrowUp">↑</div><div class="key left" id="ArrowLeft">←</div><div class="key down" id="ArrowDown">↓</div><div class="key right" id="ArrowRight">→</div></div><p>One press. One move.<br>Let the key come up.</p><p class="small">Use your keyboard. Touching the screen does not move the rider.</p></section><section class="panel"><h3>My Arrow Amethysts</h3><div class="stat" id="gem-total"></div><p id="finished" class="small"></p><button id="rescue-friends" class="small">Rescue friends</button></section><div class="actions tools"><button id="reset" class="small">Back to the star</button><button id="full" class="small">Full screen</button></div></aside></div><p class="footnote" id="storage-note"></p>';
  $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0;save();board();$('status').textContent='Back at the star. Try your route again.'};$('full').onclick=()=>window.arrowLabToggleFullscreen();board();stats();requestAnimationFrame(fitMaze);}
 function fitMaze(){document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||window.innerHeight)+'px');if(!run||!$('maze'))return;const box=document.querySelector('.board-wrap');if(!box)return;const viewport=window.visualViewport?.height||window.innerHeight,caption=document.getElementById('status')?.getBoundingClientRect().height||30,foot=document.getElementById('storage-note')?.getBoundingClientRect().height||20;const availableH=Math.min(box.clientHeight-24,viewport-box.getBoundingClientRect().top-caption-foot-58);const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/run.w,availableH/run.h)));$('maze').style.width=(size*run.w)+'px';$('maze').style.height=(size*run.h)+'px';}
 window.addEventListener('resize',()=>requestAnimationFrame(fitMaze));window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitMaze));document.addEventListener('fullscreenchange',()=>requestAnimationFrame(fitMaze));
