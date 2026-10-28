@@ -367,7 +367,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const nextFriend=companions.find(c=>!a.worldFriends?.[c.id]);
   const friendIndex=nextFriend?companions.indexOf(nextFriend):7,doneForFriend=worldDoneCount(friendIndex);
   const progress=canRescue()?companion(pendingWorldRescue(a)).name+' is ready!':nextFriend?(8-doneForFriend)+' more mazes to rescue '+nextFriend.name+'!':'All 8 world friends rescued!';
-  const coords=[[8.0,60],[20.5,47],[34.1,72],[44.2,46],[56.7,70],[68.5,45],[80.3,64],[91.5,45]];
+  // Exact blank platform centers of the user-supplied 2048×682 eight-world art.
+  // Coordinates live in the native-ratio image frame (never a stretched CSS background).
+  const coords=[[7.5,57],[19.7,45.8],[32.3,59.7],[43.2,45.6],[56.1,60.8],[67.6,45.6],[81.1,60.9],[92.7,45.7]];
   const nodes=worldThemes.map((world,i)=>{
    const count=worldDoneCount(i),open=isWorldUnlocked(i),current=next.worldIndex===i;
    return '<button type="button" class="lab-world-node'+(count===8?' completed':'')+(current?' current':'')+'" data-world-index="'+i+'" style="left:'+coords[i][0]+'%;top:'+coords[i][1]+'%" '+(open?'aria-disabled="false"':'aria-disabled="true"')+' aria-label="'+world.name+' world, '+count+' of 8 mazes complete, '+(open?'open':'locked')+'">'+
@@ -380,7 +382,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<div class="lab-game-hud"><div class="lab-player-compact"><div class="lab-player-figure">'+pic(playerId)+'</div><div class="lab-player-meta"><span class="lab-kicker">MY PLAYER</span><b>'+esc(char(playerId).name)+'</b><small>'+esc(currentStage(playerId))+'</small><button id="change-player" type="button">Change Player ›</button></div></div>'+
     '<div class="lab-friend-compact"><span class="lab-kicker">NEXT FRIEND</span><b>'+esc(progress)+'</b><div class="lab-meter" role="progressbar" aria-valuenow="'+doneForFriend+'" aria-valuemin="0" aria-valuemax="8"><i style="width:'+(doneForFriend/8*100)+'%"></i></div>'+rescueAction+'</div></div>'+
     '<div class="lab-map-title"><span>🌈 8 magical worlds · 8 mazes each</span><h2>Choose Your World!</h2><p>Follow the rainbow road. Earn stars. Unlock new lands!</p></div>'+
-    '<div class="lab-map-canvas" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+nodes+'</div>'+
+    '<div class="lab-map-art-frame"><div class="lab-map-canvas" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+
+      '<img class="lab-main-map-art" src="'+asset('arrow-lab/assets/arrow-adventure-eight-worlds-user-20261028.png')+'" alt="Eight illustrated worlds linked by rainbow bridges: Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean and Lava" draggable="false" loading="eager" decoding="sync" onerror="this.hidden=true;this.closest(\'.lab-map-canvas\').classList.add(\'lab-map-fallback\')">'+
+      nodes+'</div></div>'+
     '<button id="continue-adventure" type="button" class="lab-next-play">▶ PLAY NEXT <small>'+esc(now.name)+' · Maze '+next.worldStage+'</small></button>'+
     '<nav class="lab-main-nav" aria-label="Game navigation"><button type="button" data-nav="map">🏠 <span>Home</span></button><button type="button" data-nav="shop">⭐ <span>Star Shop</span></button><button type="button" data-nav="computer" class="lab-my-stuff-entry">🧸 <span>MY STUFF</span></button></nav>'+
     '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="computer">🧸 MY STUFF — Make My Scene</button><button type="button" id="endless">Arrow Practice</button><button type="button" id="teacher-settings">Teacher Settings</button></details>'+
