@@ -240,6 +240,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function save(){
   try{
+    if(studentSaveUnreadable)throw Error('Original student save unreadable; refuse overwrite');
     if(r?.id){
       if(r.complete)delete a.mazeRuns[r.id];
       else a.mazeRuns[r.id]=r;
