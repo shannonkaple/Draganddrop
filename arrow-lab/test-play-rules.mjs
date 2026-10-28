@@ -385,4 +385,33 @@ fixtureButtons['restart-level'].onclick();fixtureButtons['confirm-restart'].oncl
 assert.deepEqual(fixtureResets,[[17,true]],'only explicit confirmation restarts current maze');
 assert.equal(fixtureCloses,2,'cancel and confirm close popup');
 
-console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back.`);
+// Gentle mode still has four different themed bad guys, but they stay put.
+ // Hints must route around EVERY square in an enemy's patrol, not into danger.
+const safeHintCode=source.slice(source.indexOf(' function safeHint('),source.indexOf(' function status('));
+assert.match(safeHintCode,/blocked=new Set/,'hint avoids all enemy patrol tiles');
+assert.match(source,/status\(safeHint\(r,target\)\)/,'Help Me actually calls the safe hint');
+const safeHintFixture=new Function('route','tile','directions',safeHintCode+';return safeHint;')(route,tile,directions);
+let gentleRuns=0;
+for(const level of levels)for(let seed=1;seed<=20;seed++){
+ const easyRun=buildLevel(level,seed,true);gentleRuns++;
+ assert.equal(easyRun.hazards.length,4,`${level.id} gentle: four visible bad guys`);
+ assert.equal(new Set(easyRun.hazards.map(e=>e.id)).size,4,`${level.id} gentle: distinct enemy types`);
+ const blocked=new Set(easyRun.hazards.flatMap(enemy=>enemy.path.map(tile)));
+ for(const enemy of easyRun.hazards){
+   assert.equal(enemy.path.length,1,'gentle bad guys stay still');
+   assert.ok(!easyRun.safe.includes(tile(enemy.path[0])),'gentle enemy stays off protected route');
+ }
+ let from=easyRun.start;
+ for(const goal of [...easyRun.items,...(easyRun.skill?[easyRun.skill]:[]),easyRun.goal]){
+   assert.ok(route(easyRun.grid,from,goal,blocked),`${level.id}: gentle objective stays reachable without crossing enemy`);
+   from=goal;
+ }
+ assert.match(safeHintFixture(easyRun,easyRun.items[0]),/^(Try|Hold SPACE)/,'Help Me gives a safe next move');
+}
+const hintGrid=[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]];
+const hintRun={grid:hintGrid,player:{x:1,y:1},hazards:[{path:[{x:2,y:1}]}],barrier:null};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Try DOWN/,'hint never recommends a direct step into an enemy');
+hintRun.hazards=[];hintRun.barrier={x:2,y:1};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Hold SPACE and press RIGHT/,'hint teaches ducking at the bridge');
+
+console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back; ${gentleRuns} gentle mazes retain four stationary bad guys and safe hints.`);
