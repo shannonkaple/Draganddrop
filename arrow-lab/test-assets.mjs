@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import {decorations} from '../trackpad-adventure/economy.mjs';
+import {arrowLabCharacters} from './character-placeholders.mjs';
 import {buildLevel, route, tile, migrateAdventure} from './adventure-core.mjs';
 
 const load=name=>JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+name+'.json',import.meta.url)));
 const manifest=JSON.parse(fs.readFileSync(new URL('./ASSET_PRODUCTION_MANIFEST.json',import.meta.url)));
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const definitions=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
-const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config'].map(n=>[n,load(n)]));
-const {levels}=new Function('data','storageKey',definitions+';return {levels};')(data,'test-only');
+const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config','computer_collectibles'].map(n=>[n,load(n)]));
+const {levels}=new Function('data','storageKey','decorations','arrowLabCharacters',definitions+';return {levels};')(data,'test-only',decorations,arrowLabCharacters);
 assert.equal(levels.length,64);
 let runs=0;
 for(const [worldIndex,world] of manifest.worlds.entries()){
