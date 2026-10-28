@@ -11,7 +11,7 @@ body.playing{height:var(--view-height,100dvh);display:flex;flex-direction:column
 (()=>{
  const output=document.getElementById('lab-jpeg-banner');
  if(!output)return;
- const image=new Image();image.decoding='async';image.src='./assets/arrow-adventure-header.png';
+ const image=new Image();image.decoding='async';
  image.onload=()=>{
   try{
    const canvas=document.createElement('canvas');canvas.width=3000;canvas.height=430;
@@ -24,7 +24,20 @@ body.playing{height:var(--view-height,100dvh);display:flex;flex-direction:column
    c.drawImage(image,0,0,image.width,image.height,0,-275,W,980);
    c.restore();
    const panel=(sx,sy,sw,sh,dx,dy,dw,dh)=>{
-    c.drawImage(image,sx*s,sy*s,sw*s,sh*s,dx,dy,dw,dh);
+    const panelCanvas=document.createElement('canvas');panelCanvas.width=dw;panelCanvas.height=dh;
+    const p=panelCanvas.getContext('2d');
+    p.drawImage(image,sx*s,sy*s,sw*s,sh*s,0,0,dw,dh);
+    p.globalCompositeOperation='destination-in';
+    const feather=32;
+    const gx=p.createLinearGradient(0,0,dw,0);
+    gx.addColorStop(0,'transparent');gx.addColorStop(feather/dw,'black');
+    gx.addColorStop(1-feather/dw,'black');gx.addColorStop(1,'transparent');
+    p.fillStyle=gx;p.fillRect(0,0,dw,dh);
+    const gy=p.createLinearGradient(0,0,0,dh);
+    gy.addColorStop(0,'transparent');gy.addColorStop(feather/dh,'black');
+    gy.addColorStop(1-feather/dh,'black');gy.addColorStop(1,'transparent');
+    p.fillStyle=gy;p.fillRect(0,0,dw,dh);
+    c.drawImage(panelCanvas,dx,dy);
    };
    panel(75,70,495,420,18,0,520,430);
    panel(590,80,920,325,760,0,1216,430);
@@ -34,5 +47,6 @@ body.playing{height:var(--view-height,100dvh);display:flex;flex-direction:column
    output.dataset.imageFormat='jpeg';
   }catch(err){output.dataset.imageFormat='approved-png-fallback'}
  };
+ image.src='./assets/arrow-adventure-header.png';
 })();
 </script><script type="module" src="./game.mjs?v=header-and-patrol-20261027f"></script></body></html>
