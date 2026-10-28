@@ -197,9 +197,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   let stored={},studentSaveUnreadable=false;
   try{
     const raw=localStorage.getItem(key);
-    if(raw!==null&&raw.trim()!==''){
+    if(raw!==null){
       const parsed=JSON.parse(raw);
-      if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))studentSaveUnreadable=true;
+      const invalidProfile=!parsed||typeof parsed!=='object'||Array.isArray(parsed)||
+        (parsed.adventure!==undefined&&parsed.adventure!==null&&
+         (typeof parsed.adventure!=='object'||Array.isArray(parsed.adventure)));
+      if(invalidProfile)studentSaveUnreadable=true;
       else stored=parsed;
     }
   }catch{studentSaveUnreadable=true}
