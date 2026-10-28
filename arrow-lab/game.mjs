@@ -87,7 +87,7 @@ function login(){
  document.body.classList.add('lab-teacher-active');
  $('app').innerHTML='<section class="lab-entry-screen" aria-label="Choose your teacher">'+
   '<div class="lab-entry-intro"><span class="lab-step-badge">STEP 1 OF 2</span><h1>Choose Your Teacher</h1>'+
-  '<p>Click your teacher, then choose your classroom number.</p>'+
+  '<p>Tap or click your teacher, then choose your classroom number.</p>'+
   '<small>Or use keyboard arrows and press Enter.</small></div>'+
   '<div class="lab-teacher-list" role="group" aria-label="Teachers"><div class="adventure-cards lab-teacher-cards">'+
   teachers.map(t=>'<button type="button" data-teacher="'+t.id+'" aria-label="Choose '+esc(t.name)+'">'+esc(t.name)+'</button>').join('')+
@@ -108,7 +108,7 @@ function pickNumber(teacher){
  $('app').innerHTML='<section class="lab-entry-screen lab-number-screen">'+
   '<div class="lab-entry-intro"><button id="other-teacher" type="button">← Change Teacher</button>'+
   '<span class="lab-step-badge">STEP 2 OF 2</span><h1>Choose Your Number</h1>'+
-  '<p>'+esc(teacher.name)+'</p><small>Choose your classroom number to start or continue your adventure.</small></div>'+
+  '<p>'+esc(teacher.name)+'</p><small>Tap or click your classroom number to start or continue your adventure.</small></div>'+
   '<div class="lab-number-list"><div class="numbers">'+Array.from({length:24},(_,i)=>
     '<button type="button" data-number="'+(i+1)+'" aria-label="Play as classroom number '+(i+1)+'">'+(i+1)+'</button>').join('')+
   '</div></div><p class="lab-entry-note">Your stars, collected items and mazes save by teacher and number on this Chromebook.</p></section>';
@@ -189,13 +189,18 @@ async function toggleArrowLabFullscreen(){
 window.arrowLabToggleFullscreen=toggleArrowLabFullscreen;
 fullscreenButton.addEventListener('click',toggleArrowLabFullscreen);
 document.addEventListener('fullscreenchange',syncFullscreenButton);
-// Arrow Lab is deliberately a TRACKPAD + PHYSICAL KEYBOARD activity.
-// Blocking touch starts also suppresses synthesized touch clicks on UI buttons;
-// real mouse/trackpad clicks, keyboard focus and wheel scrolling remain available.
+// Teacher and student-number PICKERS are tappable on mobile/touchscreen.
+// Actual maze movement and trackpad-only drag challenges still reject touch.
+// The old unconditional capture listeners also blocked mobile's synthetic clicks
+// on the teacher buttons, preventing students from even logging in.
+const touchLoginPickerOpen=()=>document.body.classList.contains('lab-teacher-active')||
+  document.body.classList.contains('lab-number-active');
 document.addEventListener('touchstart',event=>{
+  if(touchLoginPickerOpen())return; // Keep native taps and scrolling during login.
   if(event.cancelable)event.preventDefault();
 },{capture:true,passive:false});
 document.addEventListener('pointerdown',event=>{
+  if(touchLoginPickerOpen())return;
   if(event.pointerType && event.pointerType!=='mouse'){
     event.preventDefault();event.stopImmediatePropagation();
   }
