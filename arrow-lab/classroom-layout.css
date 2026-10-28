@@ -402,3 +402,14 @@ html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of
 html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(6){left:68.5%!important;top:45%!important;}
 html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(7){left:80.3%!important;top:64%!important;}
 html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(8){left:91.5%!important;top:45%!important;}
+
+/* Also constrain the legacy win/shop/character dialogs in F11/fullscreen. */
+html dialog.dialog[open]{
+ box-sizing:border-box!important;
+ max-width:calc(100dvw - 18px)!important;
+ max-height:calc(100dvh - 18px)!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+}
+html dialog.dialog[open] :is(button,input,select){
+ max-width:100%!important;
+}
