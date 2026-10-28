@@ -19,7 +19,7 @@ import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs
  let fail=true,raw='{"wallet":{"rainbowStars":17}}';
  const storage={getItem:()=>raw,setItem(_key,value){if(fail)throw Error('QuotaExceededError');raw=value}};
  const harness=new Function('localStorage','document','key','a','r',
-  'let saved=true;'+section+';return {save,wasSaved:()=>saved};')(
+  'let saved=true,studentSaveUnreadable=false;'+section+';return {save,wasSaved:()=>saved};')(
    storage,document,'test-student',{mazeRuns:{},wallet:{rainbowStars:17}},null);
  harness.save();
  assert.equal(harness.wasSaved(),false,'a failed write is never reported as saved');
