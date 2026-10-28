@@ -678,6 +678,23 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const scrollTray=dir=>{const tray=$('my-stuff-tray');if(tray)tray.scrollBy({left:dir*Math.max(150,Math.floor(tray.clientWidth*.75)),behavior:'smooth'});};
   $('stuff-scroll-prev').onclick=()=>scrollTray(-1);
   $('stuff-scroll-next').onclick=()=>scrollTray(1);
+  // Chromebook trackpads commonly send vertical wheel deltas. Move the
+  // horizontal shelf only while there are more items in that direction;
+  // at either end, let the page scroll normally (no scroll trap).
+  const collectionShelf=$('my-stuff-tray');
+  collectionShelf?.addEventListener('wheel',event=>{
+    if(event.ctrlKey||collectionShelf.scrollWidth<=collectionShelf.clientWidth+1)return;
+    const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
+    if(!delta)return;
+    const max=collectionShelf.scrollWidth-collectionShelf.clientWidth;
+    if((delta<0&&collectionShelf.scrollLeft<=1)||(delta>0&&collectionShelf.scrollLeft>=max-1))return;
+    event.preventDefault();
+    collectionShelf.scrollLeft=Math.max(0,Math.min(max,collectionShelf.scrollLeft+delta));
+  },{passive:false});
+  collectionShelf?.addEventListener('keydown',event=>{
+    if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
+    event.preventDefault();scrollTray(event.key==='ArrowLeft'?-1:1);
+  });
   document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld,'worlds'));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
@@ -776,7 +793,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function maze(){
  view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':def.individualBackdrop?' lab-individual-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full" type="button">⛶ Full Screen</button></div>');
  document.body.classList.add('playing');
- $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>startLevel(def.number,true);$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;const keys=route(r.grid,r.player,target);status(keys?.length?'Try '+keys[0].slice(5).toUpperCase()+' next.':'You are at your next stop.');};
+ $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>modal('Start this maze over?',
+    '<p>This will restart <strong>only this maze</strong>. Your other mazes, stars, friends, and decorations stay saved.</p>'+
+    '<p>Your current position and items collected in this maze will be lost.</p>'+
+    '<button id="keep-maze" class="primary" type="button">Keep My Progress</button>'+
+    '<button id="confirm-restart" type="button">Yes, Start This Maze Over</button>',()=>{
+      $('keep-maze').onclick=()=>{closeModal();status('Your maze progress is safe. Keep going!')};
+      $('confirm-restart').onclick=()=>{challengeKeys=null;closeModal();startLevel(def.number,true)};
+    });$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;const keys=route(r.grid,r.player,target);status(keys?.length?'Try '+keys[0].slice(5).toUpperCase()+' next.':'You are at your next stop.');};
  $('adventure-full').onclick=()=>window.arrowLabToggleFullscreen?.();
  const db=$('duck-button');db.onpointerdown=e=>{if(e.pointerType!=='mouse')return;e.preventDefault();db.setPointerCapture(e.pointerId);setDuck(true)};db.onpointerup=db.onpointercancel=db.onlostpointercapture=()=>setDuck(false);db.onkeydown=e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();setDuck(true)}};db.onkeyup=()=>setDuck(false);
  draw();clock();requestAnimationFrame(()=>{$('adventure-maze')?.focus({preventScroll:true});fit()});
