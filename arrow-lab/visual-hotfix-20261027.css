@@ -790,3 +790,74 @@ body.adventure-mode .shop-only-label{
 }
 @media(max-width:670px){body.lab-collection-active .my-stuff-exclusive-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:415px){body.lab-collection-active .my-stuff-exclusive-cards{grid-template-columns:1fr}}
+
+
+/* 2026-10-27 teacher request: vividly colored paths with truly OPAQUE walls.
+   All fills use RGB/color-mix with no transparency. The scenery remains behind
+   the board without reducing cell contrast. */
+body.guided.adventure-mode.playing .adventure-layout .maze .cell.wall,
+body.adventure-mode.playing .lab-candy-maze .wall,
+body.adventure-mode.playing .lab-individual-maze .wall {
+ background:#1b2b5c!important;
+ border:1px solid #e5e9ff!important;
+ box-shadow:inset 0 0 0 1px #344980!important;
+ opacity:1!important;
+}
+body.guided.adventure-mode.playing .adventure-layout .maze .cell.road,
+body.adventure-mode.playing .lab-candy-maze .road,
+body.adventure-mode.playing .lab-individual-maze .road{
+ background:color-mix(in srgb,var(--c) 67%,white)!important;
+ border:1px solid #ffffff!important;
+ box-shadow:inset 0 0 0 1px #4e4c6f!important;
+ opacity:1!important;
+}
+@media(prefers-contrast:more){
+ body.guided.adventure-mode.playing .adventure-layout .maze .cell.road{
+   background:var(--c)!important;border-color:#ffffff!important;
+ }
+}
+/* Enemies have a regular, brief movement animation; NO direction arrows, future
+   tiles, yellow/red travel destination indicators or graphic shape markers. */
+body.adventure-mode.playing .adventure-layout .enemy-direction,
+body.adventure-mode.playing .adventure-layout .enemy-next-tile {display:none!important}
+body.adventure-mode.playing .adventure-layout .cell.enemy-path-next,
+body.adventure-mode.playing .adventure-layout .cell.hazard-warning{
+ outline:none!important;
+}
+body.adventure-mode.playing .adventure-layout .enemy-art.enemy-about-to-move{
+ animation:enemy-prepare .32s ease-in-out infinite alternate!important;
+}
+@keyframes enemy-prepare{from{transform:translateY(0) scale(1)}to{transform:translateY(-3px) scale(1.065)}}
+@media(prefers-reduced-motion:reduce){
+ body.adventure-mode.playing .adventure-layout .enemy-art.enemy-about-to-move{animation:none!important}
+}
+/* One horizontal MY STUFF shelf directly below the student's scene. */
+body.lab-collection-active .my-stuff-toolbox .my-stuff-tray-panel{
+ min-width:0!important;overflow:hidden!important;
+}
+body.lab-collection-active .my-stuff-toolbox .my-stuff-tray-controls{
+ display:flex!important;flex-direction:row!important;gap:12px!important;
+ align-items:center!important;justify-content:space-between!important;
+ width:100%!important;margin:3px 0 8px!important;
+}
+body.lab-collection-active .my-stuff-toolbox .my-stuff-tray-controls strong{
+ font-size:clamp(12px,1.25vw,18px)!important;text-align:center!important;
+ color:#3e316e!important;
+}
+body.lab-collection-active .my-stuff-toolbox .my-stuff-tray-controls button{
+ flex:0 0 auto!important;width:44px!important;height:43px!important;
+ background:#fff3a6!important;color:#3d256a!important;
+ border:2px solid #6850a4!important;border-radius:12px!important;
+}
+body.lab-collection-active .my-stuff-toolbox #my-stuff-tray.my-stuff-tray{
+ display:flex!important;flex-flow:row nowrap!important;
+ justify-content:flex-start!important;align-items:stretch!important;
+ overflow-x:auto!important;overflow-y:hidden!important;min-height:180px!important;
+ scroll-behavior:smooth!important;scroll-snap-type:x mandatory!important;
+ padding:7px 5px 17px!important;scrollbar-width:auto!important;
+}
+body.lab-collection-active .my-stuff-toolbox #my-stuff-tray .my-stuff-item{
+ flex:0 0 clamp(140px,15vw,182px)!important;
+ width:clamp(140px,15vw,182px)!important;max-width:none!important;
+ scroll-snap-align:start!important;
+}
