@@ -83,3 +83,48 @@ body.guided.adventure-mode.lab-collection-active .my-stuff-world-quickstrip{flex
 @media(max-height:640px){
  html body.guided.adventure-mode.lab-collection-active #my-stuff-tray{grid-template-rows:minmax(0,1fr)!important;}
 }
+
+/* October 28: picture-aligned hotspot views, no generic 4x2 cards.
+   The level buttons are positioned against the actual image dimensions,
+   never against an artificially stretched/flex-filled board. */
+html body.lab-world-active .lab-candy-world{
+  display:flex!important;flex-direction:column!important;
+  flex:1 1 auto!important;min-height:0!important;
+  height:auto!important;max-height:100%!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  align-items:stretch!important;padding:5px!important;gap:6px!important;
+}
+html body.lab-world-active .lab-candy-world .lab-candy-heading{
+  flex:0 0 auto!important;min-height:0!important;
+}
+html body.lab-world-active .lab-candy-world .lab-candy-scenery{
+  position:relative!important;flex:0 0 auto!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  width:min(100%,max(320px,calc(300dvh - 1170px)))!important;
+  aspect-ratio:2048/682!important;
+  margin:0 auto!important;overflow:visible!important;
+}
+html body.lab-world-active .lab-candy-world .lab-candy-scenery .lab-candy-map-art{
+  display:block!important;width:100%!important;height:auto!important;
+  max-height:none!important;object-fit:contain!important;
+  aspect-ratio:2048/682!important;
+}
+html body.lab-world-active .lab-world-illustrated[data-provisional-map] .lab-world-level-scene{
+  width:min(100%,max(320px,calc((100dvh - 380px) * 1.77778)))!important;
+  aspect-ratio:auto!important;height:auto!important;
+}
+html body.lab-world-active .lab-world-illustrated[data-provisional-map] .lab-world-level-scene .lab-candy-map-art{
+  aspect-ratio:auto!important;object-fit:contain!important;
+}
+html body.lab-world-active .lab-world-illustrated .lab-world-map-footer,
+html body.lab-world-active .lab-candy-world .lab-candy-actions{
+  flex:0 0 auto!important;max-height:none!important;
+}
+@media(max-width:680px){
+ html body.lab-world-active .lab-candy-world .lab-candy-scenery{
+   width:min(100%,max(270px,calc(300dvh - 1120px)))!important;
+ }
+ html body.lab-world-active .lab-world-illustrated[data-provisional-map] .lab-world-level-scene{
+   width:min(100%,max(270px,calc((100dvh - 330px) * 1.77778)))!important;
+ }
+}
