@@ -1,0 +1,85 @@
+/* Classroom viewport: reserve a readable maze and a complete, paged playroom. */
+body.guided.adventure-mode.playing #app{padding:3px 10px 3px!important;gap:2px!important;}
+body.guided.adventure-mode.playing #app>.adventure-nav{min-height:36px!important;padding:3px 8px!important;}
+body.guided.adventure-mode.playing #app>.adventure-title{font-size:18px!important;line-height:1.1!important;margin:0!important;}
+body.guided.adventure-mode.playing .adventure-nav button{min-height:30px!important;padding:3px 10px!important;}
+body.guided.adventure-mode.playing .maze-controls{padding:2px!important;margin:0!important;min-height:34px!important;overflow:visible!important;}
+body.guided.adventure-mode.playing .maze-controls button{min-height:30px!important;padding:3px 10px!important;}
+body.guided.adventure-mode.playing .scenic-board{padding:0!important;}
+body.guided.adventure-mode.playing #kaple-guide{top:var(--screen-top)!important;height:var(--screen-height)!important;display:flex!important;flex-direction:column!important;justify-content:space-between!important;}
+body.guided.adventure-mode.playing #kaple-guide .guide-bubble{flex:0 0 auto!important;max-height:55%!important;padding:8px!important;}
+body.guided.adventure-mode.playing #guide-words{font-size:16px!important;line-height:1.2!important;margin:2px!important;}
+body.guided.adventure-mode.playing .guide-cast{flex:1!important;min-height:0!important;max-height:43%!important;}
+body.guided.adventure-mode.playing .guide-cast img{max-height:100%!important;object-fit:contain!important;}
+/* State is always printed next to the level number, independent of background art. */
+body.adventure-mode .lab-candy-node{width:54px!important;height:54px!important;min-width:54px!important;opacity:1!important;overflow:visible!important;}
+body.adventure-mode .lab-candy-node .lab-map-node-number{font-size:26px!important;}
+body.adventure-mode .lab-candy-node .lab-map-node-indicator{font-size:17px!important;}
+body.adventure-mode .lab-activity-card.locked{opacity:1!important;}
+body.adventure-mode .lab-activity-number{font-size:18px!important;font-weight:900!important;color:#233670!important;}
+body.adventure-mode .lab-activity-card small{font-size:14px!important;color:#233670!important;}
+/* Scene and owned inventory share the available screen, not a vertical document. */
+html body.guided.adventure-mode.lab-collection-active #app{display:flex!important;flex-direction:column!important;padding:4px 10px!important;gap:4px!important;overflow:hidden!important;}
+body.guided.adventure-mode.lab-collection-active #app>.adventure-title{display:none!important;}
+body.guided.adventure-mode.lab-collection-active #app>.adventure-nav{flex:0 0 auto!important;min-height:34px!important;padding:2px 8px!important;}
+body.guided.adventure-mode.lab-collection-active .adventure-nav button{min-height:30px!important;padding:3px 8px!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-room{flex:1!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(290px,32%)!important;grid-template-rows:43px minmax(0,1fr) 34px!important;gap:6px!important;width:100%!important;max-width:none!important;height:0!important;min-height:0!important;padding:0!important;overflow:hidden!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-heading{grid-column:1;grid-row:1;padding:3px 9px!important;gap:3px!important;flex-wrap:nowrap!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-heading small{display:none!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-heading h2{font-size:20px!important;margin:0!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-scene-actions{flex-wrap:nowrap!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-scene-actions button{min-height:30px!important;font-size:12px!important;padding:3px 6px!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-stage{grid-column:1;grid-row:2;display:flex!important;min-height:0!important;height:100%!important;padding:0!important;border:0!important;gap:2px!important;overflow:hidden!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-stage .collection-world-showcase{flex:1!important;min-height:0!important;height:0!important;max-width:none!important;overflow:hidden!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-stage #collection-scene{height:100%!important;width:100%!important;aspect-ratio:auto!important;background-size:cover!important;border:2px solid white!important;border-radius:14px!important;}
+body.guided.adventure-mode.lab-collection-active #collection-report{flex:0 0 auto!important;font-size:12px!important;line-height:1.15!important;margin:1px!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-world-quickstrip{grid-column:1;grid-row:3;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;margin:0!important;padding:0!important;height:34px!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-world-quickstrip label{font-size:14px!important;}
+body.guided.adventure-mode.lab-collection-active #stuff-world-select{font:16px Arial,sans-serif;max-width:75%;min-height:30px;border:2px solid #465482;border-radius:8px;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-toolbox{grid-column:2;grid-row:1/4;display:flex!important;min-height:0!important;height:100%!important;padding:5px!important;gap:3px!important;overflow:hidden!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-toolbox>h3{font-size:19px!important;line-height:1.1!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-tray-panel{flex:1!important;display:flex!important;flex-direction:column!important;min-height:0!important;height:0!important;padding:4px!important;overflow:hidden!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-tray-panel>p{display:none!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-tray-controls{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:3px!important;flex:0 0 32px!important;margin:0 0 3px!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-tray-controls button{min-width:34px!important;min-height:30px!important;padding:2px 8px!important;font-size:16px!important;}
+body.guided.adventure-mode.lab-collection-active #stuff-page-label{font:700 13px Arial,sans-serif!important;}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;flex:1!important;height:0!important;min-height:0!important;gap:4px!important;overflow:hidden!important;padding:0!important;}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item{display:grid!important;grid-template-rows:minmax(24px,1fr) auto auto!important;gap:3px!important;width:100%!important;height:100%!important;min-height:0!important;padding:4px!important;border-radius:10px!important;box-shadow:none!important;overflow:hidden!important;}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item[hidden]{display:none!important;}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item img,html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item .shop-decoration,html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item .world-friend-art{height:100%!important;max-height:95px!important;min-height:0!important;width:100%!important;max-width:100%!important;object-fit:contain!important;}
+body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item strong{font-size:13px!important;line-height:1.1!important;}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item button{min-height:30px!important;font-size:12px!important;line-height:1.1!important;padding:2px 3px!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-shop-actions{display:flex!important;gap:4px!important;flex:0 0 auto!important;margin-top:4px!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-tray-panel .my-stuff-action{flex:1!important;min-width:0!important;margin:0!important;min-height:32px!important;font-size:12px!important;padding:3px!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-empty{grid-column:1/-1;grid-row:1/-1;align-self:center;font-size:16px!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-stage #collection-scene .world-object{width:clamp(48px,6vw,84px)!important;}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-stage #collection-scene .world-object img{max-height:90px!important;}
+html body.guided.adventure-mode.lab-collection-active .world-object .scene-remove{position:absolute!important;right:-7px!important;top:-7px!important;display:grid!important;place-items:center!important;width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;margin:0!important;padding:0!important;border:2px solid #fff!important;border-radius:50%!important;background:#a32244!important;color:#fff!important;font:700 22px/1 Arial!important;z-index:21!important;}
+body.guided.adventure-mode.lab-collection-active .world-object:focus-visible{outline:3px solid #ffcf33!important;}
+/* Eight level cards stay together so every lock/number/completion can be seen. */
+body.lab-world-active #kaple-guide{display:none!important;}
+html body.lab-world-active #app{left:0!important;width:100%!important;max-width:100%!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;padding:4px 12px!important;gap:4px!important;}
+body.lab-world-active #app>.adventure-title{display:none!important;}
+body.lab-world-active #app>.adventure-nav{min-height:34px!important;padding:2px 8px!important;flex:0 0 auto!important;}
+body.lab-world-active .adventure-nav button{min-height:30px!important;padding:3px 8px!important;}
+body.lab-world-active .lab-world-select{flex:1!important;min-height:0!important;display:flex!important;flex-direction:column!important;padding:6px 10px!important;overflow:hidden!important;}
+body.lab-world-active .lab-world-heading{flex:0 0 auto!important;padding:0!important;min-height:0!important;}
+body.lab-world-active .lab-world-heading h2{font-size:23px!important;margin:0!important;}
+body.lab-world-active .lab-world-heading p{font-size:13px!important;margin:2px!important;}
+body.lab-world-active .lab-world-heading button{min-height:30px!important;padding:3px 8px!important;}
+body.lab-world-active .lab-world-activities{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(2,minmax(0,1fr))!important;flex:1!important;min-height:0!important;gap:8px!important;margin:6px 0!important;}
+body.lab-world-active .lab-activity-card{min-height:0!important;height:100%!important;gap:3px!important;padding:5px!important;justify-content:center!important;}
+body.lab-world-active .lab-activity-icon{font-size:30px!important;}
+body.lab-world-active .lab-activity-card strong{font-size:17px!important;}
+body.lab-world-active .lab-world-tip{font-size:13px!important;margin:1px!important;}
+body.lab-world-active .lab-candy-world{flex:1!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+body.lab-world-active .lab-candy-heading{flex:0 0 auto!important;min-height:0!important;padding:3px 8px!important;}
+body.lab-world-active .lab-candy-heading h2{font-size:22px!important;margin:0!important;}
+body.lab-world-active .lab-candy-scenery{flex:1!important;min-height:0!important;max-height:100%!important;width:100%!important;}
+body.lab-world-active .lab-candy-actions{flex:0 0 auto!important;min-height:32px!important;padding:2px!important;}
+body.lab-world-active .lab-candy-actions button{min-height:30px!important;padding:2px 8px!important;}
+body.guided.adventure-mode.lab-collection-active .my-stuff-world-quickstrip{flex-direction:row!important;min-height:0!important;box-sizing:border-box!important;border:0!important;}
+@media(max-height:640px){body.guided.adventure-mode.playing #app>.adventure-nav{display:none!important;}}
+@media(max-height:640px){
+ html body.guided.adventure-mode.lab-collection-active #my-stuff-tray{grid-template-rows:minmax(0,1fr)!important;}
+}

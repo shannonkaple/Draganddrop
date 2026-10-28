@@ -1,6 +1,6 @@
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
-import {arrowLabCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
+import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=preserve-unlocks-20261028b';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -189,6 +189,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  config.levelCount=levels.length;
  let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
+ let currentMapWorld=null,inventoryPage=0;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-lab-teacher-settings')||'{}')}catch{settings={}}
  settings={difficulty:'standard',speed:2200,hints:true,sound:false,reducedMotion:false,...settings,touchArrows:false};
  // Every student automatically owns one starter home. Never ask for a home during onboarding.
@@ -223,8 +224,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   }catch{saved=false}
  }
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
- function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active');}
+ function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
+ function returnToCurrentMap(){
+  challengeKeys=null;save();$('adventure-dialog')?.close();
+  if(currentMapWorld!==null)openWorld(currentMapWorld);else map();
+ }
  function modal(title,body,bind){
   clearClock();
   let d=$('adventure-dialog');
@@ -250,19 +255,22 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   fullscreen.textContent='⛶ FULL SCREEN';
   fullscreen.setAttribute('aria-label','Toggle full screen');
   fullscreen.onclick=()=>window.arrowLabToggleFullscreen?.();
-  toolbar.append(home,fullscreen);
+  const back=document.createElement('button');back.type='button';back.className='modal-map';
+  back.textContent='← Back to Map · Enter';back.onclick=returnToCurrentMap;
+  toolbar.append(back,home,fullscreen);
   tellGuide(d.querySelector('.dialog-content p')?.textContent||title,'⭐ → ✓');
-  d.oncancel=e=>e.preventDefault();
+  d.oncancel=e=>{e.preventDefault();returnToCurrentMap()};
   if(!d.open)d.showModal();
   d.scrollTop=0;
   bind?.(d);
+  back.focus({preventScroll:true});
   return d;
 }
  function closeModal(){const guide=$('kaple-guide');if(guide)document.body.append(guide);$('adventure-dialog')?.close();if(view==='maze'){clock();requestAnimationFrame(()=>$('adventure-maze')?.focus({preventScroll:true}))}}
  function celebrate(title,id,after){
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
  function shell(title,content){
- clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
+ clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-world-active',view==='world-select');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
  $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
  const nav=ready?(view==='map'?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="computer" class="lab-my-stuff-entry">🧸 MY STUFF</button></div>'):'<button id="setup-home" type="button" class="always-home">🏠 HOME</button><span class="setup-steps">First time? Choose your character!</span>';
@@ -289,7 +297,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
        img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{
    const id=b.dataset.hero;
+   const prior=a.selectedPlayerCharacterId,home=a.friends[prior]?.homeLandId;
+   if(changing&&prior&&prior!==id)a.retiredPlayerCharacterIds=[...new Set([...(a.retiredPlayerCharacterIds||[]),prior])];
    choosePlayerCharacter(a,id,starterWorldId);
+   if(changing&&home&&owned(home))a.friends[id].homeLandId=home;
    if(!changing)enterWithStarterWorld();
    else{save();map()}
  });
@@ -311,6 +322,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function isWorldUnlocked(i){return a.highestUnlockedLevel>=i*8+1}
  function worldDoneCount(i){return levels.slice(i*8,i*8+8).filter(l=>a.completedLevelIds.includes(l.id)).length}
  function map(){
+ currentMapWorld=null;
   view='map';
   const next=nextLevel(),playerId=a.selectedPlayerCharacterId;
   const nextFriend=companions.find(c=>!a.worldFriends?.[c.id]);
@@ -355,6 +367,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
 
  function openCandyWorld(){
+   currentMapWorld=0;
    view='world-select';
    const positions=[[6.7,41.7],[20.8,53.7],[33.1,70.6],[39.4,42.3],[53.5,57.0],[69.2,51.5],[84.2,69.8],[92.1,37.4]];
    const points=levels.slice(0,8).map((l,k)=>{
@@ -389,6 +402,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
 
  function openWorld(i){
    if(!isWorldUnlocked(i))return map();
+   currentMapWorld=i;
    if(i===0)return openCandyWorld();
    const world=worldThemes[i];
    view='world-select';
@@ -397,7 +411,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      return '<button type="button" class="lab-activity-card'+(cleared?' cleared':started?' started':open?'':' locked')+'" data-level="'+l.number+'" aria-disabled="'+(!open)+'" aria-label="'+esc(world.name)+' maze '+(k+1)+(cleared?', completed':started?', in progress':open?', ready to play':', locked')+'">'+
        '<span class="lab-activity-icon">'+(cleared?'✓':started?'↪':open?'▶':'🔒')+'</span>'+
        '<span class="lab-activity-number">MAZE '+(k+1)+'</span><strong>'+esc(stageNames[world.id]?.[k]||activityNames[k])+'</strong>'+
-       '<small>'+(cleared?'✓ ALREADY PLAYED':started?'↪ CONTINUE SAVED MAZE':open?'▶ READY TO PLAY':'🔒 LOCKED')+'</small></button>';
+       '<small>'+(cleared?'✓ COMPLETED':started?'↪ CONTINUE SAVED MAZE':open?'▶ READY TO PLAY':'🔒 LOCKED')+'</small></button>';
    }).join('');
    shell(world.name+' World',
     '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+');background-size:cover,cover;background-position:center,center">'+
@@ -552,7 +566,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
 
  function collectionStage(id){
-  const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c]?.homeLandId===id);
+  const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c]?.homeLandId===id&&(c===a.selectedPlayerCharacterId||!pendingCharacters.some(hero=>hero.id===c)&&!a.retiredPlayerCharacterIds?.includes(c)));
   const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
   const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
   const treasureGoods=(a.collectionExtraObjects?.[id]||[]).filter(key=>[...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])].includes(key));
@@ -577,9 +591,25 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const picture=id.startsWith('background_')?l.homeBackground:(backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.homeBackground||l.homeBackground);
   return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+personArt+friendArt+decorArt+treasureArt+'</div>';
  }
+ function removeSceneObject(id,key){
+  if(key.startsWith('decor:')){const list=(a.hiddenDecorations[id]??=[]);if(!list.includes(key.slice(6)))list.push(key.slice(6));}
+  else if(key.startsWith('companion:')){if(!a.hiddenCompanions.includes(key.slice(10)))a.hiddenCompanions.push(key.slice(10));}
+  else if(key.startsWith('treasure:'))a.collectionExtraObjects[id]=(a.collectionExtraObjects[id]||[]).filter(x=>x!==key.slice(9));
+  else return;
+  save();computer(id);$('collection-report').textContent='Removed from scene. You still own it and can add it again.';
+ }
  function enableCollectionDrag(id){
   const scene=$('collection-scene');if(!scene)return;let drag=null;
+  scene.querySelectorAll('[data-world-object]').forEach(el=>{
+   if(!el.dataset.worldObject.includes(':'))return;
+   el.tabIndex=0;el.setAttribute('role','group');
+   const remove=document.createElement('button');remove.type='button';remove.className='scene-remove';
+   remove.textContent='×';remove.setAttribute('aria-label','Remove '+(el.getAttribute('aria-label')||'item')+' from scene');
+   remove.onclick=()=>removeSceneObject(id,el.dataset.worldObject);el.append(remove);
+   el.onkeydown=e=>{if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();removeSceneObject(id,el.dataset.worldObject)}};
+  });
   scene.onpointerdown=e=>{
+    if(e.target.closest('.scene-remove'))return;
     const el=e.target.closest('[data-world-object]');if(!el||e.pointerType!=='mouse'||e.button!==0)return;
     e.preventDefault();const rect=el.getBoundingClientRect();
     drag={el,key:el.dataset.worldObject,pointer:e.pointerId,dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,oldX:el.style.left,oldY:el.style.top};
@@ -588,8 +618,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   scene.onpointermove=e=>{
     if(!drag||drag.pointer!==e.pointerId)return;e.preventDefault();
     const rect=scene.getBoundingClientRect();
-    drag.x=Math.max(10,Math.min(90,(e.clientX-drag.dx-rect.left)/rect.width*100));
-    drag.y=Math.max(18,Math.min(85,(e.clientY-drag.dy-rect.top)/rect.height*100));
+    const object=drag.el.getBoundingClientRect(),padX=(object.width/2+12)/rect.width*100,padY=(object.height/2+12)/rect.height*100;
+    drag.x=Math.max(padX,Math.min(100-padX,(e.clientX-drag.dx-rect.left)/rect.width*100));
+    drag.y=Math.max(padY,Math.min(100-padY,(e.clientY-drag.dy-rect.top)/rect.height*100));
     drag.el.style.left=drag.x+'%';drag.el.style.top=drag.y+'%';
   };
   scene.onpointerup=e=>{
@@ -623,21 +654,21 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const elsewhere=!here&&Object.entries(a.decorations||{}).some(([world,items])=>world!==id&&items.includes(key));
     return '<article class="my-stuff-item" data-stuff-kind="decoration">'+shopArt(d)+
       '<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'">'+
-      (placed?'✓ In Scene · Put Away':elsewhere?'＋ Move to This World':'＋ Add to Scene')+'</button></article>';
+      (placed?'Remove from Scene':elsewhere?'＋ Move to This World':'＋ Add to Scene')+'</button></article>';
   }).join('');
   const friendCards=rescued.map(c=>{
     const here=a.worldFriends[c.id].homeLandId===id;
     const placed=here&&!a.hiddenCompanions.includes(c.id);
     return '<article class="my-stuff-item" data-stuff-kind="friend">'+companionArt(c.id)+
       '<strong>'+esc(c.name)+'</strong><button type="button" data-stuff-friend="'+c.id+'" aria-pressed="'+placed+'">'+
-      (placed?'✓ Here · Put Away':here?'＋ Add to Scene':'＋ Bring to This World')+'</button></article>';
+      (placed?'Remove from Scene':here?'＋ Add to Scene':'＋ Bring to This World')+'</button></article>';
   }).join('');
   const treasureCards=treasures.map(key=>{
     const placed=(a.collectionExtraObjects[id]||[]).includes(key);
     return '<article class="my-stuff-item" data-stuff-kind="treasure">'+
       img(itemArt(key),itemName(key),'my-stuff-thumb')+'<strong>'+esc(itemName(key))+'</strong>'+
       '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'">'+
-      (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
+      (placed?'Remove from Scene':'＋ Add to Scene')+'</button></article>';
   }).join('');
   const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
   const worldOnlyGoods=shopExclusives.filter(d=>d.world===backgroundHomes.find(w=>w.id===id)?.theme);
@@ -650,8 +681,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       (here?'✓ Owned':ownedAnywhere?'✓ Owned · Move from Tray':a.wallet.rainbowStars<d.cost?'Earn More Stars':'⭐ Buy for '+d.cost+' Stars')+'</button></article>';
    }).join('')+'</div></section>';
   const tray='<p>Pick anything you have earned or bought. Add it to your world, then drag it where you want!</p>'+
-    '<div class="my-stuff-tray-controls" aria-label="Browse my decorations"><button id="stuff-scroll-prev" type="button" aria-label="Previous decorations">◀</button><strong>My Decorations, Friends & Treasures</strong><button id="stuff-scroll-next" type="button" aria-label="More decorations">▶</button></div>'+
-    '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Scroll horizontally.">'+
+    '<div class="my-stuff-tray-controls" aria-label="Browse my decorations"><button id="stuff-scroll-prev" type="button" aria-label="Previous decorations">◀</button><strong id="stuff-page-label">My Items</strong><button id="stuff-scroll-next" type="button" aria-label="More decorations">▶</button></div>'+
+    '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Use Previous and Next pages.">'+
       (hasObjects?decorationCards+friendCards+treasureCards:
       '<p class="my-stuff-empty">Your collection starts here! Finish mazes to earn treasures, rescue friends and buy decorations.</p>')+
     '</div><div class="my-stuff-shop-actions">'+
@@ -662,46 +693,32 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
         '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
       '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
        '<p id="collection-report" role="status">This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!</p></div>'+
-      '<div class="my-stuff-world-quickstrip" aria-label="Quickly change to a world you own">'+
-        '<strong>🌍 My Worlds</strong><div class="my-stuff-quickworlds">'+purchased.map(l=>
-          '<button type="button" data-stuff-world="'+l.id+'" aria-label="Show my '+esc(l.name)+' world" aria-pressed="'+(l.id===id)+'">'+
-          img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
-      '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
-        '<div class="my-stuff-tray-panel">'+tray+'</div>'+exclusiveStore+'</div></section>');
+      '<div class="my-stuff-world-quickstrip"><label for="stuff-world-select">My World</label><select id="stuff-world-select">'+purchased.map(l=>'<option value="'+l.id+'" '+(l.id===id?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></div>'+
+      '<div class="my-stuff-toolbox"><h3>MY ITEMS</h3>'+
+        '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
   enableCollectionDrag(id);
   $('stuff-home').onclick=map;
   $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
-  // Keep the tray in view after adding/putting away several objects in a row.
-  const refresh=()=>{
-    const appScroll=$('app').scrollTop, pageScroll=window.scrollY, trayScroll=$('my-stuff-tray')?.scrollLeft||0;
-    computer(id);
-    $('app').scrollTop=appScroll;
-    if($('my-stuff-tray'))$('my-stuff-tray').scrollLeft=trayScroll;
-    // Depending on Chromebook viewport, either the page or the app is scrollable.
-    window.scrollTo?.(0,pageScroll);
-    requestAnimationFrame(()=>{$('app').scrollTop=appScroll;if($('my-stuff-tray'))$('my-stuff-tray').scrollLeft=trayScroll;window.scrollTo?.(0,pageScroll)});
+  const refresh=()=>computer(id);
+  const cards=[...$('my-stuff-tray').querySelectorAll('.my-stuff-item')];
+  const showInventory=()=>{
+    const pageSize=innerHeight<=640?2:4,pages=Math.max(1,Math.ceil(cards.length/pageSize));
+    inventoryPage=Math.max(0,Math.min(inventoryPage,pages-1));
+    cards.forEach((card,i)=>card.hidden=i<inventoryPage*pageSize||i>=(inventoryPage+1)*pageSize);
+    $('stuff-page-label').textContent=cards.length+' items · '+(inventoryPage+1)+' / '+pages;
+    $('stuff-scroll-prev').disabled=inventoryPage===0;
+    $('stuff-scroll-next').disabled=inventoryPage===pages-1;
   };
-  const scrollTray=dir=>{const tray=$('my-stuff-tray');if(tray)tray.scrollBy({left:dir*Math.max(150,Math.floor(tray.clientWidth*.75)),behavior:'smooth'});};
-  $('stuff-scroll-prev').onclick=()=>scrollTray(-1);
-  $('stuff-scroll-next').onclick=()=>scrollTray(1);
-  // Chromebook trackpads commonly send vertical wheel deltas. Move the
-  // horizontal shelf only while there are more items in that direction;
-  // at either end, let the page scroll normally (no scroll trap).
-  const collectionShelf=$('my-stuff-tray');
-  collectionShelf?.addEventListener('wheel',event=>{
-    if(event.ctrlKey||collectionShelf.scrollWidth<=collectionShelf.clientWidth+1)return;
-    const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
-    if(!delta)return;
-    const max=collectionShelf.scrollWidth-collectionShelf.clientWidth;
-    if((delta<0&&collectionShelf.scrollLeft<=1)||(delta>0&&collectionShelf.scrollLeft>=max-1))return;
-    event.preventDefault();
-    collectionShelf.scrollLeft=Math.max(0,Math.min(max,collectionShelf.scrollLeft+delta));
-  },{passive:false});
-  collectionShelf?.addEventListener('keydown',event=>{
-    if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
-    event.preventDefault();scrollTray(event.key==='ArrowLeft'?-1:1);
-  });
-  document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld,'worlds'));
+  const changePage=step=>{inventoryPage+=step;showInventory()};
+  $('stuff-scroll-prev').onclick=()=>changePage(-1);
+  $('stuff-scroll-next').onclick=()=>changePage(1);
+  $('my-stuff-tray').onkeydown=event=>{
+    if(event.key==='ArrowLeft'||event.key==='ArrowRight'){
+      event.preventDefault();changePage(event.key==='ArrowLeft'?-1:1);$('my-stuff-tray').focus();
+    }
+  };
+  showInventory();
+  $('stuff-world-select').onchange=e=>computer(e.target.value);
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
     if((a.decorations[id]||[]).includes(key)){
@@ -731,10 +748,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     if(active.includes(key))a.collectionExtraObjects[id]=active.filter(x=>x!==key);else active.push(key);
     save();refresh();
   });
-  document.querySelectorAll('[data-buy-shop-only]').forEach(button=>button.onclick=()=>{
-    if(buyShopExclusive(id,button.dataset.buyShopOnly))refresh();
+  $('stuff-decor-shop')?.addEventListener('click',()=>{
+    modal('World Decorations',exclusiveStore+'<button id="all-decorations" type="button">All Decorations</button>',()=>{
+      $('all-decorations').onclick=()=>{closeModal();decorShop()};
+      document.querySelectorAll('[data-buy-shop-only]').forEach(b=>b.onclick=()=>{if(buyShopExclusive(id,b.dataset.buyShopOnly)){closeModal();computer(id)}});
+    });
   });
-  $('stuff-decor-shop')?.addEventListener('click',()=>{a.primaryRainbowLandId=id;save();decorShop()});
   $('stuff-buy-world')?.addEventListener('click',homeMap);
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
@@ -766,7 +785,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    }
  }
  function startLevel(n,restart=false){
- clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;
+ clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;currentMapWorld=def.worldIndex;
  if(a.completedLevelIds.includes(def.id)&&!restart){
    modal('Maze '+def.worldStage+' Completed!','<p>You already finished this maze. It is saved, and you do not have to play it again.</p><button type="button" id="done-level-back" class="primary">← World Map</button><button type="button" id="done-level-replay">Play Again (Optional)</button>',()=>{
      $('done-level-back').onclick=()=>{closeModal();openWorld(def.worldIndex)};
@@ -848,7 +867,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function fit(){
  if(view!=='maze'||!r)return;document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||innerHeight)+'px');
  const m=$('adventure-maze'),box=document.querySelector('.scenic-board');if(!m||!box)return;const viewport=window.visualViewport?.height||innerHeight;
- const controls=document.querySelector('.maze-controls');const reserve=Math.max(70,(controls?.getBoundingClientRect().height||0)+24);const remaining=Math.max(r.h,viewport-box.getBoundingClientRect().top-reserve-16);const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/r.w,(box.clientHeight-24)/r.h,remaining/r.h)));m.style.width=size*r.w+'px';m.style.height=size*r.h+'px';
+ const size=Math.max(1,Math.floor(Math.min((box.clientWidth-12)/r.w,(box.clientHeight-12)/r.h)));m.style.width=size*r.w+'px';m.style.height=size*r.h+'px';
  }
  function hit(){
   // Collision is a restart of the player's route, not a new maze roll or a loss of earned rewards.
@@ -995,7 +1014,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function keydown(e){
  if(closed)return;if(e.code==='Space'&&heldSpace&&$('adventure-dialog')?.open){e.preventDefault();return}const target=e.target;if(target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement)return;
- if($('adventure-dialog')?.open){if(challengeKeys&&directions[e.key]){e.preventDefault();if(!e.repeat)challengeKeys(e.key)}return}
+ if($('adventure-dialog')?.open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)returnToCurrentMap();return}if(challengeKeys&&directions[e.key]){e.preventDefault();if(!e.repeat)challengeKeys(e.key)}return}
  if(view!=='maze')return;
  if(e.code==='Space'&&target.id!=='duck-button'){e.preventDefault();heldSpace=true;setDuck(true);return}
  if(directions[e.key]){e.preventDefault();if(!e.repeat)move(e.key)}
