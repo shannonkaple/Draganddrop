@@ -26,7 +26,7 @@ export function buildLevel(def,seed,easy=false){
  const side=roads.filter(n=>!safe.has(tile(n))&&!excluded.has(tile(n))),hazards=[];
  // Keep every enemy away from the guaranteed safe path and collectables.
  // Make additional side alcoves only where required, never blocking a corridor.
- if(!easy)for(let y=1;y<h-1&&side.length<(def.enemyIds||[]).length*3;y++)for(let x=1;x<w-1&&side.length<(def.enemyIds||[]).length*3;x++){
+ for(let y=1;y<h-1&&side.length<(def.enemyIds||[]).length*3;y++)for(let x=1;x<w-1&&side.length<(def.enemyIds||[]).length*3;x++){
    const p={x,y};
    if(grid[y][x]===1&& !safe.has(tile(p)) && !excluded.has(tile(p)) &&
       Object.values(directions).some(([dx,dy])=>grid[y+dy]?.[x+dx]===0)){
@@ -34,7 +34,20 @@ export function buildLevel(def,seed,easy=false){
    }
  }
 
- if(!easy){
+ if(easy){
+   // Gentle mode still displays four distinct, world-appropriate bad guys.
+   // They stay stationary, off the protected route, so young learners can plan.
+   const taken=[],candidates=[...side];
+   for(const id of def.enemyIds||[]){
+     const free=candidates.filter(p=>!taken.some(q=>tile(q)===tile(p)));
+     if(!free.length)break;
+     const score=p=>Math.min(...[start,goal,...taken].map(q=>dist(p,q)));
+     free.sort((a,b)=>score(b)-score(a));
+     const pos=free[0];
+     taken.push(pos);
+     hazards.push({id,path:[pos],index:0});
+   }
+ }else{
    // Reserve connected, disjoint outward patrols BEFORE assigning enemy spawns.
    // An early enemy must not trap the fourth one in a one-tile alcove.
    const ids=def.enemyIds||[];
