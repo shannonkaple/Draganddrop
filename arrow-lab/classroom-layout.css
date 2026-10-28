@@ -413,3 +413,172 @@ html dialog.dialog[open]{
 html dialog.dialog[open] :is(button,input,select){
  max-width:100%!important;
 }
+
+/* SIZE FIX: Restore full-width 2048:682 map instead of the previous
+   height-minus-210px constrained picture, tiny 9px labels and 39px controls. */
+html body.guided.adventure-mode.lab-map-active #app{
+  display:block!important;overflow-x:hidden!important;overflow-y:auto!important;
+  padding:0 6px 8px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-home{
+  display:grid!important;
+  grid-template-columns:minmax(250px,1fr) minmax(0,1.55fr)!important;
+  grid-template-areas:"heading hud" "art art" "play navigation"!important;
+  grid-template-rows:minmax(65px,auto) auto minmax(62px,auto)!important;
+  gap:6px 12px!important;align-items:center!important;
+  height:auto!important;min-height:100%!important;max-height:none!important;
+  width:100%!important;overflow:visible!important;padding:7px 10px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-title{
+  grid-area:heading!important;width:100%!important;min-height:60px!important;
+  height:auto!important;max-height:none!important;display:flex!important;
+  flex-direction:column!important;justify-content:center!important;
+  align-items:flex-start!important;padding:0!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-title>span{
+  display:block!important;font-size:13px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-title>p{display:none!important}
+html body.guided.adventure-mode.lab-map-active .lab-map-title h2{
+  font-size:clamp(25px,2.6vw,37px)!important;line-height:1.1!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-game-hud{
+  grid-area:hud!important;height:auto!important;min-height:64px!important;
+  display:flex!important;flex-direction:row!important;
+  align-items:center!important;justify-content:flex-end!important;
+  padding:0!important;margin:0!important;gap:8px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-player-compact,
+html body.guided.adventure-mode.lab-map-active .lab-friend-compact{
+  flex:0 1 auto!important;width:auto!important;min-width:185px!important;
+  max-width:none!important;min-height:63px!important;height:auto!important;
+  max-height:none!important;padding:5px 10px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-player-figure img{
+  width:48px!important;height:50px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-player-meta b{font-size:18px!important}
+html body.guided.adventure-mode.lab-map-active .lab-player-meta button,
+html body.guided.adventure-mode.lab-map-active .lab-rescue{
+  min-height:28px!important;font-size:13px!important;padding:4px 8px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-friend-compact b{font-size:14px!important}
+html body.guided.adventure-mode.lab-map-active .lab-map-art-frame{
+  grid-area:art!important;display:block!important;
+  flex:none!important;width:100%!important;height:auto!important;
+  min-height:0!important;max-height:none!important;overflow:visible!important;
+  margin:0!important;padding:0!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas{
+  position:relative!important;display:block!important;
+  width:100%!important;max-width:100%!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  aspect-ratio:2048/682!important;
+  margin:0!important;padding:0!important;overflow:visible!important;
+  background-image:none!important;background-color:#9fe0f7!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas.lab-map-fallback{
+  background-image:url('./map-background.jpg?v=large-safe-fallback-20261028')!important;
+  background-size:100% 100%!important;background-repeat:no-repeat!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas>.lab-main-map-art{
+  display:block!important;width:100%!important;height:auto!important;
+  max-height:none!important;aspect-ratio:2048/682!important;
+  object-fit:contain!important;object-position:center!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas>.lab-main-map-art[hidden]{
+  display:none!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas>.lab-world-node{
+  width:9.5%!important;min-width:0!important;max-width:none!important;
+  height:31%!important;min-height:75px!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;cursor:pointer!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas .lab-world-pin{
+  width:clamp(46px,4.7vw,64px)!important;
+  height:clamp(46px,4.7vw,64px)!important;min-height:46px!important;
+  font-size:clamp(21px,2.2vw,30px)!important;
+  border:3px solid white!important;
+  box-shadow:0 3px 9px #1b26588c!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas .lab-world-name{
+  position:absolute!important;left:50%!important;
+  top:calc(50% + clamp(24px,2.45vw,35px))!important;
+  transform:translateX(-50%)!important;
+  font-size:clamp(12px,1.22vw,17px)!important;
+  line-height:1.1!important;padding:3px 6px!important;
+  white-space:nowrap!important;background:#fffffff2!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas .lab-world-count{
+  position:absolute!important;top:-6px!important;left:50%!important;
+  transform:translateX(-50%)!important;
+  font-size:clamp(11px,1vw,14px)!important;
+  background:#fffffff2!important;
+}
+html body.guided.adventure-mode.lab-map-active #continue-adventure.lab-next-play{
+  grid-area:play!important;position:static!important;inset:auto!important;
+  justify-self:stretch!important;align-self:stretch!important;
+  width:100%!important;max-width:none!important;
+  min-height:62px!important;height:62px!important;max-height:none!important;
+  padding:7px 14px!important;margin:0!important;
+  font-size:clamp(21px,2.2vw,29px)!important;
+}
+html body.guided.adventure-mode.lab-map-active #continue-adventure.lab-next-play small{
+  font-size:clamp(13px,1.2vw,17px)!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-main-nav{
+  grid-area:navigation!important;display:flex!important;gap:8px!important;
+  justify-content:center!important;align-items:stretch!important;
+  width:100%!important;max-width:none!important;
+  min-height:62px!important;height:62px!important;
+  margin:0!important;padding:0!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-main-nav button{
+  flex:1 1 0!important;min-width:0!important;max-width:none!important;
+  min-height:62px!important;height:62px!important;max-height:62px!important;
+  padding:7px 9px!important;
+  font-size:clamp(17px,1.6vw,23px)!important;
+}
+@media(max-width:940px){
+ html body.guided.adventure-mode.lab-map-active .lab-map-home{
+  grid-template-columns:minmax(215px,1fr) minmax(0,1.5fr)!important;
+  gap:5px!important;padding:5px!important;
+ }
+ html body.guided.adventure-mode.lab-map-active .lab-player-compact,
+ html body.guided.adventure-mode.lab-map-active .lab-friend-compact{
+  min-width:140px!important;padding:4px!important;
+ }
+ html body.guided.adventure-mode.lab-map-active .lab-main-nav button{
+  font-size:clamp(14px,1.6vw,19px)!important;
+ }
+}
+@media(max-width:690px){
+ html body.guided.adventure-mode.lab-map-active .lab-map-home{
+  grid-template-columns:1fr!important;
+  grid-template-areas:"heading" "hud" "art" "play" "navigation"!important;
+  grid-template-rows:auto auto auto 56px 56px!important;
+ }
+ html body.guided.adventure-mode.lab-map-active .lab-game-hud{
+  justify-content:center!important;
+ }
+ html body.guided.adventure-mode.lab-map-active .lab-player-compact,
+ html body.guided.adventure-mode.lab-map-active .lab-friend-compact{
+  min-width:0!important;max-width:50%!important;min-height:52px!important;
+ }
+ html body.guided.adventure-mode.lab-map-active .lab-map-canvas>.lab-world-node{
+  height:35%!important;min-height:50px!important;
+ }
+ html body.guided.adventure-mode.lab-map-active .lab-map-canvas .lab-world-pin{
+  width:clamp(30px,5vw,46px)!important;height:clamp(30px,5vw,46px)!important;
+  min-height:30px!important;font-size:clamp(16px,3vw,22px)!important;
+ }
+ html body.guided.adventure-mode.lab-map-active .lab-map-canvas .lab-world-name{
+  top:calc(50% + 18px)!important;font-size:11px!important;padding:2px 3px!important;
+ }
+ html body.guided.adventure-mode.lab-map-active #continue-adventure.lab-next-play,
+ html body.guided.adventure-mode.lab-map-active .lab-main-nav,
+ html body.guided.adventure-mode.lab-map-active .lab-main-nav button{
+  min-height:56px!important;height:56px!important;max-height:56px!important;
+ }
+}
