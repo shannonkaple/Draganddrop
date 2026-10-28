@@ -214,8 +214,9 @@ assert.equal(hitState.hazards[0].index,2,'collision does not reroll enemy patrol
 assert.equal(hitState.finalArrowIndex,3,'collision preserves saved final arrow progress');
 assert.equal(hitSaves,1);assert.equal(hitDraws,1);
 assert.match(hitMessage,/START/,'student hears the start reset rule');
-assert.match(source,/class="enemy-direction"/,'moving bad guys show direction arrows');
-assert.match(source,/enemy-path-next/,'next planned enemy tile remains visible');
+assert.doesNotMatch(source,/class="enemy-direction"/,'there are no enemy direction arrow graphics');
+assert.doesNotMatch(source,/class="enemy-next-tile"/,'there are no future destination markers');
+assert.match(source,/enemy-about-to-move/,'enemy animates briefly at its OWN tile before stepping');
 
 const migrateObjectives=source.slice(source.indexOf(' function ensureRunObjectives('),source.indexOf(' function startLevel('));
 assert.ok(migrateObjectives.includes('run.items.push'),'old saved mazes gain missing objectives in-place');
@@ -266,9 +267,15 @@ assert.match(css,/height:max-content!important/,'dialogs size to their content i
 assert.match(css,/max-height:calc\(100dvh - 24px\)/,'dialogs scroll inside the visible viewport');
 assert.match(css,/\.dialog-toolbar\{/,'popup navigation stays visible while content scrolls');
 assert.match(css,/\.dialog-content\{/,'popup content has independent safe sizing');
-assert.match(css,/body>header\.lab-image-header \.actions\{[\s\S]*?flex-flow:row wrap!important/,'header controls wrap rather than disappear');
-assert.match(html,/visual-hotfix-20261027\.css\?v=world-shop-only-20261027c/,'published page references updated popup and shop styles');
-assert.match(html,/game\.mjs\?v=restore-unlocks-20261027e/,'published page references new game module');
+assert.match(css,/Responsive full-width illustrated JPEG heading/,'approved art fills the header');
+assert.match(css,/\.brand>img\.lab-header-art\{/,'the header displays a single full-width image');
+assert.match(css,/my-stuff-tray-controls/,'MY STUFF collection can be scrolled horizontally');
+assert.match(css,/scroll-snap-type:x mandatory/,'items are organized in a one-row scrollable shelf');
+assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
+assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
+assert.match(html,/visual-hotfix-20261027\.css\?v=rainbow-wall-header-20261027f/,'published page references color and header fix');
+assert.match(html,/game\.mjs\?v=header-and-patrol-20261027f/,'published page references the updated game module');
+assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
@@ -316,4 +323,8 @@ for(const def of levels)for(let seed=1;seed<=40;seed++){
  let p=r.start;for(const stop of [...r.items,...(r.skill?[r.skill]:[]),r.goal]){assert.ok(route(r.grid,p,stop,occupied));p=stop}
 }
 assert.ok(longPatrols>0,'moving enemies have longer patrols');
+assert.match(source,/stuff-scroll-prev/,'MY STUFF has a previous button');
+assert.match(source,/stuff-scroll-next/,'MY STUFF has a next button');
+assert.match(source,/trayScroll=\$\('my-stuff-tray'\)/,'refresh preserves horizontal scroll position');
+assert.match(source,/scrollBy\(\{left:dir\*Math\.max/,'trackpad shelf navigation moves horizontally by visible shelf width');
 console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings.`);
