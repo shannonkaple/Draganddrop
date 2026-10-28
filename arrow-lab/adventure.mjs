@@ -1,7 +1,7 @@
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
-import {WORLD_STOP_POINTS,APPROVED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=qa-gated-20261028a';
+import {WORLD_STOP_POINTS,APPROVED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=qa-gated-20261028b';
 import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld} from './collection-inventory.mjs?v=png-jpeg-20261028b';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=preserve-unlocks-20261028b';
@@ -392,8 +392,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    currentMapWorld=0;
    view='world-select';
    const positions=WORLD_STOP_POINTS.map(p=>[p.x,p.y]);
-   const points=levels.slice(0,8).map((l,k)=>{
-     const done=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],unlocked=l.number<=a.highestUnlockedLevel;
+   const points=worldStopModels(0,levels,a).map((p,k)=>{
+     const l=p.level,done=p.completed,started=p.started,unlocked=p.unlocked;
      return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':started?' started':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" aria-disabled="'+(!unlocked)+'"'+
        ' aria-label="Candy maze '+(k+1)+': '+candyNames[k]+(done?', completed':started?', in progress':unlocked?', ready to play':', locked')+'">'+
        '<span class="lab-map-node-number" aria-hidden="true">'+(k+1)+'</span>'+
