@@ -128,6 +128,80 @@ export function buildLevel(def,seed,easy=false){
  let barrier=null;if(def.ducking!=='none'&&!easy){const main=walk(start,route(grid,start,goal));barrier=main.find((n,i)=>i>=2&&i<main.length-2&&!excluded.has(tile(n)))||null}
  return {id:def.id,seed,w,h,grid,start,goal,player:{...start},checkpoint:{...start},steps:0,items,skill,hazards,barrier,safe:[...safe],complete:false,rewarded:false,trail:[[1,1]],duckLearned:!barrier};
 }
+// Upgrade only the ENEMY ROSTER of an older, already-started maze. Preserve its
+// exact player tile, collectibles, arrow trials, stars, and all existing patrols.
+// Earlier versions sometimes saved fewer than four or duplicated enemy IDs.
+export function restoreSavedEnemyRoster(run,definition,easy=false){
+ const wanted=[...new Set(definition.enemyIds||[])].slice(0,4);
+ if(wanted.length!==4||!Array.isArray(run?.grid)||!Array.isArray(run?.hazards))return false;
+ const {grid,w,h}=run;
+ const inside=p=>p&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>0&&p.x<w-1&&p.y>0&&p.y<h-1;
+ const adjacent=(p,q)=>Math.abs(p.x-q.x)+Math.abs(p.y-q.y)===1;
+ const valid=e=>e&&Array.isArray(e.path)&&e.path.length>0&&
+   e.path.every((p,i)=>inside(p)&&grid[p.y]?.[p.x]===0&&(!i||adjacent(e.path[i-1],p)))&&
+   Number.isInteger(e.index)&&e.index>=0&&e.index<e.path.length;
+ // Keep the original enemy objects and their exact patrol indexes whenever valid.
+ const old=run.hazards.filter(valid),kept=[],assigned=new Set();
+ for(const e of old)if(wanted.includes(e.id)&&!assigned.has(e.id)&&kept.length<4){
+   kept.push(e);assigned.add(e.id);
+ }
+ // A saved enemy with an old or duplicate sprite can retain its route and index.
+ for(const e of old)if(!kept.includes(e)&&kept.length<4){
+   const id=wanted.find(id=>!assigned.has(id));if(!id)break;
+   e.id=id;kept.push(e);assigned.add(id);
+ }
+ if(kept.length===4&&run.hazards.length===4&&run.hazards.every((e,i)=>e===kept[i]))return false;
+ const blocked=new Set(kept.flatMap(e=>e.path.map(tile)));
+ const protectedTiles=new Set([run.start,run.goal,run.player,run.checkpoint,run.skill,run.barrier,
+   ...(run.items||[]),...(run.trail||[]).slice(-5)].filter(inside).map(tile));
+ if(Array.isArray(run.safe)&&run.safe.length){
+   for(const key of run.safe)if(typeof key==='string')protectedTiles.add(key);
+ }else{
+   // Old save formats had no safe-route array. Protect the shortest objective
+   // route before adding any enemy, rather than gambling with completed pickups.
+   let from=inside(run.start)?run.start:run.player;
+   for(const goal of [...(run.items||[]),...(run.skill?[run.skill]:[]),run.goal]){
+     if(!inside(from)||!inside(goal))continue;
+     const keys=route(grid,from,goal,blocked);
+     if(keys){protectedTiles.add(tile(from));for(const p of walk(from,keys))protectedTiles.add(tile(p))}
+     from=goal;
+   }
+ }
+ const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+ const cells=[];for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)cells.push({x,y});
+ const available=p=>inside(p)&&!blocked.has(tile(p))&&!protectedTiles.has(tile(p));
+ const near=p=>Object.values(directions).map(([dx,dy])=>({x:p.x+dx,y:p.y+dy})).filter(available);
+ const otherPositions=()=>[run.player,run.start,run.goal,...kept.map(e=>e.path[e.index])].filter(inside);
+ let changed=kept.length!==run.hazards.length||kept.some((e,i)=>e!==run.hazards[i]);
+ for(const id of wanted.filter(id=>!assigned.has(id))){
+   const starts=cells.filter(p=>available(p)&&grid[p.y][p.x]===0);
+   let best=null,bestScore=-Infinity;
+   for(const first of starts)for(const second of near(first))if(tile(second)!==tile(first)){
+     for(const third of near(second)){
+       if(tile(third)===tile(first))continue;
+       const path=[first,second,third];
+       const carved=path.filter(p=>grid[p.y][p.x]===1).length;
+       const separation=Math.min(...otherPositions().map(p=>distance(p,first)));
+       const score=separation*4-carved*15+distance(first,run.player||run.start);
+       if(score>bestScore){bestScore=score;best=path}
+     }
+   }
+   if(!best){
+     // A tiny legacy maze can still show a distinct stationary enemy without
+     // deleting a student's saved maze or spawning on an objective.
+     const first=starts.sort((a,b)=>Math.min(...otherPositions().map(p=>distance(p,b)))-
+       Math.min(...otherPositions().map(p=>distance(p,a))))[0];
+     if(!first)continue;
+     best=[first];
+   }
+   for(const p of best){grid[p.y][p.x]=0;blocked.add(tile(p))}
+   const path=best.length>1?[...best,...best.slice(1,-1).reverse()]:best;
+   kept.push({id,path,index:0});assigned.add(id);changed=true;
+ }
+ if(changed)run.hazards=kept;
+ return changed;
+}
+
 // Restore legitimately unlocked stages when an old save's separate counter
 // is missing or stale. Never change the saved maze, earned stars or completions.
 export function unlockedFromSavedProgress(a){
