@@ -71,6 +71,24 @@ export function buildLevel(def,seed,easy=false){
  let barrier=null;if(def.ducking!=='none'&&!easy){const main=walk(start,route(grid,start,goal));barrier=main.find((n,i)=>i>=2&&i<main.length-2&&!excluded.has(tile(n)))||null}
  return {id:def.id,seed,w,h,grid,start,goal,player:{...start},checkpoint:{...start},steps:0,items,skill,hazards,barrier,safe:[...safe],complete:false,rewarded:false,trail:[[1,1]],duckLearned:!barrier};
 }
+// Restore legitimately unlocked stages when an old save's separate counter
+// is missing or stale. Never change the saved maze, earned stars or completions.
+export function unlockedFromSavedProgress(a){
+ const numberFor=id=>{
+  const m=/^lab_(candy|pirate|arctic|castle|space|jurassic|ocean|lava)_([1-8])$/.exec(String(id||''));
+  return m?worldIds.indexOf(m[1])*8+Number(m[2]):null;
+ };
+ let unlocked=Math.max(1,Number(a.highestUnlockedLevel)||1);
+ for(const id of Array.isArray(a.completedLevelIds)?a.completedLevelIds:[]){
+  const n=numberFor(id);if(n!==null)unlocked=Math.max(unlocked,n+1);
+ }
+ const active=[...Object.entries(a.mazeRuns&&typeof a.mazeRuns==='object'&&!Array.isArray(a.mazeRuns)?a.mazeRuns:{}),[a.activeRun?.id,a.activeRun]];
+ for(const [id,run] of active){
+  const n=numberFor(id);
+  if(n!==null&&run?.id===id&&!run.complete&&Array.isArray(run.grid)&&Array.isArray(run.items)&&Array.isArray(run.hazards))unlocked=Math.max(unlocked,n);
+ }
+ return Math.max(1,Math.min(64,Math.floor(unlocked)));
+}
 export function migrateAdventure(previous,legacy,characters,lands){
  const a=previous&&typeof previous==='object'?previous:{},ids=characters.map(c=>c.id),landIds=lands.map(l=>l.id),friends={};
  // The practice-game wallet may have its own character. It is NOT an Arrow Lab
@@ -92,7 +110,7 @@ export function migrateAdventure(previous,legacy,characters,lands){
  }
  for(const id of legacy?.rescued||[])if(ids.includes(id)&&!friends[id])friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
  if(main&&!friends[main])friends[main]={isRescued:true,upgradeStage:'starter',homeLandId:landIds[0]};
- return {...a,mazesSinceRescue:Math.max(0,Math.min(3,Math.floor(Number(a.mazesSinceRescue)||0))),pendingRescueFriendId:ids.includes(a.pendingRescueFriendId)&&!friends[a.pendingRescueFriendId]?a.pendingRescueFriendId:null,ownedWorldIds:Array.isArray(a.ownedWorldIds)?a.ownedWorldIds:[...new Set(Object.values(friends).map(f=>f.homeLandId))],decorations:a.decorations||{},positions:a.positions||{},schemaVersion:1,selectedPlayerCharacterId:main,unavailableSelectedPlayerCharacterId,primaryRainbowLandId:landIds.includes(a.primaryRainbowLandId)?a.primaryRainbowLandId:null,friends,unlockedCharacterIds:Object.keys(friends),completedLevelIds:Array.isArray(a.completedLevelIds)?a.completedLevelIds:[],rescuedAtLevelIds:Array.isArray(a.rescuedAtLevelIds)?a.rescuedAtLevelIds:[],highestUnlockedLevel:Math.max(1,Math.min(64,Number(a.highestUnlockedLevel)||1)),wallet:{rainbowStars:Math.max(0,Number(a.wallet?.rainbowStars)||0)},lifetimeStarsEarned:Math.max(0,Number(a.lifetimeStarsEarned)||0),collectedComputerGearIds:Array.isArray(a.collectedComputerGearIds)?a.collectedComputerGearIds:[],earnedSkillBadgeIds:Array.isArray(a.earnedSkillBadgeIds)?a.earnedSkillBadgeIds:[],settings:{soundEnabled:false,reducedMotion:false,...a.settings}};
+ return {...a,mazesSinceRescue:Math.max(0,Math.min(3,Math.floor(Number(a.mazesSinceRescue)||0))),pendingRescueFriendId:ids.includes(a.pendingRescueFriendId)&&!friends[a.pendingRescueFriendId]?a.pendingRescueFriendId:null,ownedWorldIds:Array.isArray(a.ownedWorldIds)?a.ownedWorldIds:[...new Set(Object.values(friends).map(f=>f.homeLandId))],decorations:a.decorations||{},positions:a.positions||{},schemaVersion:1,selectedPlayerCharacterId:main,unavailableSelectedPlayerCharacterId,primaryRainbowLandId:landIds.includes(a.primaryRainbowLandId)?a.primaryRainbowLandId:null,friends,unlockedCharacterIds:Object.keys(friends),completedLevelIds:Array.isArray(a.completedLevelIds)?a.completedLevelIds:[],rescuedAtLevelIds:Array.isArray(a.rescuedAtLevelIds)?a.rescuedAtLevelIds:[],highestUnlockedLevel:unlockedFromSavedProgress(a),wallet:{rainbowStars:Math.max(0,Number(a.wallet?.rainbowStars)||0)},lifetimeStarsEarned:Math.max(0,Number(a.lifetimeStarsEarned)||0),collectedComputerGearIds:Array.isArray(a.collectedComputerGearIds)?a.collectedComputerGearIds:[],earnedSkillBadgeIds:Array.isArray(a.earnedSkillBadgeIds)?a.earnedSkillBadgeIds:[],settings:{soundEnabled:false,reducedMotion:false,...a.settings}};
 }
 export function upgradeFriend(a,id,costs){
  const f=a.friends[id];if(!f||f.upgradeStage==='super_power')return false;
