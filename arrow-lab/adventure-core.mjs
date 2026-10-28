@@ -142,13 +142,16 @@ export function restoreSavedEnemyRoster(run,definition,easy=false){
    Number.isInteger(e.index)&&e.index>=0&&e.index<e.path.length;
  // Keep the original enemy objects and their exact patrol indexes whenever valid.
  const old=run.hazards.filter(valid),kept=[],assigned=new Set();
- for(const e of old)if(wanted.includes(e.id)&&!assigned.has(e.id)&&kept.length<4){
-   kept.push(e);assigned.add(e.id);
- }
- // A saved enemy with an old or duplicate sprite can retain its route and index.
- for(const e of old)if(!kept.includes(e)&&kept.length<4){
-   const id=wanted.find(id=>!assigned.has(id));if(!id)break;
-   e.id=id;kept.push(e);assigned.add(id);
+ // Reserve each valid existing sprite ID first, so repairing a duplicate never
+ // renames another legitimate bad guy or reorders its saved patrol.
+ const firstForId=new Map();
+ for(const e of old)if(wanted.includes(e.id)&&!firstForId.has(e.id))firstForId.set(e.id,e);
+ const reserved=new Set(firstForId.keys());
+ for(const e of old){
+   if(kept.length>=4)break;
+   if(firstForId.get(e.id)===e){kept.push(e);assigned.add(e.id);continue}
+   const id=wanted.find(id=>!reserved.has(id));if(!id)continue;
+   e.id=id;reserved.add(id);assigned.add(id);kept.push(e);
  }
  if(kept.length===4&&run.hazards.length===4&&run.hazards.every((e,i)=>e===kept[i]))return false;
  const blocked=new Set(kept.flatMap(e=>e.path.map(tile)));
