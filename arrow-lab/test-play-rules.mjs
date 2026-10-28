@@ -137,7 +137,7 @@ assert.equal(allCharacters.length,data.characters.length+10,'all ten missing cha
 assert.equal(new Set(allCharacters.map(c=>c.id)).size,allCharacters.length,'no duplicate IDs');
 for(const character of pendingCharacters){
  assert.equal(character.levels.length,3,'all upgrade stages retained');
- for(const level of character.levels)assert.equal(level.image,'pending:character:'+character.id,'never substitute an invalid image URL');
+ for(const level of character.levels)assert.equal(level.image,character.id==='luna_axolotl'?'arrow-lab/characters/luna_axolotl.png':'pending:character:'+character.id,'published art or honest placeholder for each stable ID');
 }
 const legacyPlayerSave={
  selectedPlayerCharacterId:'luna_axolotl',ownedWorldIds:['background_pirate'],primaryRainbowLandId:'background_pirate',
@@ -162,7 +162,7 @@ assert.match(source,/const chars=arrowLabCharacters\(data\.characters\)/,'local 
 assert.match(source,/pending-character-note/,'missing portraits visibly labelled');
 const markerSource=source.slice(source.indexOf("const img=(p,name,cls='')=>"),source.indexOf('const readJSON=async'));
 const markerRender=new Function('esc','asset',markerSource+';return img;')(s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;'),p=>p);
-const missingPortrait=markerRender('pending:character:luna_axolotl','Luna Axolotl','friend-art');
+const missingPortrait=markerRender('pending:character:cosmo_fox','Cosmo Fox','friend-art');
 assert.match(missingPortrait,/ART COMING SOON/,'portrait has honest placeholder label');
 assert.doesNotMatch(missingPortrait,/<img/,'no broken image URL');
 assert.match(source,/const p=at\(c,i\),name=char\(c\)\?\.name/,'unknown saved friends render safely in MY STUFF');
