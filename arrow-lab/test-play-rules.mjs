@@ -379,9 +379,9 @@ assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header
 assert.match(css,/height:clamp\(150px,min\(calc\(100vw \* 0\.143333 \+ 46px\),32dvh\),260px\)/,'header height accounts for the 3000:430 JPEG aspect at Chromebook width without cropping');
 assert.match(html,/panel\(525,165,1480,465,690,0,1369,430,'title'\)/,'full three-line heading panel includes the final exclamation mark');
 assert.match(html,/visual-hotfix-20261027\.css\?v=fullwidth-chromebook-20261028a/,'published page references color and header fix');
-assert.match(html,/game\.mjs\?v=world-lock-dialog-20261028a/,'published page references the updated game module');
+assert.match(html,/game\.mjs\?v=visual-help-20261028a/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
-assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=world-lock-dialog-20261028a/,'published game requests the latest adventure module');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=visual-help-20261028a/,'published game requests the latest adventure module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
@@ -585,3 +585,35 @@ assert.match(gameSource,/note\.setAttribute\('role','alert'\)/,'Full Screen help
 const layoutSource=fs.readFileSync(new URL('./layout-fixes.css',import.meta.url),'utf8');
 assert.match(layoutSource,/\.arrow-lab-fullscreen-note\{position:fixed/,'Full Screen help stays visible in viewport');
 assert.match(html,/layout-fixes\.css\?v=fullscreen-notice-20261028a/,'new Full Screen help CSS cache version is published');
+
+
+// How to Play must be visible, dismissible and safe for unfinished arrow challenges.
+const helpCode=source.slice(source.lastIndexOf(" $('help').onclick=()=>{"),source.lastIndexOf(" if(!a.selectedPlayerCharacterId)selectCharacter();"));
+assert.match(helpCode,/modal\('How to Play'/);
+assert.match(helpCode,/adventure-dialog'\)\?\.open/);
+assert.doesNotMatch(source,/\balert\s*\(/);
+assert.doesNotMatch(gameSource,/\balert\s*\(/);
+assert.match(gameSource,/function legacyHelp\(\)/);
+assert.match(gameSource,/arrow-lab-help-dialog'\)\?\.open\)return/);
+assert.match(html,/game\.mjs\?v=visual-help-20261028a/);
+assert.match(gameSource,/adventure\.mjs\?v=visual-help-20261028a/);
+const helpButtons={help:{},'adventure-dialog':{open:false},'help-read-aloud':{},'help-back':{}};
+let shown=0,spoken=0,closed=0;
+new Function('$','modal','esc','closeModal','window',helpCode)(
+ id=>helpButtons[id],(title,body,bind)=>{shown++;assert.match(body,/keyboard arrows/);bind()},s=>s,()=>closed++,
+ {speechSynthesis:{cancel(){},speak(){spoken++}},SpeechSynthesisUtterance:function(t){this.text=t}}
+);
+helpButtons.help.onclick();helpButtons['help-read-aloud'].onclick();helpButtons['help-back'].onclick();
+assert.equal(shown,1);assert.equal(spoken,1);assert.equal(closed,1);
+helpButtons['adventure-dialog'].open=true;helpButtons.help.onclick();assert.equal(shown,1);
+const legacyHelpCode=gameSource.slice(gameSource.indexOf('function legacyHelp(){'),gameSource.lastIndexOf("$('help').onclick=legacyHelp;"));
+const buttons={win:{open:false},shop:{open:false},characters:{open:false},'arrow-lab-help-read':{},'arrow-lab-help-close':{},'arrow-lab-help-home':{},'global-home':{click(){homes++}}};
+let homes=0,created=0;
+const doc={body:{append(d){buttons[d.id]=d}},createElement(tag){assert.equal(tag,'dialog');created++;return {style:{},setAttribute(){},showModal(){this.open=true},close(){this.open=false;this.onclose?.()}}}};
+const legacyFn=new Function('document','$','window','esc',legacyHelpCode+';return legacyHelp;')(doc,id=>buttons[id],{},s=>s);
+legacyFn();assert.equal(created,1);assert.equal(buttons['arrow-lab-help-dialog'].open,true);
+assert.match(buttons['arrow-lab-help-dialog'].innerHTML,/There is no timer/);
+assert.equal(buttons['arrow-lab-help-read'].disabled,true);
+buttons['arrow-lab-help-close'].onclick();assert.equal(buttons['arrow-lab-help-dialog'].open,false);
+legacyFn();assert.equal(created,1);buttons['arrow-lab-help-home'].onclick();assert.equal(homes,1);
+buttons.win.open=true;legacyFn();assert.equal(buttons['arrow-lab-help-dialog'].open,false);
