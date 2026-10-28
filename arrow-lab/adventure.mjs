@@ -644,7 +644,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       (here?'✓ Owned':ownedAnywhere?'✓ Owned · Move from Tray':a.wallet.rainbowStars<d.cost?'Earn More Stars':'⭐ Buy for '+d.cost+' Stars')+'</button></article>';
    }).join('')+'</div></section>';
   const tray='<p>Pick anything you have earned or bought. Add it to your world, then drag it where you want!</p>'+
-    '<div class="my-stuff-tray" aria-label="All my earned decorations, rescued friends and treasures">'+
+    '<div class="my-stuff-tray-controls" aria-label="Browse my decorations"><button id="stuff-scroll-prev" type="button" aria-label="Previous decorations">◀</button><strong>My Decorations, Friends & Treasures</strong><button id="stuff-scroll-next" type="button" aria-label="More decorations">▶</button></div>'+
+    '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Scroll horizontally.">'+
       (hasObjects?decorationCards+friendCards+treasureCards:
       '<p class="my-stuff-empty">Your collection starts here! Finish mazes to earn treasures, rescue friends and buy decorations.</p>')+
     '</div><div class="my-stuff-shop-actions">'+
@@ -666,13 +667,17 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
   // Keep the tray in view after adding/putting away several objects in a row.
   const refresh=()=>{
-    const appScroll=$('app').scrollTop, pageScroll=window.scrollY;
+    const appScroll=$('app').scrollTop, pageScroll=window.scrollY, trayScroll=$('my-stuff-tray')?.scrollLeft||0;
     computer(id);
     $('app').scrollTop=appScroll;
+    if($('my-stuff-tray'))$('my-stuff-tray').scrollLeft=trayScroll;
     // Depending on Chromebook viewport, either the page or the app is scrollable.
     window.scrollTo?.(0,pageScroll);
-    requestAnimationFrame(()=>{$('app').scrollTop=appScroll;window.scrollTo?.(0,pageScroll)});
+    requestAnimationFrame(()=>{$('app').scrollTop=appScroll;if($('my-stuff-tray'))$('my-stuff-tray').scrollLeft=trayScroll;window.scrollTo?.(0,pageScroll)});
   };
+  const scrollTray=dir=>{const tray=$('my-stuff-tray');if(tray)tray.scrollBy({left:dir*Math.max(150,Math.floor(tray.clientWidth*.75)),behavior:'smooth'});};
+  $('stuff-scroll-prev').onclick=()=>scrollTray(-1);
+  $('stuff-scroll-next').onclick=()=>scrollTray(1);
   document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld,'worlds'));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
@@ -780,16 +785,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function setDuck(v){duck=v;$('duck-button')?.setAttribute('aria-pressed',String(v));$('adventure-maze')?.classList.toggle('ducking',v)}
  function draw(){
  if(view!=='maze'||!r)return;const m=$('adventure-maze');if(!m)return;m.style.setProperty('--w',r.w);m.style.setProperty('--h',r.h);let html='';
- for(let y=0;y<r.h;y++)for(let x=0;x<r.w;x++){const p={x,y},id=tile(p),item=r.items.find(i=>tile(i)===id&&!i.collected),enemy=r.hazards.find(e=>tile(e.path[e.index])===id),warn=r.hazards.find(e=>e.path.length>1&&tile(e.path[(e.index+1)%e.path.length])===id),warningNow=!!(warn?.warning&&tile(warn.warning)===id),here=tile(r.player)===id,bridge=r.barrier&&tile(r.barrier)===id,skill=r.skill&&!r.skill.done&&tile(r.skill)===id;
+ for(let y=0;y<r.h;y++)for(let x=0;x<r.w;x++){const p={x,y},id=tile(p),item=r.items.find(i=>tile(i)===id&&!i.collected),enemy=r.hazards.find(e=>tile(e.path[e.index])===id),here=tile(r.player)===id,bridge=r.barrier&&tile(r.barrier)===id,skill=r.skill&&!r.skill.done&&tile(r.skill)===id;
  let art='';if(x===1&&y===1)art='<span class="tile-symbol">⭐</span>';if(tile(r.goal)===id)art='<span class="tile-symbol">🏁</span>';if(item)art=img(itemArt(item.id),itemName(item.id),'tile-art');if(skill){const badge=data.skill_badges.find(b=>b.id===r.skill.type)||data.computer_collectibles.find(g=>g.id==='trackpad');art=img(badge.thumbnail,'Skill stop','tile-art skill-tile')}if(bridge)art+='<span class="low-bridge" title="Hold SPACE to duck">DUCK</span>';if(enemy){
-   const current=enemy.path[enemy.index],next=enemy.path[(enemy.index+1)%enemy.path.length],dx=next.x-current.x,dy=next.y-current.y;
-   const direction=dx>0?'→':dx<0?'←':dy>0?'↓':dy<0?'↑':'';
-   art+=img(data.enemies.find(e=>e.id===enemy.id).thumbnail,'Obstacle: '+data.enemies.find(e=>e.id===enemy.id).name,'tile-art enemy-art');
-   if(direction)art+='<span class="enemy-direction" aria-label="Bad guy moving '+(dx>0?'right':dx<0?'left':dy>0?'down':'up')+'">'+direction+'</span>';
+   art+=img(data.enemies.find(e=>e.id===enemy.id).thumbnail,'Moving bad guy: '+data.enemies.find(e=>e.id===enemy.id).name,'tile-art enemy-art'+(enemy.warning?' enemy-about-to-move':''));
   }
-  if(warn&&!enemy)art+='<span class="enemy-next-tile" aria-hidden="true">!</span>';
   if(here)art+='<span class="player character-player">'+pic(a.selectedPlayerCharacterId)+'</span>';
- html+='<div class="cell '+(r.grid[y][x]?'wall':'road')+(warn?' enemy-path-next':'')+(warningNow?' hazard-warning':'')+'" style="--c:'+['#FF2D8D','#FF8A00','#FFD600','#6BCB24','#24A8F2','#A450E0'][(x+y)%6]+'">'+art+'</div>';
+ html+='<div class="cell '+(r.grid[y][x]?'wall':'road')+''+'" style="--c:'+['#FF2D8D','#FF8A00','#FFD600','#6BCB24','#24A8F2','#A450E0'][(x+y)%6]+'">'+art+'</div>';
  }m.innerHTML=html;m.classList.toggle('ducking',duck);const tasks=r.items.map(i=>({image:itemArt(i.id),name:itemName(i.id),done:i.collected}));
  if(r.skill)tasks.push({image:(data.skill_badges.find(b=>b.id===r.skill.type)||data.computer_collectibles.find(g=>g.id==='trackpad')).thumbnail,name:'Skill stop',done:r.skill.done});
  const pictureSteps=tasks.map(t=>'<span class="quest-picture '+(t.done?'task-done':'')+'">'+img(t.image,t.name)+'<span>'+(t.done?'✓':'Find')+'</span></span>').join('')+'<span class="quest-finish">→ 🏁</span>';
@@ -807,7 +808,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   r.player={...r.start};
   r.checkpoint={...r.start};
   r.trail=[[r.start.x,r.start.y]];
-  status('A bad guy caught you! Back to the START of this maze. Watch the arrows to see where bad guys will move!');
+  status('A bad guy caught you! Back to the START of this maze. Watch their rhythm and time your next move!');
   save();draw();
  }
  function move(key){
@@ -824,7 +825,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function clock(){
  clearInterval(interval);if(view!=='maze'||settings.difficulty==='gentle'||r.complete||$('adventure-dialog')?.open)return;
  interval=setInterval(()=>{if(closed||view!=='maze'||document.hidden||$('adventure-dialog')?.open)return;
- for(const e of r.hazards)if(e.path.length>1)e.warning=e.path[(e.index+1)%e.path.length];draw();clearTimeout(warning);warning=setTimeout(()=>{if(closed||view!=='maze'||$('adventure-dialog')?.open)return;for(const e of r.hazards){if(e.warning){e.index=(e.index+1)%e.path.length;delete e.warning}}if(r.hazards.some(e=>tile(e.path[e.index])===tile(r.player)))hit();else{save();draw()}},Math.min(800,settings.speed*.4));},settings.speed);
+ for(const e of r.hazards)if(e.path.length>1)e.warning=true;draw();clearTimeout(warning);warning=setTimeout(()=>{if(closed||view!=='maze'||$('adventure-dialog')?.open)return;for(const e of r.hazards){if(e.warning){e.index=(e.index+1)%e.path.length;delete e.warning}}if(r.hazards.some(e=>tile(e.path[e.index])===tile(r.player)))hit();else{save();draw()}},Math.min(800,settings.speed*.4));},settings.speed);
  }
  // Keep the same arrow pattern and correct presses in the existing maze save.
  // Never reroll on Home, reload or returning to this level.
