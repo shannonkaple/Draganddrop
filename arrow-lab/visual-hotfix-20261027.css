@@ -968,3 +968,33 @@ body>header.lab-image-header .actions button{
  body>header.lab-image-header .actions{justify-content:flex-start!important}
  body>header.lab-image-header .actions button{font-size:10px!important;padding:3px 6px!important}
 }
+
+/* 2026-10-28: owned world pictures in MY STUFF stay in a compact,
+   keyboard/trackpad-scrollable strip instead of making the scene taller. */
+body.lab-collection-active .my-stuff-quickworlds{
+  flex-wrap:nowrap!important;
+  justify-content:flex-start!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scroll-snap-type:x proximity;
+  padding:3px 4px 8px!important;
+  scrollbar-width:thin;
+}
+body.lab-collection-active .my-stuff-quickworlds button{
+  flex:0 0 clamp(105px,11vw,145px)!important;
+  max-width:none!important;
+  scroll-snap-align:start;
+}
+body.lab-collection-active .my-stuff-quickworlds button:focus-visible,
+body.lab-collection-active #collection-scene [data-world-object]:focus-visible{
+  outline:4px solid #3c48c8!important;
+  outline-offset:2px!important;
+}
+body.lab-collection-active .my-stuff-scene-actions{
+  display:flex!important;flex-wrap:wrap!important;gap:6px!important;
+}
+body.lab-collection-active #stuff-move-player,
+body.lab-collection-active #stuff-change-player{
+  font-size:clamp(12px,1.1vw,15px)!important;
+  padding:7px 10px!important;
+}
