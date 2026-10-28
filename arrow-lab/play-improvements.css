@@ -158,3 +158,58 @@ body.adventure-mode .lab-activity-card.started:not(.cleared){
   border-color:#729de6!important;
   background:#eef6ff!important;
 }
+
+/* Oct 28: keep actual 2048x682 map art and hotspots in one coordinate system.
+   Non-Candy scenery is an explicitly marked placeholder until the candidate
+   eight-stop art is corrected and approved; never warp a 16:9 scene to 3:1. */
+body.adventure-mode .lab-world-illustrated .lab-world-level-scene{
+  position:relative!important;
+  box-sizing:border-box!important;
+  margin-inline:auto!important;
+  max-width:100%!important;
+  overflow:visible!important;
+  background:none!important;
+  border:2px solid #fff!important;
+  border-radius:15px!important;
+}
+body.adventure-mode .lab-world-illustrated .lab-world-level-scene img.lab-candy-map-art{
+  display:block!important;width:100%!important;height:auto!important;
+  object-fit:contain!important;object-position:center!important;
+  max-width:100%!important;max-height:none!important;filter:none!important;
+  border-radius:13px!important;
+}
+body.adventure-mode .lab-world-illustrated[data-provisional-map] .lab-world-level-scene{
+  width:min(100%,calc((100dvh - 380px) * 1.77778))!important;
+  min-width:0!important;min-height:0!important;
+  height:auto!important;aspect-ratio:auto!important;
+}
+body.adventure-mode .lab-world-illustrated[data-provisional-map] .lab-world-level-scene img.lab-candy-map-art{
+  aspect-ratio:auto!important;
+}
+body.adventure-mode .lab-world-illustrated .lab-world-stop{
+  z-index:5!important;touch-action:manipulation;
+}
+body.adventure-mode .lab-world-illustrated .lab-world-map-footer{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+}
+body.adventure-mode .lab-world-illustrated .lab-world-art-warning{
+  color:#2e316b;background:#fff9e8e6;border:1px solid #fff;
+  border-radius:9px;max-width:100%;padding:4px 8px;
+  font:clamp(10px,1vw,13px) VAG,Arial,sans-serif;
+  margin:0!important;text-align:center;
+}
+body.adventure-mode .lab-world-illustrated .lab-candy-actions{
+  width:100%!important;min-height:44px!important;
+}
+body.adventure-mode .lab-world-illustrated .lab-candy-actions button{
+  height:44px!important;min-height:0!important;
+}
+body.adventure-mode .lab-world-illustrated .lab-candy-heading{
+  min-height:0!important;
+}
+@media(max-width:700px){
+  body.adventure-mode .lab-world-illustrated[data-provisional-map] .lab-world-level-scene{
+    width:min(100%,calc((100dvh - 320px) * 1.77778))!important;
+  }
+  body.adventure-mode .lab-world-illustrated .lab-world-art-warning{font-size:10px!important}
+}
