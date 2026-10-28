@@ -1,3 +1,4 @@
+import {buildArrowLabProgressCsv} from './progress-export.mjs?v=20261028a';
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
@@ -1157,7 +1158,17 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    }
    a.highestUnlockedLevel=next;save();closeModal();startLevel(next);
  };
- $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{const rows=[['Homeroom','Number','Levels','Friends','Rainbow Stars','Equipment','Skill badges']];for(const t of teachers)for(let n=1;n<=24;n++){try{const raw=JSON.parse(localStorage.getItem('arrow-lab-class-v1:'+t.id+':'+n)||'null'),d=raw?.adventure;if(d)rows.push([raw.teacherName||t.name,n,d.completedLevelIds.length,Object.keys(d.friends).length,d.wallet.rainbowStars,d.collectedComputerGearIds.join(' / '),d.earnedSkillBadgeIds.join(' / ')])}catch{}}const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');link.href=url;link.download='arrow-adventure-progress.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{
+ try{
+  const csv=buildArrowLabProgressCsv(teachers,localStorage);
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');
+  link.href=url;link.download='arrow-adventure-progress.csv';link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ }catch{
+  const button=$('export-progress');
+  if(button)button.textContent='Progress export unavailable — check browser storage';
+ }
+};
  });
  }
  function keydown(e){
