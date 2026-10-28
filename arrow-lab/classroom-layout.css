@@ -391,3 +391,14 @@ html dialog#arrow-lab-help-dialog[open]::backdrop{
  }
  html dialog#adventure-dialog[open] .final-arrow-scene{max-height:31dvh!important}
 }
+
+/* Until the approved PNG is physically available on Pages, use the older JPEG
+   WITH its old hotspot geometry. Never put new-map positions over old artwork. */
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(1){left:8%!important;top:60%!important;}
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(2){left:20.5%!important;top:47%!important;}
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(3){left:34.1%!important;top:72%!important;}
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(4){left:44.2%!important;top:46%!important;}
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(5){left:56.7%!important;top:70%!important;}
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(6){left:68.5%!important;top:45%!important;}
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(7){left:80.3%!important;top:64%!important;}
+html body.lab-map-active .lab-map-canvas.lab-map-fallback>.lab-world-node:nth-of-type(8){left:91.5%!important;top:45%!important;}
