@@ -174,3 +174,17 @@ body.lab-collection-active #collection-scene .world-object.recently-added img{
 body.lab-collection-active #collection-report{
   font-weight:700!important;color:#1e346b!important;
 }
+
+/* MY STUFF trackpad: first click selects, second click on empty world places.
+   Drag-and-drop and keyboard arrows remain fully functional. */
+body.lab-collection-active #collection-scene [data-world-object].selected-for-placement{
+  z-index:30!important;
+  outline:4px solid #ffe100!important;outline-offset:3px!important;
+  border-radius:14px!important;filter:drop-shadow(0 0 12px #ffd900)!important;
+  cursor:crosshair!important;
+}
+body.lab-collection-active #collection-scene:has(.selected-for-placement){cursor:crosshair!important;}
+body.lab-collection-active #collection-scene .world-object{user-select:none!important;}
+body.lab-collection-active #collection-scene .world-object:focus-visible{
+  outline:4px solid #496ee9!important;outline-offset:2px!important;
+}
