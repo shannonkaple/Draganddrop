@@ -17,7 +17,7 @@ html body.guided>header.lab-image-header {
  align-items:center!important;justify-items:stretch!important;
  gap:9px!important;padding:3px 10px!important;margin:0!important;
  overflow:hidden!important;z-index:40!important;
- background:#dcf2ff!important;
+ /* Keep the existing colorful header gradient from header.css. */
  border-bottom:2px solid #fff!important;
 }
 html body>header.lab-image-header .brand,
@@ -56,11 +56,10 @@ html body.guided>header.lab-image-header .actions button{
  position:static!important;float:none!important;box-sizing:border-box!important;
  min-width:0!important;width:100%!important;max-width:none!important;
  min-height:29px!important;height:100%!important;max-height:37px!important;
- border:1px solid #98bbe8!important;border-radius:9px!important;
+ border-radius:9px!important;
  margin:0!important;padding:2px 7px!important;
- white-space:nowrap!important;font:700 clamp(10px,1vw,13px)/1 Arial,sans-serif!important;
- background:#fff!important;color:#193869!important;
- box-shadow:0 1px 4px #27417b22!important;
+ white-space:nowrap!important;font:clamp(10px,1vw,13px)/1 VAG,Arial,sans-serif!important;
+ /* Header button palette and shadow inherited from original game styles. */
 }
 html body>header.lab-image-header .actions button:focus-visible{
  outline:3px solid #fa8a0d!important;outline-offset:1px!important;
@@ -105,23 +104,22 @@ html body.guided .lab-entry-intro{
  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;
  gap:5px 12px;padding:8px 12px;
  border-radius:15px;border:2px solid #d4e9ff;
- background:#fffdf6;box-shadow:0 2px 8px #264c7f26;
+ background:#fff;box-shadow:0 2px 8px #0002;
 }
 html body.guided .lab-entry-intro h1{
- font:900 clamp(24px,2.6vw,38px)/1.08 VAG,Arial,sans-serif!important;
- margin:0!important;color:#223a72!important;
+ font:clamp(24px,2.6vw,38px)/1.08 Homebody,VAG,Arial,sans-serif!important;
+ margin:0!important;
 }
 html body.guided .lab-entry-intro p{
- width:100%;font:700 clamp(15px,1.4vw,19px)/1.25 Arial,sans-serif!important;
- margin:0!important;color:#293c67!important;
+ width:100%;font:clamp(15px,1.4vw,19px)/1.25 VAG,Arial,sans-serif!important;
+ margin:0!important;
 }
 html body.guided .lab-entry-intro small{
- display:block;width:100%;font:13px/1.25 Arial,sans-serif;
- color:#395a80;
+ display:block;width:100%;font:13px/1.25 VAG,Arial,sans-serif;
 }
 html body.guided .lab-step-badge{
  flex:none;border-radius:16px;padding:5px 9px;
- background:#e1ecff;color:#223a76;font:800 12px Arial,sans-serif;
+ background:#FFD600;color:#000;font:12px VAG,Arial,sans-serif;
 }
 html body.guided .lab-teacher-list,
 html body.guided .lab-number-list{
@@ -136,29 +134,23 @@ html body.guided.lab-teacher-active #app .lab-teacher-cards{
 html body.guided.lab-teacher-active #app .lab-teacher-cards>button{
  box-sizing:border-box!important;
  width:100%!important;min-height:64px!important;height:auto!important;
- padding:8px 12px!important;font:800 clamp(17px,1.6vw,23px)/1.15 VAG,Arial,sans-serif!important;
- border:3px solid #fff!important;border-radius:17px!important;
- color:#213e72!important;background:#ecf5ff!important;
- box-shadow:0 3px 0 #96c0ff!important;white-space:normal!important;
+ padding:8px 12px!important;font:clamp(17px,1.6vw,23px)/1.15 VAG,Arial,sans-serif!important;
+ border:2px solid #000!important;border-radius:17px!important;
+ background:#fff!important;color:#000!important;
+ white-space:normal!important;
  text-align:center!important;overflow-wrap:break-word!important;
-}
-html body.guided.lab-teacher-active #app .lab-teacher-cards>button:nth-child(3n+2){
- background:#fff2e6!important;box-shadow:0 3px 0 #ffcb95!important;
-}
-html body.guided.lab-teacher-active #app .lab-teacher-cards>button:nth-child(3n+3){
- background:#f8ebff!important;box-shadow:0 3px 0 #d7b1f5!important;
 }
 html body.guided #app .lab-teacher-cards>button:hover,
 html body.guided #app .lab-teacher-cards>button:focus-visible,
 html body.guided #app .lab-number-list button:focus-visible{
- outline:4px solid #ffb623!important;outline-offset:2px!important;
+ outline:4px solid #FF8A00!important;outline-offset:2px!important;
 }
 html body.guided .lab-teacher-tools{
  margin-top:4px;padding:7px 12px;border-radius:12px;
- border:1px solid #d1ddef;background:#fff;
+ border:2px solid #000;background:#fff;
 }
 html body.guided .lab-teacher-tools summary{
- cursor:pointer;font:700 14px Arial,sans-serif;
+ cursor:pointer;font:14px VAG,Arial,sans-serif;
 }
 html body.guided .lab-teacher-tools[open]{padding:12px}
 html body.guided .lab-import-cards{
@@ -170,11 +162,11 @@ html body.guided .lab-number-screen .lab-entry-intro{
 }
 html body.guided .lab-number-screen #other-teacher{
  order:-1;min-height:42px;padding:6px 12px;
- background:#e9f3ff;color:#223b70;border:2px solid #92b8ea;
- border-radius:13px;font:800 15px Arial,sans-serif;
+ background:#fff;color:#000;border:2px solid #000;
+ border-radius:13px;font:15px VAG,Arial,sans-serif;
 }
 html body.guided .lab-number-screen .lab-entry-intro p{
- font-size:19px!important;color:#64429a!important;
+ font-size:19px!important;
 }
 html body.guided.lab-number-active #app .lab-number-list .numbers{
  display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
@@ -182,22 +174,15 @@ html body.guided.lab-number-active #app .lab-number-list .numbers{
 }
 html body.guided.lab-number-active #app .lab-number-list .numbers button{
  min-height:69px!important;width:100%!important;
- font:900 clamp(23px,2.7vw,35px)/1 Arial,sans-serif!important;
- padding:7px!important;border:3px solid #fff!important;
+ font:clamp(23px,2.7vw,35px)/1 VAG,Arial,sans-serif!important;
+ padding:7px!important;border:2px solid #000!important;
  border-radius:15px!important;
- background:#e7f4ff!important;color:#23396e!important;
- box-shadow:0 3px 0 #a5c9ef!important;
-}
-html body.guided.lab-number-active #app .lab-number-list .numbers button:nth-child(3n+2){
- background:#fff1e9!important;box-shadow:0 3px 0 #ffcca9!important;
-}
-html body.guided.lab-number-active #app .lab-number-list .numbers button:nth-child(3n+3){
- background:#f3e9ff!important;box-shadow:0 3px 0 #ceb4f2!important;
+ background:#fff!important;color:#000!important;
 }
 html body.guided .lab-entry-note{
  margin:3px 0 10px!important;
- padding:8px 10px;font:14px/1.3 Arial,sans-serif;
- background:#f7fbff;border-radius:12px;
+ padding:8px 10px;font:14px/1.3 VAG,Arial,sans-serif;
+ background:#fff;border-radius:12px;
 }
 @media(max-width:960px){
  html body.guided.lab-teacher-active #app .lab-teacher-cards{
@@ -220,4 +205,10 @@ html body.guided .lab-entry-note{
  html body.guided.lab-number-active #app .lab-number-list .numbers button{
   min-height:58px!important;font-size:24px!important;
  }
+}
+
+/* Original Arrow Lab hover treatment; no new pastel theme. */
+html body.guided.lab-teacher-active #app .lab-teacher-cards>button:hover,
+html body.guided.lab-number-active #app .lab-number-list .numbers button:hover{
+ background:#FFD600!important;
 }
