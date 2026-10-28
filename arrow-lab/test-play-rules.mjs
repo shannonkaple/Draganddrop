@@ -48,7 +48,7 @@ const oldProgress={
  friends:{sunny_kitten:{isRescued:true,upgradeStage:'power_up',homeLandId:'background_candy'}},
  completedLevelIds:['lab_candy_1','lab_candy_2','lab_candy_3'],
  wallet:{rainbowStars:37},highestUnlockedLevel:1,
- mazeRuns:{lab_candy_4:{id:'lab_candy_4',w:11,h:9,grid:[[0]],items:[],hazards:[],player:{x:1,y:1},seed:98}},
+ mazeRuns:{lab_candy_4:{id:'lab_candy_4',w:11,h:9,grid:Array.from({length:9},()=>Array(11).fill(0)),items:[],hazards:[],player:{x:1,y:1},seed:98}},
  positions:{background_candy:{'decor:flowers':{x:40,y:52}}},
  decorations:{background_candy:['flowers']},worldFriends:{candy:{homeLandId:'background_candy'}}
 };
@@ -61,9 +61,10 @@ assert.deepEqual(recovered.decorations,oldProgress.decorations,'purchased decora
 assert.deepEqual(recovered.worldFriends,oldProgress.worldFriends,'rescued friends unchanged');
 assert.equal(recovered.wallet.rainbowStars,37,'no stars granted or lost');
 assert.equal(recovered.friends.sunny_kitten.upgradeStage,'power_up','character upgrade retained');
-const highRun={id:'lab_space_6',w:11,h:9,grid:[[0]],items:[],hazards:[],complete:false};
+const highRun={id:'lab_space_6',w:11,h:9,grid:Array.from({length:9},()=>Array(11).fill(0)),player:{x:1,y:1},items:[],hazards:[],complete:false};
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,mazeRuns:{lab_space_6:highRun}}),38,'valid unfinished Space maze stays reachable');
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,activeRun:highRun}),38,'legacy single active run stays reachable');
+assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,mazeRuns:{lab_space_6:{...highRun,grid:[[0]]}}}),1,'invalid saved maze geometry must not unlock stages');
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_arctic_8']}),25,'completed Arctic world unlocks Castle maze one');
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:60,completedLevelIds:['lab_candy_1']}),60,'do not reduce a valid higher unlock');
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_fake_8','lab_candy_9'],mazeRuns:{lab_space_6:{id:'wrong'}}}),1,'ignore invalid stage IDs and mismatched runs');
