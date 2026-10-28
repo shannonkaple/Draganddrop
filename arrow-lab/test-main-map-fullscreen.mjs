@@ -8,7 +8,7 @@ const game=fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8');
 const css=fs.readFileSync(new URL('./classroom-layout.css',import.meta.url),'utf8');
 const mapCss=fs.readFileSync(new URL('./world-map.css',import.meta.url),'utf8');
 const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
-const image='arrow-lab/assets/arrow-adventure-eight-worlds-user-20261028.png';
+const image='arrow-lab/assets/arrow-adventure-eight-worlds-user-20261028-hq.jpg';
 assert.ok(adventure.includes(image),'user-provided exact 2048×682 PNG referenced by main map');
 assert.match(adventure,/class="lab-map-art-frame"/,'correct proportional coordinate container');
 assert.match(adventure,/class="lab-main-map-art"/,'map is an HTML image rather than stretched CSS background');
