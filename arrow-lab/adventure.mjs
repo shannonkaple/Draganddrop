@@ -2,6 +2,7 @@ import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
 import {WORLD_STOP_POINTS,APPROVED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=qa-gated-20261028a';
+import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld} from './collection-inventory.mjs?v=png-jpeg-20261028b';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=preserve-unlocks-20261028b';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -76,6 +77,10 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  const objectGroups={candy:candyObjects,pirate:pirateObjects,arctic:arcticObjects,ocean:oceanObjects};
  const allWorldLabels=Object.fromEntries(Object.values(objectGroups).flat());
  const objectArtPaths=Object.fromEntries(Object.entries(objectGroups).flatMap(([world,items])=>items.map(([id])=>[id,'arrow-lab/collectibles/'+world+'/'+id+'.png'])));
+ // New maze collectibles must have genuine PNG/JPEG files; never SVG or shape-built art.
+ // Previously acquired rewards remain in each student's saved inventory.
+ const pickupArtPath=id=>objectArtPaths[id]||data.computer_collectibles.find(o=>o.id===id)?.thumbnail||data.computer_collectibles.find(o=>o.id===id)?.image||'';
+ const canSpawnPickup=id=>isSupportedCollectibleArt(pickupArtPath(id));
  // Until the remaining four worlds' original transparent treasure art is
  // available, use two DISTINCT published computer-gear PNGs per maze instead
  // of the previous zero/one objectives. Do not invent missing art URLs.
@@ -183,7 +188,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
-     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:pairFor(wi,ai)||fallbackGearPair(ai,template.computerGearIds),
+     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:(pairFor(wi,ai)||fallbackGearPair(ai,template.computerGearIds)).filter(canSpawnPickup),
      mazeGrid:{width:Math.max(11,template.mazeGrid.width),height:Math.max(9,template.mazeGrid.height)},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...enemyRosters[wi]]};
  })),config=data.game_config,key=storageKey;
@@ -599,7 +604,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c]?.homeLandId===id&&(c===a.selectedPlayerCharacterId||!pendingCharacters.some(hero=>hero.id===c)&&!a.retiredPlayerCharacterIds?.includes(c)));
   const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
   const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
-  const treasureGoods=(a.collectionExtraObjects?.[id]||[]).filter(key=>[...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])].includes(key));
+  const treasureGoods=visibleCollectedKeys(a,id);
   const positions=a.positions[id]||{};
   const at=(key,i)=>positions[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
   const personArt=residents.map((c,i)=>{
@@ -693,7 +698,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // Keep the legacy per-world decoration arrays so old saves and arrangements survive.
   const ownedDecor=[...new Set(Object.values(a.decorations||{}).flat())];
   const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
-  const treasures=[...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])])];
+  const treasures=earnedKeys(a);
   const decorationCards=ownedDecor.map(key=>{
     const d=findDecoration(key);if(!d)return '';
     const here=(a.decorations[id]||[]).includes(key);
@@ -815,10 +820,18 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     else{friend.homeLandId=id;a.hiddenCompanions=a.hiddenCompanions.filter(x=>x!==key);}
     save();refresh();
   });
-  document.querySelectorAll('[data-stuff-treasure]').forEach(b=>b.onclick=()=>{
-    const key=b.dataset.stuffTreasure,active=(a.collectionExtraObjects[id]??=[]);
-    if(active.includes(key))a.collectionExtraObjects[id]=active.filter(x=>x!==key);else active.push(key);
+  document.querySelectorAll('[data-stuff-treasure]').forEach(button=>button.onclick=()=>{
+    const key=button.dataset.stuffTreasure;
+    const result=toggleCollectedInWorld(a,id,key);
+    if(!result.changed)return;
     save();refresh();
+    const prop=[...document.querySelectorAll('#collection-scene [data-world-object]')]
+      .find(el=>el.dataset.worldObject==='treasure:'+key);
+    const note=$('collection-report');
+    if(note)note.textContent=result.added
+       ?(prop?'Added '+itemName(key)+' to your world! Move it with your trackpad or keyboard arrows.':'The item was saved, but its picture did not appear. Tell your teacher.')
+       :itemName(key)+' is put away, but you still own it.';
+    if(prop){prop.classList.add('recently-added');prop.focus({preventScroll:true});}
   });
   $('stuff-decor-shop')?.addEventListener('click',()=>{
     modal('World Decorations',exclusiveStore+'<button id="all-decorations" type="button">All Decorations</button>',()=>{
@@ -833,7 +846,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // before two objectives were guaranteed in every world. Keep their original
  // maze, player position, enemy patrols, collected items and rewards intact.
  function ensureRunObjectives(run,definition){
-   const required=definition.collectibleIds||[];
+   const required=(definition.collectibleIds||[]).filter(canSpawnPickup);
    if(!required.length||!Array.isArray(run.items))return;
    const occupied=new Set([
      ...run.items.map(tile),tile(run.start||{x:1,y:1}),tile(run.goal),tile(run.player),
