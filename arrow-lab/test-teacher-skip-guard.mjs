@@ -30,6 +30,7 @@ assert.ok(skipHandler.indexOf('if(!requireTeacherCode())return;')<skipHandler.in
 function scenario(highestUnlockedLevel,code){
   const controls={
     'skip-level':{disabled:false,textContent:'Open next level'},
+    'save-settings':{},
     'teacher-skip-code':{value:code,focus(){this.focused=true}},
     'teacher-skip-feedback':{textContent:''}
   };
