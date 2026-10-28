@@ -373,7 +373,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    document.querySelectorAll('.lab-candy-node[data-level]').forEach(b=>b.onclick=()=>{
      if(b.getAttribute('aria-disabled')==='true'){
        const number=Number(b.dataset.level);const needed=Math.max(1,number-1);
-       alert('Maze '+number+' is locked. Complete maze '+needed+' first.');return;
+       modal('Candy maze '+number+' is locked',
+         '<p>First finish Candy maze '+needed+'.</p><button id="locked-candy-back" type="button" class="primary">Back to Candy World</button>',()=>{
+           $('locked-candy-back').onclick=closeModal;
+         });
+       return;
      }
      startLevel(Number(b.dataset.level));
    });
@@ -966,7 +970,17 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label>Challenge <select id="set-difficulty"><option value="standard">Standard · moving bad guys</option><option value="gentle">Gentle · stationary bad guys</option></select></label><label>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show hints'],['sound','Celebration sound'],['reducedMotion','Reduce motion']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
  modal('Teacher settings',content,()=>{$('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;for(const k of ['hints','sound','reducedMotion'])$('set-'+k).checked=settings[k];
  $('save-settings').onclick=()=>{settings.difficulty=$('set-difficulty').value;settings.speed=Number($('set-speed').value);for(const k of ['hints','sound','reducedMotion'])settings[k]=$('set-'+k).checked;settings.touchArrows=false;settings.costs={power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))};config.progression.upgradeCost={...settings.costs};try{localStorage.setItem('arrow-lab-teacher-settings',JSON.stringify(settings))}catch{}save();closeModal();if(view==='maze')startLevel(def.number,false);else map()};
- $('skip-level').onclick=()=>{a.highestUnlockedLevel=Math.min(levels.length,a.highestUnlockedLevel+1);save();closeModal();map()};
+ $('skip-level').onclick=()=>{
+   // Skipping unlocks the next maze but does not complete the previous one,
+   // award stars, or discard that student's unfinished saved run.
+   const next=Math.min(levels.length,a.highestUnlockedLevel+1);
+   if(next===a.highestUnlockedLevel){
+     $('skip-level').textContent='All 64 mazes are already open';
+     $('skip-level').disabled=true;
+     return;
+   }
+   a.highestUnlockedLevel=next;save();closeModal();startLevel(next);
+ };
  $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{const rows=[['Homeroom','Number','Levels','Friends','Rainbow Stars','Equipment','Skill badges']];for(const t of teachers)for(let n=1;n<=24;n++){try{const raw=JSON.parse(localStorage.getItem('arrow-lab-class-v1:'+t.id+':'+n)||'null'),d=raw?.adventure;if(d)rows.push([raw.teacherName||t.name,n,d.completedLevelIds.length,Object.keys(d.friends).length,d.wallet.rainbowStars,d.collectedComputerGearIds.join(' / '),d.earnedSkillBadgeIds.join(' / ')])}catch{}}const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');link.href=url;link.download='arrow-adventure-progress.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  });
  }

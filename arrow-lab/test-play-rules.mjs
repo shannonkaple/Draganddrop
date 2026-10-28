@@ -303,6 +303,11 @@ backButton.onclick();assert.equal(backs,1,'return button works');
 stageClick({dataset:{level:'10'},getAttribute:()=> 'false'},...context);
 assert.deepEqual(launches,[10],'unlocked maze launches');
 
+// Candy map locked hotspots use compact in-game dialogs, never blocking alerts.
+const candyHandler=source.match(/document\.querySelectorAll\('\.lab-candy-node\[data-level\]'\)\.forEach\(b=>b\.onclick=\(\)=>\{([\s\S]*?)\n   \}\);/);
+assert.ok(candyHandler,'locate Candy hotspot handler');
+const candyClick=new Function('b','modal','startLevel','
+
 const enemyHit=source.match(/function hit\(\)\{([\s\S]*?)\n \}/);
 assert.ok(enemyHit,'locate actual enemy collision handler');
 const executeHit=new Function('r','status','save','draw',enemyHit[1]);
@@ -379,9 +384,481 @@ assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header
 assert.match(css,/height:clamp\(150px,min\(calc\(100vw \* 0\.143333 \+ 46px\),32dvh\),260px\)/,'header height accounts for the 3000:430 JPEG aspect at Chromebook width without cropping');
 assert.match(html,/panel\(525,165,1480,465,690,0,1369,430,'title'\)/,'full three-line heading panel includes the final exclamation mark');
 assert.match(html,/visual-hotfix-20261027\.css\?v=fullwidth-chromebook-20261028a/,'published page references color and header fix');
-assert.match(html,/game\.mjs\?v=preserve-unlocks-20261028b/,'published page references the updated game module');
+assert.match(html,/game\.mjs\?v=nav-skip-20261028a/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
-assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=preserve-unlocks-20261028b/,'published game requests the latest adventure module');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=nav-skip-20261028a/,'published game requests the latest adventure module');
+
+
+// Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
+const decorHandler=source.slice(source.indexOf("  document.querySelectorAll('[data-stuff-decor]')"),source.indexOf("  document.querySelectorAll('[data-stuff-friend]')"));
+assert.ok(decorHandler.includes("a.decorations[from].splice"),'moves remove one source-world item, not all saved purchases');
+const attachDecorHandler=new Function('document','a','id','save','refresh',decorHandler);
+const savedStuff={decorations:{background_candy:['cupcake','donut'],background_pirate:['flag']},hiddenDecorations:{background_candy:['cupcake']},positions:{background_candy:{'decor:cupcake':{x:40,y:42},'decor:donut':{x:10,y:20}}},wallet:{rainbowStars:45},completedLevelIds:['lab_candy_1'],worldFriends:{candy:{homeLandId:'background_candy'}}};
+const clickDecor=(state,world,key)=>{const button={dataset:{stuffDecor:key}};let saves=0;attachDecorHandler({querySelectorAll:()=>[button]},state,world,()=>saves++,()=>{});button.onclick();assert.equal(saves,1)};
+clickDecor(savedStuff,'background_pirate','cupcake');
+assert.deepEqual(savedStuff.decorations,{background_candy:['donut'],background_pirate:['flag','cupcake']});
+assert.equal(savedStuff.wallet.rainbowStars,45,'moving an owned item never charges stars');
+assert.deepEqual(savedStuff.completedLevelIds,['lab_candy_1'],'moving decorations preserves completed mazes');
+assert.deepEqual(savedStuff.worldFriends,{candy:{homeLandId:'background_candy'}},'moving decorations preserves rescues');
+assert.deepEqual(savedStuff.positions.background_candy,{'decor:donut':{x:10,y:20}},'other item positions remain intact');
+clickDecor(savedStuff,'background_pirate','cupcake');
+assert.ok(savedStuff.hiddenDecorations.background_pirate.includes('cupcake'),'put away without deleting ownership');
+clickDecor(savedStuff,'background_pirate','cupcake');
+assert.ok(!savedStuff.hiddenDecorations.background_pirate.includes('cupcake'),'restore without repurchase');
+const legacyStuff={decorations:{background_candy:['cupcake'],background_pirate:[]},hiddenDecorations:{}};
+clickDecor(legacyStuff,'background_pirate','cupcake');
+assert.deepEqual(legacyStuff.decorations.background_pirate,['cupcake'],'old saves without positions remain compatible');
+assert.match(source,/hiddenDecorations/,'students can put decorations away without losing purchases');
+assert.match(source,/hiddenCompanions/,'students can put friends away without losing rescues');
+assert.match(source,/collectionExtraObjects/,'students can add or put away earned items without losing progress');
+assert.match(source,/const starterWorldId='background_candy'/,'every new student gets a free starter world');
+assert.match(source,/if\(!a\.selectedPlayerCharacterId\)selectCharacter\(\)/,'first-time student must choose a character');
+assert.match(source,/if\(!changing\)enterWithStarterWorld\(\)/,'first-time character choice goes straight to starter world');
+assert.doesNotMatch(source,/changing\?map\(\):chooseLand\(\)/,'no second home-selection screen');
+assert.match(source,/if\(def\.worldStage===8&&\(r\.finalArrowIndex\|\|0\)<10\)\{finalArrowChallenge\(\);return\}/,'world finale requires all ten arrows');
+assert.match(source,/const valid=old&&old\.id===def\.id/,'saved maze run can be resumed');
+assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);
+const old={selectedPlayerCharacterId:data.characters[0].id,primaryRainbowLandId:data.rainbow_lands[0].id,ownedWorldIds:[data.rainbow_lands[0].id],friends:{[data.characters[0].id]:{isRescued:true,upgradeStage:'power_up',homeLandId:data.rainbow_lands[0].id}},worldFriends:{candy:{homeLandId:'background_candy'}},positions:{rainbow_meadow:{astro_ace:{x:30,y:40}}},wallet:{rainbowStars:17},completedLevelIds:['lab_candy_1']};
+const migrated=migrateAdventure(structuredClone(old),{},data.characters,lands);for(const key of Object.keys(old))assert.deepEqual(migrated[key],old[key]);
+let longPatrols=0,runs=0,extendedMovingPatrols=0,eligibleMovingPatrols=0;
+for(const def of levels)for(let seed=1;seed<=40;seed++){
+ const r=buildLevel(def,seed);runs++;const occupied=new Set();
+ const distance=(p,q)=>Math.abs(p.x-q.x)+Math.abs(p.y-q.y);
+ if(r.items.length===2)assert.ok(distance(r.items[0],r.items[1])>=2,'items must be separated');
+ assert.equal(r.hazards.length,4,`${def.id} seed ${seed}: missing enemy`);
+ assert.equal(new Set(r.hazards.map(enemy=>enemy.id)).size,4,`${def.id} seed ${seed}: duplicate enemy`);
+ for(const enemy of r.hazards){const own=new Set(enemy.path.map(tile));for(const pos of own){assert.ok(!occupied.has(pos));assert.ok(!r.safe.includes(pos),'enemy never enters the protected student route');occupied.add(pos)}
+  if(own.size>2)longPatrols++;
+   if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(enemy.id)){
+      eligibleMovingPatrols++;
+      assert.ok(own.size>=3&&own.size<=5,`${def.id} seed ${seed} ${enemy.id}: moving bad guy must patrol 2–4 connected squares out and back`);
+      extendedMovingPatrols++;
+    }
+   assert.ok(enemy.path.length===1||(enemy.path.length>=2&&enemy.path.length<=8&&enemy.path.length%2===0),'patrols must be 1–4 connected squares out and back');
+   if(enemy.path.length>2){const out=enemy.path.length/2;for(let k=1;k<out;k++)assert.deepEqual(enemy.path[out+k],enemy.path[out-k],'return patrol retraces the exact outward path')};
+  enemy.path.forEach((p,i)=>{assert.equal(r.grid[p.y][p.x],0);assert.ok(!r.items.some(q=>tile(p)===tile(q)));if(enemy.path.length>1)assert.equal(distance(p,enemy.path[(i+1)%enemy.path.length]),1,'no jumps through walls, including loop wrap')});
+ }
+ let p=r.start;for(const stop of [...r.items,...(r.skill?[r.skill]:[]),r.goal]){assert.ok(route(r.grid,p,stop,occupied));p=stop}
+}
+assert.ok(longPatrols>0,'moving enemies have longer patrols');
+assert.equal(extendedMovingPatrols,eligibleMovingPatrols,'EVERY eligible moving enemy must have a 2–4-square outward patrol');
+assert.match(fs.readFileSync(new URL('./adventure-core.mjs',import.meta.url),'utf8'),/Reserve connected, disjoint outward patrols/,'new runs allocate separate connected enemy patrols before spawning');
+assert.match(source,/stuff-scroll-prev/,'MY STUFF has a previous button');
+assert.match(source,/stuff-scroll-next/,'MY STUFF has a next button');
+assert.match(source,/trayScroll=\$\('my-stuff-tray'\)/,'refresh preserves horizontal scroll position');
+assert.match(source,/scrollBy\(\{left:dir\*Math\.max/,'trackpad shelf navigation moves horizontally by visible shelf width');
+assert.match(source,/collectionShelf\?\.addEventListener\('wheel'/,'MY STUFF listens for trackpad wheel events');
+assert.match(source,/collectionShelf\.scrollLeft=Math\.max\(0,Math\.min\(max,collectionShelf\.scrollLeft\+delta\)\)/,'shelf wheel movement is clamped');
+assert.match(source,/event\.ctrlKey\|\|collectionShelf\.scrollWidth<=collectionShelf\.clientWidth\+1/,'wheel zoom and non-scrollable shelves are ignored');
+assert.match(source,/collectionShelf\?\.addEventListener\('keydown'/,'shelf supports physical keyboard arrows');
+assert.match(source,/Start this maze over\?/,'restart requires confirmation');
+assert.match(source,/id="keep-maze"/,'restart offers a safe cancel button');
+assert.match(source,/id="confirm-restart"/,'restart has explicit confirmation button');
+assert.match(source,/if\(restart\)delete a\.mazeRuns\[def\.id\]/,'restart removes only current maze run');
+
+// Exercise actual Chromebook wheel handler and prevent page-scroll trapping.
+const fixtureShelfCode=source.slice(source.indexOf("  const collectionShelf=$('my-stuff-tray');"),source.indexOf("  document.querySelectorAll('[data-stuff-world]')"));
+const fixtureListeners={};
+const fixtureShelf={scrollWidth:900,clientWidth:300,scrollLeft:100,addEventListener:(type,fn,opts)=>{fixtureListeners[type]={fn,opts}}};
+const fixtureSteps=[];
+new Function('$','scrollTray',fixtureShelfCode)(()=>fixtureShelf,d=>fixtureSteps.push(d));
+let fixturePrevent=0;
+const fixtureWheel=(dx,dy,ctrl=false)=>fixtureListeners.wheel.fn({deltaX:dx,deltaY:dy,ctrlKey:ctrl,preventDefault:()=>fixturePrevent++});
+fixtureWheel(0,85);assert.equal(fixtureShelf.scrollLeft,185,'two-finger vertical scroll moves shelf');
+fixtureWheel(-25,0);assert.equal(fixtureShelf.scrollLeft,160,'horizontal scroll still works');
+fixtureShelf.scrollLeft=0;fixtureWheel(0,-80);assert.equal(fixturePrevent,2,'scroll up at start passes to page');
+fixtureShelf.scrollLeft=600;fixtureWheel(0,80);assert.equal(fixturePrevent,2,'scroll down at end passes to page');
+fixtureShelf.scrollLeft=200;fixtureWheel(0,90,true);assert.equal(fixtureShelf.scrollLeft,200,'control-wheel zoom remains native');
+fixtureListeners.keydown.fn({key:'ArrowLeft',preventDefault:()=>{}});
+fixtureListeners.keydown.fn({key:'ArrowRight',preventDefault:()=>{}});
+assert.deepEqual(fixtureSteps,[-1,1],'focused shelf supports left/right keyboard');
+
+// A Start Over click is safe until the student explicitly confirms it.
+const fixtureRestartStart=source.indexOf("$('restart-level').onclick=()=>modal('Start this maze over?'");
+const fixtureRestartEnd=source.indexOf(";$('hint-route').onclick",fixtureRestartStart);
+assert.ok(fixtureRestartStart>0&&fixtureRestartEnd>fixtureRestartStart,'restart handler is present');
+const fixtureRestartCode=source.slice(fixtureRestartStart,fixtureRestartEnd)+';';
+const fixtureButtons={'restart-level':{},'keep-maze':{},'confirm-restart':{}};
+let fixtureDialogs=0,fixtureResets=[],fixtureCloses=0,fixtureNotice='';
+new Function('$','modal','closeModal','status','startLevel','def','challengeKeys',fixtureRestartCode)(
+ id=>fixtureButtons[id],
+ (title,html,bind)=>{fixtureDialogs++;assert.match(title,/Start this maze over/);assert.match(html,/other mazes, stars, friends/);bind()},
+ ()=>fixtureCloses++,message=>{fixtureNotice=message},(n,reset)=>fixtureResets.push([n,reset]),{number:17},null
+);
+fixtureButtons['restart-level'].onclick();
+assert.equal(fixtureDialogs,1);assert.equal(fixtureResets.length,0,'opening restart confirmation does not reset');
+fixtureButtons['keep-maze'].onclick();
+assert.equal(fixtureResets.length,0,'Keep My Progress preserves maze');
+assert.match(fixtureNotice,/progress is safe/);
+fixtureButtons['restart-level'].onclick();fixtureButtons['confirm-restart'].onclick();
+assert.deepEqual(fixtureResets,[[17,true]],'only explicit confirmation restarts current maze');
+assert.equal(fixtureCloses,2,'cancel and confirm close popup');
+
+// Gentle mode still has four different themed bad guys, but they stay put.
+ // Hints must route around EVERY square in an enemy's patrol, not into danger.
+const safeHintCode=source.slice(source.indexOf(' function safeHint('),source.indexOf(' function status('));
+assert.match(safeHintCode,/blocked=new Set/,'hint avoids all enemy patrol tiles');
+assert.match(source,/status\(safeHint\(r,target\)\)/,'Help Me actually calls the safe hint');
+const safeHintFixture=new Function('route','tile','directions',safeHintCode+';return safeHint;')(route,tile,directions);
+let gentleRuns=0;
+for(const level of levels)for(let seed=1;seed<=20;seed++){
+ const easyRun=buildLevel(level,seed,true);gentleRuns++;
+ assert.equal(easyRun.hazards.length,4,`${level.id} gentle: four visible bad guys`);
+ assert.equal(new Set(easyRun.hazards.map(e=>e.id)).size,4,`${level.id} gentle: distinct enemy types`);
+ const blocked=new Set(easyRun.hazards.flatMap(enemy=>enemy.path.map(tile)));
+ for(const enemy of easyRun.hazards){
+   assert.equal(enemy.path.length,1,'gentle bad guys stay still');
+   assert.ok(!easyRun.safe.includes(tile(enemy.path[0])),'gentle enemy stays off protected route');
+ }
+ let from=easyRun.start;
+ for(const goal of [...easyRun.items,...(easyRun.skill?[easyRun.skill]:[]),easyRun.goal]){
+   assert.ok(route(easyRun.grid,from,goal,blocked),`${level.id}: gentle objective stays reachable without crossing enemy`);
+   from=goal;
+ }
+ assert.match(safeHintFixture(easyRun,easyRun.items[0]),/^(Try|Hold SPACE)/,'Help Me gives a safe next move');
+}
+const hintGrid=[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]];
+const hintRun={grid:hintGrid,player:{x:1,y:1},hazards:[{path:[{x:2,y:1}]}],barrier:null};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Try DOWN/,'hint never recommends a direct step into an enemy');
+hintRun.hazards=[];hintRun.barrier={x:2,y:1};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Hold SPACE and press RIGHT/,'hint teaches ducking at the bridge');
+
+console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back; ${gentleRuns} gentle mazes retain four stationary bad guys and safe hints.`);
+,'closeModal',candyHandler[1]);
+const candyButtons={'locked-candy-back':{}},candyNotices=[],candyLaunches=[];
+const candyModal=(title,body,bind)=>{candyNotices.push({title,body});bind()};
+candyClick({dataset:{level:'5'},getAttribute:()=> 'true'},candyModal,n=>candyLaunches.push(n),id=>candyButtons[id],()=>candyNotices.push({closed:true}));
+assert.equal(candyLaunches.length,0,'locked Candy maze cannot launch');
+assert.match(candyNotices[0].title,/Candy maze 5 is locked/);
+assert.match(candyNotices[0].body,/First finish Candy maze 4/);
+candyButtons['locked-candy-back'].onclick();
+assert.equal(candyNotices.at(-1).closed,true,'Candy locked popup has a working back action');
+candyClick({dataset:{level:'5'},getAttribute:()=> 'false'},candyModal,n=>candyLaunches.push(n),id=>candyButtons[id],()=>{});
+assert.deepEqual(candyLaunches,[5],'unlocked Candy maze launches normally');
+assert.doesNotMatch(source,/alert\('Maze '\+number\+' is locked/,'Candy locked hotspots never use browser alert');
+
+// Teacher's Open Next Level must open the newly unlocked maze, preserve old
+// unfinished runs, and never grant completion/stars for the skipped maze.
+const skipStart=source.indexOf("$('skip-level').onclick=()=>{");
+const skipEnd=source.indexOf("\n $('close-settings').onclick",skipStart);
+assert.ok(skipStart>0&&skipEnd>skipStart,'teacher skip handler is installed');
+const skipCode=source.slice(skipStart,skipEnd);
+const skipButtons={'skip-level':{disabled:false,textContent:''}};
+const skipState={highestUnlockedLevel:9,wallet:{rainbowStars:28},completedLevelIds:['lab_candy_1'],mazeRuns:{lab_pirate_1:{id:'lab_pirate_1',player:{x:3,y:4}}}};
+const skipSaved=structuredClone(skipState.mazeRuns);
+let skipSaves=0,skipCloses=0,skipOpens=[];
+new Function('
+
+const enemyHit=source.match(/function hit\(\)\{([\s\S]*?)\n \}/);
+assert.ok(enemyHit,'locate actual enemy collision handler');
+const executeHit=new Function('r','status','save','draw',enemyHit[1]);
+const hitState={start:{x:1,y:1},checkpoint:{x:7,y:7},player:{x:9,y:8},trail:[[1,1],[4,5]],items:[{id:'candy',collected:true}],hazards:[{id:'enemy',index:2}],finalArrowIndex:3};
+let hitSaves=0,hitDraws=0,hitMessage='';
+executeHit(hitState,message=>hitMessage=message,()=>hitSaves++,()=>hitDraws++);
+assert.deepEqual(hitState.player,hitState.start,'bad guy contact returns player to maze start');
+assert.deepEqual(hitState.checkpoint,hitState.start,'next bad guy cannot bounce player to old checkpoint');
+assert.equal(hitState.items[0].collected,true,'collision does not erase collected objectives');
+assert.equal(hitState.hazards[0].index,2,'collision does not reroll enemy patrol');
+assert.equal(hitState.finalArrowIndex,3,'collision preserves saved final arrow progress');
+assert.equal(hitSaves,1);assert.equal(hitDraws,1);
+assert.match(hitMessage,/START/,'student hears the start reset rule');
+assert.doesNotMatch(source,/class="enemy-direction"/,'there are no enemy direction arrow graphics');
+assert.doesNotMatch(source,/class="enemy-next-tile"/,'there are no future destination markers');
+assert.match(source,/enemy-about-to-move/,'enemy animates briefly at its OWN tile before stepping');
+
+const migrateObjectives=source.slice(source.indexOf(' function ensureRunObjectives('),source.indexOf(' function startLevel('));
+assert.ok(migrateObjectives.includes('run.items.push'),'old saved mazes gain missing objectives in-place');
+const reconcile=new Function('tile','route',migrateObjectives+';return ensureRunObjectives')(tile,route);
+const oldDef=levels.find(d=>d.id==='lab_space_2');
+const savedOldRun=buildLevel(oldDef,317);
+savedOldRun.items=[];savedOldRun.player={x:1,y:1};savedOldRun.checkpoint={x:3,y:3};savedOldRun.finalArrowIndex=4;
+const savedGrid=structuredClone(savedOldRun.grid),savedEnemies=structuredClone(savedOldRun.hazards);
+reconcile(savedOldRun,oldDef);
+assert.equal(savedOldRun.items.length,2,'old zero-item maze gains two objectives without rerolling');
+assert.deepEqual(savedOldRun.grid,savedGrid,'existing maze layout preserved');
+assert.deepEqual(savedOldRun.hazards,savedEnemies,'enemy positions and paths preserved');
+assert.deepEqual(savedOldRun.player,{x:1,y:1},'player position preserved');
+assert.deepEqual(savedOldRun.checkpoint,{x:3,y:3},'saved checkpoint preserved');
+assert.equal(savedOldRun.finalArrowIndex,4,'final arrow trial progress preserved');
+
+
+
+const skillSequenceSource=source.slice(source.indexOf(' function ensureSkillArrowSequence('),source.indexOf(' function challenge(kind)'));
+assert.ok(skillSequenceSource.includes('run.skillArrowSequence'),'the actual skill challenge must store its arrow sequence in the maze run');
+const ensureSkillArrowSequence=new Function('arrowPattern','directions',skillSequenceSource+';return ensureSkillArrowSequence;')(arrowPattern,directions);
+const interruptedSkill={seed:1234,patternAttempt:0,skill:{done:false},skillArrowIndex:0};
+const originalSkill=ensureSkillArrowSequence(interruptedSkill);
+assert.equal(originalSkill.length,4,'first skill pattern has four arrows');
+const attemptsAfterStart=interruptedSkill.patternAttempt;
+interruptedSkill.skillArrowIndex=2;
+const reloadedSkill=structuredClone(interruptedSkill);
+assert.deepEqual(ensureSkillArrowSequence(reloadedSkill),originalSkill,'returning to a skill tile reuses the saved sequence');
+assert.equal(reloadedSkill.skillArrowIndex,2,'returning student retains two correct presses');
+assert.equal(reloadedSkill.patternAttempt,attemptsAfterStart,'returning to challenge never increments pattern attempt');
+const anotherSkill={seed:1234,patternAttempt:2};
+assert.notDeepEqual(ensureSkillArrowSequence(anotherSkill),originalSkill,'a fresh later attempt uses a different arrow pattern');
+const legacySkill={seed:12,patternAttempt:3,skill:{done:false}};
+assert.equal(ensureSkillArrowSequence(legacySkill).length,4,'old saved maze without arrow fields migrates without a reset');
+assert.match(source,/if\(r\.skill&&!r\.skill\.done&&tile\(r\.player\)===tile\(r\.skill\)\)/,'resume on the skill tile automatically reopens the challenge');
+assert.match(source,/r\.skillArrowIndex=i;save\(\)/,'each correct keyboard press saves progress');
+assert.match(source,/sequenceHtml\(i\)/,'reopened challenge shows the saved progress');
+assert.doesNotMatch(source,/\$\('try-later'\)\.onclick=\(\)=>\{[^}]*r\.player=/,'leaving the skill popup does not teleport player to checkpoint');
+
+const css=fs.readFileSync(new URL('./visual-hotfix-20261027.css',import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
+assert.match(source,/class="dialog-toolbar"/,'every in-game popup has a dedicated control row');
+assert.match(source,/class="dialog-content"/,'every popup has a separate content wrapper');
+assert.match(source,/d\.scrollTop=0/,'reused popups reset scroll to show the heading');
+assert.match(source,/requestAnimationFrame\(\(\)=>\$\('adventure-maze'\)\?\.focus/,'closing a maze popup restores keyboard focus');
+assert.match(css,/robust native-dialog sizing/,'native modal layout correction is installed');
+assert.match(css,/height:max-content!important/,'dialogs size to their content instead of stretching to viewport');
+assert.match(css,/max-height:calc\(100dvh - 24px\)/,'dialogs scroll inside the visible viewport');
+assert.match(css,/\.dialog-toolbar\{/,'popup navigation stays visible while content scrolls');
+assert.match(css,/\.dialog-content\{/,'popup content has independent safe sizing');
+assert.match(css,/Responsive full-width illustrated JPEG heading/,'approved art fills the header');
+assert.match(css,/\.brand>img\.lab-header-art\{/,'the header displays a single full-width image');
+assert.match(css,/my-stuff-tray-controls/,'MY STUFF collection can be scrolled horizontally');
+assert.match(css,/scroll-snap-type:x mandatory/,'items are organized in a one-row scrollable shelf');
+assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
+assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
+assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header is never cropped or stretched');
+assert.match(css,/height:clamp\(150px,min\(calc\(100vw \* 0\.143333 \+ 46px\),32dvh\),260px\)/,'header height accounts for the 3000:430 JPEG aspect at Chromebook width without cropping');
+assert.match(html,/panel\(525,165,1480,465,690,0,1369,430,'title'\)/,'full three-line heading panel includes the final exclamation mark');
+assert.match(html,/visual-hotfix-20261027\.css\?v=fullwidth-chromebook-20261028a/,'published page references color and header fix');
+assert.match(html,/game\.mjs\?v=nav-skip-20261028a/,'published page references the updated game module');
+assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=nav-skip-20261028a/,'published game requests the latest adventure module');
+
+
+// Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
+const decorHandler=source.slice(source.indexOf("  document.querySelectorAll('[data-stuff-decor]')"),source.indexOf("  document.querySelectorAll('[data-stuff-friend]')"));
+assert.ok(decorHandler.includes("a.decorations[from].splice"),'moves remove one source-world item, not all saved purchases');
+const attachDecorHandler=new Function('document','a','id','save','refresh',decorHandler);
+const savedStuff={decorations:{background_candy:['cupcake','donut'],background_pirate:['flag']},hiddenDecorations:{background_candy:['cupcake']},positions:{background_candy:{'decor:cupcake':{x:40,y:42},'decor:donut':{x:10,y:20}}},wallet:{rainbowStars:45},completedLevelIds:['lab_candy_1'],worldFriends:{candy:{homeLandId:'background_candy'}}};
+const clickDecor=(state,world,key)=>{const button={dataset:{stuffDecor:key}};let saves=0;attachDecorHandler({querySelectorAll:()=>[button]},state,world,()=>saves++,()=>{});button.onclick();assert.equal(saves,1)};
+clickDecor(savedStuff,'background_pirate','cupcake');
+assert.deepEqual(savedStuff.decorations,{background_candy:['donut'],background_pirate:['flag','cupcake']});
+assert.equal(savedStuff.wallet.rainbowStars,45,'moving an owned item never charges stars');
+assert.deepEqual(savedStuff.completedLevelIds,['lab_candy_1'],'moving decorations preserves completed mazes');
+assert.deepEqual(savedStuff.worldFriends,{candy:{homeLandId:'background_candy'}},'moving decorations preserves rescues');
+assert.deepEqual(savedStuff.positions.background_candy,{'decor:donut':{x:10,y:20}},'other item positions remain intact');
+clickDecor(savedStuff,'background_pirate','cupcake');
+assert.ok(savedStuff.hiddenDecorations.background_pirate.includes('cupcake'),'put away without deleting ownership');
+clickDecor(savedStuff,'background_pirate','cupcake');
+assert.ok(!savedStuff.hiddenDecorations.background_pirate.includes('cupcake'),'restore without repurchase');
+const legacyStuff={decorations:{background_candy:['cupcake'],background_pirate:[]},hiddenDecorations:{}};
+clickDecor(legacyStuff,'background_pirate','cupcake');
+assert.deepEqual(legacyStuff.decorations.background_pirate,['cupcake'],'old saves without positions remain compatible');
+assert.match(source,/hiddenDecorations/,'students can put decorations away without losing purchases');
+assert.match(source,/hiddenCompanions/,'students can put friends away without losing rescues');
+assert.match(source,/collectionExtraObjects/,'students can add or put away earned items without losing progress');
+assert.match(source,/const starterWorldId='background_candy'/,'every new student gets a free starter world');
+assert.match(source,/if\(!a\.selectedPlayerCharacterId\)selectCharacter\(\)/,'first-time student must choose a character');
+assert.match(source,/if\(!changing\)enterWithStarterWorld\(\)/,'first-time character choice goes straight to starter world');
+assert.doesNotMatch(source,/changing\?map\(\):chooseLand\(\)/,'no second home-selection screen');
+assert.match(source,/if\(def\.worldStage===8&&\(r\.finalArrowIndex\|\|0\)<10\)\{finalArrowChallenge\(\);return\}/,'world finale requires all ten arrows');
+assert.match(source,/const valid=old&&old\.id===def\.id/,'saved maze run can be resumed');
+assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);assert.ok(buyWorld(a,'background_pirate',lands,worldCosts));assert.equal(a.wallet.rainbowStars,19);
+const old={selectedPlayerCharacterId:data.characters[0].id,primaryRainbowLandId:data.rainbow_lands[0].id,ownedWorldIds:[data.rainbow_lands[0].id],friends:{[data.characters[0].id]:{isRescued:true,upgradeStage:'power_up',homeLandId:data.rainbow_lands[0].id}},worldFriends:{candy:{homeLandId:'background_candy'}},positions:{rainbow_meadow:{astro_ace:{x:30,y:40}}},wallet:{rainbowStars:17},completedLevelIds:['lab_candy_1']};
+const migrated=migrateAdventure(structuredClone(old),{},data.characters,lands);for(const key of Object.keys(old))assert.deepEqual(migrated[key],old[key]);
+let longPatrols=0,runs=0,extendedMovingPatrols=0,eligibleMovingPatrols=0;
+for(const def of levels)for(let seed=1;seed<=40;seed++){
+ const r=buildLevel(def,seed);runs++;const occupied=new Set();
+ const distance=(p,q)=>Math.abs(p.x-q.x)+Math.abs(p.y-q.y);
+ if(r.items.length===2)assert.ok(distance(r.items[0],r.items[1])>=2,'items must be separated');
+ assert.equal(r.hazards.length,4,`${def.id} seed ${seed}: missing enemy`);
+ assert.equal(new Set(r.hazards.map(enemy=>enemy.id)).size,4,`${def.id} seed ${seed}: duplicate enemy`);
+ for(const enemy of r.hazards){const own=new Set(enemy.path.map(tile));for(const pos of own){assert.ok(!occupied.has(pos));assert.ok(!r.safe.includes(pos),'enemy never enters the protected student route');occupied.add(pos)}
+  if(own.size>2)longPatrols++;
+   if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(enemy.id)){
+      eligibleMovingPatrols++;
+      assert.ok(own.size>=3&&own.size<=5,`${def.id} seed ${seed} ${enemy.id}: moving bad guy must patrol 2–4 connected squares out and back`);
+      extendedMovingPatrols++;
+    }
+   assert.ok(enemy.path.length===1||(enemy.path.length>=2&&enemy.path.length<=8&&enemy.path.length%2===0),'patrols must be 1–4 connected squares out and back');
+   if(enemy.path.length>2){const out=enemy.path.length/2;for(let k=1;k<out;k++)assert.deepEqual(enemy.path[out+k],enemy.path[out-k],'return patrol retraces the exact outward path')};
+  enemy.path.forEach((p,i)=>{assert.equal(r.grid[p.y][p.x],0);assert.ok(!r.items.some(q=>tile(p)===tile(q)));if(enemy.path.length>1)assert.equal(distance(p,enemy.path[(i+1)%enemy.path.length]),1,'no jumps through walls, including loop wrap')});
+ }
+ let p=r.start;for(const stop of [...r.items,...(r.skill?[r.skill]:[]),r.goal]){assert.ok(route(r.grid,p,stop,occupied));p=stop}
+}
+assert.ok(longPatrols>0,'moving enemies have longer patrols');
+assert.equal(extendedMovingPatrols,eligibleMovingPatrols,'EVERY eligible moving enemy must have a 2–4-square outward patrol');
+assert.match(fs.readFileSync(new URL('./adventure-core.mjs',import.meta.url),'utf8'),/Reserve connected, disjoint outward patrols/,'new runs allocate separate connected enemy patrols before spawning');
+assert.match(source,/stuff-scroll-prev/,'MY STUFF has a previous button');
+assert.match(source,/stuff-scroll-next/,'MY STUFF has a next button');
+assert.match(source,/trayScroll=\$\('my-stuff-tray'\)/,'refresh preserves horizontal scroll position');
+assert.match(source,/scrollBy\(\{left:dir\*Math\.max/,'trackpad shelf navigation moves horizontally by visible shelf width');
+assert.match(source,/collectionShelf\?\.addEventListener\('wheel'/,'MY STUFF listens for trackpad wheel events');
+assert.match(source,/collectionShelf\.scrollLeft=Math\.max\(0,Math\.min\(max,collectionShelf\.scrollLeft\+delta\)\)/,'shelf wheel movement is clamped');
+assert.match(source,/event\.ctrlKey\|\|collectionShelf\.scrollWidth<=collectionShelf\.clientWidth\+1/,'wheel zoom and non-scrollable shelves are ignored');
+assert.match(source,/collectionShelf\?\.addEventListener\('keydown'/,'shelf supports physical keyboard arrows');
+assert.match(source,/Start this maze over\?/,'restart requires confirmation');
+assert.match(source,/id="keep-maze"/,'restart offers a safe cancel button');
+assert.match(source,/id="confirm-restart"/,'restart has explicit confirmation button');
+assert.match(source,/if\(restart\)delete a\.mazeRuns\[def\.id\]/,'restart removes only current maze run');
+
+// Exercise actual Chromebook wheel handler and prevent page-scroll trapping.
+const fixtureShelfCode=source.slice(source.indexOf("  const collectionShelf=$('my-stuff-tray');"),source.indexOf("  document.querySelectorAll('[data-stuff-world]')"));
+const fixtureListeners={};
+const fixtureShelf={scrollWidth:900,clientWidth:300,scrollLeft:100,addEventListener:(type,fn,opts)=>{fixtureListeners[type]={fn,opts}}};
+const fixtureSteps=[];
+new Function('$','scrollTray',fixtureShelfCode)(()=>fixtureShelf,d=>fixtureSteps.push(d));
+let fixturePrevent=0;
+const fixtureWheel=(dx,dy,ctrl=false)=>fixtureListeners.wheel.fn({deltaX:dx,deltaY:dy,ctrlKey:ctrl,preventDefault:()=>fixturePrevent++});
+fixtureWheel(0,85);assert.equal(fixtureShelf.scrollLeft,185,'two-finger vertical scroll moves shelf');
+fixtureWheel(-25,0);assert.equal(fixtureShelf.scrollLeft,160,'horizontal scroll still works');
+fixtureShelf.scrollLeft=0;fixtureWheel(0,-80);assert.equal(fixturePrevent,2,'scroll up at start passes to page');
+fixtureShelf.scrollLeft=600;fixtureWheel(0,80);assert.equal(fixturePrevent,2,'scroll down at end passes to page');
+fixtureShelf.scrollLeft=200;fixtureWheel(0,90,true);assert.equal(fixtureShelf.scrollLeft,200,'control-wheel zoom remains native');
+fixtureListeners.keydown.fn({key:'ArrowLeft',preventDefault:()=>{}});
+fixtureListeners.keydown.fn({key:'ArrowRight',preventDefault:()=>{}});
+assert.deepEqual(fixtureSteps,[-1,1],'focused shelf supports left/right keyboard');
+
+// A Start Over click is safe until the student explicitly confirms it.
+const fixtureRestartStart=source.indexOf("$('restart-level').onclick=()=>modal('Start this maze over?'");
+const fixtureRestartEnd=source.indexOf(";$('hint-route').onclick",fixtureRestartStart);
+assert.ok(fixtureRestartStart>0&&fixtureRestartEnd>fixtureRestartStart,'restart handler is present');
+const fixtureRestartCode=source.slice(fixtureRestartStart,fixtureRestartEnd)+';';
+const fixtureButtons={'restart-level':{},'keep-maze':{},'confirm-restart':{}};
+let fixtureDialogs=0,fixtureResets=[],fixtureCloses=0,fixtureNotice='';
+new Function('$','modal','closeModal','status','startLevel','def','challengeKeys',fixtureRestartCode)(
+ id=>fixtureButtons[id],
+ (title,html,bind)=>{fixtureDialogs++;assert.match(title,/Start this maze over/);assert.match(html,/other mazes, stars, friends/);bind()},
+ ()=>fixtureCloses++,message=>{fixtureNotice=message},(n,reset)=>fixtureResets.push([n,reset]),{number:17},null
+);
+fixtureButtons['restart-level'].onclick();
+assert.equal(fixtureDialogs,1);assert.equal(fixtureResets.length,0,'opening restart confirmation does not reset');
+fixtureButtons['keep-maze'].onclick();
+assert.equal(fixtureResets.length,0,'Keep My Progress preserves maze');
+assert.match(fixtureNotice,/progress is safe/);
+fixtureButtons['restart-level'].onclick();fixtureButtons['confirm-restart'].onclick();
+assert.deepEqual(fixtureResets,[[17,true]],'only explicit confirmation restarts current maze');
+assert.equal(fixtureCloses,2,'cancel and confirm close popup');
+
+// Gentle mode still has four different themed bad guys, but they stay put.
+ // Hints must route around EVERY square in an enemy's patrol, not into danger.
+const safeHintCode=source.slice(source.indexOf(' function safeHint('),source.indexOf(' function status('));
+assert.match(safeHintCode,/blocked=new Set/,'hint avoids all enemy patrol tiles');
+assert.match(source,/status\(safeHint\(r,target\)\)/,'Help Me actually calls the safe hint');
+const safeHintFixture=new Function('route','tile','directions',safeHintCode+';return safeHint;')(route,tile,directions);
+let gentleRuns=0;
+for(const level of levels)for(let seed=1;seed<=20;seed++){
+ const easyRun=buildLevel(level,seed,true);gentleRuns++;
+ assert.equal(easyRun.hazards.length,4,`${level.id} gentle: four visible bad guys`);
+ assert.equal(new Set(easyRun.hazards.map(e=>e.id)).size,4,`${level.id} gentle: distinct enemy types`);
+ const blocked=new Set(easyRun.hazards.flatMap(enemy=>enemy.path.map(tile)));
+ for(const enemy of easyRun.hazards){
+   assert.equal(enemy.path.length,1,'gentle bad guys stay still');
+   assert.ok(!easyRun.safe.includes(tile(enemy.path[0])),'gentle enemy stays off protected route');
+ }
+ let from=easyRun.start;
+ for(const goal of [...easyRun.items,...(easyRun.skill?[easyRun.skill]:[]),easyRun.goal]){
+   assert.ok(route(easyRun.grid,from,goal,blocked),`${level.id}: gentle objective stays reachable without crossing enemy`);
+   from=goal;
+ }
+ assert.match(safeHintFixture(easyRun,easyRun.items[0]),/^(Try|Hold SPACE)/,'Help Me gives a safe next move');
+}
+const hintGrid=[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]];
+const hintRun={grid:hintGrid,player:{x:1,y:1},hazards:[{path:[{x:2,y:1}]}],barrier:null};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Try DOWN/,'hint never recommends a direct step into an enemy');
+hintRun.hazards=[];hintRun.barrier={x:2,y:1};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Hold SPACE and press RIGHT/,'hint teaches ducking at the bridge');
+
+console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back; ${gentleRuns} gentle mazes retain four stationary bad guys and safe hints.`);
+,'a','levels','save','closeModal','startLevel',skipCode)(
+ id=>skipButtons[id],skipState,Array.from({length:64}),()=>skipSaves++,()=>skipCloses++,n=>skipOpens.push(n)
+);
+skipButtons['skip-level'].onclick();
+assert.equal(skipState.highestUnlockedLevel,10,'teacher unlocks exactly the next maze');
+assert.deepEqual(skipOpens,[10],'teacher is taken straight into the newly unlocked maze');
+assert.equal(skipSaves,1);assert.equal(skipCloses,1);
+assert.equal(skipState.wallet.rainbowStars,28,'skipping grants no stars');
+assert.deepEqual(skipState.completedLevelIds,['lab_candy_1'],'skipping never marks a maze complete');
+assert.deepEqual(skipState.mazeRuns,skipSaved,'skipping preserves unfinished student mazes');
+skipState.highestUnlockedLevel=64;skipButtons['skip-level'].onclick();
+assert.deepEqual(skipOpens,[10],'at level 64 no new maze is launched');
+assert.equal(skipButtons['skip-level'].disabled,true,'skip button disables when all 64 mazes are open');
+
+
+const enemyHit=source.match(/function hit\(\)\{([\s\S]*?)\n \}/);
+assert.ok(enemyHit,'locate actual enemy collision handler');
+const executeHit=new Function('r','status','save','draw',enemyHit[1]);
+const hitState={start:{x:1,y:1},checkpoint:{x:7,y:7},player:{x:9,y:8},trail:[[1,1],[4,5]],items:[{id:'candy',collected:true}],hazards:[{id:'enemy',index:2}],finalArrowIndex:3};
+let hitSaves=0,hitDraws=0,hitMessage='';
+executeHit(hitState,message=>hitMessage=message,()=>hitSaves++,()=>hitDraws++);
+assert.deepEqual(hitState.player,hitState.start,'bad guy contact returns player to maze start');
+assert.deepEqual(hitState.checkpoint,hitState.start,'next bad guy cannot bounce player to old checkpoint');
+assert.equal(hitState.items[0].collected,true,'collision does not erase collected objectives');
+assert.equal(hitState.hazards[0].index,2,'collision does not reroll enemy patrol');
+assert.equal(hitState.finalArrowIndex,3,'collision preserves saved final arrow progress');
+assert.equal(hitSaves,1);assert.equal(hitDraws,1);
+assert.match(hitMessage,/START/,'student hears the start reset rule');
+assert.doesNotMatch(source,/class="enemy-direction"/,'there are no enemy direction arrow graphics');
+assert.doesNotMatch(source,/class="enemy-next-tile"/,'there are no future destination markers');
+assert.match(source,/enemy-about-to-move/,'enemy animates briefly at its OWN tile before stepping');
+
+const migrateObjectives=source.slice(source.indexOf(' function ensureRunObjectives('),source.indexOf(' function startLevel('));
+assert.ok(migrateObjectives.includes('run.items.push'),'old saved mazes gain missing objectives in-place');
+const reconcile=new Function('tile','route',migrateObjectives+';return ensureRunObjectives')(tile,route);
+const oldDef=levels.find(d=>d.id==='lab_space_2');
+const savedOldRun=buildLevel(oldDef,317);
+savedOldRun.items=[];savedOldRun.player={x:1,y:1};savedOldRun.checkpoint={x:3,y:3};savedOldRun.finalArrowIndex=4;
+const savedGrid=structuredClone(savedOldRun.grid),savedEnemies=structuredClone(savedOldRun.hazards);
+reconcile(savedOldRun,oldDef);
+assert.equal(savedOldRun.items.length,2,'old zero-item maze gains two objectives without rerolling');
+assert.deepEqual(savedOldRun.grid,savedGrid,'existing maze layout preserved');
+assert.deepEqual(savedOldRun.hazards,savedEnemies,'enemy positions and paths preserved');
+assert.deepEqual(savedOldRun.player,{x:1,y:1},'player position preserved');
+assert.deepEqual(savedOldRun.checkpoint,{x:3,y:3},'saved checkpoint preserved');
+assert.equal(savedOldRun.finalArrowIndex,4,'final arrow trial progress preserved');
+
+
+
+const skillSequenceSource=source.slice(source.indexOf(' function ensureSkillArrowSequence('),source.indexOf(' function challenge(kind)'));
+assert.ok(skillSequenceSource.includes('run.skillArrowSequence'),'the actual skill challenge must store its arrow sequence in the maze run');
+const ensureSkillArrowSequence=new Function('arrowPattern','directions',skillSequenceSource+';return ensureSkillArrowSequence;')(arrowPattern,directions);
+const interruptedSkill={seed:1234,patternAttempt:0,skill:{done:false},skillArrowIndex:0};
+const originalSkill=ensureSkillArrowSequence(interruptedSkill);
+assert.equal(originalSkill.length,4,'first skill pattern has four arrows');
+const attemptsAfterStart=interruptedSkill.patternAttempt;
+interruptedSkill.skillArrowIndex=2;
+const reloadedSkill=structuredClone(interruptedSkill);
+assert.deepEqual(ensureSkillArrowSequence(reloadedSkill),originalSkill,'returning to a skill tile reuses the saved sequence');
+assert.equal(reloadedSkill.skillArrowIndex,2,'returning student retains two correct presses');
+assert.equal(reloadedSkill.patternAttempt,attemptsAfterStart,'returning to challenge never increments pattern attempt');
+const anotherSkill={seed:1234,patternAttempt:2};
+assert.notDeepEqual(ensureSkillArrowSequence(anotherSkill),originalSkill,'a fresh later attempt uses a different arrow pattern');
+const legacySkill={seed:12,patternAttempt:3,skill:{done:false}};
+assert.equal(ensureSkillArrowSequence(legacySkill).length,4,'old saved maze without arrow fields migrates without a reset');
+assert.match(source,/if\(r\.skill&&!r\.skill\.done&&tile\(r\.player\)===tile\(r\.skill\)\)/,'resume on the skill tile automatically reopens the challenge');
+assert.match(source,/r\.skillArrowIndex=i;save\(\)/,'each correct keyboard press saves progress');
+assert.match(source,/sequenceHtml\(i\)/,'reopened challenge shows the saved progress');
+assert.doesNotMatch(source,/\$\('try-later'\)\.onclick=\(\)=>\{[^}]*r\.player=/,'leaving the skill popup does not teleport player to checkpoint');
+
+const css=fs.readFileSync(new URL('./visual-hotfix-20261027.css',import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('./index.html',import.meta.url),'utf8');
+assert.match(source,/class="dialog-toolbar"/,'every in-game popup has a dedicated control row');
+assert.match(source,/class="dialog-content"/,'every popup has a separate content wrapper');
+assert.match(source,/d\.scrollTop=0/,'reused popups reset scroll to show the heading');
+assert.match(source,/requestAnimationFrame\(\(\)=>\$\('adventure-maze'\)\?\.focus/,'closing a maze popup restores keyboard focus');
+assert.match(css,/robust native-dialog sizing/,'native modal layout correction is installed');
+assert.match(css,/height:max-content!important/,'dialogs size to their content instead of stretching to viewport');
+assert.match(css,/max-height:calc\(100dvh - 24px\)/,'dialogs scroll inside the visible viewport');
+assert.match(css,/\.dialog-toolbar\{/,'popup navigation stays visible while content scrolls');
+assert.match(css,/\.dialog-content\{/,'popup content has independent safe sizing');
+assert.match(css,/Responsive full-width illustrated JPEG heading/,'approved art fills the header');
+assert.match(css,/\.brand>img\.lab-header-art\{/,'the header displays a single full-width image');
+assert.match(css,/my-stuff-tray-controls/,'MY STUFF collection can be scrolled horizontally');
+assert.match(css,/scroll-snap-type:x mandatory/,'items are organized in a one-row scrollable shelf');
+assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
+assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
+assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header is never cropped or stretched');
+assert.match(css,/height:clamp\(150px,min\(calc\(100vw \* 0\.143333 \+ 46px\),32dvh\),260px\)/,'header height accounts for the 3000:430 JPEG aspect at Chromebook width without cropping');
+assert.match(html,/panel\(525,165,1480,465,690,0,1369,430,'title'\)/,'full three-line heading panel includes the final exclamation mark');
+assert.match(html,/visual-hotfix-20261027\.css\?v=fullwidth-chromebook-20261028a/,'published page references color and header fix');
+assert.match(html,/game\.mjs\?v=nav-skip-20261028a/,'published page references the updated game module');
+assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=nav-skip-20261028a/,'published game requests the latest adventure module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
