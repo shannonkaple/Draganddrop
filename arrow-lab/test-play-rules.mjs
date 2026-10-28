@@ -310,9 +310,9 @@ assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
 assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
 assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header is never cropped or stretched');
 assert.match(html,/visual-hotfix-20261027\.css\?v=rainbow-wall-header-20261027g/,'published page references color and header fix');
-assert.match(html,/game\.mjs\?v=approved-friends-luna-20261028a/,'published page references the updated game module');
+assert.match(html,/game\.mjs\?v=switch-character-preserve-20261028a/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
-assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=approved-friends-luna-20261028a/,'published game requests the latest adventure module');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=switch-character-preserve-20261028a/,'published game requests the latest adventure module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
