@@ -242,7 +242,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    warning.textContent='This browser is NOT saving your adventure. Tell your teacher before continuing so your progress is not lost.';
    document.body.append(warning);
  }
+ function syncBannerStars(){
+    const value=$('lab-star-value'),slot=$('lab-banner-stars');
+    if(!value||!slot)return;
+    const stars=Number(a.wallet?.rainbowStars||0);
+    value.textContent=Number.isFinite(stars)?String(Math.max(0,Math.floor(stars))):'0';
+    slot.classList.remove('hidden');
+ }
  function save(){
+  syncBannerStars();
   try{
     if(studentSaveUnreadable)throw Error('Original student save unreadable; refuse overwrite');
     if(r?.id){
@@ -310,11 +318,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function celebrate(title,id,after){
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
  function shell(title,content){
+ syncBannerStars();
  clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-world-active',view==='world-select');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
  $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
  const nav=ready?(view==='map'?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="computer" class="lab-my-stuff-entry">🧸 MY STUFF</button></div>'):'<button id="setup-home" type="button" class="always-home">🏠 HOME</button><span class="setup-steps">First time? Choose your character!</span>';
- $('app').innerHTML='<nav class="adventure-nav"><strong><span class="star-wallet">⭐ '+a.wallet.rainbowStars+'</span></strong>'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
+ $('app').innerHTML='<nav class="adventure-nav">'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>{save();cleanup();onLogout()});
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play mazes to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit one you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first&&view!=='select')first.hidden=true;
  }
