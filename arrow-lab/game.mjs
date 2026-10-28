@@ -2,7 +2,7 @@ import './viewport.mjs?v=responsive-kbd-20261027a';
 import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import '../rainbow-road/read-aloud.mjs?v=20261021-menu';
-import {openAdventure} from './adventure.mjs?v=nav-skip-20261028b';
+import {openAdventure} from './adventure.mjs?v=world-lock-dialog-20261028a';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from '../rainbow-road/core.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -63,6 +63,23 @@ function syncFullscreenButton(){
     window.visualViewport?.dispatchEvent?.(new Event('resize'));
   });
 }
+function fullscreenNotice(message){
+  let note=$('arrow-lab-fullscreen-note');
+  if(!note){
+    note=document.createElement('div');
+    note.id='arrow-lab-fullscreen-note';
+    note.className='arrow-lab-fullscreen-note';
+    note.setAttribute('role','alert');
+    const text=document.createElement('span');
+    text.className='arrow-lab-fullscreen-message';
+    const dismiss=document.createElement('button');
+    dismiss.type='button';dismiss.className='small';dismiss.textContent='Dismiss';
+    dismiss.onclick=()=>note.remove();
+    note.append(text,dismiss);
+    document.body.append(note);
+  }
+  note.querySelector('.arrow-lab-fullscreen-message').textContent=message;
+}
 async function toggleArrowLabFullscreen(){
   try{
     if(document.fullscreenElement){
@@ -74,9 +91,10 @@ async function toggleArrowLabFullscreen(){
       // Invoke requestFullscreen directly from the physical trackpad click.
       await element.requestFullscreen();
     }
+    $('arrow-lab-fullscreen-note')?.remove();
   }catch(error){
     const message='Browser full screen was blocked. Click this button in the full browser tab, or press F11 on your Chromebook/keyboard.';
-    alert(message);
+    fullscreenNotice(message);
   }
   syncFullscreenButton();
 }
@@ -97,6 +115,7 @@ document.addEventListener('pointerdown',event=>{
 
 document.addEventListener('fullscreenerror',()=>{
   fullscreenButton.title='Full screen was blocked by your browser.';
+  fullscreenNotice('Full screen was blocked. Try clicking Full Screen again in the browser tab, or use F11 on your Chromebook.');
 });
 $('global-home').onclick=()=>{
  if(adventureActive&&adventureController?.goHome){adventureController.goHome();return}

@@ -379,9 +379,9 @@ assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header
 assert.match(css,/height:clamp\(150px,min\(calc\(100vw \* 0\.143333 \+ 46px\),32dvh\),260px\)/,'header height accounts for the 3000:430 JPEG aspect at Chromebook width without cropping');
 assert.match(html,/panel\(525,165,1480,465,690,0,1369,430,'title'\)/,'full three-line heading panel includes the final exclamation mark');
 assert.match(html,/visual-hotfix-20261027\.css\?v=fullwidth-chromebook-20261028a/,'published page references color and header fix');
-assert.match(html,/game\.mjs\?v=nav-skip-20261028b/,'published page references the updated game module');
+assert.match(html,/game\.mjs\?v=world-lock-dialog-20261028a/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
-assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=nav-skip-20261028b/,'published game requests the latest adventure module');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=world-lock-dialog-20261028a/,'published game requests the latest adventure module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
@@ -559,3 +559,29 @@ for(const k of ['wallet','completedLevelIds','mazeRuns'])assert.deepEqual(skipSt
 skipState.highestUnlockedLevel=64;skipButtons['skip-level'].onclick();
 assert.deepEqual(skipOpens,[10],'skip at final maze does not reopen it');
 assert.equal(skipButtons['skip-level'].disabled,true,'skip disabled at last maze');
+
+// Main eight-world map locked stops use the same compact, dismissible dialog as maze stops.
+const worldMapHandler=source.match(/document\.querySelectorAll\('\[data-world-index\]'\)\.forEach\(b=>b\.onclick=\(\)=>\{([\s\S]*?)\n  \}\);/);
+assert.ok(worldMapHandler,'main world-map click handler exists');
+const worldMapClick=new Function('b','isWorldUnlocked','worldThemes','modal','esc','$','closeModal','openWorld',worldMapHandler[1]);
+const worldNames=['Candy','Pirate','Arctic','Castle','Space','Jurassic','Ocean','Lava'];
+const worldButtons={'locked-world-back':{}},worldNotices=[],worldOpens=[];
+const worldModal=(title,body,bind)=>{worldNotices.push({title,body});bind()};
+const worldEsc=v=>String(v).replace(/&/g,'&amp;');
+worldMapClick({dataset:{worldIndex:'3'}},()=>false,worldNames.map(name=>({name})),worldModal,worldEsc,id=>worldButtons[id],()=>worldNotices.push({closed:true}),i=>worldOpens.push(i));
+assert.equal(worldOpens.length,0,'locked Castle world cannot open');
+assert.match(worldNotices[0].title,/Castle World is locked/);
+assert.match(worldNotices[0].body,/all eight Arctic World mazes/);
+worldButtons['locked-world-back'].onclick();
+assert.equal(worldNotices.at(-1).closed,true,'world-lock popup Back closes it');
+worldMapClick({dataset:{worldIndex:'3'}},()=>true,worldNames.map(name=>({name})),worldModal,worldEsc,id=>worldButtons[id],()=>{},i=>worldOpens.push(i));
+assert.deepEqual(worldOpens,[3],'unlocked Castle world opens normally');
+assert.doesNotMatch(source,/alert\(worldThemes\[i\]\.name/,'world locks must never use browser alert');
+const gameSource=fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8');
+assert.match(gameSource,/fullscreenNotice\(message\)/,'Full Screen errors show accessible help');
+assert.match(gameSource,/fullscreenNotice\('Full screen was blocked/,'fullscreenerror also shows help');
+assert.doesNotMatch(gameSource,/alert\(message\)/,'Full Screen failures never block keyboard or trackpad with alert');
+assert.match(gameSource,/note\.setAttribute\('role','alert'\)/,'Full Screen help is announced accessibly');
+const layoutSource=fs.readFileSync(new URL('./layout-fixes.css',import.meta.url),'utf8');
+assert.match(layoutSource,/\.arrow-lab-fullscreen-note\{position:fixed/,'Full Screen help stays visible in viewport');
+assert.match(html,/layout-fixes\.css\?v=fullscreen-notice-20261028a/,'new Full Screen help CSS cache version is published');

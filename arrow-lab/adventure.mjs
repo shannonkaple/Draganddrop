@@ -343,7 +343,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   document.querySelectorAll('[data-world-index]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.worldIndex);
     if(!isWorldUnlocked(i)){
-      alert(worldThemes[i].name+' World is locked. Finish all eight '+worldThemes[i-1].name+' mazes first to unlock it.');
+      const previous=worldThemes[i-1],locked=worldThemes[i];
+      modal(locked.name+' World is locked',
+        '<p>Finish all eight '+esc(previous.name)+' World mazes to unlock '+esc(locked.name)+' World.</p><button id="locked-world-back" type="button" class="primary">Back to World Map</button>',()=>{
+          $('locked-world-back').onclick=closeModal;
+        });
       return;
     }
     openWorld(i);
