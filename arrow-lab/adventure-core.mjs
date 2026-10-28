@@ -33,55 +33,83 @@ export function buildLevel(def,seed,easy=false){
      grid[y][x]=0;side.push(p);
    }
  }
+
  if(!easy){
-   const used=new Set(),dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
-   const positions=[];
-   // Reserve all four different enemy spawning tiles BEFORE allocating long patrols.
-   // Otherwise an early patrol can consume the fourth enemy's only open tile.
-   for(const id of def.enemyIds||[]){
-     const available=side.filter(p=>!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
-     if(!available.length)break;
-     const score=p=>{
-       const separation=positions.length?Math.min(...positions.map(h=>dist(p,h.pos))):Math.min(dist(p,start),dist(p,goal));
-       return separation*100+Math.min(dist(p,start),dist(p,goal))*3+random();
-     };
-     let pos=available[0],best=-Infinity;
-     for(const p of available){const value=score(p);if(value>best){best=value;pos=p}}
-     positions.push({id,pos});
-     used.add(tile(pos));
+   // Reserve connected, disjoint outward patrols BEFORE assigning enemy spawns.
+   // An early enemy must not trap the fourth one in a one-tile alcove.
+   const ids=def.enemyIds||[];
+   const moving=ids.filter(id=>def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id));
+   const stationary=ids.filter(id=>!moving.includes(id));
+   const inBounds=p=>p.x>0&&p.x<w-1&&p.y>0&&p.y<h-1;
+   const allowed=p=>inBounds(p)&&!safe.has(tile(p))&&!excluded.has(tile(p));
+   const neighbors=p=>Object.values(directions).map(([dx,dy])=>({x:p.x+dx,y:p.y+dy})).filter(allowed);
+   const starts=side.filter(allowed);
+   const options=[];
+   // A patrol starts on a genuine corridor; side pockets may be opened only
+   // off the protected route, and never through an item, skill or other enemy.
+   for(const start of starts)for(const middle of neighbors(start))for(const end of neighbors(middle)){
+     if(tile(end)===tile(start))continue;
+     const path=[start,middle,end],cells=path.map(tile);
+     const walls=path.filter(p=>grid[p.y][p.x]===1).length;
+     options.push({path,cells,walls,noise:random()});
    }
-   for(const {id,pos} of positions){
-     const path=[pos];
-     if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id)){
-       const patrolSteps=2+Math.floor(random()*3); // a 2–4 tile outing, then follow the same path home
-        for(let step=0;step<patrolSteps;step++){
-         let secondary=side.filter(p=>dist(p,path.at(-1))===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
-         if(!secondary.length){
-           // The older maze generator often left moving enemies stuck after
-           // only one step. Open a connected side pocket instead of teleporting.
-           // Never carve the protected student route, objectives or other spawns.
-           const tail=path.at(-1);
-           const candidates=Object.values(directions).map(([dx,dy])=>({x:tail.x+dx,y:tail.y+dy}))
-             .filter(p=>p.x>0&&p.x<w-1&&p.y>0&&p.y<h-1&&grid[p.y][p.x]===1
-               &&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
-           if(candidates.length){
-             const score=p=>Math.min(...positions.filter(h=>h.id!==id).map(h=>dist(p,h.pos)),99);
-             candidates.sort((a,b)=>score(b)-score(a));
-             const pocket=candidates[0];grid[pocket.y][pocket.x]=0;side.push(pocket);
-             secondary=[pocket];
-           }
-         }
-         if(!secondary.length)break;
-         // Keep patrols away from other reserved spawns and safe/required routes.
-         secondary.sort((a,b)=>{
-           const far=q=>Math.min(...positions.filter(h=>h.id!==id).map(h=>dist(q,h.pos)),99);
-           return far(b)-far(a);
-         });
-         path.push(secondary[0]);used.add(tile(secondary[0]));
-       }
-       if(path.length>2)path.push(...path.slice(1,-1).reverse());
+   const used=new Set(),chosen=[],spawnPositions=[];
+   const overlap=option=>option.cells.some(key=>used.has(key));
+   const separation=pos=>spawnPositions.length
+     ?Math.min(...spawnPositions.map(other=>dist(pos,other)))
+     :Math.min(dist(pos,start),dist(pos,goal));
+   const rank=option=>separation(option.path[0])*30-option.walls*10+
+     Math.min(dist(option.path[0],start),dist(option.path[0],goal))*2+option.noise;
+   let searches=0;
+   function allocate(index){
+     if(index===moving.length)return true;
+     if(++searches>5000)return false;
+     const available=options.filter(o=>!overlap(o)).sort((x,y)=>rank(y)-rank(x));
+     for(const option of available){
+       for(const key of option.cells)used.add(key);
+       chosen.push({id:moving[index],path:[...option.path]});
+       spawnPositions.push(option.path[0]);
+       if(allocate(index+1))return true;
+       spawnPositions.pop();chosen.pop();
+       for(const key of option.cells)used.delete(key);
      }
-     hazards.push({id,path,index:0});
+     return false;
+   }
+   if(!allocate(0)){
+     // If the maze is too constrained for four 3-cell corridors, keep four
+     // unique enemies without crossing the guaranteed student route.
+     used.clear();chosen.length=0;spawnPositions.length=0;
+     for(const id of moving){
+       const option=options.filter(o=>!overlap(o)).sort((x,y)=>rank(y)-rank(x))[0];
+       if(option){for(const key of option.cells)used.add(key);chosen.push({id,path:[...option.path]});spawnPositions.push(option.path[0])}
+       else{
+         const pos=starts.find(p=>!used.has(tile(p)));
+         if(pos){used.add(tile(pos));chosen.push({id,path:[pos]});spawnPositions.push(pos)}
+       }
+     }
+   }
+   // Reserve stationary enemy positions only after all moving paths fit.
+   for(const id of stationary){
+     const available=starts.filter(p=>!used.has(tile(p)));
+     available.sort((x,y)=>separation(y)-separation(x));
+     const pos=available[0]||Array.from({length:h-2},(_,i)=>i+1).flatMap(y=>Array.from({length:w-2},(_,i)=>({x:i+1,y}))).find(p=>allowed(p)&&!used.has(tile(p)));
+     if(pos){used.add(tile(pos));spawnPositions.push(pos);chosen.push({id,path:[pos]})}
+   }
+   for(const entry of chosen){
+     const path=entry.path;
+     if(path.length>1){
+       const desired=2+Math.floor(random()*3);
+       while(path.length-1<desired){
+         const extension=neighbors(path.at(-1)).filter(p=>!used.has(tile(p)));
+         if(!extension.length)break;
+         extension.sort((x,y)=>Number(grid[x.y][x.x]===0)-Number(grid[y.y][y.x]===0));
+         const next=extension[0];path.push(next);used.add(tile(next));
+       }
+       // Each timed step advances one tile, then retraces its own route.
+       path.push(...path.slice(1,-1).reverse());
+     }
+     for(const p of path)grid[p.y][p.x]=0;
+     hazards.push({id:entry.id,path,index:0});
    }
  }
  let barrier=null;if(def.ducking!=='none'&&!easy){const main=walk(start,route(grid,start,goal));barrier=main.find((n,i)=>i>=2&&i<main.length-2&&!excluded.has(tile(n)))||null}
