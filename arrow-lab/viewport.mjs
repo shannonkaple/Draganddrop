@@ -1,7 +1,7 @@
 const app=document.getElementById('app');
 const guided=location.pathname.includes('/arrow-lab/');
 let pending=false;
-export const starIcon='<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 5 64 33 95 38 73 61 78 94 50 78 22 94 27 61 5 38 36 33Z" fill="#FFD600" stroke="#000" stroke-width="5"/></svg>';
+export const starIcon='<span role="img" aria-label="Rainbow Star">⭐</span>';
 if(guided){document.body.classList.add('guided');const guide=document.createElement('aside');guide.id='kaple-guide';guide.innerHTML='<div class="guide-bubble"><button id="guide-speak" aria-label="Read Ms. Kaple’s instructions">🔊</button><p id="guide-words">Choose your teacher. Then choose your number.</p><div id="guide-pictures" aria-label="Picture steps">👩‍🏫 → 🔢</div></div><div class="guide-cast"><img class="kaple-portrait" src="../trackpad-adventure/characters/ms_kaple.webp" alt="Ms. Kaple"><img class="rigby-portrait" src="../trackpad-adventure/characters/rigby.webp" alt="Rigby"></div>';document.body.append(guide);document.getElementById('guide-speak').onclick=()=>{if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(document.getElementById('guide-words').textContent);u.rate=.83;speechSynthesis.speak(u)};}
 export function tellGuide(words,pictures){const w=document.getElementById('guide-words');if(!w)return;if(w.textContent!==words)w.textContent=words;if(pictures!==undefined){const p=document.getElementById('guide-pictures');if(p.innerHTML!==pictures)p.innerHTML=pictures;}}
 const paged=new WeakSet();
