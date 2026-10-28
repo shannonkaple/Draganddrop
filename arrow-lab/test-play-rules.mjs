@@ -484,8 +484,354 @@ assert.equal(extendedMovingPatrols,eligibleMovingPatrols,'EVERY eligible moving 
 assert.match(fs.readFileSync(new URL('./adventure-core.mjs',import.meta.url),'utf8'),/Reserve connected, disjoint outward patrols/,'new runs allocate separate connected enemy patrols before spawning');
 assert.match(source,/stuff-scroll-prev/,'MY STUFF has a previous button');
 assert.match(source,/stuff-scroll-next/,'MY STUFF has a next button');
-assert.match(source,/const pageSize=innerHeight<=640\?2:4/,'owned inventory has four readable cards per page');
-assert.match(source,/changePage\(event.key/,'inventory supports physical arrow keys');
+assert.match(source,/const scrollShelf=step=>trayEl\.scrollBy/,'shelf scrolls rather than hiding items');
+assert.match(source,/trayEl\.scrollLeft=inventoryScrollLeft/,'playroom restores prior shelf position');
+assert.doesNotMatch(source,/cards\.forEach\(\(card,i\)=>card\.hidden=/,'all earned objects remain visible');
+assert.match(source,/if\(event\.target!==trayEl\)return/,'child buttons keep native keyboard behavior');
+assert.doesNotMatch(source,/if\(e\.key==='Enter'\)\{e\.preventDefault\(\);if\(!e\.repeat\)returnToCurrentMap\(\)/,'Enter must not forcibly close popups');
+assert.match(source,/back\.textContent='← Back to Map'/,'Back remains a keyboard-activatable button');
+{
+ const handler=source.slice(source.indexOf(' function keydown(e){'),source.indexOf(' function keyup(e){'));
+ assert.ok(handler.startsWith(' function keydown(e){'),'keyboard handler found');
+ const dialog={open:true};let returns=0,arrows=[],prevented=0;
+ const keyHandler=new Function('
+assert.match(source,/Start this maze over\?/,'restart requires confirmation');
+assert.match(source,/id="keep-maze"/,'restart offers a safe cancel button');
+assert.match(source,/id="confirm-restart"/,'restart has explicit confirmation button');
+assert.match(source,/if\(restart\)delete a\.mazeRuns\[def\.id\]/,'restart removes only current maze run');
+
+// A Start Over click is safe until the student explicitly confirms it.
+const fixtureRestartStart=source.indexOf("$('restart-level').onclick=()=>modal('Start this maze over?'");
+const fixtureRestartEnd=source.indexOf(";$('hint-route').onclick",fixtureRestartStart);
+assert.ok(fixtureRestartStart>0&&fixtureRestartEnd>fixtureRestartStart,'restart handler is present');
+const fixtureRestartCode=source.slice(fixtureRestartStart,fixtureRestartEnd)+';';
+const fixtureButtons={'restart-level':{},'keep-maze':{},'confirm-restart':{}};
+let fixtureDialogs=0,fixtureResets=[],fixtureCloses=0,fixtureNotice='';
+new Function('$','modal','closeModal','status','startLevel','def','challengeKeys',fixtureRestartCode)(
+ id=>fixtureButtons[id],
+ (title,html,bind)=>{fixtureDialogs++;assert.match(title,/Start this maze over/);assert.match(html,/other mazes, stars, friends/);bind()},
+ ()=>fixtureCloses++,message=>{fixtureNotice=message},(n,reset)=>fixtureResets.push([n,reset]),{number:17},null
+);
+fixtureButtons['restart-level'].onclick();
+assert.equal(fixtureDialogs,1);assert.equal(fixtureResets.length,0,'opening restart confirmation does not reset');
+fixtureButtons['keep-maze'].onclick();
+assert.equal(fixtureResets.length,0,'Keep My Progress preserves maze');
+assert.match(fixtureNotice,/progress is safe/);
+fixtureButtons['restart-level'].onclick();fixtureButtons['confirm-restart'].onclick();
+assert.deepEqual(fixtureResets,[[17,true]],'only explicit confirmation restarts current maze');
+assert.equal(fixtureCloses,2,'cancel and confirm close popup');
+
+// Gentle mode still has four different themed bad guys, but they stay put.
+ // Hints must route around EVERY square in an enemy's patrol, not into danger.
+const safeHintCode=source.slice(source.indexOf(' function safeHint('),source.indexOf(' function status('));
+assert.match(safeHintCode,/blocked=new Set/,'hint avoids all enemy patrol tiles');
+assert.match(source,/status\(safeHint\(r,target\)\)/,'Help Me actually calls the safe hint');
+const safeHintFixture=new Function('route','tile','directions',safeHintCode+';return safeHint;')(route,tile,directions);
+let gentleRuns=0;
+for(const level of levels)for(let seed=1;seed<=20;seed++){
+ const easyRun=buildLevel(level,seed,true);gentleRuns++;
+ assert.equal(easyRun.hazards.length,4,`${level.id} gentle: four visible bad guys`);
+ assert.equal(new Set(easyRun.hazards.map(e=>e.id)).size,4,`${level.id} gentle: distinct enemy types`);
+ const blocked=new Set(easyRun.hazards.flatMap(enemy=>enemy.path.map(tile)));
+ for(const enemy of easyRun.hazards){
+   assert.equal(enemy.path.length,1,'gentle bad guys stay still');
+   assert.ok(!easyRun.safe.includes(tile(enemy.path[0])),'gentle enemy stays off protected route');
+ }
+ let from=easyRun.start;
+ for(const goal of [...easyRun.items,...(easyRun.skill?[easyRun.skill]:[]),easyRun.goal]){
+   assert.ok(route(easyRun.grid,from,goal,blocked),`${level.id}: gentle objective stays reachable without crossing enemy`);
+   from=goal;
+ }
+ assert.match(safeHintFixture(easyRun,easyRun.items[0]),/^(Try|Hold SPACE)/,'Help Me gives a safe next move');
+}
+const hintGrid=[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]];
+const hintRun={grid:hintGrid,player:{x:1,y:1},hazards:[{path:[{x:2,y:1}]}],barrier:null};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Try DOWN/,'hint never recommends a direct step into an enemy');
+hintRun.hazards=[];hintRun.barrier={x:2,y:1};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Hold SPACE and press RIGHT/,'hint teaches ducking at the bridge');
+
+console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back; ${gentleRuns} gentle mazes retain four stationary bad guys and safe hints.`);
+
+
+
+// Candy locked hotspots show a compact in-game dialog, not a browser alert.
+const candyHandler=source.match(/document\.querySelectorAll\('\.lab-candy-node\[data-level\]'\)\.forEach\(b=>b\.onclick=\(\)=>\{([\s\S]*?)\n   \}\);/);
+assert.ok(candyHandler,'Candy hotspot handler exists');
+const candyClick=new Function('b','modal','startLevel','$','closeModal',candyHandler[1]);
+const candyButtons={'locked-candy-back':{}},candyNotices=[],candyLaunches=[];
+const candyModal=(title,body,bind)=>{candyNotices.push({title,body});bind()};
+candyClick({dataset:{level:'5'},getAttribute:()=> 'true'},candyModal,n=>candyLaunches.push(n),id=>candyButtons[id],()=>candyNotices.push({closed:true}));
+assert.equal(candyLaunches.length,0,'locked Candy maze cannot launch');
+assert.match(candyNotices[0].title,/Candy maze 5 is locked/);
+assert.match(candyNotices[0].body,/First finish Candy maze 4/);
+candyButtons['locked-candy-back'].onclick();
+assert.equal(candyNotices.at(-1).closed,true,'Candy locked popup closes');
+candyClick({dataset:{level:'5'},getAttribute:()=> 'false'},candyModal,n=>candyLaunches.push(n),id=>candyButtons[id],()=>{});
+assert.deepEqual(candyLaunches,[5],'unlocked Candy maze launches');
+assert.doesNotMatch(source,/alert\('Maze '\+number\+' is locked/,'Candy locked hotspots never use browser alert');
+
+// Teacher-only skip opens the next maze while retaining all prior rewards,
+// existing unfinished mazes and the completion list.
+const skipStart=source.indexOf("$('skip-level').onclick=()=>{");
+const skipEnd=source.indexOf("\n $('close-settings').onclick",skipStart);
+assert.ok(skipStart>0&&skipEnd>skipStart,'teacher skip handler exists');
+const skipCode=source.slice(skipStart,skipEnd);
+const skipButtons={'skip-level':{disabled:false,textContent:''}};
+const skipState={highestUnlockedLevel:9,wallet:{rainbowStars:28},completedLevelIds:['lab_candy_1'],mazeRuns:{lab_pirate_1:{id:'lab_pirate_1',player:{x:3,y:4}}}};
+const skipSnapshot=structuredClone(skipState);
+let skipSaves=0,skipCloses=0,skipOpens=[];
+new Function('$','a','levels','save','closeModal','startLevel',skipCode)(
+ id=>skipButtons[id],skipState,Array.from({length:64}),()=>skipSaves++,()=>skipCloses++,n=>skipOpens.push(n)
+);
+skipButtons['skip-level'].onclick();
+assert.equal(skipState.highestUnlockedLevel,10,'teacher unlocks one next maze');
+assert.deepEqual(skipOpens,[10],'teacher immediately opens next maze');
+assert.equal(skipSaves,1);assert.equal(skipCloses,1);
+for(const k of ['wallet','completedLevelIds','mazeRuns'])assert.deepEqual(skipState[k],skipSnapshot[k],'skip preserves '+k);
+skipState.highestUnlockedLevel=64;skipButtons['skip-level'].onclick();
+assert.deepEqual(skipOpens,[10],'skip at final maze does not reopen it');
+assert.equal(skipButtons['skip-level'].disabled,true,'skip disabled at last maze');
+
+// Main eight-world map locked stops use the same compact, dismissible dialog as maze stops.
+const worldMapHandler=source.match(/document\.querySelectorAll\('\[data-world-index\]'\)\.forEach\(b=>b\.onclick=\(\)=>\{([\s\S]*?)\n  \}\);/);
+assert.ok(worldMapHandler,'main world-map click handler exists');
+const worldMapClick=new Function('b','isWorldUnlocked','worldThemes','modal','esc','$','closeModal','openWorld',worldMapHandler[1]);
+const worldNames=['Candy','Pirate','Arctic','Castle','Space','Jurassic','Ocean','Lava'];
+const worldButtons={'locked-world-back':{}},worldNotices=[],worldOpens=[];
+const worldModal=(title,body,bind)=>{worldNotices.push({title,body});bind()};
+const worldEsc=v=>String(v).replace(/&/g,'&amp;');
+worldMapClick({dataset:{worldIndex:'3'}},()=>false,worldNames.map(name=>({name})),worldModal,worldEsc,id=>worldButtons[id],()=>worldNotices.push({closed:true}),i=>worldOpens.push(i));
+assert.equal(worldOpens.length,0,'locked Castle world cannot open');
+assert.match(worldNotices[0].title,/Castle World is locked/);
+assert.match(worldNotices[0].body,/all eight Arctic World mazes/);
+worldButtons['locked-world-back'].onclick();
+assert.equal(worldNotices.at(-1).closed,true,'world-lock popup Back closes it');
+worldMapClick({dataset:{worldIndex:'3'}},()=>true,worldNames.map(name=>({name})),worldModal,worldEsc,id=>worldButtons[id],()=>{},i=>worldOpens.push(i));
+assert.deepEqual(worldOpens,[3],'unlocked Castle world opens normally');
+assert.doesNotMatch(source,/alert\(worldThemes\[i\]\.name/,'world locks must never use browser alert');
+const gameSource=fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8');
+assert.match(gameSource,/fullscreenNotice\(message\)/,'Full Screen errors show accessible help');
+assert.match(gameSource,/fullscreenNotice\('Full screen was blocked/,'fullscreenerror also shows help');
+assert.doesNotMatch(gameSource,/alert\(message\)/,'Full Screen failures never block keyboard or trackpad with alert');
+assert.match(gameSource,/note\.setAttribute\('role','alert'\)/,'Full Screen help is announced accessibly');
+const layoutSource=fs.readFileSync(new URL('./layout-fixes.css',import.meta.url),'utf8');
+assert.match(layoutSource,/\.arrow-lab-fullscreen-note\{position:fixed/,'Full Screen help stays visible in viewport');
+assert.match(html,/layout-fixes\.css\?v=fullscreen-notice-20261028a/,'new Full Screen help CSS cache version is published');
+
+
+// How to Play must be visible, dismissible and safe for unfinished arrow challenges.
+const helpCode=source.slice(source.lastIndexOf(" $('help').onclick=()=>{"),source.lastIndexOf(" if(!a.selectedPlayerCharacterId)selectCharacter();"));
+assert.match(helpCode,/modal\('How to Play'/);
+assert.match(helpCode,/adventure-dialog'\)\?\.open/);
+assert.doesNotMatch(source,/\balert\s*\(/);
+assert.doesNotMatch(gameSource,/\balert\s*\(/);
+assert.match(gameSource,/function legacyHelp\(\)/);
+assert.match(gameSource,/arrow-lab-help-dialog'\)\?\.open\)return/);
+assert.match(html,/game\.mjs\?v=classroom-20261028a/);
+assert.match(gameSource,/adventure\.mjs\?v=classroom-20261028a/);
+const helpButtons={help:{},'adventure-dialog':{open:false},'help-read-aloud':{},'help-back':{}};
+let shown=0,spoken=0,closed=0;
+new Function('$','modal','esc','closeModal','window',helpCode)(
+ id=>helpButtons[id],(title,body,bind)=>{shown++;assert.match(body,/keyboard arrows/);bind()},s=>s,()=>closed++,
+ {speechSynthesis:{cancel(){},speak(){spoken++}},SpeechSynthesisUtterance:function(t){this.text=t}}
+);
+helpButtons.help.onclick();helpButtons['help-read-aloud'].onclick();helpButtons['help-back'].onclick();
+assert.equal(shown,1);assert.equal(spoken,1);assert.equal(closed,1);
+helpButtons['adventure-dialog'].open=true;helpButtons.help.onclick();assert.equal(shown,1);
+const legacyHelpCode=gameSource.slice(gameSource.indexOf('function legacyHelp(){'),gameSource.lastIndexOf("$('help').onclick=legacyHelp;"));
+const buttons={win:{open:false},shop:{open:false},characters:{open:false},'arrow-lab-help-read':{},'arrow-lab-help-close':{},'arrow-lab-help-home':{},'global-home':{click(){homes++}}};
+let homes=0,created=0;
+const doc={body:{append(d){buttons[d.id]=d}},createElement(tag){assert.equal(tag,'dialog');created++;return {style:{},setAttribute(){},showModal(){this.open=true},close(){this.open=false;this.onclose?.()}}}};
+const legacyFn=new Function('document','$','window','esc',legacyHelpCode+';return legacyHelp;')(doc,id=>buttons[id],{},s=>s);
+legacyFn();assert.equal(created,1);assert.equal(buttons['arrow-lab-help-dialog'].open,true);
+assert.match(buttons['arrow-lab-help-dialog'].innerHTML,/There is no timer/);
+assert.equal(buttons['arrow-lab-help-read'].disabled,true);
+buttons['arrow-lab-help-close'].onclick();assert.equal(buttons['arrow-lab-help-dialog'].open,false);
+legacyFn();assert.equal(created,1);buttons['arrow-lab-help-home'].onclick();assert.equal(homes,1);
+buttons.win.open=true;legacyFn();assert.equal(buttons['arrow-lab-help-dialog'].open,false);
+,'directions','returnToCurrentMap','move',`
+ let closed=false,heldSpace=false,challengeKeys=null,view='maze';
+ const HTMLInputElement=class{},HTMLSelectElement=class{},HTMLTextAreaElement=class{};
+ ${handler}
+ return {keydown,setChallenge:fn=>challengeKeys=fn};
+ `)(id=>id==='adventure-dialog'?dialog:null,{ArrowUp:[0,-1]},()=>returns++,key=>arrows.push(key));
+ const event=(key,target={tagName:'BUTTON'})=>({key,code:key,repeat:false,target,preventDefault(){prevented++}});
+ keyHandler.keydown(event('Enter'));
+ assert.equal(returns,0,'Enter on a popup button does not navigate away');
+ assert.equal(prevented,0,'Enter activates the focused button');
+ keyHandler.setChallenge(key=>arrows.push(key));
+ keyHandler.keydown(event('ArrowUp'));
+ assert.deepEqual(arrows,['ArrowUp'],'popup arrow challenge still works');
+ assert.equal(prevented,1,'challenge prevents default arrow scrolling');
+}
+{
+ const shelf=source.slice(source.indexOf("  const trayEl=$('my-stuff-tray');"),source.indexOf("  $('stuff-world-select').onchange="));
+ assert.ok(shelf.startsWith("  const trayEl=$('my-stuff-tray');"),'scroll shelf handler found');
+ const prev={},next={},label={},cards=Array.from({length:12},()=>({hidden:false}));
+ const tray={scrollLeft:0,scrollWidth:1200,clientWidth:300,querySelectorAll:()=>cards,addEventListener(type,fn){if(type==='scroll')this.onScroll=fn},scrollBy({left}){this.scrollLeft=Math.max(0,Math.min(this.scrollWidth-this.clientWidth,this.scrollLeft+left));this.onScroll?.()}};
+ const ui={'my-stuff-tray':tray,'stuff-page-label':label,'stuff-scroll-prev':prev,'stuff-scroll-next':next};
+ const getPosition=new Function('
+assert.match(source,/Start this maze over\?/,'restart requires confirmation');
+assert.match(source,/id="keep-maze"/,'restart offers a safe cancel button');
+assert.match(source,/id="confirm-restart"/,'restart has explicit confirmation button');
+assert.match(source,/if\(restart\)delete a\.mazeRuns\[def\.id\]/,'restart removes only current maze run');
+
+// A Start Over click is safe until the student explicitly confirms it.
+const fixtureRestartStart=source.indexOf("$('restart-level').onclick=()=>modal('Start this maze over?'");
+const fixtureRestartEnd=source.indexOf(";$('hint-route').onclick",fixtureRestartStart);
+assert.ok(fixtureRestartStart>0&&fixtureRestartEnd>fixtureRestartStart,'restart handler is present');
+const fixtureRestartCode=source.slice(fixtureRestartStart,fixtureRestartEnd)+';';
+const fixtureButtons={'restart-level':{},'keep-maze':{},'confirm-restart':{}};
+let fixtureDialogs=0,fixtureResets=[],fixtureCloses=0,fixtureNotice='';
+new Function('$','modal','closeModal','status','startLevel','def','challengeKeys',fixtureRestartCode)(
+ id=>fixtureButtons[id],
+ (title,html,bind)=>{fixtureDialogs++;assert.match(title,/Start this maze over/);assert.match(html,/other mazes, stars, friends/);bind()},
+ ()=>fixtureCloses++,message=>{fixtureNotice=message},(n,reset)=>fixtureResets.push([n,reset]),{number:17},null
+);
+fixtureButtons['restart-level'].onclick();
+assert.equal(fixtureDialogs,1);assert.equal(fixtureResets.length,0,'opening restart confirmation does not reset');
+fixtureButtons['keep-maze'].onclick();
+assert.equal(fixtureResets.length,0,'Keep My Progress preserves maze');
+assert.match(fixtureNotice,/progress is safe/);
+fixtureButtons['restart-level'].onclick();fixtureButtons['confirm-restart'].onclick();
+assert.deepEqual(fixtureResets,[[17,true]],'only explicit confirmation restarts current maze');
+assert.equal(fixtureCloses,2,'cancel and confirm close popup');
+
+// Gentle mode still has four different themed bad guys, but they stay put.
+ // Hints must route around EVERY square in an enemy's patrol, not into danger.
+const safeHintCode=source.slice(source.indexOf(' function safeHint('),source.indexOf(' function status('));
+assert.match(safeHintCode,/blocked=new Set/,'hint avoids all enemy patrol tiles');
+assert.match(source,/status\(safeHint\(r,target\)\)/,'Help Me actually calls the safe hint');
+const safeHintFixture=new Function('route','tile','directions',safeHintCode+';return safeHint;')(route,tile,directions);
+let gentleRuns=0;
+for(const level of levels)for(let seed=1;seed<=20;seed++){
+ const easyRun=buildLevel(level,seed,true);gentleRuns++;
+ assert.equal(easyRun.hazards.length,4,`${level.id} gentle: four visible bad guys`);
+ assert.equal(new Set(easyRun.hazards.map(e=>e.id)).size,4,`${level.id} gentle: distinct enemy types`);
+ const blocked=new Set(easyRun.hazards.flatMap(enemy=>enemy.path.map(tile)));
+ for(const enemy of easyRun.hazards){
+   assert.equal(enemy.path.length,1,'gentle bad guys stay still');
+   assert.ok(!easyRun.safe.includes(tile(enemy.path[0])),'gentle enemy stays off protected route');
+ }
+ let from=easyRun.start;
+ for(const goal of [...easyRun.items,...(easyRun.skill?[easyRun.skill]:[]),easyRun.goal]){
+   assert.ok(route(easyRun.grid,from,goal,blocked),`${level.id}: gentle objective stays reachable without crossing enemy`);
+   from=goal;
+ }
+ assert.match(safeHintFixture(easyRun,easyRun.items[0]),/^(Try|Hold SPACE)/,'Help Me gives a safe next move');
+}
+const hintGrid=[[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]];
+const hintRun={grid:hintGrid,player:{x:1,y:1},hazards:[{path:[{x:2,y:1}]}],barrier:null};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Try DOWN/,'hint never recommends a direct step into an enemy');
+hintRun.hazards=[];hintRun.barrier={x:2,y:1};
+assert.match(safeHintFixture(hintRun,{x:3,y:1}),/^Hold SPACE and press RIGHT/,'hint teaches ducking at the bridge');
+
+console.log(`PASS: fixed eight-maze rescues; six changing patterns; eight purchasable worlds; first-play starter world; ten-arrow gate; legacy saves; ${runs} safe layouts; ${longPatrols} extended patrols with no wall crossings; ${extendedMovingPatrols} moving enemies patrol 2–4 squares out and back; ${gentleRuns} gentle mazes retain four stationary bad guys and safe hints.`);
+
+
+
+// Candy locked hotspots show a compact in-game dialog, not a browser alert.
+const candyHandler=source.match(/document\.querySelectorAll\('\.lab-candy-node\[data-level\]'\)\.forEach\(b=>b\.onclick=\(\)=>\{([\s\S]*?)\n   \}\);/);
+assert.ok(candyHandler,'Candy hotspot handler exists');
+const candyClick=new Function('b','modal','startLevel','$','closeModal',candyHandler[1]);
+const candyButtons={'locked-candy-back':{}},candyNotices=[],candyLaunches=[];
+const candyModal=(title,body,bind)=>{candyNotices.push({title,body});bind()};
+candyClick({dataset:{level:'5'},getAttribute:()=> 'true'},candyModal,n=>candyLaunches.push(n),id=>candyButtons[id],()=>candyNotices.push({closed:true}));
+assert.equal(candyLaunches.length,0,'locked Candy maze cannot launch');
+assert.match(candyNotices[0].title,/Candy maze 5 is locked/);
+assert.match(candyNotices[0].body,/First finish Candy maze 4/);
+candyButtons['locked-candy-back'].onclick();
+assert.equal(candyNotices.at(-1).closed,true,'Candy locked popup closes');
+candyClick({dataset:{level:'5'},getAttribute:()=> 'false'},candyModal,n=>candyLaunches.push(n),id=>candyButtons[id],()=>{});
+assert.deepEqual(candyLaunches,[5],'unlocked Candy maze launches');
+assert.doesNotMatch(source,/alert\('Maze '\+number\+' is locked/,'Candy locked hotspots never use browser alert');
+
+// Teacher-only skip opens the next maze while retaining all prior rewards,
+// existing unfinished mazes and the completion list.
+const skipStart=source.indexOf("$('skip-level').onclick=()=>{");
+const skipEnd=source.indexOf("\n $('close-settings').onclick",skipStart);
+assert.ok(skipStart>0&&skipEnd>skipStart,'teacher skip handler exists');
+const skipCode=source.slice(skipStart,skipEnd);
+const skipButtons={'skip-level':{disabled:false,textContent:''}};
+const skipState={highestUnlockedLevel:9,wallet:{rainbowStars:28},completedLevelIds:['lab_candy_1'],mazeRuns:{lab_pirate_1:{id:'lab_pirate_1',player:{x:3,y:4}}}};
+const skipSnapshot=structuredClone(skipState);
+let skipSaves=0,skipCloses=0,skipOpens=[];
+new Function('$','a','levels','save','closeModal','startLevel',skipCode)(
+ id=>skipButtons[id],skipState,Array.from({length:64}),()=>skipSaves++,()=>skipCloses++,n=>skipOpens.push(n)
+);
+skipButtons['skip-level'].onclick();
+assert.equal(skipState.highestUnlockedLevel,10,'teacher unlocks one next maze');
+assert.deepEqual(skipOpens,[10],'teacher immediately opens next maze');
+assert.equal(skipSaves,1);assert.equal(skipCloses,1);
+for(const k of ['wallet','completedLevelIds','mazeRuns'])assert.deepEqual(skipState[k],skipSnapshot[k],'skip preserves '+k);
+skipState.highestUnlockedLevel=64;skipButtons['skip-level'].onclick();
+assert.deepEqual(skipOpens,[10],'skip at final maze does not reopen it');
+assert.equal(skipButtons['skip-level'].disabled,true,'skip disabled at last maze');
+
+// Main eight-world map locked stops use the same compact, dismissible dialog as maze stops.
+const worldMapHandler=source.match(/document\.querySelectorAll\('\[data-world-index\]'\)\.forEach\(b=>b\.onclick=\(\)=>\{([\s\S]*?)\n  \}\);/);
+assert.ok(worldMapHandler,'main world-map click handler exists');
+const worldMapClick=new Function('b','isWorldUnlocked','worldThemes','modal','esc','$','closeModal','openWorld',worldMapHandler[1]);
+const worldNames=['Candy','Pirate','Arctic','Castle','Space','Jurassic','Ocean','Lava'];
+const worldButtons={'locked-world-back':{}},worldNotices=[],worldOpens=[];
+const worldModal=(title,body,bind)=>{worldNotices.push({title,body});bind()};
+const worldEsc=v=>String(v).replace(/&/g,'&amp;');
+worldMapClick({dataset:{worldIndex:'3'}},()=>false,worldNames.map(name=>({name})),worldModal,worldEsc,id=>worldButtons[id],()=>worldNotices.push({closed:true}),i=>worldOpens.push(i));
+assert.equal(worldOpens.length,0,'locked Castle world cannot open');
+assert.match(worldNotices[0].title,/Castle World is locked/);
+assert.match(worldNotices[0].body,/all eight Arctic World mazes/);
+worldButtons['locked-world-back'].onclick();
+assert.equal(worldNotices.at(-1).closed,true,'world-lock popup Back closes it');
+worldMapClick({dataset:{worldIndex:'3'}},()=>true,worldNames.map(name=>({name})),worldModal,worldEsc,id=>worldButtons[id],()=>{},i=>worldOpens.push(i));
+assert.deepEqual(worldOpens,[3],'unlocked Castle world opens normally');
+assert.doesNotMatch(source,/alert\(worldThemes\[i\]\.name/,'world locks must never use browser alert');
+const gameSource=fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8');
+assert.match(gameSource,/fullscreenNotice\(message\)/,'Full Screen errors show accessible help');
+assert.match(gameSource,/fullscreenNotice\('Full screen was blocked/,'fullscreenerror also shows help');
+assert.doesNotMatch(gameSource,/alert\(message\)/,'Full Screen failures never block keyboard or trackpad with alert');
+assert.match(gameSource,/note\.setAttribute\('role','alert'\)/,'Full Screen help is announced accessibly');
+const layoutSource=fs.readFileSync(new URL('./layout-fixes.css',import.meta.url),'utf8');
+assert.match(layoutSource,/\.arrow-lab-fullscreen-note\{position:fixed/,'Full Screen help stays visible in viewport');
+assert.match(html,/layout-fixes\.css\?v=fullscreen-notice-20261028a/,'new Full Screen help CSS cache version is published');
+
+
+// How to Play must be visible, dismissible and safe for unfinished arrow challenges.
+const helpCode=source.slice(source.lastIndexOf(" $('help').onclick=()=>{"),source.lastIndexOf(" if(!a.selectedPlayerCharacterId)selectCharacter();"));
+assert.match(helpCode,/modal\('How to Play'/);
+assert.match(helpCode,/adventure-dialog'\)\?\.open/);
+assert.doesNotMatch(source,/\balert\s*\(/);
+assert.doesNotMatch(gameSource,/\balert\s*\(/);
+assert.match(gameSource,/function legacyHelp\(\)/);
+assert.match(gameSource,/arrow-lab-help-dialog'\)\?\.open\)return/);
+assert.match(html,/game\.mjs\?v=classroom-20261028a/);
+assert.match(gameSource,/adventure\.mjs\?v=classroom-20261028a/);
+const helpButtons={help:{},'adventure-dialog':{open:false},'help-read-aloud':{},'help-back':{}};
+let shown=0,spoken=0,closed=0;
+new Function('$','modal','esc','closeModal','window',helpCode)(
+ id=>helpButtons[id],(title,body,bind)=>{shown++;assert.match(body,/keyboard arrows/);bind()},s=>s,()=>closed++,
+ {speechSynthesis:{cancel(){},speak(){spoken++}},SpeechSynthesisUtterance:function(t){this.text=t}}
+);
+helpButtons.help.onclick();helpButtons['help-read-aloud'].onclick();helpButtons['help-back'].onclick();
+assert.equal(shown,1);assert.equal(spoken,1);assert.equal(closed,1);
+helpButtons['adventure-dialog'].open=true;helpButtons.help.onclick();assert.equal(shown,1);
+const legacyHelpCode=gameSource.slice(gameSource.indexOf('function legacyHelp(){'),gameSource.lastIndexOf("$('help').onclick=legacyHelp;"));
+const buttons={win:{open:false},shop:{open:false},characters:{open:false},'arrow-lab-help-read':{},'arrow-lab-help-close':{},'arrow-lab-help-home':{},'global-home':{click(){homes++}}};
+let homes=0,created=0;
+const doc={body:{append(d){buttons[d.id]=d}},createElement(tag){assert.equal(tag,'dialog');created++;return {style:{},setAttribute(){},showModal(){this.open=true},close(){this.open=false;this.onclose?.()}}}};
+const legacyFn=new Function('document','$','window','esc',legacyHelpCode+';return legacyHelp;')(doc,id=>buttons[id],{},s=>s);
+legacyFn();assert.equal(created,1);assert.equal(buttons['arrow-lab-help-dialog'].open,true);
+assert.match(buttons['arrow-lab-help-dialog'].innerHTML,/There is no timer/);
+assert.equal(buttons['arrow-lab-help-read'].disabled,true);
+buttons['arrow-lab-help-close'].onclick();assert.equal(buttons['arrow-lab-help-dialog'].open,false);
+legacyFn();assert.equal(created,1);buttons['arrow-lab-help-home'].onclick();assert.equal(homes,1);
+buttons.win.open=true;legacyFn();assert.equal(buttons['arrow-lab-help-dialog'].open,false);
+,'requestAnimationFrame','inventoryScrollLeft',shelf+';return ()=>inventoryScrollLeft;')(id=>ui[id],fn=>fn(),0);
+ assert.equal(prev.disabled,true,'previous disabled at start');assert.equal(next.disabled,false,'next enabled for long shelf');
+ next.onclick();assert.ok(tray.scrollLeft>0,'Next scrolls horizontally');assert.ok(cards.every(card=>card.hidden===false),'no inventory cards hidden');
+ assert.equal(getPosition(),tray.scrollLeft,'position retained for re-render');
+ prev.onclick();assert.equal(tray.scrollLeft,0,'Previous returns to start');
+}
+
 assert.match(source,/Start this maze over\?/,'restart requires confirmation');
 assert.match(source,/id="keep-maze"/,'restart offers a safe cancel button');
 assert.match(source,/id="confirm-restart"/,'restart has explicit confirmation button');
