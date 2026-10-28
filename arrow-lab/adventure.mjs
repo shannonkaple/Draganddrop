@@ -634,53 +634,94 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   save();computer(id);$('collection-report').textContent='Removed from scene. You still own it and can add it again.';
  }
  function enableCollectionDrag(id){
-  const scene=$('collection-scene');if(!scene)return;let drag=null;
-  scene.querySelectorAll('[data-world-object]').forEach(el=>{
-   const key=el.dataset.worldObject,isPlayer=key===a.selectedPlayerCharacterId;
-   if(!key.includes(':')&&!isPlayer)return;
-   el.tabIndex=0;el.setAttribute('role','group');
-   if(isPlayer)el.setAttribute('aria-label','My player: move with trackpad or keyboard arrow keys');
-   if(!isPlayer){
-     const remove=document.createElement('button');remove.type='button';remove.className='scene-remove';
-     remove.textContent='×';remove.setAttribute('aria-label','Remove '+(el.getAttribute('aria-label')||'item')+' from scene');
-     remove.onclick=()=>removeSceneObject(id,key);el.append(remove);
-   }
-   el.onkeydown=e=>{
-     if(directions[e.key]){
-       e.preventDefault();e.stopPropagation();
-       const p=(a.positions[id]??={})[key]||{x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50};
-       const d=directions[e.key],next={x:Math.max(5,Math.min(95,p.x+d[0]*3)),y:Math.max(5,Math.min(95,p.y+d[1]*3))};
-       a.positions[id][key]=next;el.style.left=next.x+'%';el.style.top=next.y+'%';
-       save();$('collection-report').textContent='Position saved. Use arrow keys again or drag to move.';
-     }else if(!isPlayer&&(e.key==='Delete'||e.key==='Backspace')){
-       e.preventDefault();removeSceneObject(id,key);
-     }
+   const scene=$('collection-scene');if(!scene)return;
+   let drag=null,armed=null;
+   const report=t=>{const note=$('collection-report');if(note)note.textContent=t};
+   const clear=()=>{armed?.classList.remove('selected-for-placement');armed=null};
+   const arm=el=>{
+     if(!el)return;
+     if(armed===el){clear();report('Selection canceled.');return}
+     clear();armed=el;el.classList.add('selected-for-placement');
+     report('Selected! Click an EMPTY spot in your world to place this item, or drag it.');
    };
-  });
-  scene.onpointerdown=e=>{
-    if(e.target.closest('.scene-remove'))return;
-    const el=e.target.closest('[data-world-object]');if(!el||e.pointerType!=='mouse'||e.button!==0)return;
-    e.preventDefault();const rect=el.getBoundingClientRect();
-    drag={el,key:el.dataset.worldObject,pointer:e.pointerId,dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,oldX:el.style.left,oldY:el.style.top};
-    el.setPointerCapture(e.pointerId);el.classList.add('moving');
-  };
-  scene.onpointermove=e=>{
-    if(!drag||drag.pointer!==e.pointerId)return;e.preventDefault();
-    const rect=scene.getBoundingClientRect();
-    const object=drag.el.getBoundingClientRect(),padX=(object.width/2+12)/rect.width*100,padY=(object.height/2+12)/rect.height*100;
-    drag.x=Math.max(padX,Math.min(100-padX,(e.clientX-drag.dx-rect.left)/rect.width*100));
-    drag.y=Math.max(padY,Math.min(100-padY,(e.clientY-drag.dy-rect.top)/rect.height*100));
-    drag.el.style.left=drag.x+'%';drag.el.style.top=drag.y+'%';
-  };
-  scene.onpointerup=e=>{
-    if(!drag||drag.pointer!==e.pointerId)return;
-    if(drag.x!==undefined){(a.positions[id]??={})[drag.key]={x:drag.x,y:drag.y};save();$('collection-report').textContent='Saved! Your arrangement will be here next time.'}
-    drag.el.classList.remove('moving');drag=null;
-  };
-  scene.onpointercancel=scene.onlostpointercapture=()=>{
-    if(!drag)return;drag.el.style.left=drag.oldX;drag.el.style.top=drag.oldY;drag.el.classList.remove('moving');drag=null;
-  };
- }
+   scene.armObject=arm;
+   const point=(el,x,y)=>{
+     const box=scene.getBoundingClientRect(),sprite=el.getBoundingClientRect();
+     if(box.width<=0||box.height<=0)return null;
+     const px=Math.min(48,(sprite.width/2+8)/box.width*100),py=Math.min(48,(sprite.height/2+8)/box.height*100);
+     return {x:Math.max(px,Math.min(100-px,(x-box.left)/box.width*100)),
+       y:Math.max(py,Math.min(100-py,(y-box.top)/box.height*100))};
+   };
+   const place=(el,key,p)=>{
+     if(!p)return;
+     (a.positions[id]??={})[key]=p;el.style.left=p.x+'%';el.style.top=p.y+'%';save();
+   };
+   scene.querySelectorAll('[data-world-object]').forEach(el=>{
+     const key=el.dataset.worldObject,isPlayer=key===a.selectedPlayerCharacterId;
+     if(!key.includes(':')&&!isPlayer)return;
+     el.tabIndex=0;el.setAttribute('role','group');
+     if(isPlayer)el.setAttribute('aria-label','My player: click to choose a place, drag or use keyboard arrows');
+     if(!isPlayer){
+       const remove=document.createElement('button');remove.type='button';remove.className='scene-remove';
+       remove.textContent='×';remove.setAttribute('aria-label','Remove '+(el.getAttribute('aria-label')||'item')+' from scene');
+       remove.onclick=()=>{clear();removeSceneObject(id,key)};el.append(remove);
+     }
+     el.onkeydown=e=>{
+       if(directions[e.key]){
+         e.preventDefault();e.stopPropagation();
+         const p=(a.positions[id]??={})[key]||{x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50};
+         const d=directions[e.key],next={x:Math.max(5,Math.min(95,p.x+d[0]*3)),y:Math.max(5,Math.min(95,p.y+d[1]*3))};
+         place(el,key,next);report('Position saved. Use arrow keys, drag, or click a new place.');
+       }else if(e.key==='Enter'||e.key===' '){
+         e.preventDefault();e.stopPropagation();arm(el);
+       }else if(!isPlayer&&(e.key==='Delete'||e.key==='Backspace')){
+         e.preventDefault();clear();removeSceneObject(id,key);
+       }
+     };
+   });
+   scene.onpointerdown=e=>{
+     if(e.pointerType!=='mouse'||e.button!==0||e.target.closest('.scene-remove'))return;
+     const el=e.target.closest('[data-world-object]');
+     if(!el){
+       if(!armed)return;
+       const p=point(armed,e.clientX,e.clientY);if(!p)return;
+       e.preventDefault();
+       place(armed,armed.dataset.worldObject,p);
+       const placed=armed;clear();placed.focus({preventScroll:true});
+       report('Placed! The new location is saved.');
+       return;
+     }
+     e.preventDefault();
+     const rect=el.getBoundingClientRect();
+     drag={el,key:el.dataset.worldObject,pointer:e.pointerId,
+       startX:e.clientX,startY:e.clientY,moved:false,
+       dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,
+       oldX:el.style.left,oldY:el.style.top};
+     el.setPointerCapture(e.pointerId);
+   };
+   scene.onpointermove=e=>{
+     if(!drag||drag.pointer!==e.pointerId)return;
+     if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<6)return;
+     if(!drag.moved){drag.moved=true;clear();drag.el.classList.add('moving')}
+     e.preventDefault();
+     const p=point(drag.el,e.clientX-drag.dx,e.clientY-drag.dy);
+     if(!p)return;
+     drag.x=p.x;drag.y=p.y;drag.el.style.left=p.x+'%';drag.el.style.top=p.y+'%';
+   };
+   scene.onpointerup=e=>{
+     if(!drag||drag.pointer!==e.pointerId)return;
+     if(drag.moved){
+       if(drag.x!==undefined)place(drag.el,drag.key,{x:drag.x,y:drag.y});
+       report('Saved! Your arrangement will be here next time.');
+     }else arm(drag.el);
+     drag.el.classList.remove('moving');drag=null;
+   };
+   scene.onpointercancel=scene.onlostpointercapture=()=>{
+     if(!drag)return;
+     drag.el.style.left=drag.oldX;drag.el.style.top=drag.oldY;
+     drag.el.classList.remove('moving');drag=null;
+   };
+  }
  function computer(worldId=null,section=null){
   // Keep the horizontal shelf in place when a student adds, moves or hides an item.
   const previousTray=$('my-stuff-tray');
@@ -768,10 +809,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     }else{
       const sprite=[...document.querySelectorAll('#collection-scene [data-world-object]')].find(el=>el.dataset.worldObject===playerId);
       sprite?.focus({preventScroll:true});
-      $('collection-report').textContent='Move your player with your trackpad, or use arrow keys while the player is selected.';
+      $('collection-scene')?.armObject?.(sprite);
+      $('collection-report').textContent='Click an empty spot to move your player there. Dragging and arrow keys still work.';
     }
   };
-  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save! Select your player and use arrow keys to move it too.'};
+  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click an item once, then click an empty spot to put it there. Dragging and keyboard arrow movement also work. All positions save.'};
   const refresh=()=>computer(id);
   const trayEl=$('my-stuff-tray');
   const cards=[...trayEl.querySelectorAll('.my-stuff-item')];
