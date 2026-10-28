@@ -2,7 +2,7 @@ import './viewport.mjs?v=responsive-kbd-20261027a';
 import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import '../rainbow-road/read-aloud.mjs?v=20261021-menu';
-import {openAdventure} from './adventure.mjs?v=world-lock-dialog-20261028a';
+import {openAdventure} from './adventure.mjs?v=visual-help-20261028a';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from '../rainbow-road/core.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -32,6 +32,7 @@ async function chooseCharacter(){await charactersReady;if(!availableCharacters.l
 }
 
 function login(){
+ $('arrow-lab-help-dialog')?.close?.();
  $('help').onclick=legacyHelp;adventureController?.cleanup();adventureController=null;adventureActive=false;document.body.classList.remove('playing');identity=null;run=null;wallet=null;$('who').classList.add('hidden');
  $('app').innerHTML='<div class="hero"><div class="rainbow">🌈</div><h1>MS. KAPLE’S A-MAZING<br>ARROW ADVENTURE!</h1><p>Choose your teacher. Then choose your classroom number.</p></div><section class="panel"><h2>1. Pick your teacher</h2><div class="adventure-cards">'+teachers.map(t=>'<button data-teacher="'+t.id+'">'+esc(t.name)+'</button>').join('')+'</div><details><summary>For the teacher</summary><p>Previous number-only saves stay on this browser. Assign them to their original homeroom once. Existing class saves will not be replaced.</p><label for="arrow-teacher-code">Teacher code</label><input id="arrow-teacher-code" type="password" inputmode="numeric" autocomplete="off"><div class="adventure-cards">'+teachers.map(t=>'<button data-import-arrow="'+t.id+'">Assign old saves to '+esc(t.name)+'</button>').join('')+'</div><p id="arrow-import-status" role="status"></p></details></section>';
  document.querySelectorAll('[data-teacher]').forEach(b=>b.onclick=()=>pickNumber(teachers.find(t=>t.id===b.dataset.teacher)));
@@ -127,7 +128,26 @@ $('global-home').onclick=()=>{
  login();
 };
 $('close-shop').onclick=()=>$('shop').close();$('next').onclick=next;$('win').addEventListener('cancel',e=>{e.preventDefault();next()});$('who').onclick=()=>{save();login()};
-document.addEventListener('keydown',e=>{if(adventureActive||!run)return;if($('win').open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)next()}else if(e.key.startsWith('Arrow'))e.preventDefault();return}if($('shop').open||$('characters')?.open)return;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();if(e.repeat)return;const keyEl=$(e.key);keyEl?.classList.add('on');setTimeout(()=>keyEl?.classList.remove('on'),150);const r=step(run,e.key);if(r.moved){if(run.trail.length>500)run.trail=run.trail.slice(-500);if(r.won)wallet=awardWallet(wallet);save();board();$('status').textContent=r.won?'You reached the checkered flag!':'You moved '+e.key.slice(5).toLowerCase()+'.';if(r.won)showWin()}else $('status').textContent='There is a wall. Stop, look, and try another arrow.';});
-const legacyHelp=()=>{const t='Start at the star. Use the four arrow keys on your keyboard. Up, down, left, right. Press and let go to move one space. Follow the rainbow road to the checkered flag. Each maze earns five Arrow Amethysts. There is no timer. Take your time.';if('speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;speechSynthesis.speak(u)}else alert(t)};$('help').onclick=legacyHelp;
+document.addEventListener('keydown',e=>{if(adventureActive||!run)return;if($('win').open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)next()}else if(e.key.startsWith('Arrow'))e.preventDefault();return}if($('shop').open||$('characters')?.open||$('arrow-lab-help-dialog')?.open)return;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();if(e.repeat)return;const keyEl=$(e.key);keyEl?.classList.add('on');setTimeout(()=>keyEl?.classList.remove('on'),150);const r=step(run,e.key);if(r.moved){if(run.trail.length>500)run.trail=run.trail.slice(-500);if(r.won)wallet=awardWallet(wallet);save();board();$('status').textContent=r.won?'You reached the checkered flag!':'You moved '+e.key.slice(5).toLowerCase()+'.';if(r.won)showWin()}else $('status').textContent='There is a wall. Stop, look, and try another arrow.';});
+function legacyHelp(){
+  // Keep written instructions available even when speech synthesis is missing.
+  if($('win')?.open||$('shop')?.open||$('characters')?.open)return;
+  const t='Start at the star. Use the four arrow keys on your keyboard. Up, down, left, right. Press and let go to move one space. Follow the rainbow road to the checkered flag. Each maze earns five Arrow Amethysts. There is no timer. Take your time.';
+  let dialog=$('arrow-lab-help-dialog');
+  if(!dialog){
+    dialog=document.createElement('dialog');dialog.id='arrow-lab-help-dialog';dialog.className='dialog';
+    dialog.setAttribute('aria-labelledby','arrow-lab-help-title');
+    dialog.style.maxHeight='85dvh';dialog.style.overflowY='auto';document.body.append(dialog);
+  }
+  dialog.innerHTML='<h2 id="arrow-lab-help-title">How to Play</h2><p>'+esc(t)+'</p><div class="actions"><button id="arrow-lab-help-read" type="button">🔊 Read aloud</button><button id="arrow-lab-help-close" type="button" class="primary">Back to game</button><button id="arrow-lab-help-home" type="button">🏠 Home</button></div>';
+  const speech=window.speechSynthesis,read=$('arrow-lab-help-read');
+  read.disabled=!(speech&&window.SpeechSynthesisUtterance);
+  read.onclick=()=>{if(read.disabled)return;try{speech.cancel();const u=new window.SpeechSynthesisUtterance(t);u.rate=.85;speech.speak(u)}catch{}};
+  dialog.onclose=()=>{try{speech?.cancel()}catch{}};
+  $('arrow-lab-help-close').onclick=()=>dialog.close();
+  $('arrow-lab-help-home').onclick=()=>{dialog.close();$('global-home').click()};
+  if(!dialog.open)dialog.showModal();
+}
+$('help').onclick=legacyHelp;
 login();
 
