@@ -272,7 +272,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // Report the unsafe old record BEFORE a student starts a new activity.
  if(studentSaveUnreadable)showStorageWarning();
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
- function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
+ function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);document.removeEventListener('visibilitychange',pauseHiddenHazards);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
  function returnToCurrentMap(){
   challengeKeys=null;save();$('adventure-dialog')?.close();
@@ -1049,7 +1049,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function clock(){
  clearInterval(interval);if(view!=='maze'||settings.difficulty==='gentle'||r.complete||$('adventure-dialog')?.open)return;
  interval=setInterval(()=>{if(closed||view!=='maze'||document.hidden||$('adventure-dialog')?.open)return;
- for(const e of r.hazards)if(e.path.length>1)e.warning=true;draw();clearTimeout(warning);warning=setTimeout(()=>{if(closed||view!=='maze'||$('adventure-dialog')?.open)return;for(const e of r.hazards){if(e.warning){e.index=(e.index+1)%e.path.length;delete e.warning}}if(r.hazards.some(e=>tile(e.path[e.index])===tile(r.player)))hit();else{save();draw()}},Math.min(800,settings.speed*.4));},settings.speed);
+ for(const e of r.hazards)if(e.path.length>1)e.warning=true;draw();clearTimeout(warning);warning=setTimeout(()=>{if(closed||view!=='maze'||$('adventure-dialog')?.open||document.hidden){pauseHiddenHazards();return}for(const e of r.hazards){if(e.warning){e.index=(e.index+1)%e.path.length;delete e.warning}}if(r.hazards.some(e=>tile(e.path[e.index])===tile(r.player)))hit();else{save();draw()}},Math.min(800,settings.speed*.4));},settings.speed);
  }
  // Keep the same arrow pattern and correct presses in the existing maze save.
  // Never reroll on Home, reload or returning to this level.
@@ -1187,9 +1187,16 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(directions[e.key]){e.preventDefault();if(!e.repeat)move(e.key)}
  }
  function keyup(e){if(e.code==='Space'){if(heldSpace)e.preventDefault();heldSpace=false;setDuck(false)}}
- function blur(){heldSpace=false;setDuck(false)}
+ // Switching away from a Chromebook tab must not let a queued enemy step
+ // resolve invisibly. Resume on the next normal, visibly warned patrol tick.
+ function pauseHiddenHazards(){
+   if(!document.hidden||!r?.hazards)return;
+   clearTimeout(warning);warning=null;
+   for(const enemy of r.hazards)delete enemy.warning;
+ }
+ function blur(){heldSpace=false;setDuck(false);pauseHiddenHazards()}
  const observer='ResizeObserver'in window?new ResizeObserver(()=>requestAnimationFrame(fit)):null;observer?.observe($('app'));
- document.addEventListener('keydown',keydown);document.addEventListener('keyup',keyup);window.addEventListener('blur',blur);window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);
+ document.addEventListener('keydown',keydown);document.addEventListener('keyup',keyup);window.addEventListener('blur',blur);document.addEventListener('visibilitychange',pauseHiddenHazards);window.addEventListener('resize',fit);window.visualViewport?.addEventListener('resize',fit);
  if(settings.costs)config.progression.upgradeCost={...settings.costs};
  $('help').onclick=()=>{
   // Do not overwrite an unfinished keyboard challenge or rescue dialog.
