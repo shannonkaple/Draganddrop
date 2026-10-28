@@ -107,7 +107,7 @@ assert.equal(restoreSavedEnemyRoster(duplicateRun,legacyEnemyDef),true,'duplicat
 assert.equal(new Set(duplicateRun.hazards.map(e=>e.id)).size,4);
 assert.deepEqual(duplicateRun.hazards.map(e=>({path:e.path,index:e.index})),duplicatePaths,'patrols retained');
 assert.match(fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8'),
- /restoreSavedEnemyRoster\\(r,def,settings\\.difficulty==='gentle'\\)/,
+ /restoreSavedEnemyRoster\(r,def,settings\.difficulty==='gentle'\)/,
  'resume invokes repair without restarting');
 
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
