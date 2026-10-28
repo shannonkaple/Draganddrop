@@ -582,3 +582,81 @@ html body.guided.adventure-mode.lab-map-active .lab-main-nav button{
   min-height:56px!important;height:56px!important;max-height:56px!important;
  }
 }
+
+/* Make the individual world map selectors usable, too. Older viewport math
+   reduced illustrated maps to narrow thumbnails (e.g. 690px on Chromebook).
+   Use their native proportions, a full-width scene and readable controls. */
+html body.guided.adventure-mode.lab-world-active #app{
+ display:block!important;overflow-x:hidden!important;overflow-y:auto!important;
+ padding:5px 10px 10px!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-world{
+ display:flex!important;flex-direction:column!important;
+ width:100%!important;height:auto!important;min-height:100%!important;
+ max-height:none!important;overflow:visible!important;gap:7px!important;
+ padding:8px!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-heading{
+ min-height:68px!important;height:auto!important;
+ padding:8px 12px!important;gap:10px!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-heading h2{
+ font-size:clamp(25px,2.7vw,36px)!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-heading button,
+html body.guided.adventure-mode.lab-world-active .lab-candy-progress{
+ font-size:clamp(13px,1.3vw,17px)!important;
+ min-height:41px!important;padding:8px 11px!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-world .lab-candy-scenery{
+ flex:0 0 auto!important;position:relative!important;
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ aspect-ratio:2048/682!important;margin:0 auto!important;overflow:visible!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-world .lab-candy-scenery .lab-candy-map-art{
+ display:block!important;width:100%!important;height:auto!important;
+ max-height:none!important;object-fit:contain!important;
+ aspect-ratio:2048/682!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-world-illustrated[data-provisional-map] .lab-world-level-scene{
+ width:min(100%,1140px)!important;max-width:100%!important;
+ height:auto!important;aspect-ratio:auto!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-world-illustrated[data-provisional-map] .lab-world-level-scene .lab-candy-map-art{
+ aspect-ratio:auto!important;width:100%!important;height:auto!important;
+ object-fit:contain!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-node{
+ width:clamp(60px,6.6vw,84px)!important;
+ height:clamp(60px,6.6vw,84px)!important;
+ min-height:60px!important;min-width:60px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ background:#ffffffc2!important;border:3px solid #ffffffee!important;
+ border-radius:999px!important;box-shadow:0 3px 10px #1d2b607a!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-node .lab-map-node-number{
+ font-size:clamp(27px,3vw,38px)!important;line-height:1!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-node .lab-map-node-indicator{
+ font-size:clamp(17px,1.8vw,25px)!important;line-height:1!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-actions{
+ min-height:61px!important;height:61px!important;padding:0 6px!important;gap:10px!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-actions button{
+ min-height:54px!important;height:54px!important;
+ font-size:clamp(16px,1.8vw,23px)!important;
+}
+@media(max-width:690px){
+ html body.guided.adventure-mode.lab-world-active .lab-candy-heading{
+  flex-wrap:wrap!important;min-height:0!important;
+ }
+ html body.guided.adventure-mode.lab-world-active .lab-candy-node{
+  width:clamp(49px,8vw,60px)!important;height:clamp(49px,8vw,60px)!important;
+  min-height:49px!important;min-width:49px!important;
+ }
+ html body.guided.adventure-mode.lab-world-active .lab-candy-node .lab-map-node-number{
+  font-size:25px!important;
+ }
+}
