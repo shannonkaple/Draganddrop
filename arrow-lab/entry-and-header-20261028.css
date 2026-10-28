@@ -273,3 +273,56 @@ html body>header.lab-image-header .lab-student-header button:focus-visible{
   font-size:11px!important;padding:2px 3px!important;
  }
 }
+
+/* 2026-10-28 class/number + stars + Change Student: one compact two-row
+   header badge, never hanging over the map or the player HUD. */
+html body>header.lab-image-header .lab-student-header,
+html body.guided>header.lab-image-header .lab-student-header{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:20px 31px!important;
+ align-content:center!important;justify-content:stretch!important;
+ align-items:center!important;column-gap:4px!important;row-gap:2px!important;
+ overflow:hidden!important;min-height:0!important;height:100%!important;
+ padding:0 1px!important;
+}
+html body>header.lab-image-header #lab-current-class,
+html body.guided>header.lab-image-header #lab-current-class{
+ grid-column:1!important;grid-row:1!important;
+ font:clamp(11px,1vw,14px)/1.12 VAG,Arial,sans-serif!important;
+ color:#111!important;white-space:nowrap!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;
+ text-shadow:0 1px 1px #fff!important;
+ text-align:left!important;min-width:0!important;
+}
+html body>header.lab-image-header .lab-banner-stars,
+html body.guided>header.lab-image-header .lab-banner-stars{
+ grid-column:2!important;grid-row:1!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ background:#FFD600!important;border:2px solid #fff!important;
+ color:#000!important;padding:1px 4px!important;border-radius:9px!important;
+ font:clamp(10px,.8vw,12px)/1.1 VAG,Arial,sans-serif!important;
+ white-space:nowrap!important;min-width:0!important;
+}
+html body>header.lab-image-header .lab-banner-stars.hidden,
+html body.guided>header.lab-image-header .lab-banner-stars.hidden{display:none!important}
+html body>header.lab-image-header #who,
+html body.guided>header.lab-image-header #who{
+ grid-column:1 / -1!important;grid-row:2!important;
+ width:100%!important;max-height:31px!important;
+ min-height:31px!important;height:31px!important;
+ background:#fff!important;border:2px solid #000!important;
+ color:#000!important;font:clamp(12px,1vw,14px)/1.1 VAG,Arial,sans-serif!important;
+}
+html body>header.lab-image-header #who.hidden,
+html body.guided>header.lab-image-header #who.hidden{display:none!important}
+html body>header.lab-image-header .actions,
+html body.guided>header.lab-image-header .actions{
+ align-self:center!important;
+}
+@media(max-width:850px){
+ html body>header.lab-image-header .lab-banner-stars{
+  padding:1px 2px!important;font-size:10px!important;
+ }
+ html body>header.lab-image-header #lab-current-class{font-size:11px!important}
+}
