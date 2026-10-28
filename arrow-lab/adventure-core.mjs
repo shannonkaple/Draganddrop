@@ -189,3 +189,17 @@ export function arrowPattern(seed,attempt=0){const patterns=[['ArrowUp','ArrowRi
 export function buyWorld(a,id,lands,costs){const index=lands.findIndex(l=>l.id===id);if(index<0)return false;if(a.ownedWorldIds.includes(id))return true;const cost=costs[index];if(!Number.isFinite(cost)||a.wallet.rainbowStars<cost)return false;a.wallet.rainbowStars-=cost;a.ownedWorldIds.push(id);return true}
 export function placeFriend(a,id,world){if(!a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id].homeLandId=world;return true}
 export function rescueFriend(a,id,world,levelId){if(!rescueReady(a)||a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:world};a.unlockedCharacterIds=Object.keys(a.friends);if(levelId&&!a.rescuedAtLevelIds.includes(levelId))a.rescuedAtLevelIds.push(levelId);a.mazesSinceRescue=0;a.pendingRescueFriendId=null;return true}
+
+// Switching playable characters must never overwrite previously unlocked IDs,
+// earned stars, rescued friends, world ownership or arranged scene positions.
+export function choosePlayerCharacter(a,id,starterWorldId){
+ if(typeof id!=='string'||!id)return false;
+ a.selectedPlayerCharacterId=id;
+ a.friends??={};
+ a.friends[id]??={isRescued:true,upgradeStage:'starter',homeLandId:starterWorldId};
+ a.unlockedCharacterIds=[...new Set([
+   ...(Array.isArray(a.unlockedCharacterIds)?a.unlockedCharacterIds:[]),
+   ...Object.keys(a.friends),id
+ ])];
+ return true;
+}
