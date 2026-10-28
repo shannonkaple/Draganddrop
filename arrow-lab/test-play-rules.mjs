@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {decorations} from '../trackpad-adventure/economy.mjs';
-import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress} from './adventure-core.mjs';
+import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress,choosePlayerCharacter} from './adventure-core.mjs';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs';
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
@@ -71,6 +71,19 @@ assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_lava_8']}),64,'final world is capped at maze 64');
 
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
+
+const switching={selectedPlayerCharacterId:'a',friends:{a:{upgradeStage:'super_power',homeLandId:'background_pirate'}},unlockedCharacterIds:['a','old'],wallet:{rainbowStars:15},ownedWorldIds:['background_pirate'],positions:{background_pirate:{a:{x:42,y:38}}}};
+const snapshot=structuredClone(switching);
+assert.equal(choosePlayerCharacter(switching,'b','background_candy'),true);
+assert.deepEqual(switching.unlockedCharacterIds,['a','old','b']);
+for(const key of ['wallet','ownedWorldIds','positions'])assert.deepEqual(switching[key],snapshot[key]);
+assert.deepEqual(switching.friends.a,snapshot.friends.a);
+assert.equal(choosePlayerCharacter(switching,'a','background_candy'),true);
+assert.equal(switching.friends.a.upgradeStage,'super_power');
+assert.equal(choosePlayerCharacter(switching,'','background_candy'),false);
+assert.match(source,/chars\.map\(c=>/);
+assert.match(source,/choosePlayerCharacter\(a,id,starterWorldId\)/);
+
 const luna=pendingCharacters.find(c=>c.id==='luna_axolotl');
 assert.ok(luna,'Luna keeps the same student character ID');
 assert.equal(luna.artworkPending,false,'Luna uses her actual original individual PNG');
