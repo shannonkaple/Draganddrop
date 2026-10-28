@@ -16,3 +16,5 @@ body>header .brand{display:flex!important;align-items:center;gap:12px;width:auto
 body>header.lab-image-header .brand{justify-content:center!important;flex:none!important;min-height:90px!important}
 body>header.lab-image-header .brand>img.drag-header-guide{width:90px!important;height:83px!important;flex:0 0 90px!important;object-fit:contain!important}
 body>header.lab-image-header .brand>img.drag-header-rigby{width:75px!important;height:70px!important;flex:0 0 75px!important;object-fit:contain!important}
+body>header.lab-image-header .brand{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:16px!important;height:90px!important;padding:0 16px!important}
+body>header.lab-image-header .drag-brand{flex:0 1 auto!important;line-height:1.2!important;padding:10px 20px!important;white-space:normal!important}

@@ -53,7 +53,7 @@ export function mountDragActivity(root,{stage,background,items,completed=0,onDro
  window.addEventListener('blur',cancel,{signal:abort.signal});window.addEventListener('resize',cancel,{signal:abort.signal});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancel()},{signal:abort.signal});
  piece.addEventListener('dragstart',e=>e.preventDefault(),{signal:abort.signal});
- piece.addEventListener('click',()=>{feedback.textContent='Click and keep holding while you move. A click by itself does not move the picture.'},{signal:abort.signal});
+ piece.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();feedback.textContent='Use your trackpad or mouse. Click and keep holding while you move.'}},{signal:abort.signal});
  root.querySelector('.drag-listen').onclick=()=>{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Click and keep holding with one finger. Move the picture to its match. Let go inside the matching spot.');u.rate=.8;speechSynthesis.speak(u)};
  round();
  // If a tab closed between the last saved drop and its reward, finish exactly once on resume.

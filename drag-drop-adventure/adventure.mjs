@@ -1,5 +1,5 @@
 import {mountDragActivity} from './drag-activity.mjs';
-import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
+import {tellGuide,starIcon} from './viewport.mjs';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
