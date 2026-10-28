@@ -25,7 +25,7 @@ function exercise(original){
  bound.save();return {raw,writes,warning:warnings.get('arrow-lab-storage-warning'),
   studentSaveUnreadable,wasSaved:bound.wasSaved(),warnedBeforeWrite};
 }
-for(const corrupt of ['{broken','null','[]','42','"string"']){
+for(const corrupt of ['{broken','null','[]','42','"string"','', '   ', '{"adventure":"broken"}', '{"adventure":[] }']){
  const r=exercise(corrupt);
  assert.equal(r.studentSaveUnreadable,true);
  assert.equal(r.warnedBeforeWrite,true,'warn before first attempted write');
@@ -42,4 +42,4 @@ assert.equal(JSON.parse(healthy.raw).wallet.total,9,'existing legacy wallet kept
 const first=exercise(null);
 assert.equal(first.studentSaveUnreadable,false);assert.equal(first.writes,1);
 assert.equal(first.wasSaved,true);
-console.log('PASS: 5 corrupt formats untouched, immediate alerts, healthy saved data and new profiles');
+console.log('PASS: 9 corrupt formats untouched, immediate alerts, healthy saved data and new profiles');
