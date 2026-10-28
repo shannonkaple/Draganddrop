@@ -82,8 +82,8 @@ const suppliedFriends={
  pirate:'pirate-parrot',arctic:'arctic-penguin',castle:'royal-dragon',
  space:'space-alien',jurassic:'explorer-dino',ocean:'ocean-dolphin',lava:'lava-dragon'
 };
-const friendRosterText=source.slice(source.indexOf(' const approvedFriendFiles='),source.indexOf(' const homeArt='));
-assert.ok(friendRosterText.startsWith(' const approvedFriendFiles='),'friend roster source is present');
+const friendRosterText=source.slice(source.indexOf('const approvedFriendFiles='),source.indexOf(' const homeArt='));
+assert.ok(friendRosterText.startsWith('const approvedFriendFiles='),'friend roster source is present');
 const publishedFriends=new Function('worldThemes',friendRosterText+';return companions;')([{id:'candy'},...Object.keys(suppliedFriends).map(id=>({id}))]);
 assert.equal(publishedFriends.length,8,'eight fixed world companions, not selectable substitutes');
 assert.equal(publishedFriends[0].art,'arrow-lab/friends/candy-bunny.png','approved Candy Bunny remains unchanged');
