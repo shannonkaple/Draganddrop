@@ -761,6 +761,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    else finalArrowChallenge();
    return;
  }
+ // A saved player standing on a skill stop must see the unfinished challenge
+ // again after Home, reload or switching worlds, not a silent empty tile.
+ if(r.skill&&!r.skill.done&&tile(r.player)===tile(r.skill)){
+   challenge('arrows');return;
+ }
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
  }
  function maze(){
@@ -821,8 +826,20 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  interval=setInterval(()=>{if(closed||view!=='maze'||document.hidden||$('adventure-dialog')?.open)return;
  for(const e of r.hazards)if(e.path.length>1)e.warning=e.path[(e.index+1)%e.path.length];draw();clearTimeout(warning);warning=setTimeout(()=>{if(closed||view!=='maze'||$('adventure-dialog')?.open)return;for(const e of r.hazards){if(e.warning){e.index=(e.index+1)%e.path.length;delete e.warning}}if(r.hazards.some(e=>tile(e.path[e.index])===tile(r.player)))hit();else{save();draw()}},Math.min(800,settings.speed*.4));},settings.speed);
  }
+ // Keep the same arrow pattern and correct presses in the existing maze save.
+ // Never reroll on Home, reload or returning to this level.
+ function ensureSkillArrowSequence(run){
+   const valid=Array.isArray(run.skillArrowSequence)&&run.skillArrowSequence.length===4&&run.skillArrowSequence.every(key=>!!directions[key]);
+   if(!valid){
+     run.skillArrowSequence=arrowPattern(run.seed,run.patternAttempt||0);
+     run.patternAttempt=(run.patternAttempt||0)+1;
+     run.skillArrowIndex=0;
+   }
+   run.skillArrowIndex=Math.min(4,Math.max(0,Math.floor(Number(run.skillArrowIndex)||0)));
+   return run.skillArrowSequence;
+ }
  function challenge(kind){kind='arrows';
- const sequence=arrowPattern(r.seed,r.patternAttempt||0);r.patternAttempt=(r.patternAttempt||0)+1;save();const symbols={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
+ const sequence=ensureSkillArrowSequence(r);let i=r.skillArrowIndex;save();const symbols={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
  const sequenceHtml=i=>sequence.map((k,j)=>'<span class="pattern-arrow '+(j<i?'done':j===i?'current':'')+'" aria-label="'+(j<i?'Done':k.replace('Arrow',''))+'">'+(j<i?'✓':symbols[k])+'</span>').join('');
  const win=()=>{r.skill.done=true;for(const id of def.skillBadgeIds)if(!a.earnedSkillBadgeIds.includes(id))a.earnedSkillBadgeIds.push(id);save();challengeKeys=null;closeModal();status('Skill challenge complete! Head to the flag.');sound();draw()};
  const back='<p id="skill-feedback" role="status"></p><button id="try-later">Back to the maze</button>';
@@ -830,14 +847,23 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(kind==='click')body='<p>Click the big star once.</p><button id="skill-target" class="skill-target">⭐</button>';
  if(kind==='double_click')body='<p>Click the star TWO times quickly: click-click! Take as many tries as you need.</p><button id="skill-target" class="skill-target">⭐</button>';
  if(kind==='typing')body='<p>Type <strong>cat</strong> in the box.</p><input id="skill-type" aria-label="Type cat" autocomplete="off" spellcheck="false"><button id="check-type">Check</button>';
- if(kind==='arrows')body='<p>Use your keyboard to follow these directions.</p><div id="skill-sequence" aria-label="Arrow pattern">'+sequenceHtml(0)+'</div>';
+ if(kind==='arrows')body='<p>Use your keyboard to follow these directions. Your progress is saved if you leave and return.</p><div id="skill-sequence" aria-label="Arrow pattern">'+sequenceHtml(i)+'</div>';
  if(kind==='drag_and_drop')body='<p>Click and hold the keyboard. Drag it into the box, then let go.</p><div class="drag-space"><div id="drag-picture" tabindex="0" role="button" aria-label="Drag keyboard. Keyboard alternative: press Enter to pick up, Tab to box, Enter to drop.">'+img(data.computer_collectibles.find(i=>i.id==='keyboard').thumbnail,'Keyboard')+'</div><div id="drag-box" tabindex="0" role="button" aria-label="Keyboard drop box">Drop here</div></div>';
  modal('Computer skill stop',body+back,()=>{
- $('try-later').onclick=()=>{challengeKeys=null;closeModal();r.player={...r.checkpoint};save();draw()};
+ $('try-later').onclick=()=>{challengeKeys=null;closeModal();save();draw()};
  if(kind==='click')$('skill-target').onclick=win;
  if(kind==='double_click'){let last=null;$('skill-target').onclick=()=>{const now=performance.now();if(last!==null&&now-last<=1300){win();last=null}else{last=now;$('skill-feedback').textContent='One click—click once more!'}};}
  if(kind==='typing'){const check=()=>{if($('skill-type').value.trim().toLowerCase()==='cat')win();else $('skill-feedback').textContent='Look at c a t. Try again!'};$('check-type').onclick=check;$('skill-type').onkeydown=e=>{if(e.key==='Enter')check()};$('skill-type').focus();}
- if(kind==='arrows'){let i=0;challengeKeys=k=>{if(k===sequence[i]){i++;if(i===4)win();else $('skill-sequence').innerHTML=sequenceHtml(i)}else $('skill-feedback').textContent='Look at the next arrow. Try it again!'};}
+ if(kind==='arrows'){
+   if(i>=4){win();return}
+   challengeKeys=k=>{
+     if(k===sequence[i]){
+       i++;r.skillArrowIndex=i;save();
+       if(i===4)win();
+       else{$('skill-sequence').innerHTML=sequenceHtml(i);$('skill-feedback').textContent='Great! Keep going.'}
+     }else $('skill-feedback').textContent='Look at the next arrow. Try it again!';
+   };
+ }
  if(kind==='drag_and_drop'){
  const source=$('drag-picture'),box=$('drag-box');let held=false,pointer=null,ghost=null;
  const clean=()=>{ghost?.remove();ghost=null;source.classList.remove('picked-up')};
