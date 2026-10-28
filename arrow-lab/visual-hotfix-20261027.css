@@ -909,3 +909,12 @@ body>header.lab-image-header .brand>img#lab-jpeg-banner.lab-header-art{
  object-position:center center!important;
  background:#d7efff!important;
 }
+
+
+/* Keep the approved 3000×430 JPEG visible edge-to-edge at Chromebook widths.
+   The former fixed 25dvh banner was only ~1012px wide inside a 1366px header.
+   Match image aspect + toolbar height, capped by screen height to leave room
+   for the maze. Contain means no cropping or stretching of approved art. */
+body>header.lab-image-header{
+ height:clamp(150px,min(calc(100vw * 0.143333 + 46px),32dvh),260px)!important;
+}

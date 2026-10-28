@@ -376,7 +376,9 @@ assert.match(css,/scroll-snap-type:x mandatory/,'items are organized in a one-ro
 assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
 assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
 assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header is never cropped or stretched');
-assert.match(html,/visual-hotfix-20261027\.css\?v=rainbow-wall-header-20261027g/,'published page references color and header fix');
+assert.match(css,/height:clamp\(150px,min\(calc\(100vw \* 0\.143333 \+ 46px\),32dvh\),260px\)/,'header height accounts for the 3000:430 JPEG aspect at Chromebook width without cropping');
+assert.match(html,/panel\(525,165,1480,465,690,0,1369,430,'title'\)/,'full three-line heading panel includes the final exclamation mark');
+assert.match(html,/visual-hotfix-20261027\.css\?v=fullwidth-chromebook-20261028a/,'published page references color and header fix');
 assert.match(html,/game\.mjs\?v=preserve-unlocks-20261028b/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
 assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=preserve-unlocks-20261028b/,'published game requests the latest adventure module');
