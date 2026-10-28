@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {decorations} from '../trackpad-adventure/economy.mjs';
-import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress,choosePlayerCharacter} from './adventure-core.mjs';
+import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs';
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
@@ -69,6 +69,46 @@ assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:60,completedLevelIds:['lab_candy_1']}),60,'do not reduce a valid higher unlock');
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_fake_8','lab_candy_9'],mazeRuns:{lab_space_6:{id:'wrong'}}}),1,'ignore invalid stage IDs and mismatched runs');
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_lava_8']}),64,'final world is capped at maze 64');
+
+// Preserve legacy in-progress mazes when repairing old enemy rosters.
+let legacyEnemyRepairs=0;
+const legacyEnemyDef={id:'lab_candy_4',number:4,mazeGrid:{width:11,height:9},
+ collectibleIds:['candy_a','candy_b'],computerGearIds:[],skillBadgeIds:[],
+ primarySkill:'arrows',ducking:'none',enemyIds:['candy_one','candy_two','candy_three','candy_four']};
+for(const gentle of [false,true])for(let seed=1;seed<=80;seed++){
+ const saved=buildLevel(legacyEnemyDef,seed,gentle);
+ const snapshot=structuredClone({player:saved.player,items:saved.items,skill:saved.skill,
+   goal:saved.goal,trail:saved.trail,steps:saved.steps,seed:saved.seed});
+ assert.equal(restoreSavedEnemyRoster(saved,legacyEnemyDef,gentle),false,'valid saved roster remains untouched');
+ saved.hazards=saved.hazards.slice(0,2);
+ const original=structuredClone(saved.hazards);
+ assert.equal(restoreSavedEnemyRoster(saved,legacyEnemyDef,gentle),true,'legacy roster repaired');
+ assert.equal(saved.hazards.length,4,'four enemies restored');
+ assert.equal(new Set(saved.hazards.map(e=>e.id)).size,4,'four distinct world enemies');
+ assert.deepEqual(saved.hazards.slice(0,2),original,'existing patrols unchanged');
+ assert.deepEqual({player:saved.player,items:saved.items,skill:saved.skill,
+   goal:saved.goal,trail:saved.trail,steps:saved.steps,seed:saved.seed},snapshot,
+   'repair never resets student progress');
+ const blocked=new Set(saved.hazards.flatMap(e=>e.path.map(tile)));
+ for(const enemy of saved.hazards){
+   assert.ok(enemy.path.every(p=>saved.grid[p.y]?.[p.x]===0),'no wall crossings');
+   assert.ok(enemy.path.every(p=>!saved.safe.includes(tile(p))),'protected route untouched');
+ }
+ if(gentle)assert.ok(saved.hazards.every(e=>e.path.length===1),'Gentle enemies stationary');
+ for(const goal of [...saved.items,...(saved.skill?[saved.skill]:[]),saved.goal])
+   assert.ok(route(saved.grid,saved.start,goal,blocked),'objectives reachable');
+ assert.equal(restoreSavedEnemyRoster(saved,legacyEnemyDef,gentle),false,'repair idempotent');
+ legacyEnemyRepairs++;
+}
+const duplicateRun=buildLevel(legacyEnemyDef,91,false);
+duplicateRun.hazards[1].id=duplicateRun.hazards[0].id;
+const duplicatePaths=structuredClone(duplicateRun.hazards.map(e=>({path:e.path,index:e.index})));
+assert.equal(restoreSavedEnemyRoster(duplicateRun,legacyEnemyDef),true,'duplicate enemy ID repaired');
+assert.equal(new Set(duplicateRun.hazards.map(e=>e.id)).size,4);
+assert.deepEqual(duplicateRun.hazards.map(e=>({path:e.path,index:e.index})),duplicatePaths,'patrols retained');
+assert.match(fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8'),
+ /restoreSavedEnemyRoster\\(r,def,settings\\.difficulty==='gentle'\\)/,
+ 'resume invokes repair without restarting');
 
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 
