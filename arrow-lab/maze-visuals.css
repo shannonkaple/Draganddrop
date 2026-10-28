@@ -37,7 +37,22 @@ body.adventure-mode.playing .adventure-layout .enemy-art{
  box-shadow:0 0 9px rgba(24,31,64,.2);
 }
 body.adventure-mode.playing .adventure-layout .character-player{
- filter:drop-shadow(0 0 3px white) drop-shadow(0 2px 2px rgba(15,37,81,.6))!important;
+ /* Definite tile bounds prevent portrait intrinsic size expanding the grid item. */
+ inset:1px!important;
+ overflow:hidden;
+ filter:none!important;
+}
+body.adventure-mode.playing .adventure-layout .character-player>img{
+ position:absolute;
+ inset:0;
+ display:block;
+ width:100%;
+ height:100%;
+ min-width:0;
+ min-height:0;
+ max-width:100%;
+ max-height:100%;
+ object-fit:contain;
 }
 /* KA Homebody Club is always displayed as uppercase. Avoid changing students' stored names. */
 body>header .brand,
@@ -108,4 +123,12 @@ body.adventure-mode .lab-world-select .lab-rescue{
   color:#54386e;
   box-shadow:0 4px 0 rgba(148,109,44,.6);
   text-transform:uppercase;
+}
+
+/* Clear keyboard selection for the class and number pickers. */
+[data-teacher]:focus-visible,[data-number]:focus-visible{
+ outline:4px solid #233670;
+ outline-offset:2px;
+ background:#fff176;
+ scroll-margin:12px;
 }
