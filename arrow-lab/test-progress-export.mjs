@@ -10,7 +10,7 @@ const entries=new Map([
 let reads=0;const storage={getItem(k){reads++;return entries.get(k)??null},setItem(){throw Error('must never write')},removeItem(){throw Error('must never delete')}};
 const csv=buildArrowLabProgressCsv([{id:'t1',name:'Fox'}],storage,5);
 assert.equal(reads,5);assert.equal(csv.trim().split('\n').length,6);
-assert.match(csv,/Mrs\. ""Fox""/);assert.match(csv/,/,'');
+assert.match(csv,/Mrs\. ""Fox""/);assert.match(csv,/,"2","1","9","mouse \/ keyboard","arrows","OK"/);
 assert.match(csv,/UNREADABLE SAVE — DO NOT OVERWRITE/);assert.match(csv,/PRACTICE ONLY — NO ADVENTURE/);
 assert.match(csv,/UNREADABLE ADVENTURE — DO NOT OVERWRITE/);assert.match(csv,/NEEDS REVIEW — ORIGINAL PRESERVED/);
 const unavailable={getItem(){throw Error('blocked')},setItem(){throw Error('must never write')}};
