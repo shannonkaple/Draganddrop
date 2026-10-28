@@ -63,7 +63,7 @@ body.lab-map-active #kaple-guide .guide-cast::after{
 .lab-map-title p{margin:0;font:12px VAG,Arial,sans-serif;color:#386297;}
 .lab-map-canvas{
  position:relative;margin:0 15px;min-height:260px;
- background-image:url('./world-map.svg?v=map64');
+ background-image:url('./map-background.jpg?v=static-png-jpeg-only-20261028');
  background-position:center center;background-size:100% 100%;background-repeat:no-repeat;
  border:3px solid #ffffffbb;border-radius:22px;
  box-shadow:inset 0 0 22px #ffffff6c,0 5px 12px #2756822c;
