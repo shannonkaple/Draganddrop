@@ -193,7 +193,16 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...enemyRosters[wi]]};
  })),config=data.game_config,key=storageKey;
  config.levelCount=levels.length;
- let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
+ // Existing unreadable saves are never treated as a new student's empty record.
+  let stored={},studentSaveUnreadable=false;
+  try{
+    const raw=localStorage.getItem(key);
+    if(raw!==null&&raw.trim()!==''){
+      const parsed=JSON.parse(raw);
+      if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))studentSaveUnreadable=true;
+      else stored=parsed;
+    }
+  }catch{studentSaveUnreadable=true}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
  let currentMapWorld=null,inventoryScrollLeft=0;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-lab-teacher-settings')||'{}')}catch{settings={}}
@@ -236,7 +245,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       else a.mazeRuns[r.id]=r;
       a.activeRun=r;
     }
-    const old=JSON.parse(localStorage.getItem(key)||'{}');
+    const raw=localStorage.getItem(key);
+    const old=raw===null?{}:JSON.parse(raw);
+    if(!old||typeof old!=='object'||Array.isArray(old))throw Error('Invalid existing student record');
     localStorage.setItem(key,JSON.stringify({...old,adventure:{...a,activeRun:r||a.activeRun||null}}));
     saved=true;
     document.getElementById('arrow-lab-storage-warning')?.remove();
@@ -245,6 +256,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     showStorageWarning();
   }
  }
+ // Report the unsafe old record BEFORE a student starts a new activity.
+ if(studentSaveUnreadable)showStorageWarning();
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
  function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
