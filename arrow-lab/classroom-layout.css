@@ -128,3 +128,49 @@ html body.lab-world-active .lab-candy-world .lab-candy-actions{
    width:min(100%,max(270px,calc((100dvh - 330px) * 1.77778)))!important;
  }
 }
+
+/* Oct 28: make ALL collected items usable in MY STUFF on Chromebooks.
+   The old 2x2 grid clipped everything past four cards; use an actual
+   horizontal shelf so students can reach every earned PNG/JPEG object. */
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray{
+  display:flex!important;flex-flow:row nowrap!important;
+  align-items:stretch!important;justify-content:flex-start!important;
+  grid-template-columns:none!important;grid-template-rows:none!important;
+  flex:1 1 auto!important;height:0!important;min-height:150px!important;
+  max-width:100%!important;width:100%!important;
+  gap:9px!important;padding:6px 5px 12px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  scroll-snap-type:x proximity!important;scrollbar-width:auto!important;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray>.my-stuff-item{
+  display:flex!important;flex-direction:column!important;
+  justify-content:space-between!important;align-items:center!important;
+  grid-template-rows:none!important;flex:0 0 clamp(140px,12vw,172px)!important;
+  width:clamp(140px,12vw,172px)!important;min-width:140px!important;
+  max-width:172px!important;height:100%!important;
+  min-height:0!important;overflow:hidden!important;
+  padding:7px!important;scroll-snap-align:start!important;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray>.my-stuff-item img{
+  flex:1 1 auto!important;height:0!important;min-height:54px!important;
+  max-height:150px!important;width:100%!important;object-fit:contain!important;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray>.my-stuff-item strong{
+  flex:0 0 auto!important;max-width:100%!important;font-size:13px!important;
+  line-height:1.12!important;text-align:center!important;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray>.my-stuff-item button{
+  flex:0 0 auto!important;width:100%!important;min-height:38px!important;
+  font-size:12px!important;line-height:1.15!important;white-space:normal!important;
+}
+body.lab-collection-active #collection-scene .world-object.recently-added{
+  z-index:30!important;outline:4px solid #ffe500!important;
+  outline-offset:3px!important;border-radius:12px!important;
+  filter:drop-shadow(0 0 10px #ffdc00)!important;
+}
+body.lab-collection-active #collection-scene .world-object.recently-added img{
+  filter:drop-shadow(0 0 8px #fff2a0)!important;
+}
+body.lab-collection-active #collection-report{
+  font-weight:700!important;color:#1e346b!important;
+}
