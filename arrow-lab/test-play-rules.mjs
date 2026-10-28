@@ -71,6 +71,28 @@ assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds
 assert.equal(unlockedFromSavedProgress({highestUnlockedLevel:1,completedLevelIds:['lab_lava_8']}),64,'final world is capped at maze 64');
 
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
+const luna=pendingCharacters.find(c=>c.id==='luna_axolotl');
+assert.ok(luna,'Luna keeps the same student character ID');
+assert.equal(luna.artworkPending,false,'Luna uses her actual original individual PNG');
+assert.deepEqual(luna.levels.map(l=>l.image),Array(3).fill('arrow-lab/characters/luna_axolotl.png'),'Luna PNG used consistently at all saved upgrade stages');
+assert.equal(pendingCharacters.length,10,'all ten existing character IDs remain registered');
+assert.equal(pendingCharacters.filter(c=>c.artworkPending).length,9,'unpublished characters retain honest labelled placeholders');
+assert.ok(pendingCharacters.filter(c=>c.artworkPending).every(c=>c.levels.every(l=>l.image==='pending:character:'+c.id)),'do not substitute another character for missing art');
+const suppliedFriends={
+ pirate:'pirate-parrot',arctic:'arctic-penguin',castle:'royal-dragon',
+ space:'space-alien',jurassic:'explorer-dino',ocean:'ocean-dolphin',lava:'lava-dragon'
+};
+const friendRosterText=source.slice(source.indexOf(' const approvedFriendFiles='),source.indexOf(' const homeArt='));
+assert.ok(friendRosterText.startsWith(' const approvedFriendFiles='),'friend roster source is present');
+const publishedFriends=new Function('worldThemes',friendRosterText+';return companions;')([{id:'candy'},...Object.keys(suppliedFriends).map(id=>({id}))]);
+assert.equal(publishedFriends.length,8,'eight fixed world companions, not selectable substitutes');
+assert.equal(publishedFriends[0].art,'arrow-lab/friends/candy-bunny.png','approved Candy Bunny remains unchanged');
+for(const [world,slug] of Object.entries(suppliedFriends)){
+ const friend=publishedFriends.find(c=>c.id===world);
+ assert.equal(friend.art,'arrow-lab/friends/'+slug+'.png',world+' uses the exact teacher-supplied image');
+ assert.equal(friend.approvedArtPath,friend.art,world+' displayed art matches approved file path');
+}
+
 const data=Object.fromEntries(['characters','rainbow_lands','levels','game_config','computer_collectibles'].map(n=>[n,JSON.parse(fs.readFileSync(new URL('../rainbow-road/data/'+n+'.json',import.meta.url)))]));
 const defs=source.slice(source.indexOf(' const worldThemes='),source.indexOf(' let stored;'));
 
