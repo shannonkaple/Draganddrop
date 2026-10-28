@@ -196,6 +196,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // Every student automatically owns one starter home. Never ask for a home during onboarding.
  // Retain all existing saved purchases and any established main home.
  const starterWorldId='background_candy';
+ const characterSwitchCost=5;
+ // Migration preserves every previously selected or purchased character.
+ a.unlockedCharacterIds=[...new Set([...(a.unlockedCharacterIds||[]),...Object.keys(a.friends||{}),a.selectedPlayerCharacterId].filter(Boolean))];
+ const hasPlayerCharacter=id=>a.unlockedCharacterIds.includes(id)&&!!a.friends?.[id];
  a.ownedWorldIds=[...new Set([...(a.ownedWorldIds||[]),...(a.ownedBackgroundIds||[]),starterWorldId])];
  if(!a.primaryRainbowLandId||!a.ownedWorldIds.includes(a.primaryRainbowLandId)||!lands.some(l=>l.id===a.primaryRainbowLandId)){
    a.primaryRainbowLandId=starterWorldId;
@@ -284,22 +288,40 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function selectCharacter(changing=false){
  view='select';
  const instructions=changing
-   ?'<p>Choose one of your available characters. Your worlds and activity progress will stay saved.</p>'
-   :'<p>Welcome to Drag & Drop Adventure! Pick your character to start playing. Everyone gets a FREE starter world automatically—no home to choose!</p>';
+ ?'<p>Your first character was FREE! Each later switch costs <strong>⭐ '+characterSwitchCost+' stars</strong>. Paying for a new character unlocks it forever, but every later switch still costs stars. Your characters stay in their worlds.</p><p role="status">You have ⭐ '+a.wallet.rainbowStars+' stars.</p>'
+ :'<p>Pick your first character FREE! Everyone gets a FREE starter world.</p>';
  shell(changing?'Change Your Character':'Choose Your Character!',instructions+
-   (changing?'<button id="cancel-player">← Back</button>':'')+
-   '<div class="adventure-cards">'+chars.map(c=>
-     '<button type="button" data-hero="'+c.id+'" aria-label="Choose '+esc(c.name)+'">'+
-       img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
+  (changing?'<button id="cancel-player" type="button">← Keep My Character</button>':'')+
+  '<div class="adventure-cards character-switch-roster">'+chars.map(c=>{
+   const active=changing&&c.id===a.selectedPlayerCharacterId,ownedChar=hasPlayerCharacter(c.id),poor=changing&&a.wallet.rainbowStars<characterSwitchCost;
+   const action=!changing?'Choose Free':active?'✓ Playing Now':poor?'Need '+(characterSwitchCost-a.wallet.rainbowStars)+' More Stars':ownedChar?'⭐ Switch · '+characterSwitchCost+' Stars':'🔒 Unlock & Switch · '+characterSwitchCost+' Stars';
+   return '<button type="button" data-hero="'+esc(c.id)+'" '+(active||poor?'disabled':'')+' aria-label="'+esc(c.name)+': '+action+'">'+
+    img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong><small>'+(ownedChar?'✓ Owned':changing?'🔒 Locked':'Free first choice')+'</small><span>'+action+'</span></button>';
+  }).join('')+'</div>');
  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{
-   const id=b.dataset.hero;
-   choosePlayerCharacter(a,id,starterWorldId);
-   if(!changing)enterWithStarterWorld();
-   else{save();map()}
+   const id=b.dataset.hero,c=char(id);
+   if(!c)return;
+   if(!changing){if(a.selectedPlayerCharacterId)return map();if(choosePlayerCharacter(a,id,starterWorldId))enterWithStarterWorld();return}
+   if(id===a.selectedPlayerCharacterId)return map();
+   if(a.wallet.rainbowStars<characterSwitchCost){selectCharacter(true);return}
+   const ownedChar=hasPlayerCharacter(id);
+   modal(ownedChar?'Switch to '+c.name+'?':'Unlock '+c.name+'?',
+    '<p>'+(ownedChar?'You own this character already.':'This character will be unlocked permanently and live in your current world.')+'</p>'+
+    '<p>Spend <strong>⭐ '+characterSwitchCost+' stars</strong> to switch? Your old characters stay in their worlds. Your saved progress and purchases stay safe.</p>'+
+    '<div class="actions"><button id="cancel-character-switch" type="button">Keep My Player</button><button id="confirm-character-switch" class="primary" type="button">Yes, Spend '+characterSwitchCost+' Stars</button></div>',()=>{
+    $('cancel-character-switch').onclick=()=>{closeModal();selectCharacter(true)};
+    $('confirm-character-switch').onclick=()=>{
+     if(id===a.selectedPlayerCharacterId||!char(id)||a.wallet.rainbowStars<characterSwitchCost){closeModal();selectCharacter(true);return}
+     const home=owned(a.primaryRainbowLandId)?a.primaryRainbowLandId:starterWorldId;
+     a.wallet.rainbowStars-=characterSwitchCost;
+     choosePlayerCharacter(a,id,home);
+     a.unlockedCharacterIds=[...new Set([...a.unlockedCharacterIds,id])];
+     save();closeModal();map();
+    };
+   });
  });
  if(changing)$('cancel-player').onclick=map;
  }
-
  function enterWithStarterWorld(){
    // The starter world is granted silently, not an extra player setup screen.
    if(!a.ownedWorldIds.includes(starterWorldId))a.ownedWorldIds.push(starterWorldId);
@@ -556,7 +578,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
 
  function collectionStage(id){
-  const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c]?.homeLandId===id);
+  const l=land(id),residents=Object.keys(a.friends).filter(c=>hasPlayerCharacter(c)&&a.friends[c]?.homeLandId===id);
   const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
   const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
   const treasureGoods=(a.collectionExtraObjects?.[id]||[]).filter(key=>[...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])].includes(key));
@@ -618,6 +640,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // The playroom tray is a student's complete inventory, not just the items in this world.
   // Keep the legacy per-world decoration arrays so old saves and arrangements survive.
   const ownedDecor=[...new Set(Object.values(a.decorations||{}).flat())];
+  const ownedPlayers=chars.filter(c=>hasPlayerCharacter(c.id));
   const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
   const treasures=[...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])])];
   const decorationCards=ownedDecor.map(key=>{
@@ -628,6 +651,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     return '<article class="my-stuff-item" data-stuff-kind="decoration">'+shopArt(d)+
       '<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'">'+
       (placed?'✓ In Scene · Put Away':elsewhere?'＋ Move to This World':'＋ Add to Scene')+'</button></article>';
+  }).join('');
+  const playerCards=ownedPlayers.map(c=>{
+   const here=a.friends[c.id].homeLandId===id;
+   return '<article class="my-stuff-item" data-stuff-kind="player">'+pic(c.id)+
+    '<strong>'+esc(c.name)+'</strong><small>✓ Owned Character</small>'+
+    '<button type="button" data-stuff-player="'+esc(c.id)+'" '+(here?'disabled':'')+'>'+
+    (here?'✓ Lives Here':'＋ Move to This World')+'</button></article>';
   }).join('');
   const friendCards=rescued.map(c=>{
     const here=a.worldFriends[c.id].homeLandId===id;
@@ -643,7 +673,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'">'+
       (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
   }).join('');
-  const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
+  const hasObjects=!!(ownedPlayers.length||ownedDecor.length||rescued.length||treasures.length);
   const worldOnlyGoods=shopExclusives.filter(d=>d.world===backgroundHomes.find(w=>w.id===id)?.theme);
   const exclusiveStore='<section class="my-stuff-exclusive-store" aria-label="Shop-only decorations for '+esc(land(id).name)+'">'+
    '<h3>⭐ '+esc(land(id).name)+' · SHOP ONLY</h3><p>These items cannot be collected in activities. Spend stars to buy them for your world!</p>'+
@@ -656,7 +686,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const tray='<p>Pick anything you have earned or bought. Add it to your world, then drag it where you want!</p>'+
     '<div class="my-stuff-tray-controls" aria-label="Browse my decorations"><button id="stuff-scroll-prev" type="button" aria-label="Previous decorations">◀</button><strong>My Decorations, Friends & Treasures</strong><button id="stuff-scroll-next" type="button" aria-label="More decorations">▶</button></div>'+
     '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Scroll horizontally.">'+
-      (hasObjects?decorationCards+friendCards+treasureCards:
+      (hasObjects?playerCards+decorationCards+friendCards+treasureCards:
       '<p class="my-stuff-empty">Your collection starts here! Finish activities to earn treasures, rescue friends and buy decorations.</p>')+
     '</div><div class="my-stuff-shop-actions">'+
       '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Get More Decorations</button>'+
@@ -722,6 +752,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       a.hiddenDecorations[id]=hidden.filter(item=>item!==key);
     }
     save();refresh();
+  });
+  document.querySelectorAll('[data-stuff-player]').forEach(b=>b.onclick=()=>{
+   const characterId=b.dataset.stuffPlayer;
+   // Owned characters can change homes free; selecting one to PLAY still costs stars.
+   if(!hasPlayerCharacter(characterId)||!owned(id)||!placeFriend(a,characterId,id))return;
+   save();refresh();
   });
   document.querySelectorAll('[data-stuff-friend]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffFriend,friend=a.worldFriends?.[key];if(!friend)return;
