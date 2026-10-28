@@ -1,30 +1,37 @@
-// MY STUFF scene inventory helpers. No data is ever removed from saved student collections.
-// Future game pickups are deliberately JPEG-only; past PNG treasures can still be
-// displayed and arranged, because deleting earned items would erase student progress.
-export const isJpegArt=path=>typeof path==='string'&&/\.jpe?g(?:[?#].*)?$/i.test(path);
+// MY STUFF: safe, saved placement of earned items.
+// Approved collectible art is PNG or JPEG. SVGs and synthetic SVG shapes
+// must not appear as newly generated maze pickups.
+// IMPORTANT: format policy never deletes a student's previously earned items.
+export const isSupportedCollectibleArt=path=>typeof path==='string'&&/\.(?:png|jpe?g)(?:[?#].*)?$/i.test(path);
 export const earnedKeys=state=>[...new Set([
-  ...(state.collectedWorldItems||[]),
-  ...(state.collectedComputerGearIds||[]),
-  ...(state.earnedSkillBadgeIds||[])
+ ...(state.collectedWorldItems||[]),
+ ...(state.collectedComputerGearIds||[]),
+ ...(state.earnedSkillBadgeIds||[])
 ].filter(id=>typeof id==='string'&&id.length))];
+
 export function visibleCollectedKeys(state,worldId){
  const earned=new Set(earnedKeys(state));
  return [...new Set(state.collectionExtraObjects?.[worldId]||[])].filter(id=>earned.has(id));
 }
+
 export function toggleCollectedInWorld(state,worldId,key){
- if(!earnedKeys(state).includes(key))return {changed:false,added:false};
+ if(!earnedKeys(state).includes(key)||typeof worldId!=='string'||!worldId)return {changed:false,added:false};
  state.collectionExtraObjects??={};
- const list=state.collectionExtraObjects[worldId]??=[];
- if(list.includes(key)){
-   state.collectionExtraObjects[worldId]=list.filter(id=>id!==key);
+ const existing=state.collectionExtraObjects[worldId]??=[];
+ if(existing.includes(key)){
+   state.collectionExtraObjects[worldId]=existing.filter(id=>id!==key);
    return {changed:true,added:false};
  }
- list.push(key);
- // Save a clear, visible starting position rather than placing behind a
- // character, the extreme edge of the scene, or outside a small Chromebook.
+ const next=[...existing,key];
+ state.collectionExtraObjects[worldId]=next;
+ // Put new additions in a visible part of the screen, not behind world edges.
+ // Existing manually arranged coordinates remain exactly as students saved them.
  state.positions??={};
  state.positions[worldId]??={};
- const slot=(list.length-1)%9,col=slot%3,row=Math.floor(slot/3);
- state.positions[worldId]['treasure:'+key]??={x:35+col*15,y:38+row*15};
- return {changed:true,added:true};
+ const positionKey='treasure:'+key;
+ if(!state.positions[worldId][positionKey]){
+   const index=(next.length-1)%9;
+   state.positions[worldId][positionKey]={x:35+(index%3)*15,y:37+Math.floor(index/3)*16};
+ }
+ return {changed:true,added:true,position:state.positions[worldId][positionKey]};
 }
