@@ -1,6 +1,6 @@
 // Run with: node arrow-lab/test-teacher-skip-guard.mjs
 // Regression: teacher confirmation guards settings, progress exports and level skips.
-// No localStorage writes, rewards, or completions occur on an invalid attempt.
+// Invalid student actions must not change saved progress or read/export classroom records.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const game=readFileSync(new URL('./game.mjs',import.meta.url),'utf8');
@@ -24,15 +24,14 @@ assert.ok(adventure.includes(" $('save-settings').onclick=()=>{if(!requireTeache
 assert.ok(adventure.includes(" $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{\n if(!requireTeacherCode())return;"),'CSV export must require teacher confirmation');
 const start=adventure.indexOf(" const requireTeacherCode=()=>{");
 const end=adventure.indexOf(" $('close-settings').onclick",start);
-assert.ok(start>0&&end>start,'Find the full teacher skip handler');
+assert.ok(start>0&&end>start,'Find the teacher skip handler');
 const skipHandler=adventure.slice(start,end);
 assert.ok(skipHandler.indexOf('if(!requireTeacherCode())return;')<skipHandler.indexOf('a.highestUnlockedLevel=next'));
+
 function scenario(highestUnlockedLevel,code){
   const controls={
     'skip-level':{disabled:false,textContent:'Open next level'},
     'save-settings':{},
-    'close-settings':{},
-    'export-progress':{},
     'teacher-skip-code':{value:code,focus(){this.focused=true}},
     'teacher-skip-feedback':{textContent:''}
   };
@@ -42,42 +41,37 @@ function scenario(highestUnlockedLevel,code){
     id=>controls[id],verifyTeacherCode,Array(64),a,
     ()=>{writes++},()=>{closed++},level=>{opened=level}
   );
-  return {a,controls,click:()=>controls['skip-level'].onclick(),saveSettings:()=>controls['save-settings'].onclick(),result:()=>({writes,opened,closed})};
+  return {
+    a,controls,
+    skip:()=>controls['skip-level'].onclick(),
+    saveSettings:()=>controls['save-settings'].onclick(),
+    result:()=>({writes,opened,closed})
+  };
 }
 const student=scenario(3,'wrong');
-student.click();
-student.saveSettings(); // Invalid code must also leave teacher settings untouched.
+student.skip();
+student.saveSettings();
 assert.equal(student.a.highestUnlockedLevel,3);
 assert.deepEqual(student.result(),{writes:0,opened:null,closed:0});
 assert.equal(student.controls['teacher-skip-code'].focused,true);
 assert.match(student.controls['teacher-skip-feedback'].textContent,/teacher code/i);
 
-// CSV download is a separate privileged handler: verify the guard prevents its data read.
+// The CSV handler must refuse access before it reads any student records.
 const exportStart=adventure.indexOf(" $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{");
 const exportEnd=adventure.indexOf("\n });\n }\n function keydown",exportStart);
 assert.ok(exportStart>0&&exportEnd>exportStart,'Find teacher CSV handler');
 const exportButtons={'close-settings':{},'export-progress':{}};
 let exportsAttempted=0;
-new Function('
-teacher.click();
-assert.equal(teacher.a.highestUnlockedLevel,4);
-assert.deepEqual(teacher.result(),{writes:1,opened:4,closed:1});
-
-const last=scenario(64,validator[2]);
-assert.equal(last.controls['skip-level'].disabled,true);
-assert.match(last.controls['skip-level'].textContent,/all 64/i);
-console.log('PASS teacher confirmation for settings/export/skip, unchanged student saves, next-level opening, and level-64 guard');
-,'closeModal','requireTeacherCode','buildArrowLabProgressCsv',adventure.slice(exportStart,exportEnd))(
+new Function('$','closeModal','requireTeacherCode','buildArrowLabProgressCsv',adventure.slice(exportStart,exportEnd))(
   id=>exportButtons[id],()=>{},()=>false,()=>{exportsAttempted++}
 );
 exportButtons['export-progress'].onclick();
 assert.equal(exportsAttempted,0,'Student must not be able to read or export progress');
 
 const teacher=scenario(3,validator[2]);
-teacher.click();
+teacher.skip();
 assert.equal(teacher.a.highestUnlockedLevel,4);
 assert.deepEqual(teacher.result(),{writes:1,opened:4,closed:1});
-
 const last=scenario(64,validator[2]);
 assert.equal(last.controls['skip-level'].disabled,true);
 assert.match(last.controls['skip-level'].textContent,/all 64/i);
