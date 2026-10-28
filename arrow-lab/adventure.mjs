@@ -1,6 +1,7 @@
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
+import {WORLD_STOP_POINTS,APPROVED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=qa-gated-20261028a';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=preserve-unlocks-20261028b';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -385,7 +386,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function openCandyWorld(){
    currentMapWorld=0;
    view='world-select';
-   const positions=[[6.7,41.7],[20.8,53.7],[33.1,70.6],[39.4,42.3],[53.5,57.0],[69.2,51.5],[84.2,69.8],[92.1,37.4]];
+   const positions=WORLD_STOP_POINTS.map(p=>[p.x,p.y]);
    const points=levels.slice(0,8).map((l,k)=>{
      const done=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],unlocked=l.number<=a.highestUnlockedLevel;
      return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':started?' started':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" aria-disabled="'+(!unlocked)+'"'+
@@ -417,37 +418,50 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
 
  function openWorld(i){
-   if(!isWorldUnlocked(i))return map();
-   currentMapWorld=i;
-   if(i===0)return openCandyWorld();
-   const world=worldThemes[i];
-   view='world-select';
-   const cards=levels.slice(i*8,i*8+8).map((l,k)=>{
-     const cleared=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],open=l.number<=a.highestUnlockedLevel;
-     return '<button type="button" class="lab-activity-card'+(cleared?' cleared':started?' started':open?'':' locked')+'" data-level="'+l.number+'" aria-disabled="'+(!open)+'" aria-label="'+esc(world.name)+' maze '+(k+1)+(cleared?', completed':started?', in progress':open?', ready to play':', locked')+'">'+
-       '<span class="lab-activity-icon">'+(cleared?'✓':started?'↪':open?'▶':'🔒')+'</span>'+
-       '<span class="lab-activity-number">MAZE '+(k+1)+'</span><strong>'+esc(stageNames[world.id]?.[k]||activityNames[k])+'</strong>'+
-       '<small>'+(cleared?'✓ COMPLETED':started?'↪ CONTINUE SAVED MAZE':open?'▶ READY TO PLAY':'🔒 LOCKED')+'</small></button>';
-   }).join('');
-   shell(world.name+' World',
-    '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+');background-size:cover,cover;background-position:center,center">'+
-    '<div class="lab-world-heading"><button id="lab-back-map" type="button">← World Map</button>'+
-    '<div><span>WORLD '+(i+1)+' OF 8</span><h2>'+world.icon+' '+esc(world.name)+' World</h2><p>'+worldDoneCount(i)+' of 8 mazes finished</p></div></div>'+
-    '<div class="lab-world-activities">'+cards+'</div>'+
-    '<p class="lab-world-tip">Use your arrow keys to move. Finish each maze to unlock the next!</p>'+(canRescue()?'<button class="lab-rescue" id="lab-world-rescue" type="button">🐾 Rescue a Friend!</button>':'')+'</section>');
-   $('lab-back-map').onclick=map;
-   $('lab-world-rescue')?.addEventListener('click',continueRescue);
-   document.querySelectorAll('.lab-activity-card[data-level]').forEach(b=>b.onclick=()=>{
-     const number=Number(b.dataset.level);
-     if(b.getAttribute('aria-disabled')==='true'){
-       const needed=Math.max(1,number-1)-(i*8);
-       modal('Maze '+(number-i*8)+' is locked','<p>First finish '+esc(world.name)+' maze '+needed+'.</p><button id="locked-maze-back" type="button" class="primary">Back to '+esc(world.name)+' World</button>',()=>{
-         $('locked-maze-back').onclick=closeModal;
-       });
-       return;
-     }
-     startLevel(number);
-   });
+  if(!isWorldUnlocked(i))return map();
+  currentMapWorld=i;
+  if(i===0)return openCandyWorld();
+  const world=worldThemes[i];
+  view='world-select';
+  // The seven map candidates remain UNAPPROVED. Only URLs added to the
+  // approved manifest after hotspot QA can become the production map.
+  const approved=APPROVED_WORLD_LEVEL_MAPS[world.id]||null;
+  const picture=approved||world.backgroundImage;
+  const stops=worldStopModels(i,levels,a);
+  const points=stops.map(p=>
+    '<button type="button" class="lab-candy-node lab-world-stop'+(p.completed?' done':p.started?' started':'')+(p.unlocked?'':' locked')+'"'+
+    ' data-level="'+p.level.number+'" style="--x:'+p.position.x+'%;--y:'+p.position.y+'%;" aria-disabled="'+(!p.unlocked)+'"'+
+    ' aria-label="'+esc(world.name)+' maze '+p.stage+', '+esc(p.label)+'" title="'+esc(p.level.title)+' — '+esc(p.label)+'">'+
+    '<span class="lab-map-node-number" aria-hidden="true">'+p.stage+'</span>'+
+    '<span class="lab-map-node-indicator" aria-hidden="true">'+p.symbol+'</span></button>'
+  ).join('');
+  shell(world.name+' World',
+    '<section class="lab-candy-world lab-world-illustrated" aria-label="'+esc(world.name)+' illustrated level selector"'+(approved?'':' data-provisional-map="true"')+'>'+
+    '<div class="lab-candy-heading"><button id="lab-back-map" type="button">← ALL WORLDS</button>'+
+    '<div><small>WORLD '+(i+1)+' • EIGHT MAZES</small><h2>'+world.icon+' '+esc(world.name)+' World</h2></div>'+
+    '<div class="lab-candy-progress">'+worldDoneCount(i)+' / 8 COMPLETE</div>'+
+    (canRescue()?'<button class="lab-candy-rescue" id="lab-world-rescue" type="button">🐾 RESCUE FRIEND!</button>':'')+'</div>'+
+    '<div class="lab-candy-scenery lab-world-level-scene" role="group" aria-label="Eight numbered maze stops">'+
+      '<img class="lab-candy-map-art" src="'+asset(picture)+'" alt="'+esc(world.name)+(approved?' illustrated eight-level map':' world scenery preview while eight-stop map art is being corrected')+'" loading="eager">'+points+'</div>'+
+    '<div class="lab-world-map-footer">'+
+      (approved?'':'<p class="lab-world-art-warning" role="note">Scenery preview — the final eight-stop illustrated map is still awaiting approved artwork.</p>')+
+      '<nav class="lab-candy-actions" aria-label="World navigation"><button data-nav="map">🏠 HOME</button>'+
+       '<button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">🧸 MY STUFF</button></nav></div>'+
+    '</section>');
+  $('lab-back-map').onclick=map;
+  $('lab-world-rescue')?.addEventListener('click',continueRescue);
+  document.querySelectorAll('.lab-world-stop[data-level]').forEach(b=>b.onclick=()=>{
+    const n=Number(b.dataset.level),stage=n-i*8;
+    if(b.getAttribute('aria-disabled')==='true'){
+      modal(world.name+' maze '+stage+' is locked',
+        '<p>Finish '+esc(world.name)+' maze '+Math.max(1,stage-1)+' first.</p>'+
+        '<button id="locked-world-maze-back" class="primary" type="button">Back to '+esc(world.name)+' Map</button>',()=>{
+           $('locked-world-maze-back').onclick=closeModal;
+        });
+      return;
+    }
+    startLevel(n);
+  });
  }
 
  function stuff(){map()}
