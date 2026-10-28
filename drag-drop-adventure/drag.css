@@ -18,3 +18,6 @@ body>header.lab-image-header .brand>img.drag-header-guide{width:90px!important;h
 body>header.lab-image-header .brand>img.drag-header-rigby{width:75px!important;height:70px!important;flex:0 0 75px!important;object-fit:contain!important}
 body>header.lab-image-header .brand{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:16px!important;height:90px!important;padding:0 16px!important}
 body>header.lab-image-header .drag-brand{flex:0 1 auto!important;line-height:1.2!important;padding:10px 20px!important;white-space:normal!important}
+/* The striped rectangle is the exact collision body, including its border. */
+.drag-blocker{position:absolute;z-index:3;transform:translate(-50%,-50%);width:78px;height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:5px solid #e84969;border-radius:12px;background:repeating-linear-gradient(135deg,#fff3aa 0 8px,#fff 8px 16px);box-shadow:0 3px 8px #70263844;pointer-events:none;user-select:none}
+.drag-blocker[hidden]{display:none}.drag-blocker img{width:62px;height:62px;object-fit:contain}.drag-blocker small{font:10px VAG,Arial,sans-serif;color:#702238;background:white;border-radius:4px;padding:2px;line-height:1}

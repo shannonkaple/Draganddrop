@@ -11,3 +11,6 @@ The class selector reads the exact existing `trackpad-adventure/teachers.json` r
 Artwork, configuration, CSS, and reward helpers remain shared read-only repository resources. This folder belongs in the existing repository; it is not a standalone repository export.
 
 Run `node drag-drop-adventure/test-drag.mjs` for input acceptance checks. Serve the repository root over HTTP to play.
+
+## Bad-guy blockers
+Activity 1 in each world introduces the drag gesture without obstacles. Activities 2–8 place a stationary original enemy between the source and targets; world-specific enemies rotate after successful drops. Students can take a clear route above or below the striped body. Contact returns only the held object to its source and preserves finished drops/stars. Collision sweeps the full dragged token between pointer events and checks the release event, preventing fast drags from skipping through a blocker. The illustrated striped rectangle is the collision body. Resize, focus loss, cancellation, and navigation cancel the current drag safely.
