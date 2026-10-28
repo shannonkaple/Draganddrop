@@ -1,4 +1,4 @@
-import {buildArrowLabProgressCsv} from './progress-export.mjs?v=20261028a';
+import {buildArrowLabProgressCsv} from './progress-export.mjs?v=csv-safety-20261028b';
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
