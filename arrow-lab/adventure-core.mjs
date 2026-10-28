@@ -53,7 +53,8 @@ export function buildLevel(def,seed,easy=false){
    for(const {id,pos} of positions){
      const path=[pos];
      if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id)){
-       for(let step=0;step<4;step++){
+       const patrolSteps=2+Math.floor(random()*3); // a 2–4 tile outing, then follow the same path home
+        for(let step=0;step<patrolSteps;step++){
          const secondary=side.filter(p=>dist(p,path.at(-1))===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
          if(!secondary.length)break;
          // Keep patrols away from other reserved spawns and safe/required routes.
