@@ -50,3 +50,52 @@ body>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art{displ
 .character-switch-roster button:disabled{opacity:.75}
 @media(max-width:980px){.adventure-cards.character-switch-roster{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:620px){.adventure-cards.character-switch-roster{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* MY STUFF: owned playable characters stay visible beside their scene.
+   Small horizontal ribbon avoids adding a tall menu to Chromebook layouts. */
+body.lab-collection-active .my-stuff-characters{
+  width:100%!important;display:flex!important;flex-direction:column!important;
+  gap:5px!important;padding:6px 9px!important;border:2px solid #fff!important;
+  border-radius:16px!important;background:#e9f6ff!important;
+}
+body.lab-collection-active .my-stuff-characters>strong{
+  font-size:clamp(13px,1.35vw,18px)!important;color:#273765!important;
+}
+body.lab-collection-active .my-stuff-characters>strong small{font-size:12px!important;color:#376451!important}
+body.lab-collection-active .my-stuff-character-list{
+  display:flex!important;flex-direction:row!important;align-items:stretch!important;
+  gap:7px!important;width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
+  padding:3px 2px 7px!important;scrollbar-width:thin!important;
+}
+body.lab-collection-active .my-stuff-character-mini{
+  display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;
+  grid-template-rows:auto auto auto!important;column-gap:6px!important;
+  align-items:center!important;flex:0 0 151px!important;min-width:0!important;
+  padding:5px!important;border:2px solid #c8d4f0!important;
+  border-radius:12px!important;background:white!important;
+}
+body.lab-collection-active .my-stuff-character-mini .friend-art,
+body.lab-collection-active .my-stuff-character-mini img,
+body.lab-collection-active .my-stuff-character-mini .pending-character-art{
+  grid-column:1!important;grid-row:1/4!important;width:42px!important;
+  height:51px!important;max-width:42px!important;object-fit:contain!important;
+}
+body.lab-collection-active .my-stuff-character-mini>span{
+  grid-column:2!important;font-size:12px!important;line-height:1.05!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+body.lab-collection-active .my-stuff-character-mini>small{
+  grid-column:2!important;font-size:10px!important;color:#415477!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+body.lab-collection-active .my-stuff-character-mini>button{
+  grid-column:2!important;padding:4px 3px!important;font-size:11px!important;
+  line-height:1.1!important;min-height:27px!important;background:#fff2ad!important;
+  border:2px solid #9476bf!important;border-radius:8px!important;
+}
+body.lab-collection-active #collection-scene.placing-character{
+  cursor:crosshair!important;outline:4px dashed #ffd400!important;outline-offset:-5px!important;
+}
+body.lab-collection-active #collection-scene [data-world-object].selected-character{
+  filter:drop-shadow(0 0 12px #ffd000)!important;z-index:30!important;
+}
