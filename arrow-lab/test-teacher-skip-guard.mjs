@@ -31,6 +31,8 @@ function scenario(highestUnlockedLevel,code){
   const controls={
     'skip-level':{disabled:false,textContent:'Open next level'},
     'save-settings':{},
+    'close-settings':{},
+    'export-progress':{},
     'teacher-skip-code':{value:code,focus(){this.focused=true}},
     'teacher-skip-feedback':{textContent:''}
   };
@@ -40,14 +42,36 @@ function scenario(highestUnlockedLevel,code){
     id=>controls[id],verifyTeacherCode,Array(64),a,
     ()=>{writes++},()=>{closed++},level=>{opened=level}
   );
-  return {a,controls,click:()=>controls['skip-level'].onclick(),result:()=>({writes,opened,closed})};
+  return {a,controls,click:()=>controls['skip-level'].onclick(),saveSettings:()=>controls['save-settings'].onclick(),result:()=>({writes,opened,closed})};
 }
 const student=scenario(3,'wrong');
 student.click();
+student.saveSettings(); // Invalid code must also leave teacher settings untouched.
 assert.equal(student.a.highestUnlockedLevel,3);
 assert.deepEqual(student.result(),{writes:0,opened:null,closed:0});
 assert.equal(student.controls['teacher-skip-code'].focused,true);
 assert.match(student.controls['teacher-skip-feedback'].textContent,/teacher code/i);
+
+// CSV download is a separate privileged handler: verify the guard prevents its data read.
+const exportStart=adventure.indexOf(" $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{");
+const exportEnd=adventure.indexOf("\n });\n }\n function keydown",exportStart);
+assert.ok(exportStart>0&&exportEnd>exportStart,'Find teacher CSV handler');
+const exportButtons={'close-settings':{},'export-progress':{}};
+let exportsAttempted=0;
+new Function('
+teacher.click();
+assert.equal(teacher.a.highestUnlockedLevel,4);
+assert.deepEqual(teacher.result(),{writes:1,opened:4,closed:1});
+
+const last=scenario(64,validator[2]);
+assert.equal(last.controls['skip-level'].disabled,true);
+assert.match(last.controls['skip-level'].textContent,/all 64/i);
+console.log('PASS teacher confirmation for settings/export/skip, unchanged student saves, next-level opening, and level-64 guard');
+,'closeModal','requireTeacherCode','buildArrowLabProgressCsv',adventure.slice(exportStart,exportEnd))(
+  id=>exportButtons[id],()=>{},()=>false,()=>{exportsAttempted++}
+);
+exportButtons['export-progress'].onclick();
+assert.equal(exportsAttempted,0,'Student must not be able to read or export progress');
 
 const teacher=scenario(3,validator[2]);
 teacher.click();
