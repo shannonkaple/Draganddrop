@@ -1,0 +1,223 @@
+/* Arrow Lab student entry and compact banner.
+   One deliberately scoped stylesheet loaded AFTER all old header/viewport
+   overrides so Chromebook behavior does not depend on cascade accidents. */
+
+/* The uploaded banner is a panorama (2048x341). Keep its natural aspect;
+   a thin fixed ribbon leaves the important screen area for the game. */
+html body>header.lab-image-header,
+html body.guided>header.lab-image-header {
+ position:fixed!important;inset:0 0 auto 0!important;
+ box-sizing:border-box!important;
+ height:clamp(68px,10dvh,82px)!important;
+ min-height:68px!important;max-height:82px!important;
+ width:100%!important;max-width:none!important;
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ align-items:center!important;justify-items:stretch!important;
+ gap:9px!important;padding:3px 10px!important;margin:0!important;
+ overflow:hidden!important;z-index:40!important;
+ background:#dcf2ff!important;
+ border-bottom:2px solid #fff!important;
+}
+html body>header.lab-image-header .brand,
+html body.guided>header.lab-image-header .brand{
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ position:static!important;min-width:0!important;min-height:0!important;
+ width:100%!important;height:100%!important;max-height:100%!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;
+}
+html body>header.lab-image-header .brand>img#lab-jpeg-banner.lab-header-art,
+html body.guided>header.lab-image-header .brand>img#lab-jpeg-banner.lab-header-art{
+ display:block!important;position:static!important;inset:auto!important;
+ width:auto!important;max-width:100%!important;
+ height:100%!important;max-height:100%!important;
+ min-width:0!important;min-height:0!important;
+ aspect-ratio:auto!important;
+ object-fit:contain!important;object-position:left center!important;
+ transform:none!important;filter:none!important;
+ margin:0!important;padding:0!important;flex:none!important;
+}
+html body>header.lab-image-header .actions,
+html body.guided>header.lab-image-header .actions{
+ display:grid!important;position:static!important;float:none!important;
+ grid-template-columns:repeat(2,minmax(105px,1fr))!important;
+ grid-auto-rows:minmax(30px,1fr)!important;
+ flex:none!important;justify-content:end!important;
+ align-content:center!important;align-items:stretch!important;
+ width:auto!important;min-width:220px!important;max-width:300px!important;
+ max-height:100%!important;height:100%!important;
+ padding:0!important;margin:0!important;gap:3px!important;
+ overflow:visible!important;
+}
+html body>header.lab-image-header .actions button,
+html body.guided>header.lab-image-header .actions button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ position:static!important;float:none!important;box-sizing:border-box!important;
+ min-width:0!important;width:100%!important;max-width:none!important;
+ min-height:29px!important;height:100%!important;max-height:37px!important;
+ border:1px solid #98bbe8!important;border-radius:9px!important;
+ margin:0!important;padding:2px 7px!important;
+ white-space:nowrap!important;font:700 clamp(10px,1vw,13px)/1 Arial,sans-serif!important;
+ background:#fff!important;color:#193869!important;
+ box-shadow:0 1px 4px #27417b22!important;
+}
+html body>header.lab-image-header .actions button:focus-visible{
+ outline:3px solid #fa8a0d!important;outline-offset:1px!important;
+}
+html body>header.lab-image-header .actions button.hidden{display:none!important;}
+@media(max-width:700px){
+ html body>header.lab-image-header,
+ html body.guided>header.lab-image-header{padding:3px 5px!important;gap:4px!important}
+ html body>header.lab-image-header .actions,
+ html body.guided>header.lab-image-header .actions{
+  grid-template-columns:repeat(2,minmax(76px,1fr))!important;
+  min-width:160px!important;max-width:180px!important;gap:2px!important;
+ }
+ html body>header.lab-image-header .actions button{
+  font-size:10px!important;padding:1px 2px!important;
+ }
+}
+/* Page/body must never swallow scrolling on either student-entry screen.
+   The fixed app is the scroll container even though global html/body
+   intentionally have overflow:hidden for Chromebook game fit. */
+html body.guided.lab-teacher-active #app,
+html body.guided.lab-number-active #app{
+ position:fixed!important;box-sizing:border-box!important;
+ min-height:0!important;max-height:var(--screen-height,calc(100dvh - 88px))!important;
+ height:var(--screen-height,calc(100dvh - 88px))!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+ overscroll-behavior-y:contain!important;scrollbar-width:auto!important;
+ -webkit-overflow-scrolling:touch;
+ padding:8px 16px 24px!important;
+ scroll-behavior:auto!important;
+}
+html body.guided.lab-teacher-active #app:focus-within,
+html body.guided.lab-number-active #app:focus-within{
+ scroll-padding-block:12px!important;
+}
+html body.guided .lab-entry-screen{
+ box-sizing:border-box;display:flex;flex-direction:column;
+ width:100%;max-width:1180px;min-height:100%;height:auto;
+ gap:10px;padding:0 1px 20px;margin:0 auto;
+}
+html body.guided .lab-entry-intro{
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+ gap:5px 12px;padding:8px 12px;
+ border-radius:15px;border:2px solid #d4e9ff;
+ background:#fffdf6;box-shadow:0 2px 8px #264c7f26;
+}
+html body.guided .lab-entry-intro h1{
+ font:900 clamp(24px,2.6vw,38px)/1.08 VAG,Arial,sans-serif!important;
+ margin:0!important;color:#223a72!important;
+}
+html body.guided .lab-entry-intro p{
+ width:100%;font:700 clamp(15px,1.4vw,19px)/1.25 Arial,sans-serif!important;
+ margin:0!important;color:#293c67!important;
+}
+html body.guided .lab-entry-intro small{
+ display:block;width:100%;font:13px/1.25 Arial,sans-serif;
+ color:#395a80;
+}
+html body.guided .lab-step-badge{
+ flex:none;border-radius:16px;padding:5px 9px;
+ background:#e1ecff;color:#223a76;font:800 12px Arial,sans-serif;
+}
+html body.guided .lab-teacher-list,
+html body.guided .lab-number-list{
+ display:block;flex:none;width:100%;height:auto;
+ min-height:0;max-height:none;overflow:visible;
+}
+html body.guided.lab-teacher-active #app .lab-teacher-cards{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:10px!important;margin:0!important;
+}
+html body.guided.lab-teacher-active #app .lab-teacher-cards>button{
+ box-sizing:border-box!important;
+ width:100%!important;min-height:64px!important;height:auto!important;
+ padding:8px 12px!important;font:800 clamp(17px,1.6vw,23px)/1.15 VAG,Arial,sans-serif!important;
+ border:3px solid #fff!important;border-radius:17px!important;
+ color:#213e72!important;background:#ecf5ff!important;
+ box-shadow:0 3px 0 #96c0ff!important;white-space:normal!important;
+ text-align:center!important;overflow-wrap:break-word!important;
+}
+html body.guided.lab-teacher-active #app .lab-teacher-cards>button:nth-child(3n+2){
+ background:#fff2e6!important;box-shadow:0 3px 0 #ffcb95!important;
+}
+html body.guided.lab-teacher-active #app .lab-teacher-cards>button:nth-child(3n+3){
+ background:#f8ebff!important;box-shadow:0 3px 0 #d7b1f5!important;
+}
+html body.guided #app .lab-teacher-cards>button:hover,
+html body.guided #app .lab-teacher-cards>button:focus-visible,
+html body.guided #app .lab-number-list button:focus-visible{
+ outline:4px solid #ffb623!important;outline-offset:2px!important;
+}
+html body.guided .lab-teacher-tools{
+ margin-top:4px;padding:7px 12px;border-radius:12px;
+ border:1px solid #d1ddef;background:#fff;
+}
+html body.guided .lab-teacher-tools summary{
+ cursor:pointer;font:700 14px Arial,sans-serif;
+}
+html body.guided .lab-teacher-tools[open]{padding:12px}
+html body.guided .lab-import-cards{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ max-height:35dvh!important;overflow:auto!important;
+}
+html body.guided .lab-number-screen .lab-entry-intro{
+ align-items:center;
+}
+html body.guided .lab-number-screen #other-teacher{
+ order:-1;min-height:42px;padding:6px 12px;
+ background:#e9f3ff;color:#223b70;border:2px solid #92b8ea;
+ border-radius:13px;font:800 15px Arial,sans-serif;
+}
+html body.guided .lab-number-screen .lab-entry-intro p{
+ font-size:19px!important;color:#64429a!important;
+}
+html body.guided.lab-number-active #app .lab-number-list .numbers{
+ display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ gap:10px!important;margin:0!important;
+}
+html body.guided.lab-number-active #app .lab-number-list .numbers button{
+ min-height:69px!important;width:100%!important;
+ font:900 clamp(23px,2.7vw,35px)/1 Arial,sans-serif!important;
+ padding:7px!important;border:3px solid #fff!important;
+ border-radius:15px!important;
+ background:#e7f4ff!important;color:#23396e!important;
+ box-shadow:0 3px 0 #a5c9ef!important;
+}
+html body.guided.lab-number-active #app .lab-number-list .numbers button:nth-child(3n+2){
+ background:#fff1e9!important;box-shadow:0 3px 0 #ffcca9!important;
+}
+html body.guided.lab-number-active #app .lab-number-list .numbers button:nth-child(3n+3){
+ background:#f3e9ff!important;box-shadow:0 3px 0 #ceb4f2!important;
+}
+html body.guided .lab-entry-note{
+ margin:3px 0 10px!important;
+ padding:8px 10px;font:14px/1.3 Arial,sans-serif;
+ background:#f7fbff;border-radius:12px;
+}
+@media(max-width:960px){
+ html body.guided.lab-teacher-active #app .lab-teacher-cards{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ html body.guided.lab-teacher-active #app .lab-teacher-cards>button{
+  min-height:61px!important;
+ }
+}
+@media(max-width:570px){
+ html body.guided .lab-entry-screen{gap:6px}
+ html body.guided .lab-entry-intro{padding:7px}
+ html body.guided.lab-teacher-active #app .lab-teacher-cards{gap:7px!important}
+ html body.guided.lab-teacher-active #app .lab-teacher-cards>button{
+  min-height:56px!important;font-size:16px!important;
+ }
+ html body.guided.lab-number-active #app .lab-number-list .numbers{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;
+ }
+ html body.guided.lab-number-active #app .lab-number-list .numbers button{
+  min-height:58px!important;font-size:24px!important;
+ }
+}
