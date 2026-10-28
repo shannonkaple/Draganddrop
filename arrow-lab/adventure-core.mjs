@@ -176,7 +176,7 @@ export function restoreSavedEnemyRoster(run,definition,easy=false){
  for(const id of wanted.filter(id=>!assigned.has(id))){
    const starts=cells.filter(p=>available(p)&&grid[p.y][p.x]===0);
    let best=null,bestScore=-Infinity;
-   for(const first of starts)for(const second of near(first))if(tile(second)!==tile(first)){
+   if(!easy)for(const first of starts)for(const second of near(first))if(tile(second)!==tile(first)){
      for(const third of near(second)){
        if(tile(third)===tile(first))continue;
        const path=[first,second,third];
