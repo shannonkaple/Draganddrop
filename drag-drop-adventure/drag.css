@@ -40,3 +40,13 @@ body>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art{displ
 .drag-blocker img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px #50226440)}
 .drag-ghost{width:88px;height:104px;padding:5px}.drag-ghost img{height:65px}.drag-ghost span{font-size:11px}
 @media(max-width:800px){.drag-field{grid-template-columns:24% 1fr;gap:20%}.drag-target{width:100px}.drag-blocker{width:100px;height:100px}}
+
+/* Owned-character roster: compact enough for second-grade Chromebook screens. */
+.adventure-cards.character-switch-roster{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.character-switch-roster button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;padding:9px;line-height:1.2}
+.character-switch-roster button img{width:100%;height:92px;object-fit:contain}
+.character-switch-roster button small{font-size:12px;line-height:1.2}
+.character-switch-roster button span{font-size:13px;line-height:1.25}
+.character-switch-roster button:disabled{opacity:.75}
+@media(max-width:980px){.adventure-cards.character-switch-roster{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:620px){.adventure-cards.character-switch-roster{grid-template-columns:repeat(2,minmax(0,1fr))}}
