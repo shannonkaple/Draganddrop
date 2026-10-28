@@ -1,5 +1,5 @@
 // Run with: node arrow-lab/test-teacher-skip-guard.mjs
-// Regression: students cannot skip a maze without the existing teacher code.
+// Regression: teacher confirmation guards settings, progress exports and level skips.
 // No localStorage writes, rewards, or completions occur on an invalid attempt.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -20,11 +20,13 @@ assert.ok(adventure.includes('id="teacher-skip-feedback" role="status"'));
 assert.ok(game.includes('adventure.mjs?v=teacher-skip-guard-20261028a'));
 assert.ok(html.includes('game.mjs?v=teacher-skip-guard-20261028a'));
 
-const start=adventure.indexOf(" if(a.highestUnlockedLevel>=levels.length){");
+assert.ok(adventure.includes(" $('save-settings').onclick=()=>{if(!requireTeacherCode())return;"),'Settings changes must require teacher confirmation');
+assert.ok(adventure.includes(" $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{\n if(!requireTeacherCode())return;"),'CSV export must require teacher confirmation');
+const start=adventure.indexOf(" const requireTeacherCode=()=>{");
 const end=adventure.indexOf(" $('close-settings').onclick",start);
 assert.ok(start>0&&end>start,'Find the full teacher skip handler');
 const skipHandler=adventure.slice(start,end);
-assert.ok(skipHandler.indexOf('if(!verifyTeacherCode(')<skipHandler.indexOf('a.highestUnlockedLevel=next'));
+assert.ok(skipHandler.indexOf('if(!requireTeacherCode())return;')<skipHandler.indexOf('a.highestUnlockedLevel=next'));
 function scenario(highestUnlockedLevel,code){
   const controls={
     'skip-level':{disabled:false,textContent:'Open next level'},
@@ -54,4 +56,4 @@ assert.deepEqual(teacher.result(),{writes:1,opened:4,closed:1});
 const last=scenario(64,validator[2]);
 assert.equal(last.controls['skip-level'].disabled,true);
 assert.match(last.controls['skip-level'].textContent,/all 64/i);
-console.log('PASS teacher-only skip, unchanged student saves, next-level opening, and level-64 guard');
+console.log('PASS teacher confirmation for settings/export/skip, unchanged student saves, next-level opening, and level-64 guard');
