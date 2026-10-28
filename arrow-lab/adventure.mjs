@@ -211,6 +211,18 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
  const itemArt=id=>objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
+ // Never silently imply that a student's work was saved when storage is blocked.
+ // Do not overwrite unreadable/corrupted old data: keep it untouched and warn.
+ function showStorageWarning(){
+   let warning=document.getElementById('arrow-lab-storage-warning');
+   if(warning)return;
+   warning=document.createElement('div');
+   warning.id='arrow-lab-storage-warning';
+   warning.className='arrow-lab-fullscreen-note';
+   warning.setAttribute('role','alert');
+   warning.textContent='This browser is NOT saving your adventure. Tell your teacher before continuing so your progress is not lost.';
+   document.body.append(warning);
+ }
  function save(){
   try{
     if(r?.id){
@@ -221,7 +233,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const old=JSON.parse(localStorage.getItem(key)||'{}');
     localStorage.setItem(key,JSON.stringify({...old,adventure:{...a,activeRun:r||a.activeRun||null}}));
     saved=true;
-  }catch{saved=false}
+    document.getElementById('arrow-lab-storage-warning')?.remove();
+  }catch{
+    saved=false;
+    showStorageWarning();
+  }
  }
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
  function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
