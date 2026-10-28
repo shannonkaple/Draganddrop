@@ -1,5 +1,11 @@
 // Read-only classroom summary. Never parse and rewrite the original student saves.
-const cell=value=>'"'+String(value??'').replaceAll('"','""')+'"';
+// Spreadsheet programs may execute formula-like CSV cells even when quoted.
+// Keep exported student data literal; do not modify the original stored value.
+const cell=value=>{
+ const text=String(value??'');
+ const safe=/^[\u0000-\u001f\u007f]|^\s*[=+@-]/u.test(text)?"'"+text:text;
+ return '"'+safe.replaceAll('"','""')+'"';
+};
 const row=values=>values.map(cell).join(',');
 export function buildArrowLabProgressCsv(teachers,storage,maxStudents=24){
  const rows=[['Homeroom','Number','Levels','Friends','Rainbow Stars','Equipment','Skill badges','Save status']];
@@ -24,7 +30,7 @@ export function buildArrowLabProgressCsv(teachers,storage,maxStudents=24){
    }
    const levels=Array.isArray(d.completedLevelIds)?d.completedLevelIds.length:'';
    const friends=d.worldFriends&&typeof d.worldFriends==='object'&&!Array.isArray(d.worldFriends)
-    ?Object.keys(d.worldFriends).length:Object.keys(d.friends&&typeof d.friends==='object'&&!Array.isArray(d.friends)?d.friends:{}).length;
+    ?Object.values(d.worldFriends).filter(Boolean).length:Object.keys(d.friends&&typeof d.friends==='object'&&!Array.isArray(d.friends)?d.friends:{}).length;
    const stars=Number.isFinite(d.wallet?.rainbowStars)?d.wallet.rainbowStars:'';
    const gear=Array.isArray(d.collectedComputerGearIds)?d.collectedComputerGearIds.join(' / '):'';
    const badges=Array.isArray(d.earnedSkillBadgeIds)?d.earnedSkillBadgeIds.join(' / '):'';
