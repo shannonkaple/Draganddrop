@@ -111,6 +111,33 @@ assert.match(fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8'),
  'resume invokes repair without restarting');
 
 const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
+// A partially saved legacy enemy may lack its patrol path entirely. Repair the
+// roster BEFORE scanning enemy occupancy for missing pickups; never erase the run.
+const resumeBlock=source.slice(source.indexOf(' function startLevel('),source.indexOf(' function maze(){'));
+const repairPosition=resumeBlock.indexOf("restoreSavedEnemyRoster(r,def,settings.difficulty==='gentle')");
+const objectivePosition=resumeBlock.indexOf("ensureRunObjectives(r,def)");
+assert.ok(repairPosition>=0&&objectivePosition>repairPosition,'legacy patrol repair precedes missing-item placement');
+const objectiveCode=source.slice(source.indexOf(' function ensureRunObjectives('),source.indexOf(' function startLevel('));
+const addMissingObjectives=new Function('tile','route',objectiveCode+';return ensureRunObjectives;')(tile,route);
+for(const gentle of [false,true]){
+ const grid=Array.from({length:9},(_,y)=>Array.from({length:11},(_,x)=>x>0&&x<10&&y>0&&y<8?0:1));
+ const saved={id:legacyEnemyDef.id,w:11,h:9,grid,start:{x:1,y:1},goal:{x:9,y:7},
+  player:{x:1,y:1},checkpoint:{x:1,y:1},steps:13,seed:55,
+  items:[{id:'candy_a',x:3,y:3,collected:true}],skill:null,barrier:null,
+  hazards:[{id:'candy_one',index:0},null],trail:[[1,1]],safe:['1,1','2,1','3,1']};
+ const before=structuredClone({player:saved.player,checkpoint:saved.checkpoint,steps:saved.steps,trail:saved.trail,seed:saved.seed});
+ assert.equal(restoreSavedEnemyRoster(saved,legacyEnemyDef,gentle),true,'invalid legacy patrols repaired');
+ assert.doesNotThrow(()=>addMissingObjectives(saved,legacyEnemyDef),'missing objectives never crash on legacy enemy data');
+ assert.equal(saved.hazards.length,4,'all four distinct enemies restored from corrupt save');
+ assert.equal(new Set(saved.hazards.map(enemy=>enemy.id)).size,4);
+ assert.ok(saved.hazards.every(enemy=>enemy.path.length>0));
+ if(gentle)assert.ok(saved.hazards.every(enemy=>enemy.path.length===1));
+ assert.equal(saved.items.length,2,'missing collectible restored without regenerating maze');
+ assert.equal(saved.items[0].collected,true,'previously collected item remains collected');
+ assert.ok(route(saved.grid,saved.player,saved.items[1],new Set(saved.hazards.flatMap(enemy=>enemy.path.map(tile)))),'restored item is reachable without enemy patrol');
+ assert.deepEqual({player:saved.player,checkpoint:saved.checkpoint,steps:saved.steps,trail:saved.trail,seed:saved.seed},before,'saved player and route untouched');
+}
+
 
 const switching={selectedPlayerCharacterId:'a',friends:{a:{upgradeStage:'super_power',homeLandId:'background_pirate'}},unlockedCharacterIds:['a','old'],wallet:{rainbowStars:15},ownedWorldIds:['background_pirate'],positions:{background_pirate:{a:{x:42,y:38}}}};
 const snapshot=structuredClone(switching);

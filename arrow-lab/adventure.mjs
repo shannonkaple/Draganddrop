@@ -779,7 +779,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(restart)delete a.mazeRuns[def.id];
  report=valid&&!restart?'Welcome back! Keep going from your saved spot.':'Start at the star. Use your arrow keys.';
  r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
- if(valid&&!restart){ensureRunObjectives(r,def);restoreSavedEnemyRoster(r,def,settings.difficulty==='gentle');}
+ if(valid&&!restart){
+   // Repair malformed legacy enemy paths before scanning for missing objectives.
+   // Older saves can contain an enemy with no patrol path; keep the student's run.
+   restoreSavedEnemyRoster(r,def,settings.difficulty==='gentle');
+   ensureRunObjectives(r,def);
+  }
  if(a.completedLevelIds.includes(def.id))r.rewarded=true;
  a.activeRun=r;save();maze();
  if(def.worldStage===8&&tile(r.player)===tile(r.goal)&&r.items.every(i=>i.collected)&&(!r.skill||r.skill.done)){
