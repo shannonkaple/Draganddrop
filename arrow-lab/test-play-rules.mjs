@@ -3,6 +3,34 @@ import fs from 'node:fs';
 import {decorations} from '../trackpad-adventure/economy.mjs';
 import {buildLevel,tile,route,directions,worldIds,pendingWorldRescue,rescueWorld,arrowPattern,buyWorld,migrateAdventure,unlockedFromSavedProgress,choosePlayerCharacter,rescueFriend,restoreSavedEnemyRoster} from './adventure-core.mjs';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs';
+// Storage failure must be visible without overwriting a student's existing save.
+{
+ const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
+ const begin=source.indexOf(' function showStorageWarning(){');
+ const end=source.indexOf(' function clearClock(){',begin);
+ assert.ok(begin>=0&&end>begin,'student storage failure handler is present');
+ const section=source.slice(begin,end);
+ const nodes=new Map();
+ const document={
+  getElementById:id=>nodes.get(id)||null,
+  createElement:()=>({id:'',attributes:{},setAttribute(k,v){this.attributes[k]=v},remove(){nodes.delete(this.id)}}),
+  body:{append(node){nodes.set(node.id,node)}}
+ };
+ let fail=true,raw='{"wallet":{"rainbowStars":17}}';
+ const storage={getItem:()=>raw,setItem(_key,value){if(fail)throw Error('QuotaExceededError');raw=value}};
+ const harness=new Function('localStorage','document','key','a','r',
+  'let saved=true;'+section+';return {save,wasSaved:()=>saved};')(
+   storage,document,'test-student',{mazeRuns:{},wallet:{rainbowStars:17}},null);
+ harness.save();
+ assert.equal(harness.wasSaved(),false,'a failed write is never reported as saved');
+ assert.equal(nodes.get('arrow-lab-storage-warning')?.attributes.role,'alert','storage failure is announced accessibly');
+ assert.match(nodes.get('arrow-lab-storage-warning')?.textContent||'',/NOT saving/,'student and teacher see the failure');
+ assert.equal(raw,'{"wallet":{"rainbowStars":17}}','failed writes do not overwrite the old save');
+ fail=false;harness.save();
+ assert.equal(harness.wasSaved(),true,'successful retry is reported as saved');
+ assert.equal(nodes.has('arrow-lab-storage-warning'),false,'warning clears after storage recovers');
+ assert.match(raw,/"adventure"/,'successful retry stores the adventure without discarding the wallet');
+}
 const a={completedLevelIds:[],worldFriends:{},ownedWorldIds:['background_candy'],wallet:{rainbowStars:25}};
 for(let i=1;i<=7;i++){a.completedLevelIds.push('lab_candy_'+i);assert.equal(pendingWorldRescue(a),null)}
 a.completedLevelIds.push('lab_candy_7');assert.equal(pendingWorldRescue(a),null,'replays cannot unlock rescue');
