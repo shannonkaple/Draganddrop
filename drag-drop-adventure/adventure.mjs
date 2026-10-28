@@ -604,30 +604,65 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+personArt+friendArt+decorArt+treasureArt+'</div>';
  }
  function enableCollectionDrag(id){
-  const scene=$('collection-scene');if(!scene)return;let drag=null;
-  scene.onpointerdown=e=>{
-    const el=e.target.closest('[data-world-object]');if(!el||e.pointerType!=='mouse'||e.button!==0)return;
-    e.preventDefault();const rect=el.getBoundingClientRect();
-    drag={el,key:el.dataset.worldObject,pointer:e.pointerId,dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,oldX:el.style.left,oldY:el.style.top};
-    el.setPointerCapture(e.pointerId);el.classList.add('moving');
-  };
-  scene.onpointermove=e=>{
-    if(!drag||drag.pointer!==e.pointerId)return;e.preventDefault();
-    const rect=scene.getBoundingClientRect();
-    drag.x=Math.max(10,Math.min(90,(e.clientX-drag.dx-rect.left)/rect.width*100));
-    drag.y=Math.max(18,Math.min(85,(e.clientY-drag.dy-rect.top)/rect.height*100));
-    drag.el.style.left=drag.x+'%';drag.el.style.top=drag.y+'%';
-  };
-  scene.onpointerup=e=>{
-    if(!drag||drag.pointer!==e.pointerId)return;
-    if(drag.x!==undefined){(a.positions[id]??={})[drag.key]={x:drag.x,y:drag.y};save();$('collection-report').textContent='Saved! Your arrangement will be here next time.'}
-    drag.el.classList.remove('moving');drag=null;
-  };
-  scene.onpointercancel=scene.onlostpointercapture=()=>{
-    if(!drag)return;drag.el.style.left=drag.oldX;drag.el.style.top=drag.oldY;drag.el.classList.remove('moving');drag=null;
-  };
+   const scene=$('collection-scene');if(!scene)return()=>false;
+   let drag=null,selectedCharacter=null,ignoreClick=false;
+   const tell=text=>{if($('collection-report'))$('collection-report').textContent=text};
+   function pickCharacter(characterId){
+     if(!hasPlayerCharacter(characterId)||a.friends[characterId]?.homeLandId!==id)return false;
+     selectedCharacter=characterId;
+     scene.classList.add('placing-character');
+     scene.querySelectorAll('[data-world-object]').forEach(el=>el.classList.toggle('selected-character',el.dataset.worldObject===characterId));
+     tell('Click any spot in the big picture to place '+char(characterId).name+'. You do not have to drag!');
+     return true;
+   }
+   scene.onpointerdown=e=>{
+     const el=e.target.closest('[data-world-object]');
+     if(!el||selectedCharacter||e.pointerType!=='mouse'||e.button!==0)return;
+     e.preventDefault();const rect=el.getBoundingClientRect();
+     drag={el,key:el.dataset.worldObject,pointer:e.pointerId,dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,oldX:el.style.left,oldY:el.style.top,moved:false};
+     el.setPointerCapture(e.pointerId);el.classList.add('moving');
+   };
+   scene.onpointermove=e=>{
+     if(!drag||drag.pointer!==e.pointerId)return;
+     const rect=scene.getBoundingClientRect();
+     const x=Math.max(10,Math.min(90,(e.clientX-drag.dx-rect.left)/rect.width*100));
+     const y=Math.max(18,Math.min(85,(e.clientY-drag.dy-rect.top)/rect.height*100));
+     if(drag.x!==undefined&&Math.abs(drag.x-x)+Math.abs(drag.y-y)>0.1)drag.moved=true;
+     e.preventDefault();drag.x=x;drag.y=y;drag.el.style.left=x+'%';drag.el.style.top=y+'%';
+   };
+   scene.onpointerup=e=>{
+     if(!drag||drag.pointer!==e.pointerId)return;
+     if(drag.moved&&drag.x!==undefined){
+       (a.positions[id]??={})[drag.key]={x:drag.x,y:drag.y};save();
+       tell('Saved! Your arrangement will be here next time.');
+       ignoreClick=true;
+     }else{drag.el.style.left=drag.oldX;drag.el.style.top=drag.oldY}
+     drag.el.classList.remove('moving');drag=null;
+   };
+   scene.onpointercancel=scene.onlostpointercapture=()=>{
+     if(!drag)return;drag.el.style.left=drag.oldX;drag.el.style.top=drag.oldY;drag.el.classList.remove('moving');drag=null;
+   };
+   scene.addEventListener('click',e=>{
+     if(ignoreClick){ignoreClick=false;return}
+     const clicked=e.target.closest('[data-world-object]')?.dataset.worldObject;
+     if(!selectedCharacter){
+       if(clicked&&hasPlayerCharacter(clicked)&&a.friends[clicked]?.homeLandId===id)pickCharacter(clicked);
+       return;
+     }
+     if(clicked!==selectedCharacter&&hasPlayerCharacter(clicked)&&a.friends[clicked]?.homeLandId===id){pickCharacter(clicked);return}
+     const bounds=scene.getBoundingClientRect(),chosen=selectedCharacter;
+     (a.positions[id]??={})[chosen]={
+       x:Math.max(10,Math.min(90,(e.clientX-bounds.left)/bounds.width*100)),
+       y:Math.max(18,Math.min(85,(e.clientY-bounds.top)/bounds.height*100))
+     };
+     const figure=[...scene.querySelectorAll('[data-world-object]')].find(el=>el.dataset.worldObject===chosen);
+     if(figure){figure.style.left=a.positions[id][chosen].x+'%';figure.style.top=a.positions[id][chosen].y+'%';figure.classList.remove('selected-character')}
+     selectedCharacter=null;scene.classList.remove('placing-character');save();
+     tell('Saved! '+(char(chosen)?.name||'Your character')+' will stay in this spot.');
+   });
+   return pickCharacter;
  }
- function computer(worldId=null,section=null){
+ function computer(worldId=null,section=null,placeCharacterId=null){
   view='computer';
   a.hiddenDecorations??={};a.hiddenCompanions??=[];a.collectionExtraObjects??={};
   const purchased=lands.filter(l=>owned(l.id));
@@ -673,7 +708,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'">'+
       (placed?'✓ In Scene · Put Away':'＋ Add to Scene')+'</button></article>';
   }).join('');
-  const hasObjects=!!(ownedPlayers.length||ownedDecor.length||rescued.length||treasures.length);
+  const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
   const worldOnlyGoods=shopExclusives.filter(d=>d.world===backgroundHomes.find(w=>w.id===id)?.theme);
   const exclusiveStore='<section class="my-stuff-exclusive-store" aria-label="Shop-only decorations for '+esc(land(id).name)+'">'+
    '<h3>⭐ '+esc(land(id).name)+' · SHOP ONLY</h3><p>These items cannot be collected in activities. Spend stars to buy them for your world!</p>'+
@@ -683,32 +718,43 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button type="button" data-buy-shop-only="'+d.id+'" '+(ownedAnywhere||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+
       (here?'✓ Owned':ownedAnywhere?'✓ Owned · Move from Tray':a.wallet.rainbowStars<d.cost?'Earn More Stars':'⭐ Buy for '+d.cost+' Stars')+'</button></article>';
    }).join('')+'</div></section>';
-  const tray='<p>Pick anything you have earned or bought. Add it to your world, then drag it where you want!</p>'+
+  const tray='<p>Decorations, treasures and rescued friends: add them to your world, then arrange your scene!</p>'+
     '<div class="my-stuff-tray-controls" aria-label="Browse my decorations"><button id="stuff-scroll-prev" type="button" aria-label="Previous decorations">◀</button><strong>My Decorations, Friends & Treasures</strong><button id="stuff-scroll-next" type="button" aria-label="More decorations">▶</button></div>'+
     '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Scroll horizontally.">'+
-      (hasObjects?playerCards+decorationCards+friendCards+treasureCards:
+      (hasObjects?decorationCards+friendCards+treasureCards:
       '<p class="my-stuff-empty">Your collection starts here! Finish activities to earn treasures, rescue friends and buy decorations.</p>')+
     '</div><div class="my-stuff-shop-actions">'+
       '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Get More Decorations</button>'+
       '<button class="my-stuff-action" type="button" id="stuff-buy-world">🌍 Get Another World</button></div>';
+  const characterStrip='<section class="my-stuff-characters" aria-label="My Characters">'+
+    '<strong>MY CHARACTERS <small>Move for free</small></strong>'+
+    '<div class="my-stuff-character-list">'+ownedPlayers.map(c=>{
+      const here=a.friends[c.id].homeLandId===id;
+      const where=land(a.friends[c.id].homeLandId)?.name||'another world';
+      return '<div class="my-stuff-character-mini">'+pic(c.id)+
+        '<span>'+esc(c.name)+'</span><small>'+(here?'Here':'In '+esc(where))+'</small>'+
+        '<button type="button" data-stage-player="'+esc(c.id)+'" aria-label="'+(here?'Move ':'Place ')+esc(c.name)+(here?' on picture':' in this world')+'">'+
+        (here?'✋ Move':'＋ Place Here')+'</button></div>';
+    }).join('')+'</div></section>';
   shell('MY STUFF','<section class="lab-collection-page my-stuff-room" aria-label="My Stuff: make and play with my world">'+
       '<div class="my-stuff-heading"><div><small>MY WORLD • MY SCENE • MY FRIENDS</small><h2>'+esc(land(id).name)+'</h2></div>'+
         '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
       '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
-       '<p id="collection-report" role="status">This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!</p></div>'+
+       '<p id="collection-report" role="status">To move a character, click their picture once, then click a new spot. Or drag them!</p></div>'+characterStrip+
       '<div class="my-stuff-world-quickstrip" aria-label="Quickly change to a world you own">'+
         '<strong>🌍 My Worlds</strong><div class="my-stuff-quickworlds">'+purchased.map(l=>
           '<button type="button" data-stuff-world="'+l.id+'" aria-label="Show my '+esc(l.name)+' world" aria-pressed="'+(l.id===id)+'">'+
           img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
         '<div class="my-stuff-tray-panel">'+tray+'</div>'+exclusiveStore+'</div></section>');
-  enableCollectionDrag(id);
+  const armCharacter=enableCollectionDrag(id);
+  if(placeCharacterId)armCharacter(placeCharacterId);
   $('stuff-home').onclick=map;
-  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
+  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click a character ONCE, then click where it should stand. Or click their Move button below the picture. Dragging still works!'};
   // Keep the tray in view after adding/putting away several objects in a row.
-  const refresh=()=>{
+  const refresh=(characterId=null)=>{
     const appScroll=$('app').scrollTop, pageScroll=window.scrollY, trayScroll=$('my-stuff-tray')?.scrollLeft||0;
-    computer(id);
+    computer(id,null,characterId);
     $('app').scrollTop=appScroll;
     if($('my-stuff-tray'))$('my-stuff-tray').scrollLeft=trayScroll;
     // Depending on Chromebook viewport, either the page or the app is scrollable.
@@ -753,12 +799,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     }
     save();refresh();
   });
-  document.querySelectorAll('[data-stuff-player]').forEach(b=>b.onclick=()=>{
-   const characterId=b.dataset.stuffPlayer;
-   // Owned characters can change homes free; selecting one to PLAY still costs stars.
-   if(!hasPlayerCharacter(characterId)||!owned(id)||!placeFriend(a,characterId,id))return;
-   save();refresh();
-  });
+  const movePlayer=characterId=>{
+    if(!hasPlayerCharacter(characterId)||!owned(id))return;
+    if(a.friends[characterId].homeLandId!==id){
+      if(!placeFriend(a,characterId,id))return;
+      save();refresh(characterId);
+    }else armCharacter(characterId);
+  };
+  document.querySelectorAll('[data-stage-player]').forEach(b=>b.onclick=()=>movePlayer(b.dataset.stagePlayer));
+  document.querySelectorAll('[data-stuff-player]').forEach(b=>b.onclick=()=>movePlayer(b.dataset.stuffPlayer));
   document.querySelectorAll('[data-stuff-friend]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffFriend,friend=a.worldFriends?.[key];if(!friend)return;
     const here=friend.homeLandId===id,hidden=a.hiddenCompanions.includes(key);
