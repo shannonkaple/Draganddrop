@@ -275,7 +275,7 @@ assert.match(css,/background:#1b2b5c!important/,'walls are fully opaque');
 assert.match(css,/color-mix\(in srgb,var\(--c\) 67%,white\)/,'rainbow paths stay colorful');
 assert.match(css,/object-fit:contain!important/,'full-width approved JPEG header is never cropped or stretched');
 assert.match(html,/visual-hotfix-20261027\.css\?v=rainbow-wall-header-20261027g/,'published page references color and header fix');
-assert.match(html,/game\.mjs\?v=patrol-pockets-20261027g/,'published page references the updated game module');
+assert.match(html,/game\.mjs\?v=disjoint-patrols-20261027h/,'published page references the updated game module');
 assert.match(html,/toDataURL\('image\/jpeg'/,'approved header is rendered as a JPEG at runtime');
 
 
