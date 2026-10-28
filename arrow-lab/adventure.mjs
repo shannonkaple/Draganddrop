@@ -800,10 +800,23 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<button id="confirm-restart" type="button">Yes, Start This Maze Over</button>',()=>{
       $('keep-maze').onclick=()=>{closeModal();status('Your maze progress is safe. Keep going!')};
       $('confirm-restart').onclick=()=>{challengeKeys=null;closeModal();startLevel(def.number,true)};
-    });$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;const keys=route(r.grid,r.player,target);status(keys?.length?'Try '+keys[0].slice(5).toUpperCase()+' next.':'You are at your next stop.');};
+    });$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;status(safeHint(r,target));};
  $('adventure-full').onclick=()=>window.arrowLabToggleFullscreen?.();
  const db=$('duck-button');db.onpointerdown=e=>{if(e.pointerType!=='mouse')return;e.preventDefault();db.setPointerCapture(e.pointerId);setDuck(true)};db.onpointerup=db.onpointercancel=db.onlostpointercapture=()=>setDuck(false);db.onkeydown=e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();setDuck(true)}};db.onkeyup=()=>setDuck(false);
  draw();clock();requestAnimationFrame(()=>{$('adventure-maze')?.focus({preventScroll:true});fit()});
+ }
+ // Hints must never direct a student into a bad guy's current OR future
+ // patrol square. The generator guarantees a separate reachable safe route.
+ function safeHint(run,target){
+   const blocked=new Set((run.hazards||[]).flatMap(enemy=>(enemy.path||[]).map(tile)));
+   const keys=route(run.grid,run.player,target,blocked);
+   if(!keys)return 'No safe shortcut from here. Return toward the rainbow path and avoid the bad guys.';
+   if(!keys.length)return 'You are at your next stop.';
+   const key=keys[0],direction=key.slice(5).toUpperCase(),[dx,dy]=directions[key];
+   const next={x:run.player.x+dx,y:run.player.y+dy};
+   return run.barrier&&tile(next)===tile(run.barrier)
+     ?'Hold SPACE and press '+direction+' to duck under the bridge.'
+     :'Try '+direction+' next.';
  }
  function status(t){report=t;tellGuide(t);if($('adventure-status'))$('adventure-status').textContent=t}
  function setDuck(v){duck=v;$('duck-button')?.setAttribute('aria-pressed',String(v));$('adventure-maze')?.classList.toggle('ducking',v)}
