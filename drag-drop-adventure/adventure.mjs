@@ -619,7 +619,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      const el=e.target.closest('[data-world-object]');
      if(!el||selectedCharacter||e.pointerType!=='mouse'||e.button!==0)return;
      e.preventDefault();const rect=el.getBoundingClientRect();
-     drag={el,key:el.dataset.worldObject,pointer:e.pointerId,dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,oldX:el.style.left,oldY:el.style.top,moved:false};
+     drag={el,key:el.dataset.worldObject,pointer:e.pointerId,dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,oldX:el.style.left,oldY:el.style.top,startX:e.clientX,startY:e.clientY,moved:false};
      el.setPointerCapture(e.pointerId);el.classList.add('moving');
    };
    scene.onpointermove=e=>{
@@ -627,7 +627,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      const rect=scene.getBoundingClientRect();
      const x=Math.max(10,Math.min(90,(e.clientX-drag.dx-rect.left)/rect.width*100));
      const y=Math.max(18,Math.min(85,(e.clientY-drag.dy-rect.top)/rect.height*100));
-     if(drag.x!==undefined&&Math.abs(drag.x-x)+Math.abs(drag.y-y)>0.1)drag.moved=true;
+     if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5)drag.moved=true;
      e.preventDefault();drag.x=x;drag.y=y;drag.el.style.left=x+'%';drag.el.style.top=y+'%';
    };
    scene.onpointerup=e=>{
