@@ -147,11 +147,12 @@ export function restoreSavedEnemyRoster(run,definition,easy=false){
  const firstForId=new Map();
  for(const e of old)if(wanted.includes(e.id)&&!firstForId.has(e.id))firstForId.set(e.id,e);
  const reserved=new Set(firstForId.keys());
+ let remapped=false;
  for(const e of old){
    if(kept.length>=4)break;
    if(firstForId.get(e.id)===e){kept.push(e);assigned.add(e.id);continue}
    const id=wanted.find(id=>!reserved.has(id));if(!id)continue;
-   e.id=id;reserved.add(id);assigned.add(id);kept.push(e);
+   e.id=id;remapped=true;reserved.add(id);assigned.add(id);kept.push(e);
  }
  if(kept.length===4&&run.hazards.length===4&&run.hazards.every((e,i)=>e===kept[i]))return false;
  const blocked=new Set(kept.flatMap(e=>e.path.map(tile)));
@@ -175,7 +176,7 @@ export function restoreSavedEnemyRoster(run,definition,easy=false){
  const available=p=>inside(p)&&!blocked.has(tile(p))&&!protectedTiles.has(tile(p));
  const near=p=>Object.values(directions).map(([dx,dy])=>({x:p.x+dx,y:p.y+dy})).filter(available);
  const otherPositions=()=>[run.player,run.start,run.goal,...kept.map(e=>e.path[e.index])].filter(inside);
- let changed=kept.length!==run.hazards.length||kept.some((e,i)=>e!==run.hazards[i]);
+ let changed=remapped||kept.length!==run.hazards.length||kept.some((e,i)=>e!==run.hazards[i]);
  for(const id of wanted.filter(id=>!assigned.has(id))){
    const starts=cells.filter(p=>available(p)&&grid[p.y][p.x]===0);
    let best=null,bestScore=-Infinity;
