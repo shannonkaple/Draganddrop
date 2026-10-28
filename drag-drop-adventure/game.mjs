@@ -1,5 +1,5 @@
-import './viewport.mjs';
-import {openAdventure} from './adventure.mjs';
+import './viewport.mjs?v=20261028-final';
+import {openAdventure} from './adventure.mjs?v=20261028-final';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;

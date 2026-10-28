@@ -1,5 +1,5 @@
-import {mountDragActivity} from './drag-activity.mjs';
-import {tellGuide,starIcon} from './viewport.mjs';
+import {mountDragActivity} from './drag-activity.mjs?v=20261028-final';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261028-final';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -949,7 +949,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
  }
  function finish(){
- 
+
  r.complete=true;if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
  modal('Great dragging and dropping!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished activity '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'activity':'activities')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
  // Optional completed-level replays do not grant extra stars or count as new finishes.
@@ -1006,4 +1006,3 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(!a.selectedPlayerCharacterId)selectCharacter();else if(canRescue())continueRescue();else map();
  return {cleanup,goHome:()=>{challengeKeys=null;$('adventure-dialog')?.close();if(a.selectedPlayerCharacterId)map();else{cleanup();onLogout()}}};
 }
-
