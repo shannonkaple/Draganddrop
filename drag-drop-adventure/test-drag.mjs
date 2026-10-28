@@ -16,3 +16,15 @@ assert.equal(hitsBlocker({x:40,y:145},{x:50,y:145},blocker,55,65),true,'Final re
 assert.equal(hitsBlocker({x:40,y:145},{x:40,y:145},blocker,55,65),false,'Stationary token outside stays safe');
 assert.equal(hitsBlocker({x:140,y:145},{x:140,y:145},blocker),true,'Stationary token inside hits');
 console.log('Swept blocker collision, whole-token overlap, release-edge checks and open detours passed.');
+
+const {blockerPlan,movingBlockerHit}=await import('./drag-activity.mjs');
+assert.deepEqual(blockerPlan(1,4),[]);
+assert.deepEqual(blockerPlan(2,4),[{moving:false}]);
+assert.deepEqual(blockerPlan(3,4),[{moving:true}]);
+assert.deepEqual(blockerPlan(4,4),[{moving:false},{moving:false}]);
+assert.deepEqual(blockerPlan(5,4),[{moving:true},{moving:false}]);
+assert.deepEqual(blockerPlan(8,4),[{moving:true},{moving:true}]);
+assert.deepEqual(blockerPlan(8,4,true),[{moving:false},{moving:false}]);
+assert.equal(movingBlockerHit({x:250,y:145},blocker,{left:250,right:330,top:100,bottom:190},44,52),true,'Moving enemy must hit a stationary held token');
+assert.equal(movingBlockerHit({x:400,y:300},blocker,{left:250,right:330,top:100,bottom:190},44,52),false,'Distant movement must not hit');
+console.log('Stationary/moving/multiple stage plans, reduced motion, and enemy-driven collision passed.');

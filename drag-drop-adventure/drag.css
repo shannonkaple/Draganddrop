@@ -29,3 +29,14 @@ body>header.lab-image-header.drag-banner-header .actions{padding:5px 8px!importa
 /* Compact banner: reserve screen space for the activity. */
 body>header.lab-image-header.drag-banner-header .brand{height:clamp(80px,14vh,125px)!important;overflow:hidden!important;background:#d8efff!important}
 body>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art{width:100%!important;height:100%!important;max-height:125px!important;object-fit:contain!important}
+/* Re-composed panoramic artwork fills the whole width at a naturally shallow height. */
+body>header.lab-image-header.drag-banner-header .brand{height:auto!important;min-height:0!important;overflow:hidden!important}
+body>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art{display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important}
+/* Transparent original enemy sprites, larger with room to steer around them. */
+.drag-field{grid-template-columns:24% 1fr;gap:20%}
+.drag-target{width:clamp(100px,11vw,150px)}
+.drag-blockers{position:absolute;inset:0;pointer-events:none}
+.drag-blocker{width:112px;height:112px;border:0;border-radius:0;background:none;box-shadow:none;padding:0;pointer-events:none}
+.drag-blocker img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 2px #50226440)}
+.drag-ghost{width:88px;height:104px;padding:5px}.drag-ghost img{height:65px}.drag-ghost span{font-size:11px}
+@media(max-width:800px){.drag-field{grid-template-columns:24% 1fr;gap:20%}.drag-target{width:100px}.drag-blocker{width:100px;height:100px}}

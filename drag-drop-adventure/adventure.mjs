@@ -1,5 +1,5 @@
-import {mountDragActivity} from './drag-activity.mjs?v=20261028-header';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261028-header';
+import {mountDragActivity} from './drag-activity.mjs?v=20261028-wide';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261028-wide';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -779,14 +779,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const ids=[...new Set([...def.collectibleIds,...worldObjects.map(x=>x[0]),...data.computer_collectibles.map(x=>x.id)])].filter(id=>itemArt(id)).slice(0,6);
  dragSession=mountDragActivity($('drag-activity'),{
   enemies:def.enemyIds.map(id=>data.enemies.find(e=>e.id===id)).filter(Boolean).map(e=>({name:e.name,image:asset(e.thumbnail)})),
-  stage:def.worldStage,background:asset(def.backgroundImage),items:ids.map(id=>({id,name:itemName(id),image:asset(itemArt(id))})),completed:r.drops||0,
+  reducedMotion:settings.reducedMotion,stage:def.worldStage,background:asset(def.backgroundImage),items:ids.map(id=>({id,name:itemName(id),image:asset(itemArt(id))})),completed:r.drops||0,
   onDrop:(count)=>{r.drops=count;save()},
   onComplete:()=>{
    for(const id of def.collectibleIds||[]){if(!(a.collectedWorldItems??=[]).includes(id))a.collectedWorldItems.push(id)}
    r.items=(def.collectibleIds||[]).map(id=>({id,collected:true}));r.skill={done:true,type:'drag'};finish();
   }
  });
- tellGuide('Click and keep holding with one finger. Move the picture to its match. Let go inside the matching spot.'+(def.worldStage>=2?' Go around the bad guy and its striped border.':''),'CLICK → HOLD → MOVE → LET GO');
+ tellGuide('Click and keep holding with one finger. Move the picture to its match. Let go inside the matching spot.'+(def.worldStage>=2?' Go around the bad guys. Watch for the ones that move.':''),'CLICK → HOLD → MOVE → LET GO');
  a.activeRun=r;save();
  }
  function maze(){
@@ -996,7 +996,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  $('help').onclick=()=>{
   // Do not overwrite an unfinished keyboard challenge or rescue dialog.
   if($('adventure-dialog')?.open)return;
-  const t='Click and keep holding with one finger. While holding, move the picture to its matching spot. Let go inside the spot. Go around the bad guys and keep the whole picture away from their striped borders. If you touch one, only that drag starts over; finished drops stay saved. If you let go too soon, try again. Each level gives you more drag-and-drop practice. Finish levels to earn stars and rescue friends.';
+  const t='Click and keep holding with one finger. While holding, move the picture to its matching spot. Let go inside the spot. Go around the bad guys and keep the whole picture away from them. Some move slowly, and some activities have two bad guys. If you touch one, only that drag starts over; finished drops stay saved. If you let go too soon, try again. Each level gives you more drag-and-drop practice. Finish levels to earn stars and rescue friends.';
   modal('How to Play','<p>'+esc(t)+'</p><div class="actions"><button id="help-read-aloud" type="button">🔊 Read aloud</button><button id="help-back" class="primary" type="button">Back to adventure</button></div>',()=>{
     const speech=window.speechSynthesis,read=$('help-read-aloud');
     read.disabled=!(speech&&window.SpeechSynthesisUtterance);

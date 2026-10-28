@@ -1,9 +1,9 @@
-import './viewport.mjs?v=20261028-header';
-import {openAdventure} from './adventure.mjs?v=20261028-header';
+import './viewport.mjs?v=20261028-wide';
+import {openAdventure} from './adventure.mjs?v=20261028-wide';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;
-const teachers=await fetch(new URL('./teachers-grade2.json?v=20261028-header',import.meta.url)).then(r=>{if(!r.ok)throw Error('Class list could not load');return r.json()});
+const teachers=await fetch(new URL('./teachers-grade2.json?v=20261028-wide',import.meta.url)).then(r=>{if(!r.ok)throw Error('Class list could not load');return r.json()});
 function login(){
  controller?.cleanup();controller=null;document.body.classList.remove('playing','adventure-mode','lab-map-active');$('who').classList.add('hidden');
  $('app').innerHTML='<div class="hero"><h1>DRAG &amp; DROP ADVENTURE</h1><p>Click. Hold. Move. Let go!</p><p>Choose your teacher. Then choose your classroom number.</p></div><section class="panel"><h2>1. Second Grade · Pick your teacher</h2><div class="adventure-cards">'+teachers.map(t=>'<button data-teacher="'+t.id+'">'+esc(t.name)+'</button>').join('')+'</div></section>';
