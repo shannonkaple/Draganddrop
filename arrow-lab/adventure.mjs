@@ -189,7 +189,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  config.levelCount=levels.length;
  let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
- let currentMapWorld=null,inventoryPage=0;
+ let currentMapWorld=null,inventoryScrollLeft=0;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-lab-teacher-settings')||'{}')}catch{settings={}}
  settings={difficulty:'standard',speed:2200,hints:true,sound:false,reducedMotion:false,...settings,touchArrows:false};
  // Every student automatically owns one starter home. Never ask for a home during onboarding.
@@ -256,7 +256,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   fullscreen.setAttribute('aria-label','Toggle full screen');
   fullscreen.onclick=()=>window.arrowLabToggleFullscreen?.();
   const back=document.createElement('button');back.type='button';back.className='modal-map';
-  back.textContent='← Back to Map · Enter';back.onclick=returnToCurrentMap;
+  back.textContent='← Back to Map';back.onclick=returnToCurrentMap;
   toolbar.append(back,home,fullscreen);
   tellGuide(d.querySelector('.dialog-content p')?.textContent||title,'⭐ → ✓');
   d.oncancel=e=>{e.preventDefault();returnToCurrentMap()};
@@ -633,6 +633,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   };
  }
  function computer(worldId=null,section=null){
+  // Keep the horizontal shelf in place when a student adds, moves or hides an item.
+  const previousTray=$('my-stuff-tray');
+  if(previousTray)inventoryScrollLeft=previousTray.scrollLeft;
   view='computer';
   a.hiddenDecorations??={};a.hiddenCompanions??=[];a.collectionExtraObjects??={};
   const purchased=lands.filter(l=>owned(l.id));
@@ -700,24 +703,27 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   $('stuff-home').onclick=map;
   $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
   const refresh=()=>computer(id);
-  const cards=[...$('my-stuff-tray').querySelectorAll('.my-stuff-item')];
-  const showInventory=()=>{
-    const pageSize=innerHeight<=640?2:4,pages=Math.max(1,Math.ceil(cards.length/pageSize));
-    inventoryPage=Math.max(0,Math.min(inventoryPage,pages-1));
-    cards.forEach((card,i)=>card.hidden=i<inventoryPage*pageSize||i>=(inventoryPage+1)*pageSize);
-    $('stuff-page-label').textContent=cards.length+' items · '+(inventoryPage+1)+' / '+pages;
-    $('stuff-scroll-prev').disabled=inventoryPage===0;
-    $('stuff-scroll-next').disabled=inventoryPage===pages-1;
+  const trayEl=$('my-stuff-tray');
+  const cards=[...trayEl.querySelectorAll('.my-stuff-item')];
+  // All earned objects stay visible in one scrollable row; no hidden pages.
+  trayEl.scrollLeft=inventoryScrollLeft;
+  const updateShelf=()=>{
+    inventoryScrollLeft=trayEl.scrollLeft;
+    $('stuff-page-label').textContent=cards.length+' items · scroll to see more';
+    $('stuff-scroll-prev').disabled=trayEl.scrollLeft<=1;
+    $('stuff-scroll-next').disabled=trayEl.scrollLeft+trayEl.clientWidth>=trayEl.scrollWidth-1;
   };
-  const changePage=step=>{inventoryPage+=step;showInventory()};
-  $('stuff-scroll-prev').onclick=()=>changePage(-1);
-  $('stuff-scroll-next').onclick=()=>changePage(1);
-  $('my-stuff-tray').onkeydown=event=>{
+  const scrollShelf=step=>trayEl.scrollBy({left:step*Math.max(160,Math.floor(trayEl.clientWidth*.8)),behavior:'smooth'});
+  $('stuff-scroll-prev').onclick=()=>scrollShelf(-1);
+  $('stuff-scroll-next').onclick=()=>scrollShelf(1);
+  trayEl.addEventListener('scroll',updateShelf,{passive:true});
+  trayEl.onkeydown=event=>{
+    if(event.target!==trayEl)return; // Child buttons keep their native keyboard controls.
     if(event.key==='ArrowLeft'||event.key==='ArrowRight'){
-      event.preventDefault();changePage(event.key==='ArrowLeft'?-1:1);$('my-stuff-tray').focus();
+      event.preventDefault();scrollShelf(event.key==='ArrowLeft'?-1:1);
     }
   };
-  showInventory();
+  requestAnimationFrame(updateShelf);
   $('stuff-world-select').onchange=e=>computer(e.target.value);
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
@@ -1014,7 +1020,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function keydown(e){
  if(closed)return;if(e.code==='Space'&&heldSpace&&$('adventure-dialog')?.open){e.preventDefault();return}const target=e.target;if(target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement)return;
- if($('adventure-dialog')?.open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)returnToCurrentMap();return}if(challengeKeys&&directions[e.key]){e.preventDefault();if(!e.repeat)challengeKeys(e.key)}return}
+ if($('adventure-dialog')?.open){/* Native Enter activates the focused popup button; never hijack it to leave the maze. */if(challengeKeys&&directions[e.key]){e.preventDefault();if(!e.repeat)challengeKeys(e.key)}return}
  if(view!=='maze')return;
  if(e.code==='Space'&&target.id!=='duck-button'){e.preventDefault();heldSpace=true;setDuck(true);return}
  if(directions[e.key]){e.preventDefault();if(!e.repeat)move(e.key)}
