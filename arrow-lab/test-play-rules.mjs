@@ -183,8 +183,23 @@ assert.ok(luna,'Luna keeps the same student character ID');
 assert.equal(luna.artworkPending,false,'Luna uses her actual original individual PNG');
 assert.deepEqual(luna.levels.map(l=>l.image),Array(3).fill('arrow-lab/characters/luna_axolotl.png'),'Luna PNG used consistently at all saved upgrade stages');
 assert.equal(pendingCharacters.length,10,'all ten existing character IDs remain registered');
-assert.equal(pendingCharacters.filter(c=>c.artworkPending).length,9,'unpublished characters retain honest labelled placeholders');
-assert.ok(pendingCharacters.filter(c=>c.artworkPending).every(c=>c.levels.every(l=>l.image==='pending:character:'+c.id)),'do not substitute another character for missing art');
+assert.equal(pendingCharacters.filter(c=>c.artworkPending).length,0,'all ten approved portraits have native published PNG paths');
+const approvedPortraits={
+ cosmo_fox:[1160,1355],nova_panda:[1278,1230],pixel_pig:[1199,1312],
+ zippy_turtle:[1207,1303],coco_koala:[1237,1271],berry_bunny:[1024,1536],
+ sparky_dragon:[1208,1302],mochi_otter:[1145,1374],bolt_bot:[1212,1297]
+};
+for(const character of pendingCharacters){
+ const expected='arrow-lab/characters/'+character.id+'.png';
+ assert.ok(character.levels.every(l=>l.image===expected&&l.thumbnail===expected),
+   character.id+': exact same-species PNG at every upgrade stage, no fallback or substitution');
+ const bytes=fs.readFileSync(new URL('./characters/'+character.id+'.png',import.meta.url));
+ assert.deepEqual([...bytes.subarray(0,8)],[137,80,78,71,13,10,26,10],character.id+': actual PNG bytes');
+ assert.equal(bytes.toString('ascii',12,16),'IHDR',character.id+': PNG has valid IHDR');
+ const dims=approvedPortraits[character.id]||[1278,1230];
+ assert.deepEqual([bytes.readUInt32BE(16),bytes.readUInt32BE(20)],dims,character.id+': native approved dimensions');
+ assert.equal(bytes[25],6,character.id+': genuine RGBA PNG with transparency');
+}
 const suppliedFriends={
  pirate:'pirate-parrot',arctic:'arctic-penguin',castle:'royal-dragon',
  space:'space-alien',jurassic:'explorer-dino',ocean:'ocean-dolphin',lava:'lava-dragon'
@@ -244,7 +259,7 @@ assert.equal(allCharacters.length,data.characters.length+10,'all ten missing cha
 assert.equal(new Set(allCharacters.map(c=>c.id)).size,allCharacters.length,'no duplicate IDs');
 for(const character of pendingCharacters){
  assert.equal(character.levels.length,3,'all upgrade stages retained');
- for(const level of character.levels)assert.equal(level.image,character.id==='luna_axolotl'?'arrow-lab/characters/luna_axolotl.png':'pending:character:'+character.id,'published art or honest placeholder for each stable ID');
+ for(const level of character.levels)assert.equal(level.image,'arrow-lab/characters/'+character.id+'.png','approved same-species PNG for each stable ID');
 }
 const legacyPlayerSave={
  selectedPlayerCharacterId:'luna_axolotl',ownedWorldIds:['background_pirate'],primaryRainbowLandId:'background_pirate',
@@ -269,7 +284,7 @@ assert.match(source,/const chars=arrowLabCharacters\(data\.characters\)/,'local 
 assert.match(source,/pending-character-note/,'missing portraits visibly labelled');
 const markerSource=source.slice(source.indexOf("const img=(p,name,cls='')=>"),source.indexOf('const readJSON=async'));
 const markerRender=new Function('esc','asset',markerSource+';return img;')(s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;'),p=>p);
-const missingPortrait=markerRender('pending:character:cosmo_fox','Cosmo Fox','friend-art');
+const missingPortrait=markerRender('pending:character:unreleased_future','Future Character','friend-art');
 assert.match(missingPortrait,/ART COMING SOON/,'portrait has honest placeholder label');
 assert.doesNotMatch(missingPortrait,/<img/,'no broken image URL');
 assert.match(source,/const p=at\(c,i\),name=char\(c\)\?\.name/,'unknown saved friends render safely in MY STUFF');
@@ -411,7 +426,7 @@ assert.doesNotMatch(html,/toDataURL\(|createElement\('canvas'\)/,'the header is 
 const bannerBytes=fs.readFileSync(new URL('./assets/arrow-adventure-header-permanent.jpg',import.meta.url));
 assert.deepEqual([...bannerBytes.subarray(0,3)],[0xff,0xd8,0xff],'published header is a real JPEG, not renamed PNG bytes');
 assert.ok(bannerBytes.length>100000,'permanent banner contains the actual approved illustrated artwork');
-assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=visual-help-20261028a/,'published game requests the latest adventure module');
+assert.match(fs.readFileSync(new URL('./game.mjs',import.meta.url),'utf8'),/adventure\.mjs\?v=approved-portraits-20261028a/,'published game requests the latest adventure module');
 
 
 // Exercise the ACTUAL installed MY STUFF click handler with two saved worlds.
