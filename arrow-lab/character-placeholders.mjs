@@ -19,10 +19,13 @@ export const pendingCharacters=missing.map(([id,name,themeColor])=>({
  levels:['starter','power_up','super_power'].map((stage,i)=>({
    id:stage,level:i+1,name:['Starter','Power-Up','Super Power'][i],
    // A non-URL marker deliberately rendered as an explicit neutral placeholder.
-   image:'pending:character:'+id,thumbnail:'pending:character:'+id
+   // Luna is the original standalone 1278×1230 transparent illustration.
+   // Other characters retain honest named placeholders until their own PNGs exist.
+   image:id==='luna_axolotl'?'arrow-lab/characters/luna_axolotl.png':'pending:character:'+id,
+   thumbnail:id==='luna_axolotl'?'arrow-lab/characters/luna_axolotl.png':'pending:character:'+id
  })),
  rescuable:true,isStarterOption:true,friendUpgradesEnabled:true,
- artworkPending:true
+ artworkPending:id!=='luna_axolotl'
 }));
 export function arrowLabCharacters(published){
  const list=Array.isArray(published)?published:[];
