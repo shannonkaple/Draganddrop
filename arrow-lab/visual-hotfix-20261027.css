@@ -861,3 +861,43 @@ body.lab-collection-active .my-stuff-toolbox #my-stuff-tray .my-stuff-item{
  width:clamp(140px,15vw,182px)!important;max-width:none!important;
  scroll-snap-align:start!important;
 }
+
+
+/* Responsive full-width illustrated JPEG heading. The actual painted pixels
+   are provided by #lab-jpeg-banner; all navigation remains keyboard reachable. */
+body>header.lab-image-header{
+ height:clamp(172px,25dvh,235px)!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:space-between!important;
+ padding:0 7px 5px!important;gap:2px!important;
+ overflow:hidden!important;background:#d5eaff!important;
+}
+body>header.lab-image-header .brand{
+ display:block!important;flex:1 1 auto!important;
+ position:relative!important;min-width:0!important;min-height:0!important;
+ width:100%!important;max-width:100%!important;overflow:hidden!important;
+}
+body>header.lab-image-header .brand>img.lab-header-art{
+ display:block!important;width:100%!important;height:100%!important;
+ max-width:none!important;max-height:none!important;
+ object-fit:cover!important;object-position:center 49%!important;
+ filter:none!important;margin:0!important;
+}
+body>header.lab-image-header .actions{
+ display:flex!important;flex:0 0 auto!important;flex-flow:row nowrap!important;
+ justify-content:center!important;align-items:center!important;
+ width:100%!important;max-width:100%!important;overflow-x:auto!important;
+ overflow-y:hidden!important;gap:7px!important;margin:0!important;
+ padding:2px 0 0!important;
+}
+body>header.lab-image-header .actions button{
+ flex:0 0 auto!important;min-height:30px!important;
+ width:auto!important;padding:4px 10px!important;
+ font-size:clamp(11px,1vw,14px)!important;
+ white-space:nowrap!important;
+}
+@media(max-width:620px){
+ body>header.lab-image-header{height:clamp(145px,25dvh,194px)!important}
+ body>header.lab-image-header .actions{justify-content:flex-start!important}
+ body>header.lab-image-header .actions button{font-size:11px!important;padding:4px 6px!important}
+}
