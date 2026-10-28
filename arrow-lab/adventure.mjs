@@ -631,12 +631,26 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function enableCollectionDrag(id){
   const scene=$('collection-scene');if(!scene)return;let drag=null;
   scene.querySelectorAll('[data-world-object]').forEach(el=>{
-   if(!el.dataset.worldObject.includes(':'))return;
+   const key=el.dataset.worldObject,isPlayer=key===a.selectedPlayerCharacterId;
+   if(!key.includes(':')&&!isPlayer)return;
    el.tabIndex=0;el.setAttribute('role','group');
-   const remove=document.createElement('button');remove.type='button';remove.className='scene-remove';
-   remove.textContent='×';remove.setAttribute('aria-label','Remove '+(el.getAttribute('aria-label')||'item')+' from scene');
-   remove.onclick=()=>removeSceneObject(id,el.dataset.worldObject);el.append(remove);
-   el.onkeydown=e=>{if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();removeSceneObject(id,el.dataset.worldObject)}};
+   if(isPlayer)el.setAttribute('aria-label','My player: move with trackpad or keyboard arrow keys');
+   if(!isPlayer){
+     const remove=document.createElement('button');remove.type='button';remove.className='scene-remove';
+     remove.textContent='×';remove.setAttribute('aria-label','Remove '+(el.getAttribute('aria-label')||'item')+' from scene');
+     remove.onclick=()=>removeSceneObject(id,key);el.append(remove);
+   }
+   el.onkeydown=e=>{
+     if(directions[e.key]){
+       e.preventDefault();e.stopPropagation();
+       const p=(a.positions[id]??={})[key]||{x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50};
+       const d=directions[e.key],next={x:Math.max(5,Math.min(95,p.x+d[0]*3)),y:Math.max(5,Math.min(95,p.y+d[1]*3))};
+       a.positions[id][key]=next;el.style.left=next.x+'%';el.style.top=next.y+'%';
+       save();$('collection-report').textContent='Position saved. Use arrow keys again or drag to move.';
+     }else if(!isPlayer&&(e.key==='Delete'||e.key==='Backspace')){
+       e.preventDefault();removeSceneObject(id,key);
+     }
+   };
   });
   scene.onpointerdown=e=>{
     if(e.target.closest('.scene-remove'))return;
@@ -704,6 +718,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       (placed?'Remove from Scene':'＋ Add to Scene')+'</button></article>';
   }).join('');
   const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
+  // Keep the current player visible and easy to move between purchased worlds.
+  // Their saved character ID and position are never replaced or reset.
+  const playerId=a.selectedPlayerCharacterId;
+  const playerHere=a.friends[playerId]?.homeLandId===id;
+  const worldPreviews='<div class="my-stuff-quickworlds" role="group" aria-label="My owned world pictures">'+
+    purchased.map(l=>'<button type="button" data-stuff-world="'+l.id+'" aria-pressed="'+(l.id===id)+'" aria-label="Show '+esc(l.name)+' world">'+
+      img(l.cardPreview,l.name+' world preview')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div>';
   const worldOnlyGoods=shopExclusives.filter(d=>d.world===backgroundHomes.find(w=>w.id===id)?.theme);
   const exclusiveStore='<section class="my-stuff-exclusive-store" aria-label="Shop-only decorations for '+esc(land(id).name)+'">'+
    '<h3>⭐ '+esc(land(id).name)+' · SHOP ONLY</h3><p>These items cannot be collected in mazes. Spend stars to buy them for your world!</p>'+
@@ -723,15 +744,29 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button class="my-stuff-action" type="button" id="stuff-buy-world">🌍 Get Another World</button></div>';
   shell('MY STUFF','<section class="lab-collection-page my-stuff-room" aria-label="My Stuff: make and play with my world">'+
       '<div class="my-stuff-heading"><div><small>MY WORLD • MY SCENE • MY FRIENDS</small><h2>'+esc(land(id).name)+'</h2></div>'+
-        '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
+        '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-move-player" type="button">'+(playerHere?'↔ Move My Player':'＋ Bring My Player Here')+'</button><button id="stuff-change-player" type="button">Change Character</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
       '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
        '<p id="collection-report" role="status">This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!</p></div>'+
-      '<div class="my-stuff-world-quickstrip"><label for="stuff-world-select">My World</label><select id="stuff-world-select">'+purchased.map(l=>'<option value="'+l.id+'" '+(l.id===id?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></div>'+
+      '<div class="my-stuff-world-quickstrip"><strong>My Owned Worlds</strong>'+worldPreviews+
+        '<label for="stuff-world-select">Choose a world by name</label><select id="stuff-world-select">'+purchased.map(l=>'<option value="'+l.id+'" '+(l.id===id?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></div>'+
       '<div class="my-stuff-toolbox"><h3>MY ITEMS</h3>'+
         '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
   enableCollectionDrag(id);
   $('stuff-home').onclick=map;
-  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save!'};
+  $('stuff-change-player').onclick=()=>selectCharacter(true);
+  $('stuff-move-player').onclick=()=>{
+    const player=a.friends[playerId];
+    if(!player)return;
+    if(player.homeLandId!==id){
+      player.homeLandId=id;save();computer(id);
+      $('collection-report').textContent='Your player is now in this world! Drag your character to move them.';
+    }else{
+      const sprite=[...document.querySelectorAll('#collection-scene [data-world-object]')].find(el=>el.dataset.worldObject===playerId);
+      sprite?.focus({preventScroll:true});
+      $('collection-report').textContent='Move your player with your trackpad, or use arrow keys while the player is selected.';
+    }
+  };
+  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click and HOLD an item inside the large world with your trackpad. Move it to a new spot, then let go to save! Select your player and use arrow keys to move it too.'};
   const refresh=()=>computer(id);
   const trayEl=$('my-stuff-tray');
   const cards=[...trayEl.querySelectorAll('.my-stuff-item')];
@@ -755,6 +790,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   };
   requestAnimationFrame(updateShelf);
   $('stuff-world-select').onchange=e=>computer(e.target.value);
+  document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
     if((a.decorations[id]||[]).includes(key)){
