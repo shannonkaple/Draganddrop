@@ -52,17 +52,42 @@ async function chooseCharacter(){await charactersReady;if(!availableCharacters.l
 function login(){
  $('arrow-lab-help-dialog')?.close?.();
  $('help').onclick=legacyHelp;adventureController?.cleanup();adventureController=null;adventureActive=false;document.body.classList.remove('playing');identity=null;run=null;wallet=null;$('who').classList.add('hidden');
- $('app').innerHTML='<div class="hero"><div class="rainbow">🌈</div><h1>MS. KAPLE’S A-MAZING<br>ARROW ADVENTURE!</h1><p>Use the arrow keys to choose your teacher. Press Enter. Then choose your classroom number.</p></div><section class="panel"><h2>1. Pick your teacher</h2><div class="adventure-cards">'+teachers.map(t=>'<button data-teacher="'+t.id+'">'+esc(t.name)+'</button>').join('')+'</div><details><summary>For the teacher</summary><p>Previous number-only saves stay on this browser. Assign them to their original homeroom once. Existing class saves will not be replaced.</p><label for="arrow-teacher-code">Teacher code</label><input id="arrow-teacher-code" type="password" inputmode="numeric" autocomplete="off"><div class="adventure-cards">'+teachers.map(t=>'<button data-import-arrow="'+t.id+'">Assign old saves to '+esc(t.name)+'</button>').join('')+'</div><p id="arrow-import-status" role="status"></p></details></section>';
+ // The artwork in the banner already names the game. Keep teacher login short,
+ // readable, and scrollable instead of repeating a huge second title.
+ document.body.classList.remove('lab-number-active');
+ document.body.classList.add('lab-teacher-active');
+ $('app').innerHTML='<section class="lab-entry-screen" aria-label="Choose your teacher">'+
+  '<div class="lab-entry-intro"><span class="lab-step-badge">STEP 1 OF 2</span><h1>Choose Your Teacher</h1>'+
+  '<p>Click your teacher, then choose your classroom number.</p>'+
+  '<small>Or use keyboard arrows and press Enter.</small></div>'+
+  '<div class="lab-teacher-list" role="group" aria-label="Teachers"><div class="adventure-cards lab-teacher-cards">'+
+  teachers.map(t=>'<button type="button" data-teacher="'+t.id+'" aria-label="Choose '+esc(t.name)+'">'+esc(t.name)+'</button>').join('')+
+  '</div></div><details class="lab-teacher-tools"><summary>Teacher tools</summary>'+
+  '<p>Assign old number-only saves to the original homeroom. Backups remain.</p>'+
+  '<label for="arrow-teacher-code">Teacher code</label><input id="arrow-teacher-code" type="password" inputmode="numeric" autocomplete="off">'+
+  '<div class="adventure-cards lab-import-cards">'+teachers.map(t=>
+   '<button type="button" data-import-arrow="'+t.id+'">Assign old saves to '+esc(t.name)+'</button>').join('')+
+  '</div><p id="arrow-import-status" role="status"></p></details></section>';
+ $('app').scrollTop=0;
  document.querySelectorAll('[data-teacher]').forEach(b=>b.onclick=()=>pickNumber(teachers.find(t=>t.id===b.dataset.teacher)));
  enablePickerArrows(document.querySelector('[data-teacher]').parentElement);
  document.querySelectorAll('[data-import-arrow]').forEach(b=>b.onclick=()=>{if($('arrow-teacher-code').value!=='8714'){$('arrow-import-status').textContent='Enter the teacher code first.';return}const count=copyLegacy(localStorage,b.dataset.importArrow);$('arrow-import-status').textContent='Copied '+count+' old saves. Original backups were kept.'});
 }
 function pickNumber(teacher){
- $('app').innerHTML='<button id="other-teacher">← Change teacher</button><section class="panel"><h2>2. Pick your number</h2><p>'+esc(teacher.name)+'</p><div class="numbers">'+Array.from({length:24},(_,i)=>'<button data-number="'+(i+1)+'" aria-label="Play as number '+(i+1)+'">'+(i+1)+'</button>').join('')+'</div></section><p class="footnote">Progress saves by teacher and number on this browser. Use the same device and browser to resume.</p>';
+ document.body.classList.remove('lab-teacher-active');
+ document.body.classList.add('lab-number-active');
+ $('app').innerHTML='<section class="lab-entry-screen lab-number-screen">'+
+  '<div class="lab-entry-intro"><button id="other-teacher" type="button">← Change Teacher</button>'+
+  '<span class="lab-step-badge">STEP 2 OF 2</span><h1>Choose Your Number</h1>'+
+  '<p>'+esc(teacher.name)+'</p><small>Choose your classroom number to start or continue your adventure.</small></div>'+
+  '<div class="lab-number-list"><div class="numbers">'+Array.from({length:24},(_,i)=>
+    '<button type="button" data-number="'+(i+1)+'" aria-label="Play as classroom number '+(i+1)+'">'+(i+1)+'</button>').join('')+
+  '</div></div><p class="lab-entry-note">Your stars, collected items and mazes save by teacher and number on this Chromebook.</p></section>';
+ $('app').scrollTop=0;
  $('other-teacher').onclick=login;document.querySelectorAll('[data-number]').forEach(b=>b.onclick=()=>{identity={teacherId:teacher.id,teacherName:teacher.name,number:Number(b.dataset.number)};restore();save();launchAdventure()});
  enablePickerArrows(document.querySelector('.numbers'));
 }
-async function launchAdventure(){adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
+async function launchAdventure(){document.body.classList.remove('lab-teacher-active','lab-number-active');adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
 function play(){document.body.classList.add('playing');$('who').classList.remove('hidden');$('app').innerHTML='<div class="row" style="margin-bottom:16px"><span class="pill" id="road-level"></span><span class="small">'+esc(identity.teacherName)+' · #'+identity.number+'</span><span class="pill">'+gem+' <span id="wallet"></span></span></div><div class="play-layout"><section><div class="board-wrap"><div id="maze" class="maze" role="img" aria-label="Rainbow maze. Start at the star and finish at the checkered flag."></div></div><p class="caption" id="status" role="status">Find the flag. Look, choose, press and release, check.</p></section><aside class="side"><section class="panel"><h3>Use your keys</h3><div class="keypad" aria-label="Keyboard arrow layout"><div class="key up" id="ArrowUp">↑</div><div class="key left" id="ArrowLeft">←</div><div class="key down" id="ArrowDown">↓</div><div class="key right" id="ArrowRight">→</div></div><p>One press. One move.<br>Let the key come up.</p><p class="small">Use your keyboard. Touching the screen does not move the rider.</p></section><section class="panel"><h3>My Arrow Amethysts</h3><div class="stat" id="gem-total"></div><p id="finished" class="small"></p><button id="rescue-friends" class="small">Rescue friends</button></section><div class="actions tools"><button id="reset" class="small">Back to the star</button><button id="full" class="small">Full screen</button></div></aside></div><p class="footnote" id="storage-note"></p>';
  $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0;save();board();$('status').textContent='Back at the star. Try your route again.'};$('full').onclick=()=>window.arrowLabToggleFullscreen();board();stats();requestAnimationFrame(fitMaze);}
 function fitMaze(){document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||window.innerHeight)+'px');if(!run||!$('maze'))return;const box=document.querySelector('.board-wrap');if(!box)return;const viewport=window.visualViewport?.height||window.innerHeight,caption=document.getElementById('status')?.getBoundingClientRect().height||30,foot=document.getElementById('storage-note')?.getBoundingClientRect().height||20;const availableH=Math.min(box.clientHeight-24,viewport-box.getBoundingClientRect().top-caption-foot-58);const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/run.w,availableH/run.h)));$('maze').style.width=(size*run.w)+'px';$('maze').style.height=(size*run.h)+'px';}
