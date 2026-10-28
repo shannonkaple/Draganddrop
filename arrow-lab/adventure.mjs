@@ -2,7 +2,7 @@ import {buildArrowLabProgressCsv} from './progress-export.mjs?v=csv-safety-20261
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
-import {WORLD_STOP_POINTS,APPROVED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=qa-gated-20261028b';
+import {WORLD_STOP_POINTS,PUBLISHED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=seven-original-maps-20261028c';
 import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld} from './collection-inventory.mjs?v=png-jpeg-20261028b';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=preserve-unlocks-20261028b';
@@ -459,10 +459,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   if(i===0)return openCandyWorld();
   const world=worldThemes[i];
   view='world-select';
-  // The seven map candidates remain UNAPPROVED. Only URLs added to the
-  // approved manifest after hotspot QA can become the production map.
-  const approved=APPROVED_WORLD_LEVEL_MAPS[world.id]||null;
-  const picture=approved||world.backgroundImage;
+  // Original illustrated 2048×682 map for this world, with measured stop positions.
+  // No stretching, cropping, or shared Candy-pad coordinates.
+  const picture=PUBLISHED_WORLD_LEVEL_MAPS[world.id];
   const stops=worldStopModels(i,levels,a);
   const points=stops.map(p=>
     '<button type="button" class="lab-candy-node lab-world-stop'+(p.completed?' done':p.started?' started':'')+(p.unlocked?'':' locked')+'"'+
@@ -472,15 +471,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<span class="lab-map-node-indicator" aria-hidden="true">'+p.symbol+'</span></button>'
   ).join('');
   shell(world.name+' World',
-    '<section class="lab-candy-world lab-world-illustrated" aria-label="'+esc(world.name)+' illustrated level selector"'+(approved?'':' data-provisional-map="true"')+'>'+
+    '<section class="lab-candy-world lab-world-illustrated" aria-label="'+esc(world.name)+' illustrated level selector">'+
     '<div class="lab-candy-heading"><button id="lab-back-map" type="button">← ALL WORLDS</button>'+
     '<div><small>WORLD '+(i+1)+' • EIGHT MAZES</small><h2>'+world.icon+' '+esc(world.name)+' World</h2></div>'+
     '<div class="lab-candy-progress">'+worldDoneCount(i)+' / 8 COMPLETE</div>'+
     (canRescue()?'<button class="lab-candy-rescue" id="lab-world-rescue" type="button">🐾 RESCUE FRIEND!</button>':'')+'</div>'+
     '<div class="lab-candy-scenery lab-world-level-scene" role="group" aria-label="Eight numbered maze stops">'+
-      '<img class="lab-candy-map-art" src="'+asset(picture)+'" alt="'+esc(world.name)+(approved?' illustrated eight-level map':' world scenery preview while eight-stop map art is being corrected')+'" loading="eager">'+points+'</div>'+
+      '<img class="lab-candy-map-art" src="'+asset(picture)+'" alt="'+esc(world.name)+' illustrated eight-level map" loading="eager" decoding="async" draggable="false">'+points+'</div>'+
     '<div class="lab-world-map-footer">'+
-      (approved?'':'<p class="lab-world-art-warning" role="note">Scenery preview — the final eight-stop illustrated map is still awaiting approved artwork.</p>')+
+      ''+
       '<nav class="lab-candy-actions" aria-label="World navigation"><button data-nav="map">🏠 HOME</button>'+
        '<button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">🧸 MY STUFF</button></nav></div>'+
     '</section>');
