@@ -716,10 +716,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       (placed?'Remove from Scene':here?'＋ Add to Scene':'＋ Bring to This World')+'</button></article>';
   }).join('');
   const treasureCards=treasures.map(key=>{
-    const placed=(a.collectionExtraObjects[id]||[]).includes(key);
+    const placed=visibleCollectedKeys(a,id).includes(key);
     return '<article class="my-stuff-item" data-stuff-kind="treasure">'+
       img(itemArt(key),itemName(key),'my-stuff-thumb')+'<strong>'+esc(itemName(key))+'</strong>'+
-      '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'">'+
+      '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'" aria-label="'+(placed?'Put away ':'Add to world ')+esc(itemName(key))+'">'+
       (placed?'Remove from Scene':'＋ Add to Scene')+'</button></article>';
   }).join('');
   const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
@@ -739,10 +739,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button type="button" data-buy-shop-only="'+d.id+'" '+(ownedAnywhere||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+
       (here?'✓ Owned':ownedAnywhere?'✓ Owned · Move from Tray':a.wallet.rainbowStars<d.cost?'Earn More Stars':'⭐ Buy for '+d.cost+' Stars')+'</button></article>';
    }).join('')+'</div></section>';
-  const tray='<p>Pick anything you have earned or bought. Add it to your world, then drag it where you want!</p>'+
-    '<div class="my-stuff-tray-controls" aria-label="Browse my decorations"><button id="stuff-scroll-prev" type="button" aria-label="Previous decorations">◀</button><strong id="stuff-page-label">My Items</strong><button id="stuff-scroll-next" type="button" aria-label="More decorations">▶</button></div>'+
+  const tray='<p>Your COLLECTED ITEMS are first! Click Add to Scene and your item appears in the picture. Drag it to arrange your world.</p>'+
+    '<div class="my-stuff-tray-controls" aria-label="Browse all my collected items"><button id="stuff-scroll-prev" type="button" aria-label="Previous items">◀</button><strong id="stuff-page-label">COLLECTED ITEMS</strong><button id="stuff-scroll-next" type="button" aria-label="More items">▶</button></div>'+
     '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Use Previous and Next pages.">'+
-      (hasObjects?decorationCards+friendCards+treasureCards:
+      (hasObjects?treasureCards+friendCards+decorationCards:
       '<p class="my-stuff-empty">Your collection starts here! Finish mazes to earn treasures, rescue friends and buy decorations.</p>')+
     '</div><div class="my-stuff-shop-actions">'+
       '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Get More Decorations</button>'+
@@ -779,7 +779,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   trayEl.scrollLeft=inventoryScrollLeft;
   const updateShelf=()=>{
     inventoryScrollLeft=trayEl.scrollLeft;
-    $('stuff-page-label').textContent=cards.length+' items · scroll to see more';
+    $('stuff-page-label').textContent=treasures.length+' COLLECTED · '+cards.length+' ITEMS · SCROLL →';
     $('stuff-scroll-prev').disabled=trayEl.scrollLeft<=1;
     $('stuff-scroll-next').disabled=trayEl.scrollLeft+trayEl.clientWidth>=trayEl.scrollWidth-1;
   };
