@@ -8,9 +8,9 @@ import {makeMaze,step,nextRun,awardWallet} from '../rainbow-road/core.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rainbow=['#FF2D8D','#FF8A00','#FFD600','#6BCB24','#24A8F2','#A450E0'];
 const colors=[{id:'violet',name:'Violet',hex:'#A450E0',cost:0},{id:'pink',name:'Pink',hex:'#FF2D8D',cost:20},{id:'blue',name:'Blue',hex:'#24A8F2',cost:20},{id:'mint',name:'Mint',hex:'#6BCB24',cost:20}];
-const star='<svg class="marker" viewBox="0 0 100 100" aria-label="Start star"><path d="M50 7 63 34 93 38 71 59 77 90 50 75 23 90 29 59 7 38 37 34Z" fill="#FFD600" stroke="#000000" stroke-width="5"/></svg>';
-const flag='<svg class="marker" viewBox="0 0 100 100" aria-label="Checkered finish flag"><path d="M23 91V10" stroke="#000000" stroke-width="7" stroke-linecap="round"/><path d="M27 13H87V61H27Z" fill="white" stroke="#000000" stroke-width="3"/><path d="M27 13H42V25H27ZM57 13H72V25H57ZM42 25H57V37H42ZM72 25H87V37H72ZM27 37H42V49H27ZM57 37H72V49H57ZM42 49H57V61H42ZM72 49H87V61H72Z" fill="#000000"/></svg>';
-const gem='<svg class="gem" viewBox="0 0 30 36" aria-hidden="true"><path d="M15 2 28 17 22 17 22 33 8 33 8 17 2 17Z" fill="#A450E0" stroke="#000000" stroke-width="2"/><path d="M15 5V30M6 16H24" stroke="#FFFFFF" stroke-width="2"/></svg>';
+const star='<img class="marker" src="./assets/star-icon.png" alt="Start star">';
+const flag='<img class="marker" src="./assets/flag-icon.png" alt="Checkered finish flag">';
+const gem='<img class="gem" src="./assets/gem-icon.png" alt="Arrow Amethysts">';
 let identity=null,run=null,wallet=null,saving=true;
 function key(){return classKey(identity.teacherId,identity.number)}
 function seed(){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]}
