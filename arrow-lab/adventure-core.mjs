@@ -55,7 +55,22 @@ export function buildLevel(def,seed,easy=false){
      if(def.number>=4&&!['prickly_cactus','chomper_plant'].includes(id)){
        const patrolSteps=2+Math.floor(random()*3); // a 2–4 tile outing, then follow the same path home
         for(let step=0;step<patrolSteps;step++){
-         const secondary=side.filter(p=>dist(p,path.at(-1))===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
+         let secondary=side.filter(p=>dist(p,path.at(-1))===1&&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
+         if(!secondary.length){
+           // The older maze generator often left moving enemies stuck after
+           // only one step. Open a connected side pocket instead of teleporting.
+           // Never carve the protected student route, objectives or other spawns.
+           const tail=path.at(-1);
+           const candidates=Object.values(directions).map(([dx,dy])=>({x:tail.x+dx,y:tail.y+dy}))
+             .filter(p=>p.x>0&&p.x<w-1&&p.y>0&&p.y<h-1&&grid[p.y][p.x]===1
+               &&!used.has(tile(p))&&!safe.has(tile(p))&&!excluded.has(tile(p)));
+           if(candidates.length){
+             const score=p=>Math.min(...positions.filter(h=>h.id!==id).map(h=>dist(p,h.pos)),99);
+             candidates.sort((a,b)=>score(b)-score(a));
+             const pocket=candidates[0];grid[pocket.y][pocket.x]=0;side.push(pocket);
+             secondary=[pocket];
+           }
+         }
          if(!secondary.length)break;
          // Keep patrols away from other reserved spawns and safe/required routes.
          secondary.sort((a,b)=>{
