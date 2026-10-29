@@ -2,8 +2,8 @@ import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=engines1';
 import {mountActivity} from './activities/runtime.mjs?v=engines2';
 import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
-import {teacherAccess} from './teacher-access.mjs?v=20261029-engines3';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261029-engines3';
+import {isTeacherUnlocked} from './teacher-access.mjs?v=20261029-teacherlock1';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261029-teacherlock1';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -26,6 +26,7 @@ const img=(p,name,cls='')=>{
 const readJSON=async n=>{const r=await fetch(new URL('../rainbow-road/data/'+n+'.json',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
 export async function openAdventure({number,storageKey,teacherName,teachers,goPractice,onLogout,onTeacher,preview=false}){
+ if(preview&&!isTeacherUnlocked())throw new Error('Teacher code required');
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
  const worldThemes=[
@@ -386,13 +387,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<div class="lab-map-canvas" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+nodes+'</div>'+
     '<button id="continue-adventure" type="button" class="lab-next-play">▶ PLAY NEXT <small>'+esc(now.name)+' · Activity '+next.worldStage+'</small></button>'+
     '<nav class="lab-main-nav" aria-label="Game navigation"><button type="button" data-nav="map">🏠 <span>Home</span></button><button type="button" data-nav="shop">⭐ <span>Star Shop</span></button><button type="button" data-nav="computer" class="lab-my-stuff-entry">🧸 <span>MY STUFF</span></button></nav>'+
-    '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="computer">🧸 MY STUFF — Make My Scene</button><button type="button" id="endless">Drag Practice</button><button type="button" id="teacher-settings">Teacher Settings</button></details>'+
+    '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="computer">🧸 MY STUFF — Make My Scene</button><button type="button" id="endless">Drag Practice</button>'+(preview?'<button type="button" id="teacher-settings">Teacher Settings</button>':'')+'</details>'+
    '</section>'
   );
   $('change-player').onclick=()=>selectCharacter(true);
   $('continue-adventure').onclick=playNext;
   $('ready-rescue')?.addEventListener('click',continueRescue);
-  $('teacher-settings').onclick=onTeacher;
+  $('teacher-settings')?.addEventListener('click',onTeacher);
   $('endless').onclick=playNext;
   document.querySelectorAll('[data-world-index]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.worldIndex);
@@ -1039,7 +1040,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  document.querySelectorAll('[data-companion-home]').forEach(b=>b.onclick=()=>{if(rescueWorld(a,id,b.dataset.companionHome)){save();sound();computer(b.dataset.companionHome,"friends")}});
  }
  function teacher(){
- if(!preview){onTeacher?.();return}
+ if(!preview||!isTeacherUnlocked()){onTeacher?.();return}
  const choices=[['sound','Celebration sound'],['reducedMotion','Reduce motion']];
  const content='<p>These settings apply to <strong>every class and student on this browser</strong>. Export settings and import them on other classroom devices to use the same setup.</p><label>Bad guys <select id="set-difficulty"><option value="standard">Moving and stationary</option><option value="gentle">Stationary only</option></select></label><label>Movement pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+choices.map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><div class="actions"><button id="save-settings" class="primary">Save for all classes</button><button id="export-settings">Export settings</button><label class="settings-import">Import settings<input id="import-settings" type="file" accept="application/json,.json"></label></div><p id="teacher-note" role="status"></p><h3>All 64 levels · teacher preview</h3><p>Every world and level is open here. Preview stars, purchases, and progress never change a student save.</p><div class="teacher-levels">'+worldThemes.map((w,i)=>'<section><h3>'+esc(w.name)+'</h3><div>'+levels.slice(i*8,i*8+8).map(l=>'<button type="button" data-preview-level="'+l.number+'">'+l.worldStage+' · '+esc(l.title)+'</button>').join('')+'</div></section>').join('')+'</div><div class="actions"><button id="close-settings">Preview world map</button><button id="exit-teacher">Lock & exit teacher mode</button></div>';
  modal('Teacher controls · all classes',content,()=>{
