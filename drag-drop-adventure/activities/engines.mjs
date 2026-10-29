@@ -1,3 +1,4 @@
+export const acceptsDragInput=e=>e.pointerType==='mouse'&&e.button===0&&e.isPrimary!==false;
 // Pure mechanics. Logical coordinates are independent of artwork and screen size.
 export const ACTIVITY_TYPES=['maze','sort','pack','path','pattern','scene','order','deliver'];
 export const ACTIVITY_NAMES=['Maze Escape','Sorting Station','Pack It Up','Fix the Path','Pattern Power','Build the Scene','Put It in Order','Catch & Deliver'];

@@ -1,9 +1,9 @@
-import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=engines1';
-import {mountActivity} from './activities/runtime.mjs?v=engines3';
-import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs';
+import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=mouseonly1';
+import {mountActivity} from './activities/runtime.mjs?v=mouseonly1';
+import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs?v=mouseonly1';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
 import {isTeacherUnlocked} from './teacher-access.mjs?v=20261029-teacherlock1';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261029-scroll1';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261029-mouseonly';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -732,7 +732,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
         '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
   const sceneImage=$('collection-scene').querySelector('.collection-background-size');
-  const sizeScene=()=>{if(sceneImage.naturalWidth&&sceneImage.naturalHeight)$('collection-scene')?.parentElement?.style.setProperty('--scene-ratio',sceneImage.naturalWidth/sceneImage.naturalHeight)};
+  const sizeScene=()=>{if(sceneImage.naturalWidth&&sceneImage.naturalHeight)$('collection-scene')?.style.setProperty('--scene-ratio',sceneImage.naturalWidth/sceneImage.naturalHeight)};
   sceneImage.addEventListener('load',sizeScene,{once:true});sizeScene();
   const armCharacter=enableCollectionDrag(id);
   if(placeCharacterId)armCharacter(placeCharacterId);

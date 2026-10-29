@@ -1,4 +1,4 @@
-import {ACTIVITY_TYPES,ACTIVITY_NAMES,rect} from './engines.mjs';
+import {ACTIVITY_TYPES,ACTIVITY_NAMES,rect} from './engines.mjs?v=mouseonly1';
 export {ACTIVITY_TYPES,ACTIVITY_NAMES};
 export const WORLD_IDS=['candy','pirate','arctic','castle','space','jurassic','ocean','lava'];
 const tray=(i,n)=>({x:70+i*(860/Math.max(1,n-1)),y:515});

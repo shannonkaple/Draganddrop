@@ -39,3 +39,9 @@ assert(motionCollision({x:150,y:50},{x:0,y:0,w:50,h:100},{x:200,y:0,w:50,h:100},
 assert(!motionCollision({x:150,y:300},{x:0,y:0,w:50,h:100},{x:200,y:0,w:50,h:100},10));
 assert.throws(()=>makeLevel({id:'bad',worldIndex:0,worldStage:1},{items:[{image:'shape.svg'}],enemies,background:'bg.jpg'}));
 console.log('PASS: '+checked+' configurations; wrong drops, all completions, save/resume, maze reachability, packing geometry, all 5 patterns, motion bounds, swept collisions, reduced motion, raster-only collectibles.');
+
+const {acceptsDragInput}=await import('./engines.mjs');
+for(const pointerType of ['touch','pen','',undefined])assert.equal(acceptsDragInput({pointerType,button:0,isPrimary:true}),false);
+assert.equal(acceptsDragInput({pointerType:'mouse',button:0,isPrimary:true}),true);
+assert.equal(acceptsDragInput({pointerType:'mouse',button:2,isPrimary:true}),false);
+console.log('PASS: mouse/trackpad only; touchscreen, pen and non-primary buttons rejected.');
