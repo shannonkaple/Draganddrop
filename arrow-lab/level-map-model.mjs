@@ -15,12 +15,12 @@ export const WORLD_STOP_POINTS_BY_WORLD=Object.freeze({
   ocean:Object.freeze([[7.26,25.3],[18.29,44.52],[32.37,62.48],[45.32,39.39],[58.97,58.27],[73.66,37.69],[85.77,60.63],[92.63,25.64]].map(([x,y])=>Object.freeze({x,y}))),
   lava:Object.freeze([[7.84,27.22],[21.5,47.92],[35.66,63.12],[43.48,40.38],[56.56,57.62],[70.53,49.79],[84.33,66.62],[92.9,36.39]].map(([x,y])=>Object.freeze({x,y})))
 });
+// Teacher approved all eight world maps on 2026-10-29 for use in both
+// Arrow Adventure and Drag-and-Drop Adventure. The existing illustrated JPEGs
+// and the Candy PNG are reused unchanged across the two games. Per-world stop
+// positions above are measured from their own artwork (not Candy's positions).
+// Visual/browser acceptance testing remains separate from artwork approval.
 export const APPROVED_WORLD_LEVEL_MAPS=Object.freeze({
- candy:'arrow-lab/assets/candy-world-map-original.png'
-});
-// These seven existing images are now deliberately published for visual review,
-// with their *measured* actual clickable pad positions (not Candy's positions).
-export const PUBLISHED_WORLD_LEVEL_MAPS=Object.freeze({
   candy:'arrow-lab/assets/candy-world-map-original.png',
   pirate:'arrow-lab/world-maps/pirate-world-map.jpg',
   arctic:'arrow-lab/world-maps/arctic-world-map.jpg',
@@ -30,6 +30,7 @@ export const PUBLISHED_WORLD_LEVEL_MAPS=Object.freeze({
   ocean:'arrow-lab/world-maps/ocean-world-map.jpg',
   lava:'arrow-lab/world-maps/lava-world-map.jpg'
 });
+export const PUBLISHED_WORLD_LEVEL_MAPS=APPROVED_WORLD_LEVEL_MAPS;
 export function worldStopStatus(level,progress){
  const completed=!!progress?.completedLevelIds?.includes(level.id);
  const saved=progress?.mazeRuns?.[level.id];
