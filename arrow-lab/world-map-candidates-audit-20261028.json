@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "status": "originals-published-for-teacher-visual-review",
+  "status": "teacher-approved-artwork-for-both-games-browser-qa-pending",
   "baseImage": {
     "width": 2048,
     "height": 682
@@ -44,7 +44,7 @@
     "pirate": {
       "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/pirate-world-map.jpg",
       "intendedGithubPath": "arrow-lab/world-maps/pirate-world-map.jpg",
-      "status": "published-needs-live-visual-qa",
+      "status": "approved-by-teacher-browser-qa-pending",
       "sha256": "a38fdef307ef30e499ded6f516ad64edd177248f5e58dad6b9c1472a16c40a3c",
       "width": 2048,
       "height": 682,
@@ -118,12 +118,16 @@
         ]
       ],
       "githubPath": "arrow-lab/world-maps/pirate-world-map.jpg",
-      "sourceUnchanged": true
+      "sourceUnchanged": true,
+      "approvedForGames": [
+        "arrow-lab",
+        "drag-drop-adventure"
+      ]
     },
     "arctic": {
       "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/arctic-world-map.jpg",
       "intendedGithubPath": "arrow-lab/world-maps/arctic-world-map.jpg",
-      "status": "published-needs-live-visual-qa",
+      "status": "approved-by-teacher-browser-qa-pending",
       "sha256": "02df95f83184dbd4617aab4a6add24083cd731cb768ec4b0ee89fe3c3b680189",
       "width": 2048,
       "height": 682,
@@ -197,12 +201,16 @@
         ]
       ],
       "githubPath": "arrow-lab/world-maps/arctic-world-map.jpg",
-      "sourceUnchanged": true
+      "sourceUnchanged": true,
+      "approvedForGames": [
+        "arrow-lab",
+        "drag-drop-adventure"
+      ]
     },
     "castle": {
       "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/castle-world-map.jpg",
       "intendedGithubPath": "arrow-lab/world-maps/castle-world-map.jpg",
-      "status": "published-needs-live-visual-qa",
+      "status": "approved-by-teacher-browser-qa-pending",
       "sha256": "373fbfe16795fa01afe12815633316d2be9f9c54edbae92b3dfc103ec00b6c3b",
       "width": 2048,
       "height": 682,
@@ -276,12 +284,16 @@
         ]
       ],
       "githubPath": "arrow-lab/world-maps/castle-world-map.jpg",
-      "sourceUnchanged": true
+      "sourceUnchanged": true,
+      "approvedForGames": [
+        "arrow-lab",
+        "drag-drop-adventure"
+      ]
     },
     "space": {
       "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/space-world-map.jpg",
       "intendedGithubPath": "arrow-lab/world-maps/space-world-map.jpg",
-      "status": "published-needs-live-visual-qa",
+      "status": "approved-by-teacher-browser-qa-pending",
       "sha256": "a16e2ffd29e32cbe1eb5bf8834afc13265ec04144f5d9edc3bfbeda86d6cec65",
       "width": 2048,
       "height": 682,
@@ -355,12 +367,16 @@
         ]
       ],
       "githubPath": "arrow-lab/world-maps/space-world-map.jpg",
-      "sourceUnchanged": true
+      "sourceUnchanged": true,
+      "approvedForGames": [
+        "arrow-lab",
+        "drag-drop-adventure"
+      ]
     },
     "jurassic": {
       "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/jurassic-world-map.jpg",
       "intendedGithubPath": "arrow-lab/world-maps/jurassic-world-map.jpg",
-      "status": "published-needs-live-visual-qa",
+      "status": "approved-by-teacher-browser-qa-pending",
       "sha256": "5dd41b6dc807aebd3761ec98d3a60df69e2d25ceb942fd7ebeaac9d52c5f67f1",
       "width": 2048,
       "height": 682,
@@ -434,12 +450,16 @@
         ]
       ],
       "githubPath": "arrow-lab/world-maps/jurassic-world-map.jpg",
-      "sourceUnchanged": true
+      "sourceUnchanged": true,
+      "approvedForGames": [
+        "arrow-lab",
+        "drag-drop-adventure"
+      ]
     },
     "ocean": {
       "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/ocean-world-map.jpg",
       "intendedGithubPath": "arrow-lab/world-maps/ocean-world-map.jpg",
-      "status": "published-needs-live-visual-qa",
+      "status": "approved-by-teacher-browser-qa-pending",
       "sha256": "0ed0188772b7c05b9784ce8c987f1beebcec1c2fd4af595c70de8072173112e3",
       "width": 2048,
       "height": 682,
@@ -513,12 +533,16 @@
         ]
       ],
       "githubPath": "arrow-lab/world-maps/ocean-world-map.jpg",
-      "sourceUnchanged": true
+      "sourceUnchanged": true,
+      "approvedForGames": [
+        "arrow-lab",
+        "drag-drop-adventure"
+      ]
     },
     "lava": {
       "candidateLibraryPath": "/Arrow Adventure Artwork/Map Candidates - Eight Worlds/lava-world-map.jpg",
       "intendedGithubPath": "arrow-lab/world-maps/lava-world-map.jpg",
-      "status": "published-needs-live-visual-qa",
+      "status": "approved-by-teacher-browser-qa-pending",
       "sha256": "18a57371c3e026c0bfc0d028be65eae38eacf5eee9f4edf4cb43ea47d51704a4",
       "width": 2048,
       "height": 682,
@@ -592,9 +616,19 @@
         ]
       ],
       "githubPath": "arrow-lab/world-maps/lava-world-map.jpg",
-      "sourceUnchanged": true
+      "sourceUnchanged": true,
+      "approvedForGames": [
+        "arrow-lab",
+        "drag-drop-adventure"
+      ]
     }
   },
   "publishedAt": "2026-10-28",
-  "publishedUsage": "Original JPEGs live in world selector; per-world measured DOM hotspots; visual browser QA outstanding"
+  "publishedUsage": "Shared approved map JPEGs referenced by both game level selectors; map-pad positions use each world's measured coordinates; live browser QA outstanding.",
+  "userApproval": {
+    "date": "2026-10-29",
+    "status": "approved",
+    "scope": "All eight illustrated world level maps for both Arrow Adventure and Drag-and-Drop Adventure",
+    "note": "Approved artwork may be reused unchanged. Published GitHub JPEGs exist; browser-level layout and click alignment still require verification."
+  }
 }
