@@ -2,8 +2,8 @@ import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=engines1';
 import {mountActivity} from './activities/runtime.mjs?v=engines2';
 import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
-import {teacherAccess} from './teacher-access.mjs?v=20261029-engines2';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261029-engines2';
+import {teacherAccess} from './teacher-access.mjs?v=20261029-engines3';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261029-engines3';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -584,7 +584,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     return '<div class="world-object world-prop" data-world-object="treasure:'+key+'" role="img" aria-label="Move '+esc(itemName(key))+'" style="left:'+p.x+'%;top:'+p.y+'%">'+img(itemArt(key),itemName(key),'shop-decoration')+'</div>';
   }).join('');
   const picture=id.startsWith('background_')?l.homeBackground:(backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.homeBackground||l.homeBackground);
-  return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+personArt+friendArt+decorArt+treasureArt+'</div>';
+  return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')"><img class="collection-background-size" src="'+asset(picture)+'" alt="" draggable="false">'+personArt+friendArt+decorArt+treasureArt+'</div>';
  }
  function enableCollectionDrag(id){
    const scene=$('collection-scene');if(!scene)return()=>false;
@@ -730,6 +730,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
           img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
         '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
+  const sceneImage=$('collection-scene').querySelector('.collection-background-size');
+  const sizeScene=()=>{if(sceneImage.naturalWidth&&sceneImage.naturalHeight)$('collection-scene')?.style.setProperty('--scene-ratio',sceneImage.naturalWidth/sceneImage.naturalHeight)};
+  sceneImage.addEventListener('load',sizeScene,{once:true});sizeScene();
   const armCharacter=enableCollectionDrag(id);
   if(placeCharacterId)armCharacter(placeCharacterId);
   $('stuff-home').onclick=map;
