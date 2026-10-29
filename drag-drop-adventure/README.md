@@ -26,3 +26,13 @@ Previously selected/unlocked characters remain in their assigned worlds. MY STUF
 ## Easier character placement in MY STUFF
 
 A horizontal **MY CHARACTERS** ribbon sits directly beneath the scene. It displays ONLY unlocked/owned playable characters and their current home. Click **Move** for a resident or **Place Here** to move an owned character from another owned world. Then click the destination in the large picture; the position saves immediately. Students can also click a character directly in the scene, click a destination, or use the older mouse-drag interaction. Moving or arranging an already-owned character is FREE; the 5-star fee applies ONLY to changing the playable character. Character homes, world ownership, existing positions, coins, stars, collectibles, and story progress persist after reloading.
+
+### Teacher controls and responsive directions
+
+Use **Teacher** in the banner toolbar. On a new browser, set a password (at least eight characters); later visits require it. Passwords are salted and derived with PBKDF2, not saved as plaintext. This is a local classroom UI lock, not server authentication. **Lock & exit teacher mode** ends the in-memory teacher session.
+
+Teacher preview starts with fresh, temporary data, all 64 levels open, all characters/worlds available, and preview spending stars. Its save function does not write student progress. The teacher level picker opens any activity directly. Student accounts still use their original unlock rules and storage keys.
+
+Movement mode, movement speed, reduced motion, celebration sound, and upgrade prices apply to all classes using this browser. Export/import settings to copy the setup to other devices; this static GitHub Pages game does not synchronize settings between devices. Settings exports contain no password or student progress.
+
+Home, Stars/Star Shop, and My Stuff now live in the banner toolbar. Every activity uses the shared responsive instructions layout: text wraps, guide artwork shrinks to leave room for directions, and narrow screens put instructions above the game. Extremely small or zoomed layouts can scroll instead of clipping directions. The banner artwork/dimensions are unchanged.
