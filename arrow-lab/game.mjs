@@ -7,6 +7,7 @@ import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import '../rainbow-road/read-aloud.mjs?v=20261021-menu';
 import {openAdventure} from './adventure.mjs?v=mobile-fullwidth-shelf-20261028b';
+import {canSaveStudentProgress} from './student-storage-probe.mjs?v=non-destructive-login-20261029a';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from '../rainbow-road/core.mjs';
 const verifyTeacherCode=value=>value==='8714';
@@ -116,7 +117,7 @@ function pickNumber(teacher){
     '<button type="button" data-number="'+(i+1)+'" aria-label="Play as classroom number '+(i+1)+'">'+(i+1)+'</button>').join('')+
   '</div></div><p class="lab-entry-note">Your stars, collected items and mazes save by teacher and number on this Chromebook.</p></section>';
  $('app').scrollTop=0;
- $('other-teacher').onclick=login;document.querySelectorAll('[data-number]').forEach(b=>b.onclick=()=>{identity={teacherId:teacher.id,teacherName:teacher.name,number:Number(b.dataset.number)};syncStudentBanner();restore();save();launchAdventure()});
+ $('other-teacher').onclick=login;document.querySelectorAll('[data-number]').forEach(b=>b.onclick=()=>{identity={teacherId:teacher.id,teacherName:teacher.name,number:Number(b.dataset.number)};syncStudentBanner();restore();saving=canSaveStudentProgress();if(!saving)showLoginStorageWarning();launchAdventure()});
  enablePickerArrows(document.querySelector('.numbers'));
 }
 async function launchAdventure(){document.body.classList.remove('lab-teacher-active','lab-number-active');syncStudentBanner();adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,verifyTeacherCode,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
