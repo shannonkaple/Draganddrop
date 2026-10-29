@@ -1150,9 +1150,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // Keep the legacy wallet in sync for returning students. This is a SECOND
  // storage write after the adventure save, so a failure must never be silent.
  // Do not replace a malformed old record or pretend its bonus was saved.
- if(stars>0){
+ // Only update the practice wallet if the adventure write was verified.
+ // A rejected adventure save must never trigger a second write to the same
+ // student record. Verify this write too: managed storage may silently ignore it.
+ if(stars>0&&saved){
    try{
-     const old=JSON.parse(localStorage.getItem(key)||'{}');
+     const raw=localStorage.getItem(key);
+     const old=raw===null?null:JSON.parse(raw);
      if(!old||typeof old!=='object'||Array.isArray(old))throw Error('Invalid student record');
      if(old.wallet){
        if(typeof old.wallet!=='object'||Array.isArray(old.wallet))throw Error('Invalid legacy wallet');
@@ -1160,7 +1164,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
          total:(Number(old.wallet.total)||0)+5,
          earned:(Number(old.wallet.earned)||0)+5,
          finished:(Number(old.wallet.finished)||0)+1};
-       localStorage.setItem(key,JSON.stringify({...old,wallet}));
+       writeVerifiedStudentRecord(localStorage,key,{...old,wallet});
      }
    }catch{
      saved=false;
