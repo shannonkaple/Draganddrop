@@ -1,6 +1,9 @@
-import {teacherAccess} from './teacher-access.mjs?v=20261029-teacher';
-import {mountDragActivity} from './drag-activity.mjs?v=20261029-teacher';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261029-teacher';
+import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=engines1';
+import {mountActivity} from './activities/runtime.mjs?v=engines1';
+import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs';
+import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
+import {teacherAccess} from './teacher-access.mjs?v=20261029-engines1';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261029-engines1';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -35,7 +38,10 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  {name:'Ocean',icon:'🐬',id:'ocean',color:'#41bce2',backgroundImage:'/arrow-lab/scenes/ocean.jpg'},
  {name:'Lava',icon:'🌋',id:'lava',color:'#ee7748',backgroundImage:'/arrow-lab/scenes/lava.jpg'}
  ];
- const activityNames=['First Steps','Rainbow Turns','Find the Treasure','Bridge Crossing','Star Path','Friend Quest','Winding Activity','World Finale'];
+ const activityNames=ACTIVITY_NAMES;
+ const manifestResponse=await fetch(new URL('./activities/art-manifest.json?v=engines1',import.meta.url));
+ if(!manifestResponse.ok)throw Error('Could not load activity artwork manifest');
+ const artManifest=await manifestResponse.json();
 
  const candyObjects=[
  ['lollipop','Lollipop'],['gummy_bear','Gummy Bear'],['cupcake','Cupcake'],['candy_cane','Candy Cane'],
@@ -183,7 +189,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const chars=arrowLabCharacters(data.characters),lands=[...backgroundHomes,...data.rainbow_lands],worldCosts=lands.map((_,i)=>i<8?4+i*2:4+(i-8)*2),
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
-   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
+   return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+title,
      worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'drag',collectibleIds:pairFor(wi,ai)||fallbackGearPair(ai,template.computerGearIds),
      mazeGrid:{width:Math.max(11,template.mazeGrid.width),height:Math.max(9,template.mazeGrid.height)},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...enemyRosters[wi]]};
@@ -216,6 +222,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   a.selectedPlayerCharacterId=chars[0].id;a.unlockedCharacterIds=chars.map(c=>c.id);
   a.friends=Object.fromEntries(chars.map(c=>[c.id,{isRescued:true,upgradeStage:'starter',homeLandId:starterWorldId}]));
   a.ownedWorldIds=lands.map(l=>l.id);a.ownedBackgroundIds=lands.map(l=>l.id);
+  a.collectedWorldItems=Object.keys(allWorldLabels);a.collectedComputerGearIds=data.computer_collectibles.map(x=>x.id);
+  a.worldFriends=Object.fromEntries(companions.map(c=>[c.id,{homeLandId:'background_'+c.id}]));
+  a.decorations=Object.fromEntries(backgroundHomes.map(w=>[w.id,fullDecorations.filter(d=>d.world==='all'||d.world===w.theme).map(d=>d.id)]));
  }
  document.body.classList.toggle('teacher-preview',preview);
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
@@ -223,6 +232,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
 
  const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
  const itemArt=id=>objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
+ const activityLevels=levels.map(def=>{
+  const group=objectGroups[worldThemes[def.worldIndex].id]||[];
+  const ids=[...new Set([...group.map(x=>x[0]),...def.collectibleIds,...data.computer_collectibles.map(x=>x.id)])];
+  const items=ids.filter(id=>/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(id)||'')).map(id=>({id,name:itemName(id),image:asset(itemArt(id))}));
+  const enemies=def.enemyIds.map(id=>data.enemies.find(e=>e.id===id)).filter(Boolean).map(e=>({name:e.name,image:asset(e.thumbnail)}));
+  return makeLevel(def,{items,enemies,background:asset(def.backgroundImage)},artManifest.levels?.[def.id]||{});
+ });
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
  function save(){
   if(preview)return;
@@ -238,7 +254,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   }catch{saved=false}
  }
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
- function cleanup(){dragSession?.destroy();dragSession=null;closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active');}
+ function cleanup(){dragSession?.destroy();dragSession=null;closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','activity-playing');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
  function modal(title,body,bind){
  dragSession?.cancel();
@@ -279,7 +295,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
  function shell(title,content){
  dragSession?.destroy();dragSession=null;
- clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
+ clearClock();document.body.classList.remove('playing','activity-playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
  $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
  $('header-stars').hidden=!ready;$('header-stuff').hidden=!ready;
@@ -392,70 +408,20 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
  }
 
- function openCandyWorld(){
-   view='world-select';
-   const positions=[[6.7,41.7],[20.8,53.7],[33.1,70.6],[39.4,42.3],[53.5,57.0],[69.2,51.5],[84.2,69.8],[92.1,37.4]];
-   const points=levels.slice(0,8).map((l,k)=>{
-     const done=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],unlocked=l.number<=a.highestUnlockedLevel;
-     return '<button type="button" data-level="'+l.number+'" class="lab-candy-node'+(done?' done':started?' started':'')+(unlocked?'':' locked')+'" style="--x:'+positions[k][0]+'%;--y:'+positions[k][1]+'%;" aria-disabled="'+(!unlocked)+'"'+
-       ' aria-label="Candy activity '+(k+1)+': '+candyNames[k]+(done?', completed':started?', in progress':unlocked?', ready to play':', locked')+'">'+
-       '<span class="lab-map-node-number" aria-hidden="true">'+(k+1)+'</span>'+
-       '<span class="lab-map-node-indicator" aria-hidden="true">'+(done?'✓':started?'↪':unlocked?'▶':'🔒')+'</span></button>';
-   }).join('');
-   shell('Candy World',
-     '<section class="lab-candy-world" aria-label="Candy World map with eight playable activities">'+
-       '<div class="lab-candy-heading"><button type="button" id="lab-back-map">← ALL WORLDS</button>'+
-       '<div><small>WORLD 1 • 8 SWEET ACTIVITIES</small><h2>🍬 CANDY WORLD</h2></div>'+
-       '<div class="lab-candy-progress">'+worldDoneCount(0)+' / 8 COMPLETE</div>'+(canRescue()?'<button class="lab-candy-rescue" id="lab-candy-rescue" type="button">🐾 RESCUE A FRIEND!</button>':'')+'</div>'+
-       '<div class="lab-candy-scenery" role="group" aria-label="Eight stops along the Candyland rainbow road">'+'<img class="lab-candy-map-art" src="'+asset('arrow-lab/assets/candy-world-map-original.png')+'" width="2048" height="682" alt="Candy World: eight islands connected by a rainbow road">'+points+'</div>'+
-       '<nav class="lab-candy-actions"><button data-nav="map">🏠 HOME</button><button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">🧸 MY STUFF</button></nav>'+
-     '</section>');
-   $('lab-back-map').onclick=map;
-   $('lab-candy-rescue')?.addEventListener('click',continueRescue);
-   document.querySelectorAll('.lab-candy-node[data-level]').forEach(b=>b.onclick=()=>{
-     if(b.getAttribute('aria-disabled')==='true'){
-       const number=Number(b.dataset.level);const needed=Math.max(1,number-1);
-       modal('Candy activity '+number+' is locked',
-         '<p>First finish Candy activity '+needed+'.</p><button id="locked-candy-back" type="button" class="primary">Back to Candy World</button>',()=>{
-           $('locked-candy-back').onclick=closeModal;
-         });
-       return;
-     }
-     startLevel(Number(b.dataset.level));
-   });
- }
-
+ function openCandyWorld(){openWorld(0)}
  function openWorld(i){
-   if(!isWorldUnlocked(i))return map();
-   if(i===0)return openCandyWorld();
-   const world=worldThemes[i];
-   view='world-select';
-   const cards=levels.slice(i*8,i*8+8).map((l,k)=>{
-     const cleared=a.completedLevelIds.includes(l.id),started=!!a.mazeRuns?.[l.id],open=l.number<=a.highestUnlockedLevel;
-     return '<button type="button" class="lab-activity-card'+(cleared?' cleared':started?' started':open?'':' locked')+'" data-level="'+l.number+'" aria-disabled="'+(!open)+'" aria-label="'+esc(world.name)+' maze '+(k+1)+(cleared?', completed':started?', in progress':open?', ready to play':', locked')+'">'+
-       '<span class="lab-activity-icon">'+(cleared?'✓':started?'↪':open?'▶':'🔒')+'</span>'+
-       '<span class="lab-activity-number">ACTIVITY '+(k+1)+'</span><strong>'+esc(stageNames[world.id]?.[k]||activityNames[k])+'</strong>'+
-       '<small>'+(cleared?'✓ ALREADY PLAYED':started?'↪ CONTINUE SAVED ACTIVITY':open?'▶ READY TO PLAY':'🔒 LOCKED')+'</small></button>';
-   }).join('');
-   shell(world.name+' World',
-    '<section class="lab-world-select" style="--world-hue:'+world.color+';background-image:linear-gradient(150deg,#ffffffd4,#eef9ffba),url('+asset(world.backgroundImage)+');background-size:cover,cover;background-position:center,center">'+
-    '<div class="lab-world-heading"><button id="lab-back-map" type="button">← World Map</button>'+
-    '<div><span>WORLD '+(i+1)+' OF 8</span><h2>'+world.icon+' '+esc(world.name)+' World</h2><p>'+worldDoneCount(i)+' of 8 activities finished</p></div></div>'+
-    '<div class="lab-world-activities">'+cards+'</div>'+
-    '<p class="lab-world-tip">Use your arrow keys to move. Finish each maze to unlock the next!</p>'+(canRescue()?'<button class="lab-rescue" id="lab-world-rescue" type="button">🐾 Rescue a Friend!</button>':'')+'</section>');
-   $('lab-back-map').onclick=map;
-   $('lab-world-rescue')?.addEventListener('click',continueRescue);
-   document.querySelectorAll('.lab-activity-card[data-level]').forEach(b=>b.onclick=()=>{
-     const number=Number(b.dataset.level);
-     if(b.getAttribute('aria-disabled')==='true'){
-       const needed=Math.max(1,number-1)-(i*8);
-       modal('Activity '+(number-i*8)+' is locked','<p>First finish '+esc(world.name)+' maze '+needed+'.</p><button id="locked-maze-back" type="button" class="primary">Back to '+esc(world.name)+' World</button>',()=>{
-         $('locked-maze-back').onclick=closeModal;
-       });
-       return;
-     }
-     startLevel(number);
-   });
+  if(!isWorldUnlocked(i))return map();
+  const world=worldThemes[i],stages=levels.slice(i*8,i*8+8);view='world-select';
+  const buttons=stages.map((l,k)=>{
+   const done=a.completedLevelIds.includes(l.id),open=done||l.number<=a.highestUnlockedLevel,point=WORLD_STOP_POINTS_BY_WORLD[world.id][k];
+   return '<button type="button" class="lab-candy-node'+(done?' done':'')+(open?'':' locked')+'" data-level="'+l.number+'" style="--x:'+point.x+'%;--y:'+point.y+'%" aria-disabled="'+(!open)+'" aria-label="'+(k+1)+'. '+esc(activityNames[k])+(done?' — completed, replay':open?' — ready':' — locked')+'"><span class="lab-map-node-number">'+(k+1)+'</span><span class="lab-map-node-indicator">'+(done?'✓':open?'▶':'🔒')+'</span></button>';
+  }).join('');
+  shell(world.name+' World','<section class="lab-candy-world"><div class="lab-candy-heading"><button id="lab-back-map">All worlds</button><div><h2>'+esc(world.name)+' World</h2><p>'+worldDoneCount(i)+' / 8 activities complete</p></div></div><div class="lab-candy-scenery" role="group" aria-label="'+esc(world.name)+' illustrated activity map"><img class="lab-candy-map-art" width="2048" height="682" src="'+asset(PUBLISHED_WORLD_LEVEL_MAPS[world.id])+'" alt="'+esc(world.name)+' map">'+buttons+'</div><div class="activity-map-legend">'+stages.map((l,k)=>'<button type="button" data-level="'+l.number+'" aria-disabled="'+(!(a.completedLevelIds.includes(l.id)||l.number<=a.highestUnlockedLevel))+'">'+(k+1)+'. '+esc(activityNames[k])+(a.completedLevelIds.includes(l.id)?' ✓':'')+'</button>').join('')+'</div>'+(canRescue()?'<button id="world-rescue">Rescue your friend</button>':'')+'</section>');
+  $('lab-back-map').onclick=map;$('world-rescue')?.addEventListener('click',continueRescue);
+  document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{
+   if(b.getAttribute('aria-disabled')==='true'){modal('Activity locked','<p>Finish the previous activity first.</p><button id="locked-back">Back to map</button>',()=>{$('locked-back').onclick=closeModal});return}
+   startLevel(Number(b.dataset.level));
+  });
  }
 
  function stuff(){map()}
@@ -589,11 +555,16 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
 
+ function sceneTreasures(id){
+  const theme=backgroundHomes.find(w=>w.id===id)?.theme||backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.theme||'candy';
+  const eligible=new Set(levels.filter(l=>worldThemes[l.worldIndex].id===theme).flatMap(l=>l.collectibleIds||[]));
+  return [...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[])])].filter(key=>eligible.has(key)&&/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(key)||'')).slice(0,10);
+ }
  function collectionStage(id){
   const l=land(id),residents=Object.keys(a.friends).filter(c=>hasPlayerCharacter(c)&&a.friends[c]?.homeLandId===id);
   const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
   const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
-  const treasureGoods=(a.collectionExtraObjects?.[id]||[]).filter(key=>[...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])].includes(key));
+  const treasureGoods=(a.collectionExtraObjects?.[id]||[]).filter(key=>sceneTreasures(id).includes(key));
   const positions=a.positions[id]||{};
   const at=(key,i)=>positions[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
   const personArt=residents.map((c,i)=>{
@@ -689,7 +660,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const ownedDecor=[...new Set(Object.values(a.decorations||{}).flat())];
   const ownedPlayers=chars.filter(c=>hasPlayerCharacter(c.id));
   const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
-  const treasures=[...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[]),...(a.earnedSkillBadgeIds||[])])];
+  const treasures=sceneTreasures(id);
   const decorationCards=ownedDecor.map(key=>{
     const d=findDecoration(key);if(!d)return '';
     const here=(a.decorations[id]||[]).includes(key);
@@ -730,7 +701,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button type="button" data-buy-shop-only="'+d.id+'" '+(ownedAnywhere||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+
       (here?'✓ Owned':ownedAnywhere?'✓ Owned · Move from Tray':a.wallet.rainbowStars<d.cost?'Earn More Stars':'⭐ Buy for '+d.cost+' Stars')+'</button></article>';
    }).join('')+'</div></section>';
-  const tray='<p>Decorations, treasures and rescued friends: add them to your world, then arrange your scene!</p>'+
+  const tray='<p>Up to 10 collected treasures from this world, plus your purchased decorations and friends.</p>'+
     '<div class="my-stuff-tray-controls" aria-label="Browse my decorations"><button id="stuff-scroll-prev" type="button" aria-label="Previous decorations">◀</button><strong>My Decorations, Friends & Treasures</strong><button id="stuff-scroll-next" type="button" aria-label="More decorations">▶</button></div>'+
     '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Scroll horizontally.">'+
       (hasObjects?decorationCards+friendCards+treasureCards:
@@ -758,7 +729,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
           '<button type="button" data-stuff-world="'+l.id+'" aria-label="Show my '+esc(l.name)+' world" aria-pressed="'+(l.id===id)+'">'+
           img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
-        '<div class="my-stuff-tray-panel">'+tray+'</div>'+exclusiveStore+'</div></section>');
+        '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
   const armCharacter=enableCollectionDrag(id);
   if(placeCharacterId)armCharacter(placeCharacterId);
   $('stuff-home').onclick=map;
@@ -867,24 +838,28 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    }
  }
  function startLevel(n,restart=false){
- clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;
- const previous=a.mazeRuns?.[def.id];
- r=!restart&&previous?.dragVersion===1&&!previous.complete?previous:{id:def.id,dragVersion:1,drops:0,items:[],complete:false,rewarded:a.completedLevelIds.includes(def.id)};
- view='drag';
- shell(esc(def.title),'<div id="drag-activity"></div>');
- const worldObjects=[candyObjects,pirateObjects,arcticObjects,[],[],[],oceanObjects,[]][def.worldIndex];
- const ids=[...new Set([...def.collectibleIds,...worldObjects.map(x=>x[0]),...data.computer_collectibles.map(x=>x.id)])].filter(id=>itemArt(id)).slice(0,6);
- dragSession=mountDragActivity($('drag-activity'),{
-  enemies:def.enemyIds.map(id=>data.enemies.find(e=>e.id===id)).filter(Boolean).map(e=>({name:e.name,image:asset(e.thumbnail)})),
-  reducedMotion:settings.reducedMotion||settings.difficulty==='gentle',speed:settings.speed,stage:def.worldStage,background:asset(def.backgroundImage),items:ids.map(id=>({id,name:itemName(id),image:asset(itemArt(id))})),completed:r.drops||0,
-  onDrop:(count)=>{r.drops=count;save()},
+ clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel&&!a.completedLevelIds.includes(def.id))return;
+ const level=activityLevels[n-1],previous=a.mazeRuns?.[def.id];
+ let activityState=stateFor(level,!restart&&previous?.activityState);
+ if(!restart&&previous?.dragVersion===1&&!previous.complete){
+  // Preserve credit from an unfinished old matching activity; never erase its source run.
+  const credit=Math.min(progressFor(level,activityState).total-1,Math.floor((previous.drops||0)/(3+def.worldStage)*progressFor(level,activityState).total));
+  for(let i=0;i<credit;i++){
+   const target=targetsFor(level,activityState).find(t=>level.engine==='pattern'?!activityState.roundPlaced[t.id]:t.capacity===0||!Object.values(activityState.placed).includes(t.id));
+   const piece=level.pieces.find(p=>(level.engine==='pattern'||!activityState.placed[p.id])&&target?.accept.includes(p.key));
+   if(piece&&target)tryPlacement(level,activityState,piece.id,target.id);
+  }
+ }
+ r={id:def.id,dragVersion:2,activityState,items:[],complete:false,rewarded:a.completedLevelIds.includes(def.id),...(!restart&&previous?.dragVersion===1?{legacyDragV1:previous}:{})};
+ view='drag';shell(esc(def.title),'<div id="drag-activity"></div>');document.body.classList.add('activity-playing');
+ dragSession=mountActivity($('drag-activity'),{level,saved:activityState,reducedMotion:settings.reducedMotion||settings.difficulty==='gentle',speed:settings.speed,
+  onProgress:state=>{r.activityState=state;save()},
   onComplete:()=>{
-   for(const id of def.collectibleIds||[]){if(!(a.collectedWorldItems??=[]).includes(id))a.collectedWorldItems.push(id)}
-   r.items=(def.collectibleIds||[]).map(id=>({id,collected:true}));r.skill={done:true,type:'drag'};finish();
+   for(const id of def.collectibleIds||[])if(!(a.collectedWorldItems??=[]).includes(id))a.collectedWorldItems.push(id);
+   r.items=(def.collectibleIds||[]).map(id=>({id,collected:true}));r.skill={done:true,type:level.engine};finish();
   }
  });
- tellGuide('Click and keep holding with one finger. Move the picture to its match. Let go inside the matching spot.'+(def.worldStage>=2?' Go around the bad guys. Watch for the ones that move.':''),'CLICK → HOLD → MOVE → LET GO');
- a.activeRun=r;save();
+ tellGuide(ENGINES[level.engine].instruction,'CLICK · HOLD · MOVE · LET GO');a.activeRun=r;save();
  }
  function maze(){
  view='maze';shell(esc(def.title),'<div class="quest-strip"><span>ACTIVITY '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':def.individualBackdrop?' lab-individual-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full" type="button">⛶ Full Screen</button></div>');
@@ -1063,7 +1038,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function teacher(){
  if(!preview){onTeacher?.();return}
  const choices=[['sound','Celebration sound'],['reducedMotion','Reduce motion']];
- const content='<p>These settings apply to <strong>every class and student on this browser</strong>. Export settings and import them on other classroom devices to use the same setup.</p><label>Bad guys <select id="set-difficulty"><option value="standard">Moving and stationary</option><option value="gentle">Stationary only</option></select></label><label>Movement pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+choices.map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><div class="actions"><button id="save-settings" class="primary">Save for all classes</button><button id="export-settings">Export settings</button><label class="settings-import">Import settings<input id="import-settings" type="file" accept="application/json,.json"></label><button id="change-password">Change password</button></div><p id="teacher-note" role="status"></p><h3>All 64 levels · teacher preview</h3><p>Every world and level is open here. Preview stars, purchases, and progress never change a student save.</p><div class="teacher-levels">'+worldThemes.map((w,i)=>'<section><h3>'+esc(w.name)+'</h3><div>'+levels.slice(i*8,i*8+8).map(l=>'<button type="button" data-preview-level="'+l.number+'">'+l.worldStage+' · '+esc(l.title)+'</button>').join('')+'</div></section>').join('')+'</div><div class="actions"><button id="close-settings">Preview world map</button><button id="exit-teacher">Lock & exit teacher mode</button></div>';
+ const content='<p>These settings apply to <strong>every class and student on this browser</strong>. Export settings and import them on other classroom devices to use the same setup.</p><label>Bad guys <select id="set-difficulty"><option value="standard">Moving and stationary</option><option value="gentle">Stationary only</option></select></label><label>Movement pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+choices.map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><div class="actions"><button id="save-settings" class="primary">Save for all classes</button><button id="export-settings">Export settings</button><label class="settings-import">Import settings<input id="import-settings" type="file" accept="application/json,.json"></label></div><p id="teacher-note" role="status"></p><h3>All 64 levels · teacher preview</h3><p>Every world and level is open here. Preview stars, purchases, and progress never change a student save.</p><div class="teacher-levels">'+worldThemes.map((w,i)=>'<section><h3>'+esc(w.name)+'</h3><div>'+levels.slice(i*8,i*8+8).map(l=>'<button type="button" data-preview-level="'+l.number+'">'+l.worldStage+' · '+esc(l.title)+'</button>').join('')+'</div></section>').join('')+'</div><div class="actions"><button id="close-settings">Preview world map</button><button id="exit-teacher">Lock & exit teacher mode</button></div>';
  modal('Teacher controls · all classes',content,()=>{
  const note=()=>$('teacher-note');
  $('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;
@@ -1073,7 +1048,6 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  $('save-settings').onclick=()=>{try{persist(read());note().textContent='Saved for all classes on this browser.'}catch{note().textContent='Settings could not save. Check browser storage.'}};
  $('export-settings').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({version:1,settings:read()},null,2)],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download='drag-drop-class-settings.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  $('import-settings').onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text()),x=data.settings;if(data.version!==1||!x||!['standard','gentle'].includes(x.difficulty)||![1600,2200,3200].includes(x.speed)||typeof x.sound!=='boolean'||typeof x.reducedMotion!=='boolean'||!Number.isFinite(x.costs?.power_up)||x.costs.power_up<1||x.costs.power_up>20||!Number.isFinite(x.costs?.super_power_additional)||x.costs.super_power_additional<1||x.costs.super_power_additional>30)throw Error();persist({...settings,difficulty:x.difficulty,speed:x.speed,sound:x.sound,reducedMotion:x.reducedMotion,costs:{...x.costs}});teacher();$('teacher-note').textContent='Imported for all classes on this browser.'}catch{note().textContent='Use a settings file exported from this game.'}};
- $('change-password').onclick=()=>teacherAccess({change:true});
  document.querySelectorAll('[data-preview-level]').forEach(b=>b.onclick=()=>{closeModal();startLevel(Number(b.dataset.previewLevel),true)});
  $('close-settings').onclick=()=>{closeModal();map()};$('exit-teacher').onclick=()=>{cleanup();onLogout()};
  });
@@ -1093,7 +1067,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  $('help').onclick=()=>{
   // Do not overwrite an unfinished keyboard challenge or rescue dialog.
   if($('adventure-dialog')?.open)return;
-  const t='Click and keep holding with one finger. While holding, move the picture to its matching spot. Let go inside the spot. Go around the bad guys and keep the whole picture away from them. Some move slowly, and some activities have two bad guys. If you touch one, only that drag starts over; finished drops stay saved. If you let go too soon, try again. Each level gives you more drag-and-drop practice. Finish levels to earn stars and rescue friends.';
+  const t=view==='drag'?ENGINES[activityLevels[def.number-1].engine].instruction:'Each world has eight different drag-and-drop activities. Click and hold a picture, move it, then let go. Finish the eight activities to rescue your friend.';
   modal('How to Play','<p>'+esc(t)+'</p><div class="actions"><button id="help-read-aloud" type="button">🔊 Read aloud</button><button id="help-back" class="primary" type="button">Back to adventure</button></div>',()=>{
     const speech=window.speechSynthesis,read=$('help-read-aloud');
     read.disabled=!(speech&&window.SpeechSynthesisUtterance);

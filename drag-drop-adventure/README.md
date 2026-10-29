@@ -27,12 +27,12 @@ Previously selected/unlocked characters remain in their assigned worlds. MY STUF
 
 A horizontal **MY CHARACTERS** ribbon sits directly beneath the scene. It displays ONLY unlocked/owned playable characters and their current home. Click **Move** for a resident or **Place Here** to move an owned character from another owned world. Then click the destination in the large picture; the position saves immediately. Students can also click a character directly in the scene, click a destination, or use the older mouse-drag interaction. Moving or arranging an already-owned character is FREE; the 5-star fee applies ONLY to changing the playable character. Character homes, world ownership, existing positions, coins, stars, collectibles, and story progress persist after reloading.
 
-### Teacher controls and responsive directions
+### Current activity system and teacher mode
 
-Use **Teacher** in the banner toolbar. On a new browser, set a password (at least eight characters); later visits require it. Passwords are salted and derived with PBKDF2, not saved as plaintext. This is a local classroom UI lock, not server authentication. **Lock & exit teacher mode** ends the in-memory teacher session.
+The game now runs eight reusable activity engines across all eight worlds. See [activities/README.md](activities/README.md) for configuration, artwork integration, save compatibility and testing details.
 
-Teacher preview starts with fresh, temporary data, all 64 levels open, all characters/worlds available, and preview spending stars. Its save function does not write student progress. The teacher level picker opens any activity directly. Student accounts still use their original unlock rules and storage keys.
+Choose **Teacher** in the banner toolbar, enter **8714**, and select any of the 64 levels. All worlds, characters, friends and decorations are available in this temporary preview; student saves are untouched. Use **Lock & exit teacher mode** when done. Settings apply to all classes on this browser and can be exported/imported to other devices.
 
-Movement mode, movement speed, reduced motion, celebration sound, and upgrade prices apply to all classes using this browser. Export/import settings to copy the setup to other devices; this static GitHub Pages game does not synchronize settings between devices. Settings exports contain no password or student progress.
+During activities and MY STUFF, the heading shrinks. Hover over the header or use **Show heading** to expand it; the toolbar stays visible. MY STUFF shows up to ten PNG/JPEG challenge treasures from the current world plus purchased decorations and owned characters/friends. Saved ownership is preserved even when an item is not shown in that world's tray.
 
-Home, Stars/Star Shop, and My Stuff now live in the banner toolbar. Every activity uses the shared responsive instructions layout: text wraps, guide artwork shrinks to leave room for directions, and narrow screens put instructions above the game. Extremely small or zoomed layouts can scroll instead of clipping directions. The banner artwork/dimensions are unchanged.
+All 64 new activity-art packages are still pending from the Art Agent. Existing approved raster assets are used in the meantime; no planned asset path is treated as an existing file.

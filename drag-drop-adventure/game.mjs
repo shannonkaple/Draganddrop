@@ -1,6 +1,6 @@
-import {teacherAccess,lockTeacher} from './teacher-access.mjs?v=20261029-teacher';
-import './viewport.mjs?v=20261029-teacher';
-import {openAdventure} from './adventure.mjs?v=20261029-teacher';
+import {teacherAccess,lockTeacher} from './teacher-access.mjs?v=20261029-engines1';
+import './viewport.mjs?v=20261029-engines1';
+import {openAdventure} from './adventure.mjs?v=20261029-engines1';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;
@@ -27,6 +27,7 @@ async function openTeacher(){
  controller.teacherSettings();
 }
 $('teacher-access').onclick=openTeacher;
+$('heading-toggle').onclick=()=>{const open=document.querySelector('body>header').classList.toggle('heading-open');$('heading-toggle').setAttribute('aria-expanded',String(open));$('heading-toggle').textContent=open?'Shrink heading':'Show heading'};
 $('header-stars').onclick=()=>controller?.goShop();
 $('header-stuff').onclick=()=>controller?.goStuff();
 $('global-home').onclick=()=>controller?controller.goHome():login();

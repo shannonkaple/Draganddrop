@@ -157,3 +157,15 @@ body.lab-map-active .lab-map-home{grid-template-rows:minmax(110px,144px) minmax(
 .teacher-levels button{font-size:14px;text-align:left;padding:8px}
 .settings-import{max-width:100%;font-size:14px}.settings-import input{max-width:100%}
 body.teacher-preview #header-profile{background:#ffe78b;border-radius:8px;padding:5px}
+
+/* More usable room during play and scene decoration; toolbar remains reachable. */
+body:is(.activity-playing,.lab-collection-active)>header.drag-banner-header:not(:hover):not(.heading-open) .brand{height:42px!important;max-height:42px!important}
+body:is(.activity-playing,.lab-collection-active)>header.drag-banner-header:not(:hover):not(.heading-open) .brand>img.drag-banner-art{height:42px!important;width:100%!important;object-fit:contain!important}
+body:not(.activity-playing):not(.lab-collection-active) #heading-toggle{display:none!important}
+body.lab-collection-active .my-stuff-stage .collection-world-showcase{width:min(100%,max(320px,calc((var(--screen-height) - 265px)*1.7778)))!important}
+body.lab-collection-active .my-stuff-stage #collection-scene{width:100%!important;background-size:contain!important;aspect-ratio:16/9!important}
+body.lab-collection-active .my-stuff-stage #collection-scene .world-object{width:clamp(45px,7vw,100px)!important}
+body.lab-collection-active .my-stuff-heading{padding:4px 10px!important}
+body.lab-collection-active .my-stuff-heading h2{font-size:22px!important}
+body.lab-collection-active .my-stuff-heading small{display:none!important}
+body.lab-collection-active .my-stuff-toolbox{display:block!important}

@@ -1,0 +1,23 @@
+.activity-shell{display:flex;flex-direction:column;gap:6px;min-width:0;margin:8px auto;max-width:1400px}
+.activity-instructions{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border:2px solid #54316e;border-radius:14px;background:#fff}
+.activity-instructions p{margin:0;font-size:clamp(15px,1.4vw,20px);line-height:1.25}.activity-count{flex-shrink:0;font-size:15px}
+.activity-frame{width:100%;display:flex;justify-content:center;min-width:0}
+.activity-board{position:relative;width:100%;aspect-ratio:5/3;flex:none;isolation:isolate;border:2px solid #54316e;border-radius:14px;overflow:hidden;background:white;touch-action:none;user-select:none;container-type:inline-size}
+.activity-background{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:-1}
+.activity-world,.activity-targets,.activity-pieces,.activity-hazards{position:absolute;inset:0;pointer-events:none}
+.activity-piece,.activity-target,.activity-hazard,.activity-wall,.activity-container,.activity-pattern-fixed{position:absolute;box-sizing:border-box}
+.activity-piece{padding:3px;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:grab;background:#ffffffea;border:2px solid #7342a2;border-radius:14px;touch-action:none;box-shadow:0 3px 4px #0003}
+.activity-piece img,.activity-hazard img,.activity-pattern-fixed img{width:100%;height:100%;object-fit:contain;pointer-events:none}
+.activity-piece.held{z-index:30;cursor:grabbing;outline:4px solid #ffda47;box-shadow:0 6px 12px #0004}
+.activity-target{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:3px dashed #694a8a;border-radius:14px;background:#ffffffe6;color:#38204f;font-size:clamp(10px,1.8cqw,19px);text-align:center;line-height:1.1;padding:5px}
+.activity-target img{width:85%;height:75%;object-fit:contain;opacity:.48;pointer-events:none}.activity-target.filled img{opacity:1}.activity-target.filled{border-style:solid;border-color:#2c8c5a;background:#eefff1}.activity-target.over{outline:4px solid #24a567;background:#d6ffe9}
+.activity-wall{background:#fffaf1e8;border:4px solid #493755;box-shadow:0 0 0 3px #fff9;border-radius:8px}
+.activity-container{background:#fff9;border:4px solid #68428b;border-radius:20px}
+.activity-hazard{filter:drop-shadow(0 3px 2px #0005)}
+.activity-pattern-fixed{border:2px solid #fff;border-radius:10px;background:#ffffffd9;padding:5px}
+.activity-feedback{font-size:16px;line-height:1.3;text-align:center;padding:7px;background:#fff;border-radius:10px;min-height:36px;overflow-wrap:anywhere}
+.activity-tools{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;font-size:12px}.activity-tools button{font-size:14px;padding:7px 12px}
+body.activity-playing #app{overflow-y:auto!important}body.activity-playing #app>.adventure-title{font-size:22px;margin:3px 0}
+.activity-map-legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0}.activity-map-legend button{font-size:14px;padding:7px;line-height:1.15}
+body.activity-playing #guide-words{font-size:clamp(15px,2.3vh,20px)}
+@media(max-width:700px){.activity-instructions{flex-wrap:wrap;gap:4px}.activity-instructions p{font-size:15px}.activity-count{font-size:13px}.activity-map-legend{grid-template-columns:repeat(2,minmax(0,1fr))}.activity-tools span{display:none}}
