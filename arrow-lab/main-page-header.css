@@ -45,3 +45,24 @@ html body.guided.adventure-mode.lab-map-active>header.lab-image-header #who{
  width:auto!important;flex:none!important;max-width:none!important;min-width:0!important;
  height:32px!important;min-height:32px!important;padding:4px 10px!important;
 }
+
+/* Profile left, rewards/navigation center, help/teacher right. */
+.lab-reference-toolbar>.toolbar-center{display:contents}
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .lab-reference-toolbar{
+ display:grid!important;grid-template-columns:1fr auto 1fr!important;
+}
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header #lab-student-header,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .toolbar-center,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .toolbar-right{
+ display:flex!important;position:static!important;flex-direction:row!important;flex-wrap:wrap!important;
+ width:auto!important;min-width:0!important;max-width:none!important;height:auto!important;
+ gap:8px!important;padding:0!important;align-items:center!important;
+}
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header #lab-student-header{justify-content:flex-start!important;overflow:visible!important}
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .toolbar-center{justify-content:center!important}
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .toolbar-right{justify-content:flex-end!important}
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .lab-reference-toolbar :is(button,span){order:0!important}
+@media(max-width:850px){
+ html body.guided.adventure-mode.lab-map-active>header.lab-image-header .lab-reference-toolbar{grid-template-columns:1fr 1fr!important}
+ html body.guided.adventure-mode.lab-map-active>header.lab-image-header .toolbar-center{grid-column:1/-1;grid-row:2}
+}

@@ -714,7 +714,490 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    '<div class="world-hub-actions"><button id="shop-owned-worlds">🧸 MY STUFF</button><strong>⭐ '+a.wallet.rainbowStars+'</strong></div>'+
    '<div class="adventure-cards land-cards">'+backgroundHomes.map(w=>{
      const has=owned(w.id),price=worldCosts[lands.indexOf(w)];
-     return '<article>'+img…10574 tokens truncated… class="skill-target">⭐</button>';
+     return '<article>'+img(w.cardPreview,w.name)+'<strong>'+esc(w.name)+'</strong><p>'+(has?'✓ Owned':'⭐ '+price+' stars')+'</p>'+
+      '<button data-world-to-buy="'+w.id+'" '+(!has&&a.wallet.rainbowStars<price?'disabled':'')+'>'+(has?'Visit World':'Buy World')+'</button></article>';
+   }).join('')+'</div>');
+  $('shop-owned-worlds').onclick=()=>computer();
+  document.querySelectorAll('[data-world-to-buy]').forEach(b=>b.onclick=()=>{if(buyHome(b.dataset.worldToBuy))computer(b.dataset.worldToBuy,"worlds")});
+ }
+ // Legacy callers must open the single MY STUFF playroom, never a second world editor.
+ function visit(id){computer(id);}
+
+ function friends(){
+ view='friends';const costs=config.progression.upgradeCost;
+ shell('Character Upgrades','<p>Use your stars to help a friend grow. You have '+a.wallet.rainbowStars+' stars.</p><div class="adventure-cards friend-cards">'+[char(a.selectedPlayerCharacterId),...chars.filter(c=>c.id!==a.selectedPlayerCharacterId)].map(c=>{const f=a.friends[c.id];if(!f)return '<div class="locked-friend">'+img(c.levels[0].thumbnail,c.name)+'<strong>'+esc(c.name)+'</strong><p>Waiting to be rescued</p></div>';const cost=f.upgradeStage==='starter'?costs.power_up:costs.super_power_additional;return '<article>'+pic(c.id)+'<h3>'+esc(c.name)+(c.id===a.selectedPlayerCharacterId?' · My player':'')+'</h3><p>'+currentStage(c.id)+' · '+esc(look(c.id).name)+'</p><p>'+esc(land(f.homeLandId).name)+'</p><button data-upgrade="'+c.id+'" '+(f.upgradeStage==='super_power'||a.wallet.rainbowStars<cost?'disabled':'')+'>'+(f.upgradeStage==='super_power'?'★ Fully grown!':a.wallet.rainbowStars<cost?'Need '+(cost-a.wallet.rainbowStars)+' more stars':'🌟 Grow · '+cost+' stars')+'</button><button data-move="'+c.id+'">🏡 Choose home</button></article>'}).join('')+'</div>');
+ document.querySelectorAll('[data-upgrade]').forEach(b=>b.onclick=()=>{if(upgradeFriend(a,b.dataset.upgrade,costs)){save();celebrate(currentStage(b.dataset.upgrade)+' unlocked!',b.dataset.upgrade,friends)}});
+ document.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>place(b.dataset.move));
+ }
+ function place(id,rescuing=false){
+ pendingFriend=id;view='place';const worlds=lands.filter(l=>owned(l.id));
+ shell('Where will '+esc(char(id).name)+' live?','<p>'+(worlds.length?'Choose one of your worlds. Adding a friend is free.':'Your friend needs a home. Visit Worlds to buy your first world, then come back to place your friend.')+'</p><div class="placing-friend">'+pic(id)+'</div><div class="adventure-cards land-cards">'+worlds.map(l=>'<button data-land="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><span>Owned ✓ · Add friend free</span></button>').join('')+'</div>'+(!worlds.length?'<button id="placement-worlds" class="primary">🌍 Go to Worlds</button>':'')+'<button id="place-back">← '+(rescuing?'Choose a different friend':'Upgrades')+'</button>');
+ $('placement-worlds')?.addEventListener('click',homeMap);$('place-back').onclick=()=>{if(rescuing){a.pendingRescueFriendId=null;save();rescue()}else friends()};
+ document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{const world=b.dataset.land;if(!owned(world))return;const placed=placeFriend(a,id,world);if(!placed)return;pendingFriend=null;save();sound();computer(world,rescuing?'friends':'decor')});
+ }
+ const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
+
+ function collectionStage(id){
+  const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c]?.homeLandId===id&&(c===a.selectedPlayerCharacterId||!pendingCharacters.some(hero=>hero.id===c)&&!a.retiredPlayerCharacterIds?.includes(c)));
+  const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
+  const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
+  const treasureGoods=visibleCollectedKeys(a,id).filter(key=>worldTreasures(id).includes(key));
+  const positions=a.positions[id]||{};
+  const at=(key,i)=>positions[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
+  const personArt=residents.map((c,i)=>{
+    const p=at(c,i),name=char(c)?.name||c.replaceAll('_',' ');return '<div class="world-object world-friend" data-world-object="'+c+'" style="left:'+p.x+'%;top:'+p.y+'%" role="img" aria-label="'+esc(name)+'">'+pic(c)+'<span>'+esc(name)+'</span></div>';
+  }).join('');
+  const friendArt=companionsHere.map((c,i)=>{
+    const p=at('companion:'+c.id,residents.length+i);
+    const gift=findDecoration(a.friendGiftEquipped[c.id]);
+    return '<div class="world-object world-companion" data-world-object="companion:'+c.id+'" style="left:'+p.x+'%;top:'+p.y+'%" role="img" aria-label="'+esc(c.name)+'">'+companionArt(c.id)+'<span>'+esc(c.name)+'</span>'+(gift?'<span class="world-friend-gift">'+shopArt(gift)+'</span>':'')+'</div>';
+  }).join('');
+  const decorArt=goods.map((d,i)=>{
+    const item=findDecoration(d);if(!item)return '';
+    const p=at('decor:'+d,residents.length+companionsHere.length+i);
+    return '<div class="world-object world-prop" data-world-object="decor:'+d+'" style="left:'+p.x+'%;top:'+p.y+'%" role="img" aria-label="'+esc(item.name)+'">'+shopArt(item)+'</div>';
+  }).join('');
+  const treasureArt=treasureGoods.map((key,i)=>{const p=at('treasure:'+key,residents.length+companionsHere.length+goods.length+i);
+    return '<div class="world-object world-prop" data-world-object="treasure:'+key+'" role="img" aria-label="Move '+esc(itemName(key))+'" style="left:'+p.x+'%;top:'+p.y+'%">'+img(itemArt(key),itemName(key),'shop-decoration')+'</div>';
+  }).join('');
+  const picture=id.startsWith('background_')?l.homeBackground:(backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.homeBackground||l.homeBackground);
+  return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+'<img class="collection-background-size" src="'+asset(picture)+'" alt="" draggable="false">'+personArt+friendArt+decorArt+treasureArt+'</div>';
+ }
+ function removeSceneObject(id,key){
+  const ok=commitSceneMutation(()=>{
+   if(key.startsWith('decor:')){const list=(a.hiddenDecorations[id]??=[]);if(!list.includes(key.slice(6)))list.push(key.slice(6));}
+   else if(key.startsWith('companion:')){if(!a.hiddenCompanions.includes(key.slice(10)))a.hiddenCompanions.push(key.slice(10));}
+   else if(key.startsWith('treasure:'))a.collectionExtraObjects[id]=(a.collectionExtraObjects[id]||[]).filter(x=>x!==key.slice(9));
+   else return false;
+  },['hiddenDecorations','hiddenCompanions','collectionExtraObjects']);
+  if(!ok){$('collection-report').textContent='NOT saved. Item stays in your scene. Tell your teacher.';return}
+  computer(id);$('collection-report').textContent='Removed from scene. You still own it and can add it again.';
+ }
+ function enableCollectionDrag(id){
+   const scene=$('collection-scene');if(!scene)return;
+   let drag=null,armed=null;
+   const report=t=>{const note=$('collection-report');if(note)note.textContent=t};
+   const clear=()=>{armed?.classList.remove('selected-for-placement');armed=null};
+   const arm=el=>{
+     if(!el)return;
+     if(armed===el){clear();report('Selection canceled.');return}
+     clear();armed=el;el.classList.add('selected-for-placement');
+     report(mobileTouch?'Selected! Tap an EMPTY spot to place this item, or drag it with your finger.':'Selected! Click an EMPTY spot in your world to place this item, or drag it.');
+   };
+   scene.armObject=arm;
+   const point=(el,x,y)=>{
+     const box=scene.getBoundingClientRect(),sprite=el.getBoundingClientRect();
+     if(box.width<=0||box.height<=0)return null;
+     const px=Math.min(48,(sprite.width/2+8)/box.width*100),py=Math.min(48,(sprite.height/2+8)/box.height*100);
+     return {x:Math.max(px,Math.min(100-px,(x-box.left)/box.width*100)),
+       y:Math.max(py,Math.min(100-py,(y-box.top)/box.height*100))};
+   };
+   const place=(el,key,p,previousStyle)=>{
+     if(!p)return false;
+     const prior=(a.positions[id]||{})[key];
+     const oldX=previousStyle?.x??(prior?prior.x+'%':el.style.left);
+     const oldY=previousStyle?.y??(prior?prior.y+'%':el.style.top);
+     const ok=commitSceneMutation(()=>{(a.positions[id]??={})[key]=p},['positions']);
+     if(!ok){el.style.left=oldX;el.style.top=oldY;return false}
+     el.style.left=p.x+'%';el.style.top=p.y+'%';
+     return true;
+   };
+   scene.querySelectorAll('[data-world-object]').forEach(el=>{
+     const key=el.dataset.worldObject,isPlayer=key===a.selectedPlayerCharacterId;
+     if(!key.includes(':')&&!isPlayer)return;
+     el.tabIndex=0;el.setAttribute('role','group');
+     if(isPlayer)el.setAttribute('aria-label','My player: click to choose a place, drag or use keyboard arrows');
+     if(!isPlayer){
+       const remove=document.createElement('button');remove.type='button';remove.className='scene-remove';
+       remove.textContent='×';remove.setAttribute('aria-label','Remove '+(el.getAttribute('aria-label')||'item')+' from scene');
+       remove.onclick=()=>{clear();removeSceneObject(id,key)};el.append(remove);
+     }
+     el.onkeydown=e=>{
+       if(directions[e.key]){
+         e.preventDefault();e.stopPropagation();
+         const p=(a.positions[id]??={})[key]||{x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50};
+         const d=directions[e.key],next={x:Math.max(5,Math.min(95,p.x+d[0]*3)),y:Math.max(5,Math.min(95,p.y+d[1]*3))};
+         report(place(el,key,next)?'Position saved. Use arrow keys, drag, or click a new place.':'NOT saved. Position restored; tell your teacher.');
+       }else if(e.key==='Enter'||e.key===' '){
+         e.preventDefault();e.stopPropagation();arm(el);
+       }else if(!isPlayer&&(e.key==='Delete'||e.key==='Backspace')){
+         e.preventDefault();clear();removeSceneObject(id,key);
+       }
+     };
+   });
+   scene.onpointerdown=e=>{
+     if((e.pointerType!=='mouse'&&!(mobileTouch&&e.pointerType==='touch'))||(e.pointerType==='mouse'&&e.button!==0)||e.target.closest('.scene-remove'))return;
+     const el=e.target.closest('[data-world-object]');
+     if(!el){
+       if(!armed)return;
+       const p=point(armed,e.clientX,e.clientY);if(!p)return;
+       e.preventDefault();
+       const ok=place(armed,armed.dataset.worldObject,p);
+       const placed=armed;clear();placed.focus({preventScroll:true});
+       report(ok?'Placed! The new location is saved.':'NOT saved. Position restored; tell your teacher.');
+       return;
+     }
+     e.preventDefault();
+     const rect=el.getBoundingClientRect();
+     drag={el,key:el.dataset.worldObject,pointer:e.pointerId,
+       startX:e.clientX,startY:e.clientY,moved:false,
+       dx:e.clientX-rect.left-rect.width/2,dy:e.clientY-rect.top-rect.height/2,
+       oldX:el.style.left,oldY:el.style.top};
+     el.setPointerCapture(e.pointerId);
+   };
+   scene.onpointermove=e=>{
+     if(!drag||drag.pointer!==e.pointerId)return;
+     if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<6)return;
+     if(!drag.moved){drag.moved=true;clear();drag.el.classList.add('moving')}
+     e.preventDefault();
+     const p=point(drag.el,e.clientX-drag.dx,e.clientY-drag.dy);
+     if(!p)return;
+     drag.x=p.x;drag.y=p.y;drag.el.style.left=p.x+'%';drag.el.style.top=p.y+'%';
+   };
+   scene.onpointerup=e=>{
+     if(!drag||drag.pointer!==e.pointerId)return;
+     if(drag.moved){
+       const ok=drag.x!==undefined&&place(drag.el,drag.key,{x:drag.x,y:drag.y},{x:drag.oldX,y:drag.oldY});
+       report(ok?'Saved! Your arrangement will be here next time.':'NOT saved. Position restored; tell your teacher.');
+     }else arm(drag.el);
+     drag.el.classList.remove('moving');drag=null;
+   };
+   scene.onpointercancel=scene.onlostpointercapture=()=>{
+     if(!drag)return;
+     drag.el.style.left=drag.oldX;drag.el.style.top=drag.oldY;
+     drag.el.classList.remove('moving');drag=null;
+   };
+  }
+ function worldTreasures(worldId){
+  const theme=backgroundHomes.find(w=>w.id===worldId)?.theme||worldId.replace('background_','');
+  const themed=new Set((objectGroups[theme]||[]).map(item=>item[0]));
+  const picked=new Set(Object.values(a.mazeRuns||{}).filter(run=>run?.id?.startsWith('lab_'+theme+'_')).flatMap(run=>(run.items||[]).filter(item=>item.collected).map(item=>item.id)));
+  return earnedKeys(a).filter(key=>isSupportedCollectibleArt(itemArt(key))&&(themed.has(key)||picked.has(key))).slice(0,10);
+ }
+ function computer(worldId=null,section=null){
+  // Keep the horizontal shelf in place when a student adds, moves or hides an item.
+  const previousTray=$('my-stuff-tray');
+  if(previousTray)inventoryScrollLeft=previousTray.scrollLeft;
+  view='computer';
+  a.hiddenDecorations??={};a.hiddenCompanions??=[];a.collectionExtraObjects??={};
+  const purchased=lands.filter(l=>owned(l.id));
+  const requested=worldId||a.collectionWorldId||a.primaryRainbowLandId;
+  const id=purchased.some(l=>l.id===requested)?requested:purchased[0]?.id;
+  if(!id)return homeMap();
+  // A playroom, not four inventory pages: show every usable object together.
+  // The old collectionTab is left intact for save compatibility, but never gates the tray.
+  a.collectionWorldId=id;a.primaryRainbowLandId=id;save();
+  // The playroom tray is a student's complete inventory, not just the items in this world.
+  // Keep the legacy per-world decoration arrays so old saves and arrangements survive.
+  const ownedDecor=[...new Set(Object.values(a.decorations||{}).flat())];
+  const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
+  const treasures=worldTreasures(id);
+  const decorationCards=ownedDecor.map(key=>{
+    const d=findDecoration(key);if(!d)return '';
+    const here=(a.decorations[id]||[]).includes(key);
+    const placed=here&&!a.hiddenDecorations[id]?.includes(key);
+    const elsewhere=!here&&Object.entries(a.decorations||{}).some(([world,items])=>world!==id&&items.includes(key));
+    const targetTheme=backgroundHomes.find(w=>w.id===id)?.theme||'all';
+    const allowed=here||canPlaceDecorationInWorld(d,targetTheme);
+    return '<article class="my-stuff-item" data-stuff-kind="decoration">'+shopArt(d)+
+      '<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'" '+(!allowed?'disabled':'')+'>'+
+      (!allowed?'Only for '+esc(d.world)+' World':placed?'Remove from Scene':elsewhere?'＋ Move to This World':'＋ Add to Scene')+'</button></article>';
+  }).join('');
+  const friendCards=rescued.map(c=>{
+    const here=a.worldFriends[c.id].homeLandId===id;
+    const placed=here&&!a.hiddenCompanions.includes(c.id);
+    return '<article class="my-stuff-item" data-stuff-kind="friend">'+companionArt(c.id)+
+      '<strong>'+esc(c.name)+'</strong><button type="button" data-stuff-friend="'+c.id+'" aria-pressed="'+placed+'">'+
+      (placed?'Remove from Scene':here?'＋ Add to Scene':'＋ Bring to This World')+'</button></article>';
+  }).join('');
+  const treasureCards=treasures.map(key=>{
+    const placed=visibleCollectedKeys(a,id).includes(key);
+    return '<article class="my-stuff-item" data-stuff-kind="treasure">'+
+      img(itemArt(key),itemName(key),'my-stuff-thumb')+'<strong>'+esc(itemName(key))+'</strong>'+
+      '<button type="button" data-stuff-treasure="'+key+'" aria-pressed="'+placed+'" aria-label="'+(placed?'Put away ':'Add to world ')+esc(itemName(key))+'">'+
+      (placed?'Remove from Scene':'＋ Add to Scene')+'</button></article>';
+  }).join('');
+  const hasObjects=!!(ownedDecor.length||rescued.length||treasures.length);
+  // Keep the current player visible and easy to move between purchased worlds.
+  // Their saved character ID and position are never replaced or reset.
+  const playerId=a.selectedPlayerCharacterId;
+  const playerHere=a.friends[playerId]?.homeLandId===id;
+  const worldPreviews='<div class="my-stuff-quickworlds" role="group" aria-label="My owned world pictures">'+
+    purchased.map(l=>'<button type="button" data-stuff-world="'+l.id+'" aria-pressed="'+(l.id===id)+'" aria-label="Show '+esc(l.name)+' world">'+
+      img(l.cardPreview,l.name+' world preview')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div>';
+  const worldOnlyGoods=shopExclusives.filter(d=>d.world===backgroundHomes.find(w=>w.id===id)?.theme);
+  const exclusiveStore='<section class="my-stuff-exclusive-store" aria-label="Shop-only decorations for '+esc(land(id).name)+'">'+
+   '<h3>⭐ '+esc(land(id).name)+' · SHOP ONLY</h3><p>These items cannot be collected in mazes. Spend stars to buy them for your world!</p>'+
+   '<div class="my-stuff-exclusive-cards">'+worldOnlyGoods.map(d=>{
+    const here=(a.decorations[id]||[]).includes(d.id),ownedAnywhere=Object.values(a.decorations||{}).some(list=>list.includes(d.id));
+    return '<article class="my-stuff-exclusive-item">'+shopArt(d)+'<strong>'+esc(d.name)+'</strong><small>⭐ '+d.cost+' stars · Shop Only</small>'+
+      '<button type="button" data-buy-shop-only="'+d.id+'" '+(ownedAnywhere||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+
+      (here?'✓ Owned':ownedAnywhere?'✓ Owned · Move from Tray':a.wallet.rainbowStars<d.cost?'Earn More Stars':'⭐ Buy for '+d.cost+' Stars')+'</button></article>';
+   }).join('')+'</div></section>';
+  const tray='<p>Your COLLECTED ITEMS are first! Click Add to Scene and your item appears in the picture. Drag it to arrange your world.</p>'+
+    '<div class="my-stuff-tray-controls" aria-label="Browse all my collected items"><button id="stuff-scroll-prev" type="button" aria-label="Previous items">◀</button><strong id="stuff-page-label">COLLECTED ITEMS</strong><button id="stuff-scroll-next" type="button" aria-label="More items">▶</button></div>'+
+    '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="My earned decorations, rescued friends, and treasures. Use Previous and Next pages.">'+
+      (hasObjects?treasureCards+friendCards+decorationCards:
+      '<p class="my-stuff-empty">Your collection starts here! Finish mazes to earn treasures, rescue friends and buy decorations.</p>')+
+    '</div><div class="my-stuff-shop-actions">'+
+      '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Get More Decorations</button>'+
+      '<button class="my-stuff-action" type="button" id="stuff-buy-world">🌍 Get Another World</button></div>';
+  shell('MY STUFF','<section class="lab-collection-page my-stuff-room" aria-label="My Stuff: make and play with my world">'+
+      '<div class="my-stuff-heading"><div><small>MY WORLD • MY SCENE • MY FRIENDS</small><h2>'+esc(land(id).name)+'</h2></div>'+
+        '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-move-player" type="button">'+(playerHere?'↔ Move My Player':'＋ Bring My Player Here')+'</button><button id="stuff-change-player" type="button">Change Character</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
+      '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
+       '<p id="collection-report" role="status">'+(mobileTouch?'This is your world! Touch and drag an item with your finger, then let go. It saves!':'This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!')+'</p></div>'+
+      '<div class="my-stuff-world-quickstrip"><strong>My Owned Worlds</strong>'+worldPreviews+
+        '<label for="stuff-world-select">Choose a world by name</label><select id="stuff-world-select">'+purchased.map(l=>'<option value="'+l.id+'" '+(l.id===id?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></div>'+
+      '<div class="my-stuff-toolbox"><h3>MY ITEMS</h3>'+
+        '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
+  enableCollectionDrag(id);
+  $('stuff-home').onclick=map;
+  $('stuff-change-player').onclick=()=>selectCharacter(true);
+  $('stuff-move-player').onclick=()=>{
+    const player=a.friends[playerId];
+    if(!player)return;
+    if(player.homeLandId!==id){
+      if(!commitSceneMutation(()=>{player.homeLandId=id},['friends'])){
+       $('collection-report').textContent='NOT saved. Your player is still in the previous world.';return;
+      }
+      computer(id);
+      $('collection-report').textContent='Your player is now in this world! Drag your character to move them.';
+    }else{
+      const sprite=[...document.querySelectorAll('#collection-scene [data-world-object]')].find(el=>el.dataset.worldObject===playerId);
+      sprite?.focus({preventScroll:true});
+      $('collection-scene')?.armObject?.(sprite);
+      $('collection-report').textContent=mobileTouch?'Tap an empty spot to move your player there. You can also drag your character with a finger.':'Click an empty spot to move your player there. Dragging and arrow keys still work.';
+    }
+  };
+  $('stuff-help').onclick=()=>{$('collection-report').textContent=mobileTouch?'Tap an item, then tap an empty spot to put it there. You can also touch and drag items. Everything saves.':'Click an item once, then click an empty spot to put it there. Dragging and keyboard arrow movement also work. All positions save.'};
+  const refresh=()=>computer(id);
+  $('collection-scene').querySelector('.collection-background-size')?.addEventListener('load',fit);
+  requestAnimationFrame(fit);
+  const trayEl=$('my-stuff-tray');
+  const cards=[...trayEl.querySelectorAll('.my-stuff-item')];
+  let page=0;const pageSize=4;
+  const updateShelf=()=>{
+    cards.forEach((card,i)=>card.hidden=i<page*pageSize||i>=(page+1)*pageSize);
+    $('stuff-page-label').textContent='PAGE '+(page+1)+' / '+Math.max(1,Math.ceil(cards.length/pageSize));
+    $('stuff-scroll-prev').disabled=page===0;
+    $('stuff-scroll-next').disabled=(page+1)*pageSize>=cards.length;
+  };
+  const turnPage=delta=>{page=Math.max(0,Math.min(Math.max(0,Math.ceil(cards.length/pageSize)-1),page+delta));updateShelf()};
+  $('stuff-scroll-prev').onclick=()=>turnPage(-1);
+  $('stuff-scroll-next').onclick=()=>turnPage(1);
+  trayEl.onkeydown=e=>{if(e.target===trayEl&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();turnPage(e.key==='ArrowLeft'?-1:1)}};
+  updateShelf();
+  $('stuff-world-select').onchange=e=>computer(e.target.value);
+  document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld));
+  document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
+    const key=b.dataset.stuffDecor;
+    const ok=commitSceneMutation(()=>{
+      const hidden=(a.hiddenDecorations[id]??=[]);
+      if((a.decorations[id]||[]).includes(key)){
+        if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);
+        else hidden.push(key);
+      }else{
+        const item=findDecoration(key);
+        const targetTheme=backgroundHomes.find(w=>w.id===id)?.theme||'all';
+        if(!moveOwnedDecoration(a,key,id,item,targetTheme))return false;
+      }
+    },['decorations','hiddenDecorations']);
+    if(ok)refresh();else $('collection-report').textContent='NOT saved. Decoration unchanged; tell your teacher.';
+  });
+  document.querySelectorAll('[data-stuff-friend]').forEach(b=>b.onclick=()=>{
+    const key=b.dataset.stuffFriend,friend=a.worldFriends?.[key];if(!friend)return;
+    const ok=commitSceneMutation(()=>{
+      const here=friend.homeLandId===id,hidden=a.hiddenCompanions.includes(key);
+      if(here&&!hidden)a.hiddenCompanions.push(key);
+      else{friend.homeLandId=id;a.hiddenCompanions=a.hiddenCompanions.filter(x=>x!==key);}
+    },['worldFriends','hiddenCompanions']);
+    if(ok)refresh();else $('collection-report').textContent='NOT saved. Friend remains where they were; tell your teacher.';
+  });
+  document.querySelectorAll('[data-stuff-treasure]').forEach(button=>button.onclick=()=>{
+    const key=button.dataset.stuffTreasure;
+    let result;
+    const ok=commitSceneMutation(()=>{
+     result=toggleCollectedInWorld(a,id,key);
+     if(!result.changed)return false;
+    },['collectionExtraObjects','positions']);
+    if(!ok){$('collection-report').textContent='NOT saved. Treasure unchanged; tell your teacher.';return}
+    refresh();
+    const prop=[...document.querySelectorAll('#collection-scene [data-world-object]')]
+      .find(el=>el.dataset.worldObject==='treasure:'+key);
+    const note=$('collection-report');
+    if(note)note.textContent=result.added
+       ?(prop?'Added '+itemName(key)+' to your world! Move it with your trackpad or keyboard arrows.':'The item was saved, but its picture did not appear. Tell your teacher.')
+       :itemName(key)+' is put away, but you still own it.';
+    if(prop){prop.classList.add('recently-added');prop.focus({preventScroll:true});}
+  });
+  $('stuff-decor-shop')?.addEventListener('click',()=>{
+    modal('World Decorations',exclusiveStore+'<button id="all-decorations" type="button">All Decorations</button>',()=>{
+      $('all-decorations').onclick=()=>{closeModal();decorShop()};
+      document.querySelectorAll('[data-buy-shop-only]').forEach(b=>b.onclick=()=>{if(buyShopExclusive(id,b.dataset.buyShopOnly)){closeModal();computer(id)}});
+    });
+  });
+  $('stuff-buy-world')?.addEventListener('click',homeMap);
+ }
+ function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
+ // Non-destructive migration for existing unfinished maze saves created
+ // before two objectives were guaranteed in every world. Keep their original
+ // maze, player position, enemy patrols, collected items and rewards intact.
+ function ensureRunObjectives(run,definition){
+   const required=(definition.collectibleIds||[]).filter(canSpawnPickup);
+   if(!required.length||!Array.isArray(run.items))return;
+   const occupied=new Set([
+     ...run.items.map(tile),tile(run.start||{x:1,y:1}),tile(run.goal),tile(run.player),
+     ...(run.skill?[tile(run.skill)]:[]),...(run.barrier?[tile(run.barrier)]:[]),
+     ...run.hazards.flatMap(enemy=>enemy.path.map(tile))
+   ]);
+   const distance=(p,q)=>Math.abs(p.x-q.x)+Math.abs(p.y-q.y);
+   for(const id of required){
+     if(run.items.some(item=>item.id===id))continue;
+     let best=null,bestScore=-Infinity;
+     for(let y=1;y<run.h-1;y++)for(let x=1;x<run.w-1;x++){
+       const p={x,y};
+       if(run.grid[y][x]!==0||occupied.has(tile(p))||!route(run.grid,run.player,p))continue;
+       const anchors=[run.player,run.start||{x:1,y:1},run.goal,...run.items];
+       const score=Math.min(...anchors.map(q=>distance(p,q)))*100+distance(p,run.player);
+       if(score>bestScore){best=p;bestScore=score}
+     }
+     if(!best)continue; // Never discard a saved run just to add an objective.
+     run.items.push({id,x:best.x,y:best.y,collected:false});
+     occupied.add(tile(best));
+   }
+ }
+ function startLevel(n,restart=false){
+ clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;currentMapWorld=def.worldIndex;
+ if(a.completedLevelIds.includes(def.id)&&!restart){
+   modal('Maze '+def.worldStage+' Completed!','<p>You already finished this maze. It is saved, and you do not have to play it again.</p><button type="button" id="done-level-back" class="primary">← World Map</button><button type="button" id="done-level-replay">Play Again (Optional)</button>',()=>{
+     $('done-level-back').onclick=()=>{closeModal();openWorld(def.worldIndex)};
+     $('done-level-replay').onclick=()=>{closeModal();startLevel(n,true)};
+   });
+   return;
+ }
+ const old=a.mazeRuns?.[def.id]||a.activeRun;
+ const valid=old&&old.id===def.id&&!old.complete&&Number.isInteger(old.w)&&old.w>=5&&Number.isInteger(old.h)&&old.h>=5&&Array.isArray(old.grid)&&old.grid.length===old.h&&old.grid.every(row=>Array.isArray(row)&&row.length===old.w)&&Array.isArray(old.items)&&Array.isArray(old.hazards)&&old.grid[old.player?.y]?.[old.player?.x]===0;
+ if(restart)delete a.mazeRuns[def.id];
+ report=valid&&!restart?'Welcome back! Keep going from your saved spot.':'Start at the star. Use your arrow keys.';
+ r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
+ if(valid&&!restart){
+   // Repair malformed legacy enemy paths before scanning for missing objectives.
+   // Older saves can contain an enemy with no patrol path; keep the student's run.
+   restoreSavedEnemyRoster(r,def,settings.difficulty==='gentle');
+   ensureRunObjectives(r,def);
+  }
+ if(a.completedLevelIds.includes(def.id))r.rewarded=true;
+ a.activeRun=r;save();maze();
+ if(def.worldStage===8&&tile(r.player)===tile(r.goal)&&r.items.every(i=>i.collected)&&(!r.skill||r.skill.done)){
+   // A reload can happen after arrow 10 is saved but before the reward is committed.
+   // Never strand that student on the finish tile or force a second ten-arrow trial.
+   if((r.finalArrowIndex||0)>=10)finish();
+   else finalArrowChallenge();
+   return;
+ }
+ // A saved player standing on a skill stop must see the unfinished challenge
+ // again after Home, reload or switching worlds, not a silent empty tile.
+ if(r.skill&&!r.skill.done&&tile(r.player)===tile(r.skill)){
+   challenge('arrows');return;
+ }
+ if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
+ }
+ function maze(){
+ view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':def.individualBackdrop?' lab-individual-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Move with keyboard arrows or, on mobile, touch arrow buttons. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div>'+(mobileTouch?mobileArrowPadHtml('Touch arrows to move through the maze'):'')+'<div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full" type="button">⛶ Full Screen</button></div>');
+ document.body.classList.add('playing');
+ $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>modal('Start this maze over?',
+    '<p>This will restart <strong>only this maze</strong>. Your other mazes, stars, friends, and decorations stay saved.</p>'+
+    '<p>Your current position and items collected in this maze will be lost.</p>'+
+    '<button id="keep-maze" class="primary" type="button">Keep My Progress</button>'+
+    '<button id="confirm-restart" type="button">Yes, Start This Maze Over</button>',()=>{
+      $('keep-maze').onclick=()=>{closeModal();status('Your maze progress is safe. Keep going!')};
+      $('confirm-restart').onclick=()=>{challengeKeys=null;closeModal();startLevel(def.number,true)};
+    });$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;status(safeHint(r,target));};
+ $('adventure-full').onclick=()=>window.arrowLabToggleFullscreen?.();
+ if(mobileTouch)bindMobileArrows($('app'),move);
+ const db=$('duck-button');if(mobileTouch){db.textContent='Tap DUCK for next step';db.onclick=()=>setDuck(!duck)}db.onpointerdown=e=>{if(e.pointerType!=='mouse')return;e.preventDefault();db.setPointerCapture(e.pointerId);setDuck(true)};db.onpointerup=db.onpointercancel=db.onlostpointercapture=()=>setDuck(false);db.onkeydown=e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();setDuck(true)}};db.onkeyup=()=>setDuck(false);
+ draw();clock();requestAnimationFrame(()=>{$('adventure-maze')?.focus({preventScroll:true});fit()});
+ }
+ // Hints must never direct a student into a bad guy's current OR future
+ // patrol square. The generator guarantees a separate reachable safe route.
+ function safeHint(run,target){
+   const blocked=new Set((run.hazards||[]).flatMap(enemy=>(enemy.path||[]).map(tile)));
+   const keys=route(run.grid,run.player,target,blocked);
+   if(!keys)return 'No safe shortcut from here. Return toward the rainbow path and avoid the bad guys.';
+   if(!keys.length)return 'You are at your next stop.';
+   const key=keys[0],direction=key.slice(5).toUpperCase(),[dx,dy]=directions[key];
+   const next={x:run.player.x+dx,y:run.player.y+dy};
+   return run.barrier&&tile(next)===tile(run.barrier)
+     ?'Hold SPACE and press '+direction+' to duck under the bridge.'
+     :'Try '+direction+' next.';
+ }
+ function status(t){report=t;tellGuide(t);if($('adventure-status'))$('adventure-status').textContent=t}
+ function setDuck(v){duck=v;$('duck-button')?.setAttribute('aria-pressed',String(v));$('adventure-maze')?.classList.toggle('ducking',v)}
+ function draw(){
+ if(view!=='maze'||!r)return;const m=$('adventure-maze');if(!m)return;m.style.setProperty('--w',r.w);m.style.setProperty('--h',r.h);let html='';
+ for(let y=0;y<r.h;y++)for(let x=0;x<r.w;x++){const p={x,y},id=tile(p),item=r.items.find(i=>tile(i)===id&&!i.collected),enemy=r.hazards.find(e=>tile(e.path[e.index])===id),here=tile(r.player)===id,bridge=r.barrier&&tile(r.barrier)===id,skill=r.skill&&!r.skill.done&&tile(r.skill)===id;
+ let art='';if(x===1&&y===1)art='<span class="tile-symbol">⭐</span>';if(tile(r.goal)===id)art='<span class="tile-symbol">🏁</span>';if(item)art=img(itemArt(item.id),itemName(item.id),'tile-art');if(skill){const badge=data.skill_badges.find(b=>b.id===r.skill.type)||data.computer_collectibles.find(g=>g.id==='trackpad');art=img(badge.thumbnail,'Skill stop','tile-art skill-tile')}if(bridge)art+='<span class="low-bridge" title="Hold SPACE to duck">DUCK</span>';if(enemy){
+   art+=img(data.enemies.find(e=>e.id===enemy.id).thumbnail,'Moving bad guy: '+data.enemies.find(e=>e.id===enemy.id).name,'tile-art enemy-art'+(enemy.warning?' enemy-about-to-move':''));
+  }
+  if(here)art+='<span class="player character-player">'+pic(a.selectedPlayerCharacterId)+'</span>';
+ html+='<div class="cell '+(r.grid[y][x]?'wall':'road')+''+'" style="--c:'+['#FF2D8D','#FF8A00','#FFD600','#6BCB24','#24A8F2','#A450E0'][(x+y)%6]+'">'+art+'</div>';
+ }m.innerHTML=html;m.classList.toggle('ducking',duck);const tasks=r.items.map(i=>({image:itemArt(i.id),name:itemName(i.id),done:i.collected}));
+ if(r.skill)tasks.push({image:(data.skill_badges.find(b=>b.id===r.skill.type)||data.computer_collectibles.find(g=>g.id==='trackpad')).thumbnail,name:'Skill stop',done:r.skill.done});
+ const pictureSteps=tasks.map(t=>'<span class="quest-picture '+(t.done?'task-done':'')+'">'+img(t.image,t.name)+'<span>'+(t.done?'✓':'Find')+'</span></span>').join('')+'<span class="quest-finish">→ 🏁</span>';
+ const nextItem=r.items.find(i=>!i.collected);const nextWords=nextItem?'Find the '+itemName(nextItem.id)+'.':r.skill&&!r.skill.done?'Find the arrow stop. Follow the arrows.':'Go to the checkered flag!';tellGuide(nextWords+' Press an arrow key. Let go. Look.','<div class="guide-keys" aria-label="Up, left, down, right arrow keys"><span>↑</span><span>←</span><span>↓</span><span>→</span></div>'+pictureSteps);
+ fit();
+ }
+ function fit(){
+ if(view==='computer'){const scene=$('collection-scene'),box=scene?.parentElement;if(scene&&box){const image=scene.querySelector('.collection-background-size'),ratio=image?.naturalWidth&&image?.naturalHeight?image.naturalWidth/image.naturalHeight:16/9;const width=Math.min(box.clientWidth,box.clientHeight*ratio);scene.style.setProperty('width',width+'px','important');scene.style.setProperty('height',(width/ratio)+'px','important');}return}
+ if(view!=='maze'||!r)return;document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||innerHeight)+'px');
+ const m=$('adventure-maze'),box=document.querySelector('.scenic-board');if(!m||!box)return;const viewport=window.visualViewport?.height||innerHeight;
+ const size=Math.max(1,Math.floor(Math.min((box.clientWidth-12)/r.w,(box.clientHeight-12)/r.h)));m.style.width=size*r.w+'px';m.style.height=size*r.h+'px';
+ }
+ function hit(){
+  // Collision is a restart of the player's route, not a new maze roll or a loss of earned rewards.
+  // Keep the same generated obstacles/collectibles and saved maze state.
+  r.player={...r.start};
+  r.checkpoint={...r.start};
+  r.trail=[[r.start.x,r.start.y]];
+  status('A bad guy caught you! Back to the START of this maze. Watch their rhythm and time your next move!');
+  save();draw();
+ }
+ function move(key){
+ if(view!=='maze'||!r||r.complete||$('adventure-dialog')?.open)return;const d=directions[key];if(!d)return;const pressed=document.querySelector('[data-direction="'+key+'"]');pressed?.classList.add('on');setTimeout(()=>pressed?.classList.remove('on'),180);
+ const p={x:r.player.x+d[0],y:r.player.y+d[1]};if(r.grid[p.y]?.[p.x]!==0){status('A wall. Stop, look, and try another arrow.');return}
+ if(r.barrier&&tile(p)===tile(r.barrier)&&!duck){status(mobileTouch?'Low bridge! Tap DUCK, then tap the arrow to go under.':'Low bridge! Hold SPACE and press your arrow to duck under.');return}
+ r.player=p;r.steps++;if(mobileTouch&&duck)setDuck(false);if(r.hazards.some(e=>tile(e.path[e.index])===tile(p))){hit();return}
+ if(r.safe.includes(tile(p))&&r.steps%5===0)r.checkpoint={...p};
+ for(const item of r.items)if(!item.collected&&tile(item)===tile(p)){item.collected=true;const bucket=allWorldLabels[item.id]?(a.collectedWorldItems??=[]):a.collectedComputerGearIds;if(!bucket.includes(item.id))bucket.push(item.id);sound();status('You found the '+itemName(item.id)+'!');}
+ save();draw();
+ if(r.skill&&!r.skill.done&&tile(r.skill)===tile(p)){challenge(r.skill.type);return}
+ if(tile(p)===tile(r.goal)){if(r.items.some(i=>!i.collected)||r.skill&&!r.skill.done){status('Collect your equipment and finish the keyboard skill stop, then return to the flag.');return}finish()}
+ }
+ function clock(){
+ clearInterval(interval);if(view!=='maze'||settings.difficulty==='gentle'||r.complete||$('adventure-dialog')?.open)return;
+ interval=setInterval(()=>{if(closed||view!=='maze'||document.hidden||$('adventure-dialog')?.open)return;
+ for(const e of r.hazards)if(e.path.length>1)e.warning=true;draw();clearTimeout(warning);warning=setTimeout(()=>{if(closed||view!=='maze'||$('adventure-dialog')?.open||document.hidden){pauseHiddenHazards();return}for(const e of r.hazards){if(e.warning){e.index=(e.index+1)%e.path.length;delete e.warning}}if(r.hazards.some(e=>tile(e.path[e.index])===tile(r.player)))hit();else{save();draw()}},Math.min(800,settings.speed*.4));},settings.speed);
+ }
+ // Keep the same arrow pattern and correct presses in the existing maze save.
+ // Never reroll on Home, reload or returning to this level.
+ function ensureSkillArrowSequence(run){
+   const valid=Array.isArray(run.skillArrowSequence)&&run.skillArrowSequence.length===4&&run.skillArrowSequence.every(key=>!!directions[key]);
+   if(!valid){
+     run.skillArrowSequence=arrowPattern(run.seed,run.patternAttempt||0);
+     run.patternAttempt=(run.patternAttempt||0)+1;
+     run.skillArrowIndex=0;
+   }
+   run.skillArrowIndex=Math.min(4,Math.max(0,Math.floor(Number(run.skillArrowIndex)||0)));
+   return run.skillArrowSequence;
+ }
+ function challenge(kind){kind='arrows';
+ const sequence=ensureSkillArrowSequence(r);let i=r.skillArrowIndex;save();const symbols={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
+ const sequenceHtml=i=>sequence.map((k,j)=>'<span class="pattern-arrow '+(j<i?'done':j===i?'current':'')+'" aria-label="'+(j<i?'Done':k.replace('Arrow',''))+'">'+(j<i?'✓':symbols[k])+'</span>').join('');
+ const win=()=>{r.skill.done=true;for(const id of def.skillBadgeIds)if(!a.earnedSkillBadgeIds.includes(id))a.earnedSkillBadgeIds.push(id);save();challengeKeys=null;closeModal();status('Skill challenge complete! Head to the flag.');sound();draw()};
+ const back='<p id="skill-feedback" role="status"></p><button id="try-later">Back to the maze</button>';
+ let body='';
+ if(kind==='click')body='<p>Click the big star once.</p><button id="skill-target" class="skill-target">⭐</button>';
  if(kind==='double_click')body='<p>Click the star TWO times quickly: click-click! Take as many tries as you need.</p><button id="skill-target" class="skill-target">⭐</button>';
  if(kind==='typing')body='<p>Type <strong>cat</strong> in the box.</p><input id="skill-type" aria-label="Type cat" autocomplete="off" spellcheck="false"><button id="check-type">Check</button>';
  if(kind==='arrows')body='<p>'+(mobileTouch?'Tap the matching arrow to follow the pattern.':'Use your keyboard to follow these directions.')+' Your progress is saved if you leave and return.</p><div id="skill-sequence" aria-label="Arrow pattern">'+sequenceHtml(i)+'</div>'+(mobileTouch?mobileArrowPadHtml('Tap the matching pattern arrow'):'');

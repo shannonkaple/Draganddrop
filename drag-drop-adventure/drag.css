@@ -186,3 +186,20 @@ body.lab-collection-active .my-stuff-stage .collection-world-showcase{width:min(
 .student-scroll-controls button{width:48px;height:48px;padding:0;border:3px solid #563475;border-radius:14px;background:#fff5a8;color:#38204f;font:28px Arial,sans-serif;box-shadow:0 3px 7px #0003}
 .student-scroll-controls button:disabled{opacity:.4;box-shadow:none}
 #app{scroll-padding-bottom:115px;padding-right:64px!important}
+
+/* Keep the map free of the duplicate title/back panel. Home is in the toolbar. */
+html body>header.drag-banner-header .actions{
+ display:grid!important;grid-template-columns:1fr auto 1fr!important;
+ width:100%!important;max-width:none!important;gap:8px!important;padding:4px 8px!important;
+}
+html body>header.drag-banner-header .actions>div{
+ display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;
+}
+.toolbar-left{justify-content:flex-start}.toolbar-center{justify-content:center}.toolbar-right{justify-content:flex-end}
+html body>header.drag-banner-header .actions button{white-space:nowrap}
+@media(max-width:850px){
+ html body>header.drag-banner-header .actions{grid-template-columns:1fr 1fr!important}
+ html body>header.drag-banner-header .toolbar-left{grid-column:1;grid-row:1}
+ html body>header.drag-banner-header .toolbar-right{grid-column:2;grid-row:1}
+ html body>header.drag-banner-header .toolbar-center{grid-column:1/-1;grid-row:2}
+}
