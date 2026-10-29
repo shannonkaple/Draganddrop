@@ -8,6 +8,7 @@ import {tellGuide,starIcon} from './viewport.mjs?v=mobile-fullwidth-shelf-202610
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
 import {WORLD_STOP_POINTS,PUBLISHED_WORLD_LEVEL_MAPS,worldStopModels,nextPlayableLevel} from './level-map-model.mjs?v=resume-play-20261029a';
+import {advanceHazardsSafely} from './hazard-save-transaction.mjs?v=hazard-rollback-20261029a';
 import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld,canPlaceDecorationInWorld,moveOwnedDecoration} from './collection-inventory.mjs?v=world-exclusive-decor-20261029a';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=varied-patterns-20261029';
@@ -1297,9 +1298,27 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  }
  function clock(){
- clearInterval(interval);if(view!=='maze'||settings.difficulty==='gentle'||r.complete||$('adventure-dialog')?.open)return;
- interval=setInterval(()=>{if(closed||view!=='maze'||document.hidden||$('adventure-dialog')?.open)return;
- for(const e of r.hazards)if(e.path.length>1)e.warning=true;draw();clearTimeout(warning);warning=setTimeout(()=>{if(closed||view!=='maze'||$('adventure-dialog')?.open||document.hidden){pauseHiddenHazards();return}for(const e of r.hazards){if(e.warning){e.index=(e.index+1)%e.path.length;delete e.warning}}if(r.hazards.some(e=>tile(e.path[e.index])===tile(r.player)))hit();else{save();draw()}},Math.min(800,settings.speed*.4));},settings.speed);
+ clearInterval(interval);
+ if(view!=='maze'||settings.difficulty==='gentle'||r.complete||$('adventure-dialog')?.open)return;
+ interval=setInterval(()=>{
+   if(closed||view!=='maze'||document.hidden||$('adventure-dialog')?.open)return;
+   for(const enemy of r.hazards)if(enemy.path.length>1)enemy.warning=true;
+   draw();
+   clearTimeout(warning);
+   warning=setTimeout(()=>{
+     if(closed||view!=='maze'||$('adventure-dialog')?.open||document.hidden){pauseHiddenHazards();return}
+     // Patrol positions and a resulting collision must be saved together.
+     // If storage is full/blocked, restore the previous route and patrol
+     // rather than showing unsaved enemy movement or losing student progress.
+     const outcome=advanceHazardsSafely(r,()=>{save();return saved});
+     if(!outcome.saved){
+       status('Enemy movement NOT saved. Your last saved position is protected. Tell your teacher and try again.');
+     }else if(outcome.collision){
+       status('A bad guy caught you! Back to the START of this maze. Watch their rhythm and time your next move!');
+     }
+     draw();
+   },Math.min(800,settings.speed*.4));
+ },settings.speed);
  }
  // Keep the same arrow pattern and correct presses in the existing maze save.
  // Never reroll on Home, reload or returning to this level.
