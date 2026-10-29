@@ -6,7 +6,7 @@
 .mobile-arrow-left{grid-column:1;grid-row:2;background:#ffc3de}
 .mobile-arrow-down{grid-column:2;grid-row:2;background:#c4ef9c}
 .mobile-arrow-right{grid-column:3;grid-row:2;background:#a4e8ff}
-.mobile-touch-enabled .my-stuff-scene [data-world-object],.mobile-touch-enabled .my-stuff-scene{touch-action:none}
+.mobile-touch-enabled #collection-scene [data-world-object],.mobile-touch-enabled #collection-scene{touch-action:none}
 .mobile-touch-enabled #drag-picture{touch-action:none}
 .mobile-touch-enabled .keypad .key{cursor:pointer;touch-action:manipulation}
 @media(max-width:720px){.mobile-touch-enabled .maze-controls{flex-wrap:wrap}.mobile-touch-enabled .mobile-arrow-pad{flex-shrink:0}}
