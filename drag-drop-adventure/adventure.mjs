@@ -732,7 +732,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
         '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
   const sceneImage=$('collection-scene').querySelector('.collection-background-size');
-  const sizeScene=()=>{if(sceneImage.naturalWidth&&sceneImage.naturalHeight)$('collection-scene')?.style.setProperty('--scene-ratio',sceneImage.naturalWidth/sceneImage.naturalHeight)};
+  const sizeScene=()=>{if(sceneImage.naturalWidth&&sceneImage.naturalHeight)$('collection-scene')?.parentElement?.style.setProperty('--scene-ratio',sceneImage.naturalWidth/sceneImage.naturalHeight)};
   sceneImage.addEventListener('load',sizeScene,{once:true});sizeScene();
   const armCharacter=enableCollectionDrag(id);
   if(placeCharacterId)armCharacter(placeCharacterId);

@@ -177,6 +177,10 @@ body>header.drag-banner-header{position:relative!important;z-index:50}
 
 body.lab-collection-active .my-stuff-stage #collection-scene{aspect-ratio:var(--scene-ratio,3)!important}
 .collection-background-size{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;pointer-events:none!important;z-index:0!important}
+
+/* Entire source illustration stays visible at every play-area size. */
+.drag-field{background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;background-color:#e8f6ff;}
+body.lab-collection-active .my-stuff-stage .collection-world-showcase{width:min(100%,calc((var(--screen-height) - 265px)*var(--scene-ratio,3)))!important;}
 .student-scroll-controls{position:fixed;right:8px;bottom:10px;display:flex;flex-direction:column;gap:7px;z-index:80}
 .student-scroll-controls[hidden]{display:none!important}
 .student-scroll-controls button{width:48px;height:48px;padding:0;border:3px solid #563475;border-radius:14px;background:#fff5a8;color:#38204f;font:28px Arial,sans-serif;box-shadow:0 3px 7px #0003}

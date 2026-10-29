@@ -94,7 +94,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,veri
    return [...new Set([...legacyIds.filter(id=>ids.includes(id)),...schedule[stageIndex].map(i=>ids[i])])].slice(0,2);
  };
  const pairFor=(worldIndex,stageIndex)=>{
-  if(worldIndex===0)return candyObjects.slice(stageIndex*2,stageIndex*2+2).map(x=>x[0]);
+  if(worldIndex===0)return [candyObjects[(stageIndex*2)%10][0],candyObjects[(stageIndex*2+1)%10][0]];
   const objects=worldIndex===1?pirateObjects:worldIndex===2?arcticObjects:worldIndex===6?oceanObjects:null;
   return objects?[objects[(stageIndex*3)%10][0],objects[(stageIndex*3+4)%10][0]]:undefined;
  };
@@ -723,7 +723,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const l=land(id),residents=Object.keys(a.friends).filter(c=>a.friends[c]?.homeLandId===id&&(c===a.selectedPlayerCharacterId||!pendingCharacters.some(hero=>hero.id===c)&&!a.retiredPlayerCharacterIds?.includes(c)));
   const companionsHere=companions.filter(c=>a.worldFriends?.[c.id]?.homeLandId===id&&!a.hiddenCompanions?.includes(c.id));
   const goods=(a.decorations[id]||[]).filter(key=>!a.hiddenDecorations?.[id]?.includes(key));
-  const treasureGoods=visibleCollectedKeys(a,id);
+  const treasureGoods=visibleCollectedKeys(a,id).filter(key=>worldTreasures(id).includes(key));
   const positions=a.positions[id]||{};
   const at=(key,i)=>positions[key]||{x:14+(i%5)*18,y:28+(Math.floor(i/5)%3)*24};
   const personArt=residents.map((c,i)=>{
@@ -743,7 +743,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     return '<div class="world-object world-prop" data-world-object="treasure:'+key+'" role="img" aria-label="Move '+esc(itemName(key))+'" style="left:'+p.x+'%;top:'+p.y+'%">'+img(itemArt(key),itemName(key),'shop-decoration')+'</div>';
   }).join('');
   const picture=id.startsWith('background_')?l.homeBackground:(backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.homeBackground||l.homeBackground);
-  return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+personArt+friendArt+decorArt+treasureArt+'</div>';
+  return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+'<img class="collection-background-size" src="'+asset(picture)+'" alt="" draggable="false">'+personArt+friendArt+decorArt+treasureArt+'</div>';
  }
  function removeSceneObject(id,key){
   const ok=commitSceneMutation(()=>{
@@ -850,6 +850,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      drag.el.classList.remove('moving');drag=null;
    };
   }
+ function worldTreasures(worldId){
+  const theme=backgroundHomes.find(w=>w.id===worldId)?.theme||worldId.replace('background_','');
+  const themed=new Set((objectGroups[theme]||[]).map(item=>item[0]));
+  const picked=new Set(Object.values(a.mazeRuns||{}).filter(run=>run?.id?.startsWith('lab_'+theme+'_')).flatMap(run=>(run.items||[]).filter(item=>item.collected).map(item=>item.id)));
+  return earnedKeys(a).filter(key=>isSupportedCollectibleArt(itemArt(key))&&(themed.has(key)||picked.has(key))).slice(0,10);
+ }
  function computer(worldId=null,section=null){
   // Keep the horizontal shelf in place when a student adds, moves or hides an item.
   const previousTray=$('my-stuff-tray');
@@ -867,7 +873,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // Keep the legacy per-world decoration arrays so old saves and arrangements survive.
   const ownedDecor=[...new Set(Object.values(a.decorations||{}).flat())];
   const rescued=companions.filter(c=>a.worldFriends?.[c.id]);
-  const treasures=earnedKeys(a);
+  const treasures=worldTreasures(id);
   const decorationCards=ownedDecor.map(key=>{
     const d=findDecoration(key);if(!d)return '';
     const here=(a.decorations[id]||[]).includes(key);
@@ -948,27 +954,22 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   };
   $('stuff-help').onclick=()=>{$('collection-report').textContent=mobileTouch?'Tap an item, then tap an empty spot to put it there. You can also touch and drag items. Everything saves.':'Click an item once, then click an empty spot to put it there. Dragging and keyboard arrow movement also work. All positions save.'};
   const refresh=()=>computer(id);
+  $('collection-scene').querySelector('.collection-background-size')?.addEventListener('load',fit);
+  requestAnimationFrame(fit);
   const trayEl=$('my-stuff-tray');
   const cards=[...trayEl.querySelectorAll('.my-stuff-item')];
-  // All earned objects stay visible in one scrollable row; no hidden pages.
-  trayEl.scrollLeft=inventoryScrollLeft;
+  let page=0;const pageSize=4;
   const updateShelf=()=>{
-    inventoryScrollLeft=trayEl.scrollLeft;
-    $('stuff-page-label').textContent=treasures.length+' COLLECTED · '+cards.length+' ITEMS · SCROLL →';
-    $('stuff-scroll-prev').disabled=trayEl.scrollLeft<=1;
-    $('stuff-scroll-next').disabled=trayEl.scrollLeft+trayEl.clientWidth>=trayEl.scrollWidth-1;
+    cards.forEach((card,i)=>card.hidden=i<page*pageSize||i>=(page+1)*pageSize);
+    $('stuff-page-label').textContent='PAGE '+(page+1)+' / '+Math.max(1,Math.ceil(cards.length/pageSize));
+    $('stuff-scroll-prev').disabled=page===0;
+    $('stuff-scroll-next').disabled=(page+1)*pageSize>=cards.length;
   };
-  const scrollShelf=step=>trayEl.scrollBy({left:step*Math.max(160,Math.floor(trayEl.clientWidth*.8)),behavior:'smooth'});
-  $('stuff-scroll-prev').onclick=()=>scrollShelf(-1);
-  $('stuff-scroll-next').onclick=()=>scrollShelf(1);
-  trayEl.addEventListener('scroll',updateShelf,{passive:true});
-  trayEl.onkeydown=event=>{
-    if(event.target!==trayEl)return; // Child buttons keep their native keyboard controls.
-    if(event.key==='ArrowLeft'||event.key==='ArrowRight'){
-      event.preventDefault();scrollShelf(event.key==='ArrowLeft'?-1:1);
-    }
-  };
-  requestAnimationFrame(updateShelf);
+  const turnPage=delta=>{page=Math.max(0,Math.min(Math.max(0,Math.ceil(cards.length/pageSize)-1),page+delta));updateShelf()};
+  $('stuff-scroll-prev').onclick=()=>turnPage(-1);
+  $('stuff-scroll-next').onclick=()=>turnPage(1);
+  trayEl.onkeydown=e=>{if(e.target===trayEl&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();turnPage(e.key==='ArrowLeft'?-1:1)}};
+  updateShelf();
   $('stuff-world-select').onchange=e=>computer(e.target.value);
   document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
@@ -1130,6 +1131,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  fit();
  }
  function fit(){
+ if(view==='computer'){const scene=$('collection-scene'),box=scene?.parentElement;if(scene&&box){const image=scene.querySelector('.collection-background-size'),ratio=image?.naturalWidth&&image?.naturalHeight?image.naturalWidth/image.naturalHeight:16/9;const width=Math.min(box.clientWidth,box.clientHeight*ratio);scene.style.setProperty('width',width+'px','important');scene.style.setProperty('height',(width/ratio)+'px','important');}return}
  if(view!=='maze'||!r)return;document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||innerHeight)+'px');
  const m=$('adventure-maze'),box=document.querySelector('.scenic-board');if(!m||!box)return;const viewport=window.visualViewport?.height||innerHeight;
  const size=Math.max(1,Math.floor(Math.min((box.clientWidth-12)/r.w,(box.clientHeight-12)/r.h)));m.style.width=size*r.w+'px';m.style.height=size*r.h+'px';
@@ -1255,7 +1257,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const beforeAdventure=JSON.parse(JSON.stringify(a));
  const beforeRun=JSON.parse(JSON.stringify(r));
  r.complete=true;
- if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);
+ // Physical pickups already grant ownership; no extra completion objects.
  const stars=completeLevel(a,r,def,config);
  save();
  if(!saved){
