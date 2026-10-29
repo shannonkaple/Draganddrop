@@ -1,6 +1,6 @@
 {
   "project": "Ms. Kaple's A-MAZE-ING Arrow Adventure — Arrow Lab asset production",
-  "updated_on": "2026-10-27",
+  "updated_on": "2026-10-29",
   "scope": "shannonkaple/Draganddrop/arrow-lab/ only",
   "rules": {
     "background": {
@@ -36,6 +36,14 @@
       "approved_ms_kaple_and_rigby_exactness": "Preserve original approved Ms. Kaple and Rigby illustration, no substitutions or reimagining",
       "no_status_baked_into_scenery": "Headings and scenery only. Stars, locks, rewards, progress, captions, buttons, statuses are changeable HTML controls.",
       "portrait_policy": "No alternate Ms. Kaple or Rigby depictions without explicit user approval."
+    },
+    "rejected_collectible_art": {
+      "ids": [
+        "cotton_candy",
+        "star_cookie",
+        "marshmallow"
+      ],
+      "policy": "never publish shape-built, emoji, SVG, or CSS-generated replacements; only independently approved PNG/JPEG art may be used as new collectible visuals"
     }
   },
   "worlds": [
@@ -154,7 +162,8 @@
         {
           "id": "star_cookie",
           "path": "arrow-lab/collectibles/candy/star_cookie.png",
-          "status": "present_in_repo"
+          "status": "retired_rejected_art_no_longer_published",
+          "note": "Rejected by teacher on 2026-10-29: shape-built appearance. Do not re-add, substitute, or show in any game. Retain legacy student save keys without displaying them."
         },
         {
           "id": "gumdrop",
@@ -164,12 +173,14 @@
         {
           "id": "marshmallow",
           "path": "arrow-lab/collectibles/candy/marshmallow.png",
-          "status": "present_in_repo"
+          "status": "retired_rejected_art_no_longer_published",
+          "note": "Rejected by teacher on 2026-10-29: shape-built appearance. Do not re-add, substitute, or show in any game. Retain legacy student save keys without displaying them."
         },
         {
           "id": "cotton_candy",
           "path": "arrow-lab/collectibles/candy/cotton_candy.png",
-          "status": "present_in_repo"
+          "status": "retired_rejected_art_no_longer_published",
+          "note": "Rejected by teacher on 2026-10-29: shape-built appearance. Do not re-add, substitute, or show in any game. Retain legacy student save keys without displaying them."
         },
         {
           "id": "candy_apple",
