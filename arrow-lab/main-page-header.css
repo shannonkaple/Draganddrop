@@ -119,3 +119,20 @@ html body.guided.adventure-mode.lab-map-active .lab-map-home .lab-overflow{
 }
 html body.guided.adventure-mode.lab-world-active .lab-candy-actions,
 html body.guided.adventure-mode.lab-world-active .lab-world-map-footer{display:none!important}
+
+
+/* Use the entire approved stage JPEG, and extend its colors behind it so
+   letterboxing never produces white strips inside independent maze boards. */
+html body.guided.adventure-mode.playing .scenic-board:is(.lab-candy-maze,.lab-individual-maze){
+ position:relative!important;background-size:cover!important;
+ background-position:center!important;background-repeat:no-repeat!important;
+ background-color:#b6e2fe!important;isolation:isolate!important;
+}
+html body.guided.adventure-mode.playing .scenic-board:is(.lab-candy-maze,.lab-individual-maze)::before{
+ content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+ background-image:inherit;background-size:contain;background-position:center;
+ background-repeat:no-repeat;
+}
+html body.guided.adventure-mode.playing .scenic-board:is(.lab-candy-maze,.lab-individual-maze)>.maze{
+ position:relative!important;z-index:1!important;
+}
