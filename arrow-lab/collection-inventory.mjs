@@ -35,3 +35,23 @@ export function toggleCollectedInWorld(state,worldId,key){
  }
  return {changed:true,added:true,position:state.positions[worldId][positionKey]};
 }
+
+
+// World-exclusive shop art may stay in legacy saves from earlier builds.
+// Never delete those purchases, but prevent NEW cross-world placements.
+export function canPlaceDecorationInWorld(item,targetTheme){
+ return !!item && (item.world==='all'||item.world===targetTheme);
+}
+export function moveOwnedDecoration(state,key,targetId,item,targetTheme){
+ if(!canPlaceDecorationInWorld(item,targetTheme)||!state?.ownedWorldIds?.includes(targetId))return false;
+ const source=Object.keys(state.decorations||{}).find(id=>id!==targetId&&Array.isArray(state.decorations[id])&&state.decorations[id].includes(key));
+ if(!source||(state.decorations[targetId]||[]).includes(key))return false;
+ state.decorations[source]=state.decorations[source].filter(id=>id!==key);
+ state.decorations[targetId]??=[];
+ state.decorations[targetId].push(key);
+ // Keep old scene coordinates so moving an item back restores its arrangement.
+ // Neither stars nor any other student's save is touched.
+ if(state.hiddenDecorations?.[source])state.hiddenDecorations[source]=state.hiddenDecorations[source].filter(id=>id!==key);
+ if(state.hiddenDecorations?.[targetId])state.hiddenDecorations[targetId]=state.hiddenDecorations[targetId].filter(id=>id!==key);
+ return true;
+}

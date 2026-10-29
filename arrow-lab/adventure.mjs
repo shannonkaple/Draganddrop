@@ -5,7 +5,7 @@ import {tellGuide,starIcon} from './viewport.mjs?v=mobile-fullwidth-shelf-202610
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
 import {WORLD_STOP_POINTS,PUBLISHED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=seven-original-maps-20261028c';
-import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld} from './collection-inventory.mjs?v=png-jpeg-20261028b';
+import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld,canPlaceDecorationInWorld,moveOwnedDecoration} from './collection-inventory.mjs?v=world-exclusive-decor-20261029a';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=preserve-unlocks-20261028b';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -777,9 +777,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const here=(a.decorations[id]||[]).includes(key);
     const placed=here&&!a.hiddenDecorations[id]?.includes(key);
     const elsewhere=!here&&Object.entries(a.decorations||{}).some(([world,items])=>world!==id&&items.includes(key));
+    const targetTheme=backgroundHomes.find(w=>w.id===id)?.theme||'all';
+    const allowed=here||canPlaceDecorationInWorld(d,targetTheme);
     return '<article class="my-stuff-item" data-stuff-kind="decoration">'+shopArt(d)+
-      '<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'">'+
-      (placed?'Remove from Scene':elsewhere?'＋ Move to This World':'＋ Add to Scene')+'</button></article>';
+      '<strong>'+esc(d.name)+'</strong><button type="button" data-stuff-decor="'+d.id+'" aria-pressed="'+placed+'" '+(!allowed?'disabled':'')+'>'+
+      (!allowed?'Only for '+esc(d.world)+' World':placed?'Remove from Scene':elsewhere?'＋ Move to This World':'＋ Add to Scene')+'</button></article>';
   }).join('');
   const friendCards=rescued.map(c=>{
     const here=a.worldFriends[c.id].homeLandId===id;
@@ -876,14 +878,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);
       else hidden.push(key);
     }else{
-      // Move one purchased item, without charging stars, duplicating it or clearing other saves.
-      const from=Object.keys(a.decorations||{}).find(world=>world!==id&&a.decorations[world]?.includes(key));
-      if(!from)return;
-      a.decorations[from].splice(a.decorations[from].indexOf(key),1);
-      if(a.hiddenDecorations[from])a.hiddenDecorations[from]=a.hiddenDecorations[from].filter(item=>item!==key);
-      if(a.positions?.[from])delete a.positions[from]['decor:'+key];
-      (a.decorations[id]??=[]).push(key);
-      a.hiddenDecorations[id]=hidden.filter(item=>item!==key);
+      // A world-exclusive item cannot migrate into another theme. Keep all
+      // previous purchases and scene coordinates, including legacy placements.
+      const item=findDecoration(key);
+      const targetTheme=backgroundHomes.find(w=>w.id===id)?.theme||'all';
+      if(!moveOwnedDecoration(a,key,id,item,targetTheme))return;
     }
     save();refresh();
   });

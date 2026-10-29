@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
- isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld
+ isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld,canPlaceDecorationInWorld,moveOwnedDecoration
 } from './collection-inventory.mjs';
 
 assert.equal(isSupportedCollectibleArt('arrow-lab/collectibles/candy/lollipop.png'),true);
@@ -51,8 +51,39 @@ const restored=JSON.parse(JSON.stringify(state));
 assert.deepEqual(visibleCollectedKeys(restored,world),['keyboard'],'placements survive JSON save/reload');
 assert.notEqual(JSON.stringify(state),original,'toggle is a real state mutation');
 
+// Shop-only decorations are purchased for a specific world. Moving them
+// must not charge stars, duplicate items or erase previously saved positions.
+const shopState={
+ wallet:{rainbowStars:23},
+ ownedWorldIds:['background_candy','background_pirate'],
+ decorations:{background_candy:['shop_candy_sweet_tree','generic_bench'],background_pirate:[]},
+ positions:{background_candy:{'decor:generic_bench':{x:19,y:42}}},
+ hiddenDecorations:{background_candy:[],background_pirate:[]}
+};
+const candyOnly={id:'shop_candy_sweet_tree',world:'candy',shopOnly:true};
+const generic={id:'generic_bench',world:'all'};
+assert.equal(canPlaceDecorationInWorld(candyOnly,'pirate'),false);
+assert.equal(canPlaceDecorationInWorld(candyOnly,'candy'),true);
+assert.equal(canPlaceDecorationInWorld(generic,'pirate'),true);
+const snapshot=JSON.stringify(shopState);
+assert.equal(moveOwnedDecoration(shopState,candyOnly.id,'background_pirate',candyOnly,'pirate'),false);
+assert.equal(JSON.stringify(shopState),snapshot,'rejected cross-world move leaves every saved field untouched');
+assert.equal(moveOwnedDecoration(shopState,generic.id,'background_pirate',generic,'pirate'),true);
+assert.equal(shopState.wallet.rainbowStars,23,'moving is free');
+assert.deepEqual(shopState.decorations.background_candy,['shop_candy_sweet_tree']);
+assert.deepEqual(shopState.decorations.background_pirate,['generic_bench']);
+assert.deepEqual(shopState.positions.background_candy['decor:generic_bench'],{x:19,y:42},'old position retained for return');
+assert.equal(moveOwnedDecoration(shopState,generic.id,'background_pirate',generic,'pirate'),false,'no duplicate');
+assert.equal(moveOwnedDecoration(shopState,generic.id,'background_candy',generic,'candy'),true);
+assert.deepEqual(shopState.positions.background_candy['decor:generic_bench'],{x:19,y:42},'return restores prior layout');
+assert.equal(moveOwnedDecoration(shopState,candyOnly.id,'background_pirate',candyOnly,'pirate'),false);
+assert.equal(shopState.wallet.rainbowStars,23);
+assert.match(JSON.stringify(shopState),/shop_candy_sweet_tree/,'world-specific item is never erased');
+
 const game=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
 const css=fs.readFileSync(new URL('./classroom-layout.css',import.meta.url),'utf8');
+assert.match(game,/moveOwnedDecoration\(a,key,id,item,targetTheme\)/,'MY STUFF uses safe world-aware moves');
+assert.match(game,/!allowed\?'disabled'/,'incompatible world button disabled');
 assert.match(game,/toggleCollectedInWorld\(a,id,key\)/,'button calls saved placement helper');
 assert.match(game,/const treasureGoods=visibleCollectedKeys\(a,id\)/,'world actually renders placed treasures');
 assert.match(game,/const treasures=earnedKeys\(a\)/,'owned collectibles appear in MY STUFF');
