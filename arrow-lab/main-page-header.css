@@ -150,3 +150,6 @@ html body.guided.adventure-mode.playing>header.lab-image-header #lab-banner-star
  height:32px!important;min-height:32px!important;max-height:32px!important;
  padding:4px 8px!important;font-size:12px!important;
 }
+
+/* Do not reopen the large banner on hover while a maze is running. */
+html body.guided.adventure-mode.playing>header.lab-image-header:is(:hover,:focus-within) .brand{display:none!important}
