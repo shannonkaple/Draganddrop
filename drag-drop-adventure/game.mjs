@@ -1,6 +1,6 @@
 import {teacherAccess,lockTeacher} from './teacher-access.mjs?v=20261029-teacherlock1';
-import './viewport.mjs?v=20261029-teacherlock1';
-import {openAdventure} from './adventure.mjs?v=20261029-teacherlock1';
+import './viewport.mjs?v=20261029-scroll1';
+import {openAdventure} from './adventure.mjs?v=20261029-scroll1';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;

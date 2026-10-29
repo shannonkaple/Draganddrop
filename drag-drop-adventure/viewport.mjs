@@ -53,3 +53,28 @@ if(guided)new MutationObserver(schedule).observe(document.getElementById('kaple-
 new ResizeObserver(schedule).observe(document.querySelector('body>header'));
 new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
 window.addEventListener('resize',schedule);window.visualViewport?.addEventListener('resize',schedule);document.fonts.ready.then(schedule);app.addEventListener('load',schedule,true);app.addEventListener('toggle',schedule,true);schedule();
+
+// Visible scroll controls for students who are still learning trackpad gestures.
+const scrollControls=document.createElement('nav');
+scrollControls.className='student-scroll-controls';scrollControls.setAttribute('aria-label','Scroll the page');
+scrollControls.innerHTML='<button type="button" aria-label="Scroll up" title="Scroll up">▲</button><button type="button" aria-label="Scroll down" title="Scroll down">▼</button>';
+document.body.append(scrollControls);
+const [scrollUp,scrollDown]=scrollControls.querySelectorAll('button');
+function updateScrollControls(){
+ const overflow=app.scrollHeight>app.clientHeight+2;
+ scrollControls.hidden=!overflow;
+ scrollUp.disabled=app.scrollTop<=1;
+ scrollDown.disabled=app.scrollTop+app.clientHeight>=app.scrollHeight-2;
+}
+function scrollPage(direction){app.scrollBy({top:direction*Math.max(100,app.clientHeight*.65),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}
+scrollUp.onclick=()=>scrollPage(-1);scrollDown.onclick=()=>scrollPage(1);
+app.addEventListener('scroll',updateScrollControls,{passive:true});
+app.addEventListener('activity-layout',updateScrollControls);
+new ResizeObserver(updateScrollControls).observe(app);
+new MutationObserver(()=>requestAnimationFrame(updateScrollControls)).observe(app,{childList:true,subtree:true});
+window.addEventListener('resize',()=>requestAnimationFrame(updateScrollControls));
+document.addEventListener('keydown',e=>{
+ if(e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey||document.querySelector('dialog[open]')||e.target.closest('input,select,textarea,[contenteditable=true]'))return;
+ if((e.key==='ArrowDown'||e.key==='ArrowUp')&&app.scrollHeight>app.clientHeight+2){e.preventDefault();app.scrollBy({top:e.key==='ArrowDown'?80:-80,behavior:'instant'})}
+});
+requestAnimationFrame(updateScrollControls);

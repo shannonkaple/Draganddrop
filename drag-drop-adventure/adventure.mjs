@@ -1,9 +1,9 @@
 import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=engines1';
-import {mountActivity} from './activities/runtime.mjs?v=engines2';
+import {mountActivity} from './activities/runtime.mjs?v=engines3';
 import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
 import {isTeacherUnlocked} from './teacher-access.mjs?v=20261029-teacherlock1';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261029-teacherlock1';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261029-scroll1';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 

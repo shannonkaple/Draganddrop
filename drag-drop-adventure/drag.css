@@ -177,3 +177,8 @@ body>header.drag-banner-header{position:relative!important;z-index:50}
 
 body.lab-collection-active .my-stuff-stage #collection-scene{aspect-ratio:var(--scene-ratio,3)!important}
 .collection-background-size{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;pointer-events:none!important;z-index:0!important}
+.student-scroll-controls{position:fixed;right:8px;bottom:10px;display:flex;flex-direction:column;gap:7px;z-index:80}
+.student-scroll-controls[hidden]{display:none!important}
+.student-scroll-controls button{width:48px;height:48px;padding:0;border:3px solid #563475;border-radius:14px;background:#fff5a8;color:#38204f;font:28px Arial,sans-serif;box-shadow:0 3px 7px #0003}
+.student-scroll-controls button:disabled{opacity:.4;box-shadow:none}
+#app{scroll-padding-bottom:115px;padding-right:64px!important}
