@@ -1198,11 +1198,24 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  }
  function afterLevel(){if(def?.worldIndex!=null){openWorld(def.worldIndex);return}map()}
+ // A rescued friend is not placed until the student's saved record confirms it.
+ // If Chromebook storage refuses the write, leave the rescue available to retry.
+ function commitRescueHome(id,home){
+  const previousFriends=a.worldFriends?{...a.worldFriends}:null;
+  const previousPending=a.pendingRescueFriendId;
+  if(!rescueWorld(a,id,home))return false;
+  save();
+  if(saved)return true;
+  if(previousFriends)a.worldFriends=previousFriends;
+  else delete a.worldFriends;
+  a.pendingRescueFriendId=previousPending;
+  return false;
+ }
  function rescue(){
  const id=pendingWorldRescue(a);if(!id){map();return}const c=companion(id);view='rescue';
  shell('You rescued '+c.name+'!','<p>You finished all 8 '+worldThemes[companions.indexOf(c)].name+' mazes! Choose a world for '+c.name+'.</p><div class="placing-friend">'+companionArt(id)+'</div><div class="adventure-cards land-cards">'+lands.filter(l=>owned(l.id)).map(l=>'<button data-companion-home="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong></button>').join('')+'</div><button id="rescue-background-shop">Buy a World</button>');
  $('rescue-background-shop').onclick=homeMap;
- document.querySelectorAll('[data-companion-home]').forEach(b=>b.onclick=()=>{if(rescueWorld(a,id,b.dataset.companionHome)){save();sound();computer(b.dataset.companionHome,"friends")}});
+ document.querySelectorAll('[data-companion-home]').forEach(b=>b.onclick=()=>{if(commitRescueHome(id,b.dataset.companionHome)){sound();computer(b.dataset.companionHome,"friends")}});
  }
  function teacher(){
  const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label>Challenge <select id="set-difficulty"><option value="standard">Standard · moving bad guys</option><option value="gentle">Gentle · stationary bad guys</option></select></label><label>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show hints'],['sound','Celebration sound'],['reducedMotion','Reduce motion']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><label for="teacher-skip-code">Teacher code (required for settings, skip, and export) <input id="teacher-skip-code" type="password" inputmode="numeric" autocomplete="off"></label><p id="teacher-skip-feedback" role="status" aria-live="polite"></p><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
