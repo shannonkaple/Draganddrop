@@ -1229,10 +1229,37 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    return run.skillArrowSequence;
  }
  function challenge(kind){kind='arrows';
- const sequence=ensureSkillArrowSequence(r);let i=r.skillArrowIndex;save();const symbols={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
+ // Do not show an unsaved pattern: a reload must resume the same four arrows.
+ const previousPattern={sequence:r.skillArrowSequence,attempt:r.patternAttempt,index:r.skillArrowIndex};
+ const sequence=ensureSkillArrowSequence(r);let i=r.skillArrowIndex;save();
+ if(!saved){
+   r.skillArrowSequence=previousPattern.sequence;
+   r.patternAttempt=previousPattern.attempt;
+   r.skillArrowIndex=previousPattern.index;
+   challengeKeys=null;
+   modal('Arrow pattern NOT saved',
+     '<p>Your Chromebook could not save these arrows. Your previous maze progress is protected. Tell your teacher, then try again.</p><button type="button" id="retry-skill-pattern" class="primary">Try saving the arrows again</button>',
+     ()=>{$('retry-skill-pattern').onclick=()=>{closeModal();challenge('arrows')}});
+   return;
+ }
+ const symbols={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
  const sequenceHtml=i=>sequence.map((k,j)=>'<span class="pattern-arrow '+(j<i?'done':j===i?'current':'')+'" aria-label="'+(j<i?'Done':k.replace('Arrow',''))+'">'+(j<i?'✓':symbols[k])+'</span>').join('');
- const win=()=>{r.skill.done=true;for(const id of def.skillBadgeIds)if(!a.earnedSkillBadgeIds.includes(id))a.earnedSkillBadgeIds.push(id);save();challengeKeys=null;closeModal();status('Skill challenge complete! Head to the flag.');sound();draw()};
- const back='<p id="skill-feedback" role="status"></p><button id="try-later">Back to the maze</button>';
+ const win=()=>{
+   const previousDone=r.skill.done,previousBadges=[...a.earnedSkillBadgeIds];
+   r.skill.done=true;
+   for(const id of def.skillBadgeIds)if(!a.earnedSkillBadgeIds.includes(id))a.earnedSkillBadgeIds.push(id);
+   save();
+   if(!saved){
+     r.skill.done=previousDone;
+     a.earnedSkillBadgeIds=previousBadges;
+     $('skill-feedback').textContent='Skill reward NOT saved. Tell your teacher, then try saving again.';
+     $('skill-feedback').setAttribute('role','alert');
+     $('retry-skill-completion').hidden=false;
+     return;
+   }
+   challengeKeys=null;closeModal();status('Skill challenge complete! Head to the flag.');sound();draw();
+ };
+ const back='<p id="skill-feedback" role="status"></p><button id="retry-skill-completion" type="button" class="primary" hidden>Try saving skill reward again</button><button id="try-later">Back to the maze</button>';
  let body='';
  if(kind==='click')body='<p>Click the big star once.</p><button id="skill-target" class="skill-target">⭐</button>';
  if(kind==='double_click')body='<p>Click the star TWO times quickly: click-click! Take as many tries as you need.</p><button id="skill-target" class="skill-target">⭐</button>';
@@ -1241,6 +1268,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(kind==='drag_and_drop')body='<p>Click and hold the keyboard. Drag it into the box, then let go.</p><div class="drag-space"><div id="drag-picture" tabindex="0" role="button" aria-label="Drag keyboard. Keyboard alternative: press Enter to pick up, Tab to box, Enter to drop.">'+img(data.computer_collectibles.find(i=>i.id==='keyboard').thumbnail,'Keyboard')+'</div><div id="drag-box" tabindex="0" role="button" aria-label="Keyboard drop box">Drop here</div></div>';
  modal('Computer skill stop',body+back,()=>{
  $('try-later').onclick=()=>{challengeKeys=null;closeModal();save();draw()};
+ $('retry-skill-completion').onclick=win;
  if(kind==='click')$('skill-target').onclick=win;
  if(kind==='double_click'){let last=null;$('skill-target').onclick=()=>{const now=performance.now();if(last!==null&&now-last<=1300){win();last=null}else{last=now;$('skill-feedback').textContent='One click—click once more!'}};}
  if(kind==='typing'){const check=()=>{if($('skill-type').value.trim().toLowerCase()==='cat')win();else $('skill-feedback').textContent='Look at c a t. Try again!'};$('check-type').onclick=check;$('skill-type').onkeydown=e=>{if(e.key==='Enter')check()};$('skill-type').focus();}
@@ -1248,7 +1276,16 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    if(i>=4){win();return}
    challengeKeys=k=>{
      if(k===sequence[i]){
-       i++;r.skillArrowIndex=i;save();
+       const previousIndex=i;
+       r.skillArrowIndex=previousIndex+1;save();
+       if(!saved){
+         r.skillArrowIndex=previousIndex;
+         $('skill-feedback').textContent='Arrow NOT saved. Tell your teacher, then press this same arrow again.';
+         $('skill-feedback').setAttribute('role','alert');
+         return;
+       }
+       i=previousIndex+1;
+       $('skill-feedback').setAttribute('role','status');
        if(i===4)win();
        else{$('skill-sequence').innerHTML=sequenceHtml(i);$('skill-feedback').textContent='Great! Keep going.'}
      }else $('skill-feedback').textContent='Look at the next arrow. Try it again!';
