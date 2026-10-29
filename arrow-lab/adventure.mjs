@@ -381,10 +381,18 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  currentMapWorld=null;
   view='map';
   const next=nextLevel(),playerId=a.selectedPlayerCharacterId;
-  const nextFriend=companions.find(c=>!a.worldFriends?.[c.id]);
-  const friendIndex=nextFriend?companions.indexOf(nextFriend):7,doneForFriend=worldDoneCount(friendIndex);
-  const featuredFriend=canRescue()?companion(pendingWorldRescue(a)):nextFriend;
-  const progress=canRescue()?companion(pendingWorldRescue(a)).name+' is ready!':nextFriend?(8-doneForFriend)+' more mazes to rescue '+nextFriend.name+'!':'All 8 world friends rescued!';
+  // Track the student's active world rather than the first unrescued world.
+  // A finished-but-unplaced friend remains the priority until brought home.
+  const pendingRescueId=pendingWorldRescue(a);
+  const friendIndex=pendingRescueId
+    ?companions.findIndex(c=>c.id===pendingRescueId)
+    :Math.max(0,Math.min(companions.length-1,next.worldIndex));
+  const featuredFriend=companions[friendIndex],doneForFriend=worldDoneCount(friendIndex);
+  const progress=pendingRescueId
+    ?featuredFriend.name+' is ready to rescue!'
+    :a.worldFriends?.[featuredFriend.id]
+      ?featuredFriend.name+' rescued!'
+      :doneForFriend+' of 8 mazes complete to rescue '+featuredFriend.name+'!';
   // Exact blank platform centers of the user-supplied 2048×682 eight-world art.
   // Coordinates live in the native-ratio image frame (never a stretched CSS background).
   const coords=[[7.5,57],[19.7,45.8],[32.3,59.7],[43.2,45.6],[56.1,60.8],[67.6,45.6],[81.1,60.9],[92.7,45.7]];
@@ -429,7 +437,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
 
  function friendProgress(i){
   const c=companions[i];
-  return '<div class="lab-candy-progress friend-progress">'+companionArt(c.id)+'<span>'+esc(c.name)+'<br>'+worldDoneCount(i)+' / 8 COMPLETE</span></div>';
+  const done=worldDoneCount(i),rescued=!!a.worldFriends?.[c.id];
+  const status=rescued?'RESCUED!':done===8?'READY TO RESCUE!':done+' / 8 COMPLETE';
+  return '<div class="lab-candy-progress friend-progress" role="group" aria-label="'+esc(c.name)+': '+esc(status)+'">'+
+    companionArt(c.id)+'<span>'+esc(c.name)+'<br>'+esc(status)+'</span>'+
+    '<span class="sr-only" role="progressbar" aria-label="'+esc(c.name)+' rescue progress" aria-valuenow="'+done+'" aria-valuemin="0" aria-valuemax="8"></span></div>';
  }
  function introduceFriend(i){
   const c=companions[i];
