@@ -36,7 +36,7 @@ test('mobile uses full viewport width and scrolls to visible touch arrows instea
 });
 
 test('the browser loads refreshed scripts while keeping both viewport imports identical',()=>{
- assert.ok(index.includes('./game.mjs?v=mobile-fullwidth-shelf-20261028b'));
+ assert.ok(index.includes('./game.mjs?v=non-destructive-login-20261029a'));
  assert.ok(game.includes('./adventure.mjs?v=mobile-fullwidth-shelf-20261028b'));
  assert.ok(game.includes('./viewport.mjs?v=mobile-fullwidth-shelf-20261028a'));
  assert.ok(adventure.includes('./viewport.mjs?v=mobile-fullwidth-shelf-20261028a'));
