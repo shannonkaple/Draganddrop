@@ -676,3 +676,10 @@ html body.guided.adventure-mode.lab-map-active #app>.lab-map-home,
 html body.guided.adventure-mode.lab-world-active #app>.lab-candy-world{
  margin-top:0!important;
 }
+
+/* Friend reveal uses existing approved portraits without cropping. */
+html body .friend-progress{display:flex!important;align-items:center;gap:8px;}
+html body .friend-progress img{width:48px!important;height:48px!important;object-fit:contain!important;}
+html body dialog .friend-reveal{text-align:center;display:grid;justify-items:center;gap:12px;}
+html body dialog .friend-reveal img{width:min(220px,40vw)!important;height:min(220px,30dvh)!important;object-fit:contain!important;}
+html body dialog.friend-reveal-dialog{width:min(480px,92vw)!important;}

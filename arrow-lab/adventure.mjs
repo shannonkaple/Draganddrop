@@ -293,7 +293,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // Keep the controls in a dedicated row, and all content in a separate sizing
   // wrapper. A fresh wrapper prevents a stale, empty top-layer popup on reuse.
   if($('kaple-guide'))document.body.append($('kaple-guide'));
-  d.classList.remove('final-arrow-modal');
+  d.classList.remove('final-arrow-modal','friend-reveal-dialog');
   d.setAttribute('aria-labelledby','adventure-dialog-title');
   d.innerHTML='<div class="dialog-toolbar" role="group" aria-label="Popup navigation"></div><div class="dialog-content"><h2 id="adventure-dialog-title">'+esc(title)+'</h2>'+body+'</div>';
   const toolbar=d.querySelector('.dialog-toolbar');
@@ -422,6 +422,19 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
  }
 
+ function friendProgress(i){
+  const c=companions[i];
+  return '<div class="lab-candy-progress friend-progress">'+companionArt(c.id)+'<span>'+esc(c.name)+'<br>'+worldDoneCount(i)+' / 8 COMPLETE</span></div>';
+ }
+ function introduceFriend(i){
+  const c=companions[i];
+  if(a.friendIntrosShown?.[c.id]||a.worldFriends?.[c.id])return;
+  const prior=a.friendIntrosShown;
+  a.friendIntrosShown={...(prior&&typeof prior==='object'&&!Array.isArray(prior)?prior:{}),[c.id]:true};
+  save();if(!saved)a.friendIntrosShown=prior;
+  const d=modal('Meet '+c.name+'!', '<div class="friend-reveal">'+companionArt(c.id)+'<p>You are working to rescue '+esc(c.name)+'!</p><button id="friend-intro-go" class="primary">Let’s explore!</button></div>',()=>{$('friend-intro-go').onclick=closeModal});
+  d.classList.add('friend-reveal-dialog');
+ }
  function openCandyWorld(){
    currentMapWorld=0;
    view='world-select';
@@ -437,7 +450,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      '<section class="lab-candy-world" aria-label="Candy World map with eight playable mazes">'+
        '<div class="lab-candy-heading"><button type="button" id="lab-back-map">← ALL WORLDS</button>'+
        '<div><small>WORLD 1 • 8 SWEET MAZES</small><h2>🍬 CANDY WORLD</h2></div>'+
-       '<div class="lab-candy-progress">'+worldDoneCount(0)+' / 8 COMPLETE</div>'+(canRescue()?'<button class="lab-candy-rescue" id="lab-candy-rescue" type="button">🐾 RESCUE A FRIEND!</button>':'')+'</div>'+
+       friendProgress(0)+(canRescue()?'<button class="lab-candy-rescue" id="lab-candy-rescue" type="button">🐾 RESCUE A FRIEND!</button>':'')+'</div>'+
        '<div class="lab-candy-scenery" role="group" aria-label="Eight stops along the Candyland rainbow road">'+'<img class="lab-candy-map-art" src="'+asset('arrow-lab/assets/candy-world-map-original.png')+'" width="2048" height="682" alt="Candy World: eight islands connected by a rainbow road">'+points+'</div>'+
        '<nav class="lab-candy-actions"><button data-nav="map">🏠 HOME</button><button data-nav="shop">⭐ STAR SHOP</button><button data-nav="computer">🧸 MY STUFF</button></nav>'+
      '</section>');
@@ -454,6 +467,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      }
      startLevel(Number(b.dataset.level));
    });
+  introduceFriend(0);
  }
 
  function openWorld(i){
@@ -477,7 +491,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<section class="lab-candy-world lab-world-illustrated" aria-label="'+esc(world.name)+' illustrated level selector">'+
     '<div class="lab-candy-heading"><button id="lab-back-map" type="button">← ALL WORLDS</button>'+
     '<div><small>WORLD '+(i+1)+' • EIGHT MAZES</small><h2>'+world.icon+' '+esc(world.name)+' World</h2></div>'+
-    '<div class="lab-candy-progress">'+worldDoneCount(i)+' / 8 COMPLETE</div>'+
+    friendProgress(i)+
     (canRescue()?'<button class="lab-candy-rescue" id="lab-world-rescue" type="button">🐾 RESCUE FRIEND!</button>':'')+'</div>'+
     '<div class="lab-candy-scenery lab-world-level-scene" role="group" aria-label="Eight numbered maze stops">'+
       '<img class="lab-candy-map-art" src="'+asset(picture)+'" alt="'+esc(world.name)+' illustrated eight-level map" loading="eager" decoding="async" draggable="false">'+points+'</div>'+
@@ -500,6 +514,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     }
     startLevel(n);
   });
+  introduceFriend(i);
  }
 
  function stuff(){map()}
@@ -1192,7 +1207,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     challengeKeys=k=>{
       if(k!==r.finalArrowSequence[at]){feedback.textContent='Not quite! Look again and try the same arrow.';big.classList.remove('flash-arrow');void big.offsetWidth;big.classList.add('flash-arrow');return}
       at++;r.finalArrowIndex=at;save();sound();
-      if(at===10){challengeKeys=null;d.classList.remove('final-arrow-modal');d.close();finish();return}
+      if(at===10){challengeKeys=null;d.classList.remove('final-arrow-modal','friend-reveal-dialog');d.close();finish();return}
       feedback.textContent='Great! Here is your next arrow.';show();
     };
     if(mobileTouch)bindMobileArrows(d,challengeKeys);
@@ -1202,7 +1217,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function finish(){
  if(def.worldStage===8&&(r.finalArrowIndex||0)<10){finalArrowChallenge();return}
  r.complete=true;if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
- modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'maze':'mazes')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
+ modal(ready?'YOU DID IT!':'You reached the flag!',(ready?'<div class="friend-reveal">'+companionArt(companions[def.worldIndex].id)+'</div>':'')+'<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'maze':'mazes')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
  // Optional completed-level replays do not grant extra stars or count as new finishes.
  // Keep the legacy wallet in sync for returning students. This is a SECOND
  // storage write after the adventure save, so a failure must never be silent.
