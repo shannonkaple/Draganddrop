@@ -62,6 +62,20 @@ export function makeLevel(def,theme,override={}){
   for(let i=0;i<n;i++)pieces.push({...piece(i,'cargo-'+i%2,85),...tray(i,n),asset:art(i%2)});
   for(let i=0;i<2;i++)targets.push({...target(i,'cargo-'+i,150+i*500,135+i*90,190,155),capacity:0,label:'Deliver here',asset:art(i),motion:{axis:wi%2?'y':'x',range:65+wi*3,period:7000+wi*350,phase:i*Math.PI}});
  }
+ // Preserve the original configuration for unfinished pre-variation saves.
+ if(engine==='pattern'){
+  level.legacyPattern=JSON.parse(JSON.stringify(level));
+  const variants=[['A','B'],['A','A','B'],['A','B','B'],['A','B','C'],['A','B','B','C'],['A','B','A','C'],['A','A','B','C'],['A','B','C','C']];
+  level.patternVersion=2;
+  level.rounds=Array.from({length:5},(_,ri)=>{
+   const pattern=variants[(wi+ri*3)%variants.length];
+   const palette=Array.from({length:3},(_,i)=>art(ri*3+i));
+   const offset=(wi+ri)%pattern.length,n=pattern.length*2+2;
+   const sequence=Array.from({length:n},(_,i)=>pattern[(i+offset)%pattern.length]);
+   const slots=sequence.map((key,i)=>({...target(i,key,30+i*(930/n),160,Math.min(108,880/n),110),asset:palette[['A','B','C'].indexOf(key)]}));
+   return {name:pattern.join(''),palette,sequence,fixed:slots.slice(0,-2),targets:slots.slice(-2).map(t=>({...t,id:'round-'+ri+'-'+t.id,asset:null,label:'?'}))};
+  });
+ }
  // Art Agent overrides can replace images AND geometry without engine edits.
  const result={...level,...override,id:def.id,world:WORLD_IDS[wi],engine};
  validateLevel(result);return result;

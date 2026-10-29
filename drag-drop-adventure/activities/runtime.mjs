@@ -16,6 +16,8 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
  function redraw(){
   targetLayer.replaceChildren();pieceLayer.replaceChildren();targetNodes.clear();nodes.clear();
   if(level.engine==='pattern'){
+   const palette=level.rounds[state.round].palette;
+   if(palette)level.pieces.forEach((piece,i)=>piece.asset=palette[i]);
    for(const t of level.rounds[state.round].fixed){const el=document.createElement('div');el.className='activity-pattern-fixed';layout(el,t);el.innerHTML=image(t.asset);targetLayer.append(el)}
   }
   for(const t of targetsFor(level,state)){

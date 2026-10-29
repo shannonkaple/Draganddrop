@@ -273,7 +273,11 @@ export const worldIds=['candy','pirate','arctic','castle','space','jurassic','oc
 export function pendingWorldRescue(a){return worldIds.find(id=>!a.worldFriends?.[id]&&Array.from({length:8},(_,i)=>`lab_${id}_${i+1}`).every(level=>a.completedLevelIds.includes(level)))||null}
 export function rescueReady(a){return !!pendingWorldRescue(a)}
 export function rescueWorld(a,id,home){if(pendingWorldRescue(a)!==id||!a.ownedWorldIds.includes(home))return false;(a.worldFriends??={})[id]={homeLandId:home};a.pendingRescueFriendId=null;return true}
-export function arrowPattern(seed,attempt=0){const patterns=[['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'],['ArrowRight','ArrowRight','ArrowUp','ArrowLeft'],['ArrowDown','ArrowLeft','ArrowUp','ArrowRight'],['ArrowLeft','ArrowUp','ArrowUp','ArrowRight'],['ArrowUp','ArrowLeft','ArrowDown','ArrowDown'],['ArrowRight','ArrowDown','ArrowLeft','ArrowUp']];return [...patterns[(Math.abs(seed)+attempt)%patterns.length]]}
+export function arrowPattern(seed,attempt=0){
+ const keys=['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'];
+ let code=((Math.floor(Math.abs(Number(seed)||0))*73+Math.floor(Math.abs(Number(attempt)||0))*37)>>>0)%256;
+ return Array.from({length:4},()=>{const key=keys[code%4];code=Math.floor(code/4);return key});
+}
 export function buyWorld(a,id,lands,costs){const index=lands.findIndex(l=>l.id===id);if(index<0)return false;if(a.ownedWorldIds.includes(id))return true;const cost=costs[index];if(!Number.isFinite(cost)||a.wallet.rainbowStars<cost)return false;a.wallet.rainbowStars-=cost;a.ownedWorldIds.push(id);return true}
 export function placeFriend(a,id,world){if(!a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id].homeLandId=world;return true}
 export function rescueFriend(a,id,world,levelId){if(!rescueReady(a)||a.friends[id]||!a.ownedWorldIds.includes(world))return false;a.friends[id]={isRescued:true,upgradeStage:'starter',homeLandId:world};a.unlockedCharacterIds=mergedUnlockedCharacterIds(a.unlockedCharacterIds,a.friends,id);if(levelId&&!a.rescuedAtLevelIds.includes(levelId))a.rescuedAtLevelIds.push(levelId);a.mazesSinceRescue=0;a.pendingRescueFriendId=null;return true}

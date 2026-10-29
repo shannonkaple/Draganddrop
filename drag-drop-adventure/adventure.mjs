@@ -1,5 +1,5 @@
-import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=mouseonly1';
-import {mountActivity} from './activities/runtime.mjs?v=mouseonly1';
+import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=varied-patterns-20261029';
+import {mountActivity} from './activities/runtime.mjs?v=varied-patterns-20261029';
 import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs?v=mouseonly1';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
 import {isTeacherUnlocked} from './teacher-access.mjs?v=20261029-teacherlock1';
@@ -7,7 +7,7 @@ import {tellGuide,starIcon} from './viewport.mjs?v=20261029-mouseonly';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
-import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from '../arrow-lab/adventure-core.mjs?v=preserve-unlocks-20261028b';
+import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from '../arrow-lab/adventure-core.mjs?v=varied-patterns-20261029';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const root=new URL('../',import.meta.url),asset=p=>new URL(p.replace(/^\//,''),root).href;
 // Extra character entries were assigned generated: placeholder identifiers, not URLs.
@@ -843,7 +843,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function startLevel(n,restart=false){
  clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel&&!a.completedLevelIds.includes(def.id))return;
- const level=activityLevels[n-1],previous=a.mazeRuns?.[def.id];
+ const previous=a.mazeRuns?.[def.id];
+ const current=activityLevels[n-1];
+ const level=!restart&&previous?.activityState&&previous.patternVersion!==2&&current.legacyPattern?current.legacyPattern:current;
  let activityState=stateFor(level,!restart&&previous?.activityState);
  if(!restart&&previous?.dragVersion===1&&!previous.complete){
   // Preserve credit from an unfinished old matching activity; never erase its source run.
@@ -854,7 +856,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    if(piece&&target)tryPlacement(level,activityState,piece.id,target.id);
   }
  }
- r={id:def.id,dragVersion:2,activityState,items:[],complete:false,rewarded:a.completedLevelIds.includes(def.id),...(!restart&&previous?.dragVersion===1?{legacyDragV1:previous}:{})};
+ r={id:def.id,dragVersion:2,patternVersion:level.patternVersion||1,activityState,items:[],complete:false,rewarded:a.completedLevelIds.includes(def.id),...(!restart&&previous?.dragVersion===1?{legacyDragV1:previous}:{})};
  view='drag';shell(esc(def.title),'<div id="drag-activity"></div>');document.body.classList.add('activity-playing');
  dragSession=mountActivity($('drag-activity'),{level,saved:activityState,reducedMotion:settings.reducedMotion||settings.difficulty==='gentle',speed:settings.speed,
   onProgress:state=>{r.activityState=state;save()},
