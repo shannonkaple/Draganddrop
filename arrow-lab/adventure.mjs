@@ -1291,7 +1291,19 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      $('skip-level').disabled=true;
      return;
    }
-   a.highestUnlockedLevel=next;save();closeModal();startLevel(next);
+   // Never enter a newly unlocked maze until its unlock is durably saved.
+   // A blocked/full Chromebook storage write must leave the previous unlock
+   // intact, the teacher dialog open, and the student's unfinished run safe.
+   const previousUnlock=a.highestUnlockedLevel;
+   a.highestUnlockedLevel=next;
+   save();
+   if(!saved){
+     a.highestUnlockedLevel=previousUnlock;
+     $('teacher-skip-feedback').textContent='The new level was NOT saved. Tell your teacher and try again after storage is fixed.';
+     return;
+   }
+   closeModal();
+   startLevel(next);
  };
  $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{
  if(!requireTeacherCode())return;
