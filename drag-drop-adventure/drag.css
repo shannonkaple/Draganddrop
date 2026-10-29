@@ -221,3 +221,23 @@ body.guided.lab-map-active .lab-map-canvas{width:min(100%,calc((var(--screen-hei
 body.guided.lab-map-active .lab-map-canvas>.lab-main-map-art{width:100%!important;height:100%!important;object-fit:contain!important}
 body.guided.lab-map-active .lab-game-hud{flex-basis:48px!important;height:48px!important}
 body.guided.lab-map-active .lab-map-title{flex-basis:28px!important;height:28px!important}
+
+
+/* Oct 29 fit each world map and all 64 5:3 drag boards on school screens. */
+html body.guided.lab-world-active #app{overflow:hidden!important;padding:4px 10px!important}
+html body.guided.lab-world-active #app>.adventure-title{display:none!important}
+html body.guided.lab-world-active .lab-candy-world{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;width:100%!important;height:100%!important;max-height:100%!important;overflow:hidden!important;margin:0!important;padding:4px!important;gap:5px!important}
+html body.guided.lab-world-active .lab-candy-scenery{position:relative!important;flex:0 1 auto!important;width:min(100%,calc((var(--screen-height,620px) - 110px)*3.00293))!important;max-height:calc(100% - 58px)!important;aspect-ratio:2048/682!important;margin:0 auto!important;overflow:visible!important}
+html body.guided.lab-world-active .lab-candy-scenery>.lab-candy-map-art{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;image-rendering:auto!important}
+html body.guided.lab-world-active .activity-map-legend{flex:0 0 auto!important;display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;gap:3px!important;width:100%!important;margin:2px 0!important}
+html body.guided.lab-world-active .activity-map-legend button{min-width:0!important;padding:4px 2px!important;font-size:clamp(9px,.85vw,13px)!important;overflow:hidden!important;text-overflow:ellipsis!important}
+html body.guided.activity-playing #app{box-sizing:border-box!important;overflow:hidden!important;padding:0 10px 5px!important}
+html body.guided.activity-playing #app>.adventure-title{font-size:clamp(16px,2.4vh,21px)!important;line-height:1.1!important;margin:0 0 3px!important}
+html body.guided.activity-playing .activity-shell{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;gap:4px!important;width:100%!important;max-height:calc(100% - 26px)!important;min-height:0!important;margin:0 auto!important;overflow:hidden!important}
+html body.guided.activity-playing .activity-instructions{flex:0 0 auto!important;min-height:0!important;padding:5px 8px!important}
+html body.guided.activity-playing .activity-frame{flex:1 1 auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important}
+html body.guided.activity-playing .activity-board{box-sizing:border-box!important;flex:0 1 auto!important;width:min(100%,calc((var(--screen-height,620px) - 172px)*1.66667))!important;max-height:100%!important;min-height:0!important;aspect-ratio:5/3!important;overflow:hidden!important;background:#e4f4ff!important}
+html body.guided.activity-playing .activity-background{width:100%!important;height:100%!important;object-fit:contain!important;image-rendering:auto!important}
+html body.guided.activity-playing .activity-feedback{flex:0 0 auto!important;min-height:0!important;padding:4px!important}
+html body.guided.activity-playing .activity-tools{flex:0 0 auto!important;margin:0!important;padding:2px!important}
+@media(max-width:850px){html body.guided.lab-world-active .activity-map-legend{grid-template-columns:repeat(4,minmax(0,1fr))!important}html body.guided.lab-world-active .lab-candy-scenery{max-height:calc(100% - 100px)!important}}
