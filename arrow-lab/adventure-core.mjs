@@ -259,7 +259,11 @@ export function upgradeFriend(a,id,costs){
  if(a.wallet.rainbowStars<cost)return false;a.wallet.rainbowStars-=cost;f.upgradeStage=next;return true;
 }
 export function completeLevel(a,run,def,config){
- if(run.rewarded)return 0;run.rewarded=true;
+ // A completed maze may be replayed with a freshly generated run. Award its
+ // stars only once, even if a caller forgets to set run.rewarded on replay.
+ // Preserve the saved completion and wallet exactly as they are.
+ if(run.rewarded||a.completedLevelIds.includes(def.id)){run.rewarded=true;return 0}
+ run.rewarded=true;
  const rules=config.progression.starRewards,n=rules.completion+(run.items.length?rules.itemCollection:0)+(run.skill?.done?rules.skillChallenge:0);
  a.wallet.rainbowStars+=n;a.lifetimeStarsEarned+=n;a.mazesSinceRescue=Math.min(3,(a.mazesSinceRescue||0)+1);
  if(!a.completedLevelIds.includes(def.id))a.completedLevelIds.push(def.id);
