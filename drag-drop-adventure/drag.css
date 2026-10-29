@@ -241,3 +241,24 @@ html body.guided.activity-playing .activity-background{width:100%!important;heig
 html body.guided.activity-playing .activity-feedback{flex:0 0 auto!important;min-height:0!important;padding:4px!important}
 html body.guided.activity-playing .activity-tools{flex:0 0 auto!important;margin:0!important;padding:2px!important}
 @media(max-width:850px){html body.guided.lab-world-active .activity-map-legend{grid-template-columns:repeat(4,minmax(0,1fr))!important}html body.guided.lab-world-active .lab-candy-scenery{max-height:calc(100% - 100px)!important}}
+
+
+/* Keep the illustrated heading ONLY on Home. During mini-games show the
+   compact rainbow controls instead of the tiny duplicated banner image. */
+html body:is(.activity-playing,.playing)>header.drag-banner-header .brand{
+ display:none!important;height:0!important;min-height:0!important;max-height:0!important;
+}
+html body:is(.activity-playing,.playing)>header.drag-banner-header #heading-toggle{display:none!important}
+html body>header.drag-banner-header #global-home{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;width:auto!important;max-width:108px!important;min-width:0!important;
+ height:32px!important;min-height:32px!important;max-height:32px!important;
+ padding:4px 10px!important;font-size:13px!important;line-height:1.1!important;
+ transform:none!important;margin:0!important;
+}
+html body.guided.lab-map-active .lab-map-home .lab-main-nav,
+html body.guided.lab-map-active .lab-map-home #continue-adventure,
+html body.guided.lab-map-active .lab-map-home .lab-overflow,
+html body.guided.lab-world-active .activity-map-legend{
+ display:none!important;
+}
