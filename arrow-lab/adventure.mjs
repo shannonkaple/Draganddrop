@@ -1244,6 +1244,17 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     }
     r.finalArrowIndex=0;save();
   }
+  // The randomized ten-key sequence must be durable before the child starts.
+  // Otherwise a reload could replace an unsaved sequence mid-challenge.
+  if(!saved){
+    modal('Your arrow challenge is NOT saved yet',
+      '<p>Your Chromebook could not save the rescue arrow pattern. No arrows have been counted. Tell your teacher, then try again.</p><button id="retry-final-arrow-save" type="button" class="primary">Try saving again</button>',
+      ()=>{$('retry-final-arrow-save').onclick=()=>{
+        save();
+        if(saved){closeModal();finalArrowChallenge()}
+      }});
+    return;
+  }
   let at=Math.min(10,Math.max(0,Number(r.finalArrowIndex)||0));
   const symbols={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
   const bg=asset(def.backgroundImage);
@@ -1260,7 +1271,20 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       big.classList.remove('flash-arrow');void big.offsetWidth;big.classList.add('flash-arrow')};
     challengeKeys=k=>{
       if(k!==r.finalArrowSequence[at]){feedback.textContent='Not quite! Look again and try the same arrow.';big.classList.remove('flash-arrow');void big.offsetWidth;big.classList.add('flash-arrow');return}
-      at++;r.finalArrowIndex=at;save();sound();
+      // Never advance the visible arrow, celebrate or finish until this
+      // individual key has been written AND verified in the student record.
+      const priorIndex=at;
+      r.finalArrowIndex=priorIndex+1;
+      save();
+      if(!saved){
+        r.finalArrowIndex=priorIndex;
+        feedback.textContent='NOT saved! Tell your teacher. Press this same arrow again to retry.';
+        feedback.setAttribute('role','alert');
+        return;
+      }
+      at=priorIndex+1;
+      feedback.setAttribute('role','status');
+      sound();
       if(at===10){challengeKeys=null;d.classList.remove('final-arrow-modal','friend-reveal-dialog');d.close();finish();return}
       feedback.textContent='Great! Here is your next arrow.';show();
     };
