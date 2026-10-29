@@ -1,3 +1,4 @@
+import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {buildArrowLabProgressCsv} from './progress-export.mjs?v=csv-safety-20261028b';
 import {isMobileTouchDevice,mobileArrowPadHtml,bindMobileArrows} from './mobile-touch.mjs?v=mobile-touch-20261028a';
 const mobileTouch = isMobileTouchDevice();
@@ -263,7 +264,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const raw=localStorage.getItem(key);
     const old=raw===null?{}:JSON.parse(raw);
     if(!old||typeof old!=='object'||Array.isArray(old))throw Error('Invalid existing student record');
-    localStorage.setItem(key,JSON.stringify({...old,adventure:{...a,activeRun:r||a.activeRun||null}}));
+    writeVerifiedStudentRecord(localStorage,key,{...old,adventure:{...a,activeRun:r||a.activeRun||null}});
     saved=true;
     document.getElementById('arrow-lab-storage-warning')?.remove();
   }catch{
