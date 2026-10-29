@@ -31,6 +31,25 @@ export const APPROVED_WORLD_LEVEL_MAPS=Object.freeze({
   lava:'arrow-lab/world-maps/lava-world-map.jpg'
 });
 export const PUBLISHED_WORLD_LEVEL_MAPS=APPROVED_WORLD_LEVEL_MAPS;
+// Prefer a student's durable unfinished maze when PLAY NEXT is selected.
+// Ignore stale, completed, locked, or malformed activeRun records rather than
+// opening an unrelated level or pretending that a broken run can be resumed.
+export function nextPlayableLevel(levels,progress){
+ if(!Array.isArray(levels)||!levels.length)return null;
+ const completed=new Set(Array.isArray(progress?.completedLevelIds)?progress.completedLevelIds:[]);
+ const highest=Math.max(1,Math.min(levels.length,Math.floor(Number(progress?.highestUnlockedLevel)||1)));
+ const playable=level=>level&&Number.isInteger(level.number)&&level.number<=highest&&!completed.has(level.id);
+ const savedRun=(level,run)=>playable(level)&&run&&run.id===level.id&&run.complete!==true&&
+  Number.isInteger(run.w)&&run.w>=5&&Number.isInteger(run.h)&&run.h>=5&&
+  Array.isArray(run.grid)&&run.grid.length===run.h&&
+  Array.isArray(run.items)&&Array.isArray(run.hazards)&&
+  run.grid[run.player?.y]?.[run.player?.x]===0;
+ const active=levels.find(level=>savedRun(level,progress?.activeRun));
+ if(active)return active;
+ const runs=progress?.mazeRuns&&typeof progress.mazeRuns==='object'&&!Array.isArray(progress.mazeRuns)?progress.mazeRuns:{};
+ return levels.find(level=>savedRun(level,runs[level.id]))||
+  levels.find(playable)||levels[levels.length-1];
+}
 export function worldStopStatus(level,progress){
  const completed=!!progress?.completedLevelIds?.includes(level.id);
  const saved=progress?.mazeRuns?.[level.id];

@@ -7,7 +7,7 @@ import './viewport.mjs?v=mobile-fullwidth-shelf-20261028a';
 import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import '../rainbow-road/read-aloud.mjs?v=20261021-menu';
-import {openAdventure} from './adventure.mjs?v=world-view-save-20261029a';
+import {openAdventure} from './adventure.mjs?v=resume-play-20261029a';
 import {canSaveStudentProgress} from './student-storage-probe.mjs?v=non-destructive-login-20261029a';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from '../rainbow-road/core.mjs';

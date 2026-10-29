@@ -7,7 +7,7 @@ const mobileTouch = isMobileTouchDevice();
 import {tellGuide,starIcon} from './viewport.mjs?v=mobile-fullwidth-shelf-20261028a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
-import {WORLD_STOP_POINTS,PUBLISHED_WORLD_LEVEL_MAPS,worldStopModels} from './level-map-model.mjs?v=seven-original-maps-20261028c';
+import {WORLD_STOP_POINTS,PUBLISHED_WORLD_LEVEL_MAPS,worldStopModels,nextPlayableLevel} from './level-map-model.mjs?v=resume-play-20261029a';
 import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld,canPlaceDecorationInWorld,moveOwnedDecoration} from './collection-inventory.mjs?v=world-exclusive-decor-20261029a';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from './adventure-core.mjs?v=varied-patterns-20261029';
@@ -337,7 +337,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play mazes to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit one you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first&&view!=='select')first.hidden=true;
  }
  function navigate(where){if(r)save();if(where==='map')map();if(where==='stuff')computer();if(where==='shop')starShop();if(where==='play')playNext();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='myworlds')myWorlds();if(where==='rescuegallery')rescuedFriends();if(where==='gifts')friendGiftShop();if(where==='decor')decorShop();if(where==='computer')computer()}
- function nextLevel(){const unfinished=levels.find(l=>!a.completedLevelIds.includes(l.id)&&l.number<=a.highestUnlockedLevel);const current=a.activeRun&&!a.activeRun.complete?levels.find(l=>l.id===a.activeRun.id):null;return current||unfinished||levels[levels.length-1]}
+ function nextLevel(){return nextPlayableLevel(levels,a)}
  function playNext(){startLevel(nextLevel().number)}
  function canRescue(){return rescueReady(a)}
  const companion=id=>companions.find(c=>c.id===id);
