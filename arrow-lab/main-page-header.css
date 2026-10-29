@@ -136,3 +136,17 @@ html body.guided.adventure-mode.playing .scenic-board:is(.lab-candy-maze,.lab-in
 html body.guided.adventure-mode.playing .scenic-board:is(.lab-candy-maze,.lab-individual-maze)>.maze{
  position:relative!important;z-index:1!important;
 }
+
+
+/* The compact play toolbar keeps the original navigation available. */
+html body.guided.adventure-mode.playing>header.lab-image-header :is(#header-my-stuff,#header-teacher){
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:auto!important;min-width:0!important;max-width:120px!important;
+ height:32px!important;min-height:32px!important;max-height:32px!important;
+ padding:4px 8px!important;font-size:12px!important;
+}
+html body.guided.adventure-mode.playing>header.lab-image-header #lab-banner-stars{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ height:32px!important;min-height:32px!important;max-height:32px!important;
+ padding:4px 8px!important;font-size:12px!important;
+}
