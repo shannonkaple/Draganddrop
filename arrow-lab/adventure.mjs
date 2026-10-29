@@ -674,7 +674,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      if(!el)return;
      if(armed===el){clear();report('Selection canceled.');return}
      clear();armed=el;el.classList.add('selected-for-placement');
-     report('Selected! Click an EMPTY spot in your world to place this item, or drag it.');
+     report(mobileTouch?'Selected! Tap an EMPTY spot to place this item, or drag it with your finger.':'Selected! Click an EMPTY spot in your world to place this item, or drag it.');
    };
    scene.armObject=arm;
    const point=(el,x,y)=>{
@@ -824,7 +824,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<div class="my-stuff-heading"><div><small>MY WORLD • MY SCENE • MY FRIENDS</small><h2>'+esc(land(id).name)+'</h2></div>'+
         '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-move-player" type="button">'+(playerHere?'↔ Move My Player':'＋ Bring My Player Here')+'</button><button id="stuff-change-player" type="button">Change Character</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
       '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
-       '<p id="collection-report" role="status">This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!</p></div>'+
+       '<p id="collection-report" role="status">'+(mobileTouch?'This is your world! Touch and drag an item with your finger, then let go. It saves!':'This is your world! Click and hold an item with your trackpad, move it, then let go. It saves!')+'</p></div>'+
       '<div class="my-stuff-world-quickstrip"><strong>My Owned Worlds</strong>'+worldPreviews+
         '<label for="stuff-world-select">Choose a world by name</label><select id="stuff-world-select">'+purchased.map(l=>'<option value="'+l.id+'" '+(l.id===id?'selected':'')+'>'+esc(l.name)+'</option>').join('')+'</select></div>'+
       '<div class="my-stuff-toolbox"><h3>MY ITEMS</h3>'+
@@ -842,10 +842,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       const sprite=[...document.querySelectorAll('#collection-scene [data-world-object]')].find(el=>el.dataset.worldObject===playerId);
       sprite?.focus({preventScroll:true});
       $('collection-scene')?.armObject?.(sprite);
-      $('collection-report').textContent='Click an empty spot to move your player there. Dragging and arrow keys still work.';
+      $('collection-report').textContent=mobileTouch?'Tap an empty spot to move your player there. You can also drag your character with a finger.':'Click an empty spot to move your player there. Dragging and arrow keys still work.';
     }
   };
-  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click an item once, then click an empty spot to put it there. Dragging and keyboard arrow movement also work. All positions save.'};
+  $('stuff-help').onclick=()=>{$('collection-report').textContent=mobileTouch?'Tap an item, then tap an empty spot to put it there. You can also touch and drag items. Everything saves.':'Click an item once, then click an empty spot to put it there. Dragging and keyboard arrow movement also work. All positions save.'};
   const refresh=()=>computer(id);
   const trayEl=$('my-stuff-tray');
   const cards=[...trayEl.querySelectorAll('.my-stuff-item')];
