@@ -1223,16 +1223,78 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   status('A bad guy caught you! Back to the START of this maze. Watch their rhythm and time your next move!');
   save();draw();
  }
+
+ // A rejected Chromebook write must never leave the student one step ahead
+ // of the last durable maze, nor grant a pickup only in volatile memory.
+ function snapshotMovement(){
+   return {
+     player:{...r.player},steps:r.steps,
+     checkpoint:r.checkpoint?{...r.checkpoint}:r.checkpoint,
+     trail:Array.isArray(r.trail)?r.trail.map(p=>Array.isArray(p)?[...p]:p):r.trail,
+     collected:r.items.map(item=>item.collected),
+     rewards:['collectedWorldItems','collectedComputerGearIds'].map(key=>({
+       key,existed:Object.prototype.hasOwnProperty.call(a,key),
+       value:Array.isArray(a[key])?[...a[key]]:a[key]
+     }))
+   };
+ }
+ function restoreMovement(before){
+   r.player=before.player;
+   r.steps=before.steps;
+   r.checkpoint=before.checkpoint;
+   r.trail=before.trail;
+   r.items.forEach((item,i)=>{item.collected=before.collected[i]});
+   for(const {key,existed,value} of before.rewards){
+     if(existed)a[key]=value;
+     else delete a[key];
+   }
+   syncBannerStars();
+ }
  function move(key){
- if(view!=='maze'||!r||r.complete||$('adventure-dialog')?.open)return;const d=directions[key];if(!d)return;const pressed=document.querySelector('[data-direction="'+key+'"]');pressed?.classList.add('on');setTimeout(()=>pressed?.classList.remove('on'),180);
- const p={x:r.player.x+d[0],y:r.player.y+d[1]};if(r.grid[p.y]?.[p.x]!==0){status('A wall. Stop, look, and try another arrow.');return}
+ if(view!=='maze'||!r||r.complete||$('adventure-dialog')?.open)return;
+ const d=directions[key];if(!d)return;
+ const pressed=document.querySelector('[data-direction="'+key+'"]');
+ pressed?.classList.add('on');setTimeout(()=>pressed?.classList.remove('on'),180);
+ const p={x:r.player.x+d[0],y:r.player.y+d[1]};
+ if(r.grid[p.y]?.[p.x]!==0){status('A wall. Stop, look, and try another arrow.');return}
  if(r.barrier&&tile(p)===tile(r.barrier)&&!duck){status(mobileTouch?'Low bridge! Tap DUCK, then tap the arrow to go under.':'Low bridge! Hold SPACE and press your arrow to duck under.');return}
- r.player=p;r.steps++;if(mobileTouch&&duck)setDuck(false);if(r.hazards.some(e=>tile(e.path[e.index])===tile(p))){hit();return}
+ const before=snapshotMovement();
+ r.player=p;r.steps++;
+ if(mobileTouch&&duck)setDuck(false);
+ if(r.hazards.some(e=>tile(e.path[e.index])===tile(p))){
+   hit();
+   if(!saved){
+     restoreMovement(before);
+     status('Move NOT saved. Your last saved position is restored. Tell your teacher and try again.');
+     draw();
+   }
+   return;
+ }
  if(r.safe.includes(tile(p))&&r.steps%5===0)r.checkpoint={...p};
- for(const item of r.items)if(!item.collected&&tile(item)===tile(p)){item.collected=true;const bucket=allWorldLabels[item.id]?(a.collectedWorldItems??=[]):a.collectedComputerGearIds;if(!bucket.includes(item.id))bucket.push(item.id);sound();status('You found the '+itemName(item.id)+'!');}
- save();draw();
+ let foundItem=null;
+ for(const item of r.items)if(!item.collected&&tile(item)===tile(p)){
+   item.collected=true;
+   const bucket=allWorldLabels[item.id]?(a.collectedWorldItems??=[]):a.collectedComputerGearIds;
+   if(!bucket.includes(item.id))bucket.push(item.id);
+   foundItem=itemName(item.id);
+ }
+ save();
+ if(!saved){
+   restoreMovement(before);
+   status('Move NOT saved. Your last saved position and collected items are protected. Tell your teacher and try again.');
+   draw();
+   return;
+ }
+ if(foundItem){sound();status('You found the '+foundItem+'!')}
+ draw();
  if(r.skill&&!r.skill.done&&tile(r.skill)===tile(p)){challenge(r.skill.type);return}
- if(tile(p)===tile(r.goal)){if(r.items.some(i=>!i.collected)||r.skill&&!r.skill.done){status('Collect your equipment and finish the keyboard skill stop, then return to the flag.');return}finish()}
+ if(tile(p)===tile(r.goal)){
+   if(r.items.some(i=>!i.collected)||r.skill&&!r.skill.done){
+     status('Collect your equipment and finish the keyboard skill stop, then return to the flag.');
+     return;
+   }
+   finish();
+ }
  }
  function clock(){
  clearInterval(interval);if(view!=='maze'||settings.difficulty==='gentle'||r.complete||$('adventure-dialog')?.open)return;
