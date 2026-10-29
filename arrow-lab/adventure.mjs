@@ -1,4 +1,6 @@
 import {buildArrowLabProgressCsv} from './progress-export.mjs?v=csv-safety-20261028b';
+import {isMobileTouchDevice,mobileArrowPadHtml,bindMobileArrows} from './mobile-touch.mjs?v=mobile-touch-20261028a';
+const mobileTouch = isMobileTouchDevice();
 import {tellGuide,starIcon} from './viewport.mjs?v=responsive-kbd-20261027a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
@@ -710,7 +712,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      };
    });
    scene.onpointerdown=e=>{
-     if(e.pointerType!=='mouse'||e.button!==0||e.target.closest('.scene-remove'))return;
+     if((e.pointerType!=='mouse'&&!(mobileTouch&&e.pointerType==='touch'))||(e.pointerType==='mouse'&&e.button!==0)||e.target.closest('.scene-remove'))return;
      const el=e.target.closest('[data-world-object]');
      if(!el){
        if(!armed)return;
@@ -978,7 +980,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
  }
  function maze(){
- view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':def.individualBackdrop?' lab-individual-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Use your keyboard arrows. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div><div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full" type="button">⛶ Full Screen</button></div>');
+ view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':def.individualBackdrop?' lab-individual-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Move with keyboard arrows or, on mobile, touch arrow buttons. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div>'+(mobileTouch?mobileArrowPadHtml('Touch arrows to move through the maze'):'')+'<div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full" type="button">⛶ Full Screen</button></div>');
  document.body.classList.add('playing');
  $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>modal('Start this maze over?',
     '<p>This will restart <strong>only this maze</strong>. Your other mazes, stars, friends, and decorations stay saved.</p>'+
@@ -989,7 +991,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       $('confirm-restart').onclick=()=>{challengeKeys=null;closeModal();startLevel(def.number,true)};
     });$('hint-route').onclick=()=>{if(!settings.hints){status('Your teacher has turned hints off. Stop, look, and try one arrow.');return}const target=r.items.find(i=>!i.collected)||(!r.skill?.done&&r.skill)||r.goal;status(safeHint(r,target));};
  $('adventure-full').onclick=()=>window.arrowLabToggleFullscreen?.();
- const db=$('duck-button');db.onpointerdown=e=>{if(e.pointerType!=='mouse')return;e.preventDefault();db.setPointerCapture(e.pointerId);setDuck(true)};db.onpointerup=db.onpointercancel=db.onlostpointercapture=()=>setDuck(false);db.onkeydown=e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();setDuck(true)}};db.onkeyup=()=>setDuck(false);
+ if(mobileTouch)bindMobileArrows($('app'),move);
+ const db=$('duck-button');if(mobileTouch){db.textContent='Tap DUCK for next step';db.onclick=()=>setDuck(!duck)}db.onpointerdown=e=>{if(e.pointerType!=='mouse')return;e.preventDefault();db.setPointerCapture(e.pointerId);setDuck(true)};db.onpointerup=db.onpointercancel=db.onlostpointercapture=()=>setDuck(false);db.onkeydown=e=>{if(e.code==='Space'||e.key==='Enter'){e.preventDefault();setDuck(true)}};db.onkeyup=()=>setDuck(false);
  draw();clock();requestAnimationFrame(()=>{$('adventure-maze')?.focus({preventScroll:true});fit()});
  }
  // Hints must never direct a student into a bad guy's current OR future
@@ -1038,8 +1041,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function move(key){
  if(view!=='maze'||!r||r.complete||$('adventure-dialog')?.open)return;const d=directions[key];if(!d)return;const pressed=document.querySelector('[data-direction="'+key+'"]');pressed?.classList.add('on');setTimeout(()=>pressed?.classList.remove('on'),180);
  const p={x:r.player.x+d[0],y:r.player.y+d[1]};if(r.grid[p.y]?.[p.x]!==0){status('A wall. Stop, look, and try another arrow.');return}
- if(r.barrier&&tile(p)===tile(r.barrier)&&!duck){status('Low bridge! Hold SPACE and press your arrow to duck under.');return}
- r.player=p;r.steps++;if(r.hazards.some(e=>tile(e.path[e.index])===tile(p))){hit();return}
+ if(r.barrier&&tile(p)===tile(r.barrier)&&!duck){status(mobileTouch?'Low bridge! Tap DUCK, then tap the arrow to go under.':'Low bridge! Hold SPACE and press your arrow to duck under.');return}
+ r.player=p;r.steps++;if(mobileTouch&&duck)setDuck(false);if(r.hazards.some(e=>tile(e.path[e.index])===tile(p))){hit();return}
  if(r.safe.includes(tile(p))&&r.steps%5===0)r.checkpoint={...p};
  for(const item of r.items)if(!item.collected&&tile(item)===tile(p)){item.collected=true;const bucket=allWorldLabels[item.id]?(a.collectedWorldItems??=[]):a.collectedComputerGearIds;if(!bucket.includes(item.id))bucket.push(item.id);sound();status('You found the '+itemName(item.id)+'!');}
  save();draw();
@@ -1072,7 +1075,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(kind==='click')body='<p>Click the big star once.</p><button id="skill-target" class="skill-target">⭐</button>';
  if(kind==='double_click')body='<p>Click the star TWO times quickly: click-click! Take as many tries as you need.</p><button id="skill-target" class="skill-target">⭐</button>';
  if(kind==='typing')body='<p>Type <strong>cat</strong> in the box.</p><input id="skill-type" aria-label="Type cat" autocomplete="off" spellcheck="false"><button id="check-type">Check</button>';
- if(kind==='arrows')body='<p>Use your keyboard to follow these directions. Your progress is saved if you leave and return.</p><div id="skill-sequence" aria-label="Arrow pattern">'+sequenceHtml(i)+'</div>';
+ if(kind==='arrows')body='<p>'+(mobileTouch?'Tap the matching arrow to follow the pattern.':'Use your keyboard to follow these directions.')+' Your progress is saved if you leave and return.</p><div id="skill-sequence" aria-label="Arrow pattern">'+sequenceHtml(i)+'</div>'+(mobileTouch?mobileArrowPadHtml('Tap the matching pattern arrow'):'');
  if(kind==='drag_and_drop')body='<p>Click and hold the keyboard. Drag it into the box, then let go.</p><div class="drag-space"><div id="drag-picture" tabindex="0" role="button" aria-label="Drag keyboard. Keyboard alternative: press Enter to pick up, Tab to box, Enter to drop.">'+img(data.computer_collectibles.find(i=>i.id==='keyboard').thumbnail,'Keyboard')+'</div><div id="drag-box" tabindex="0" role="button" aria-label="Keyboard drop box">Drop here</div></div>';
  modal('Computer skill stop',body+back,()=>{
  $('try-later').onclick=()=>{challengeKeys=null;closeModal();save();draw()};
@@ -1088,11 +1091,12 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
        else{$('skill-sequence').innerHTML=sequenceHtml(i);$('skill-feedback').textContent='Great! Keep going.'}
      }else $('skill-feedback').textContent='Look at the next arrow. Try it again!';
    };
+   if(mobileTouch)bindMobileArrows($('adventure-dialog'),challengeKeys);
  }
  if(kind==='drag_and_drop'){
  const source=$('drag-picture'),box=$('drag-box');let held=false,pointer=null,ghost=null;
  const clean=()=>{ghost?.remove();ghost=null;source.classList.remove('picked-up')};
- source.onpointerdown=e=>{if(e.pointerType!=='mouse')return;e.preventDefault();held=true;pointer=e.pointerId;source.setPointerCapture(pointer);source.classList.add('picked-up');ghost=source.querySelector('img').cloneNode();ghost.style.cssText='position:fixed;width:90px;height:90px;object-fit:contain;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)';$('adventure-dialog').append(ghost);ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px'};
+ source.onpointerdown=e=>{if(e.pointerType!=='mouse'&&!(mobileTouch&&e.pointerType==='touch'))return;e.preventDefault();held=true;pointer=e.pointerId;source.setPointerCapture(pointer);source.classList.add('picked-up');ghost=source.querySelector('img').cloneNode();ghost.style.cssText='position:fixed;width:90px;height:90px;object-fit:contain;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)';$('adventure-dialog').append(ghost);ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px'};
  source.onpointermove=e=>{if(held&&ghost){ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px'}};
  source.onpointerup=e=>{if(!held||e.pointerId!==pointer)return;held=false;const b=box.getBoundingClientRect(),inside=e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom;clean();if(inside)win();else $('skill-feedback').textContent='Hold, move to the box, then let go. Try again!'};
  source.onpointercancel=()=>{held=false;clean()};
@@ -1122,7 +1126,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    '<div class="final-arrow-frost"><div id="final-arrow-count" class="final-arrow-count" aria-live="polite"></div>'+
    '<div id="final-arrow-big" class="final-arrow-big" role="img" aria-label="Follow this arrow"></div>'+
    '<div id="final-arrow-feedback" class="final-arrow-feedback" role="status">Look at the arrow. Press the matching key!</div></div></div>'+
-   '<p class="final-arrow-keyboard-note">Use your keyboard arrow keys.</p>';
+   '<p class="final-arrow-keyboard-note">'+(mobileTouch?'Tap the matching arrow below.':'Use your keyboard arrow keys.')+'</p>'+(mobileTouch?mobileArrowPadHtml('Tap the matching rescue arrow'):'');
   modal('Final Arrow Rescue Challenge!',contents,d=>{
     d.classList.add('final-arrow-modal');
     const count=d.querySelector('#final-arrow-count'),big=d.querySelector('#final-arrow-big'),feedback=d.querySelector('#final-arrow-feedback');
@@ -1134,6 +1138,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       if(at===10){challengeKeys=null;d.classList.remove('final-arrow-modal');d.close();finish();return}
       feedback.textContent='Great! Here is your next arrow.';show();
     };
+    if(mobileTouch)bindMobileArrows(d,challengeKeys);
     show();
   });
  }
@@ -1234,7 +1239,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  $('help').onclick=()=>{
   // Do not overwrite an unfinished keyboard challenge or rescue dialog.
   if($('adventure-dialog')?.open)return;
-  const t='Start at the star. Use your keyboard arrows. Press and release to move one space. Collect your computer equipment. Follow the arrows at each arrow stop. Hold the space bar to duck under a striped bridge. Finish at the checkered flag.';
+  const t=mobileTouch?'Start at the star. Tap an arrow on your screen to move one space. Collect your computer equipment and tap the matching arrows at skill stops. Tap DUCK before moving under a striped bridge. Finish at the checkered flag.':'Start at the star. Use your keyboard arrows. Press and release to move one space. Collect your computer equipment. Follow the arrows at each arrow stop. Hold the space bar to duck under a striped bridge. Finish at the checkered flag.';
   modal('How to Play','<p>'+esc(t)+'</p><div class="actions"><button id="help-read-aloud" type="button">🔊 Read aloud</button><button id="help-back" class="primary" type="button">Back to adventure</button></div>',()=>{
     const speech=window.speechSynthesis,read=$('help-read-aloud');
     read.disabled=!(speech&&window.SpeechSynthesisUtterance);
