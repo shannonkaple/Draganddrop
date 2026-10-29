@@ -1001,7 +1001,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const ok=commitSceneMutation(()=>{
      result=toggleCollectedInWorld(a,id,key);
      if(!result.changed)return false;
-    },['collectionExtraObjects']);
+    },['collectionExtraObjects','positions']);
     if(!ok){$('collection-report').textContent='NOT saved. Treasure unchanged; tell your teacher.';return}
     refresh();
     const prop=[...document.querySelectorAll('#collection-scene [data-world-object]')]
