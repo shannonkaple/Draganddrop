@@ -690,7 +690,7 @@ html body dialog.friend-reveal-dialog{width:min(480px,92vw)!important;}
    the HUD or cropping the world map. */
 html body.lab-map-active .lab-friend-compact{
  display:flex!important;flex-direction:row!important;align-items:center!important;
- gap:6px!important;overflow:hidden;
+ gap:6px!important;overflow:visible;
 }
 html body.lab-map-active .lab-friend-portrait{
  flex:0 0 clamp(30px,3.5vw,46px);height:100%;
