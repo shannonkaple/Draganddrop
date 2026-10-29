@@ -89,3 +89,17 @@ html body.guided.adventure-mode.lab-map-active .lab-map-canvas{
  max-height:100%!important;aspect-ratio:2048/682!important;
 }
 html body.guided.adventure-mode.playing #kaple-guide .guide-cast{display:none!important}
+
+
+/* Only hide the illustrated heading during MAZE play, not on the home page. */
+html body.guided.adventure-mode.playing>header.lab-image-header .brand{display:none!important}
+html body.guided.adventure-mode.playing>header.lab-image-header{
+ height:46px!important;min-height:46px!important;max-height:46px!important;
+ padding:2px 8px!important;display:flex!important;align-items:center!important;
+ background:linear-gradient(90deg,#f9b6e3,#ffe4aa 24%,#b6edbc 48%,#a5deff 72%,#dbb6ff)!important;
+}
+html body.guided.adventure-mode.playing>header.lab-image-header .lab-reference-toolbar{
+ display:flex!important;width:100%!important;align-items:center!important;
+ justify-content:space-between!important;padding:0!important;gap:6px!important;
+ background:transparent!important;
+}
