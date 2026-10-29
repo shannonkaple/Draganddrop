@@ -1,5 +1,6 @@
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
+import {commitWorldView} from './world-view-transaction.mjs?v=world-view-save-20261029a';
 import {buildArrowLabProgressCsv} from './progress-export.mjs?v=csv-safety-20261028b';
 import {isMobileTouchDevice,mobileArrowPadHtml,bindMobileArrows} from './mobile-touch.mjs?v=mobile-touch-20261028a';
 const mobileTouch = isMobileTouchDevice();
@@ -662,7 +663,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button data-buy-decor="'+d.id+'" '+(has||ownedAnywhere||a.wallet.rainbowStars<d.cost?'disabled':'')+'>'+(has?'Already in world':ownedAnywhere?'Move from MY STUFF':'Buy Decoration')+'</button></article>';
    }).join('')+'</div>');
   $('shop-home').onclick=()=>computer(id,'decor');$('decor-change').onclick=myWorlds;$('decor-gifts').onclick=()=>friendGiftShop();
-  document.querySelectorAll('[data-decor-world]').forEach(b=>b.onclick=()=>{a.primaryRainbowLandId=b.dataset.decorWorld;save();decorShop()});
+  document.querySelectorAll('[data-decor-world]').forEach(b=>b.onclick=()=>{
+     if(!commitWorldView({progress:a,worldId:b.dataset.decorWorld,fields:['primaryRainbowLandId'],persist:()=>{save();return saved}})){
+       modal('World change NOT saved',
+         '<p>Your previous world and purchased decorations are safe. This Chromebook could not save the change.</p><button id="decor-world-back" type="button" class="primary">Back to Decorations</button>',
+         ()=>{$('decor-world-back').onclick=closeModal});
+       return;
+     }
+     decorShop();
+   });
   document.querySelectorAll('[data-buy-decor]').forEach(b=>b.onclick=()=>{
    const d=goods.find(x=>x.id===b.dataset.buyDecor);
    if(!d||!owned(id)||a.wallet.rainbowStars<d.cost||(a.decorations[id]||[]).includes(d.id))return;
@@ -901,7 +910,20 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   if(!id)return homeMap();
   // A playroom, not four inventory pages: show every usable object together.
   // The old collectionTab is left intact for save compatibility, but never gates the tray.
-  a.collectionWorldId=id;a.primaryRainbowLandId=id;save();
+  if(!commitWorldView({progress:a,worldId:id,persist:()=>{save();return saved}})){
+     const feedback=$('collection-report');
+     if(feedback){
+       feedback.setAttribute('role','alert');
+       feedback.textContent='World change NOT saved. Your earlier world and items are safe. Tell your teacher, then try again.';
+       const selector=$('stuff-world-select');
+       if(selector)selector.value=a.collectionWorldId||a.primaryRainbowLandId||'';
+     }else{
+       modal('World change NOT saved',
+         '<p>Your Chromebook could not save this world selection. Your previous world and all its items are safe.</p><button id="world-save-back" type="button" class="primary">Back to MY STUFF</button>',
+         ()=>{$('world-save-back').onclick=()=>{closeModal();computer()}});
+     }
+     return;
+   }
   // The playroom tray is a student's complete inventory, not just the items in this world.
   // Keep the legacy per-world decoration arrays so old saves and arrangements survive.
   const ownedDecor=[...new Set(Object.values(a.decorations||{}).flat())];
