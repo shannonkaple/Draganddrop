@@ -531,6 +531,19 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   syncBannerStars();
   return false;
  }
+ // Restore a student's MY STUFF state whenever storage refuses a write.
+ function commitSceneMutation(change,fields){
+  const before=fields.map(field=>[field,Object.prototype.hasOwnProperty.call(a,field),
+   a[field]===undefined?undefined:JSON.parse(JSON.stringify(a[field]))]);
+  if(change()===false)return false;
+  save();
+  if(saved)return true;
+  for(const [field,existed,value] of before){
+   if(existed)a[field]=value;
+   else delete a[field];
+  }
+  return false;
+ }
  function buyHome(id){
   const world=land(id);if(!world)return false;
   const wasOwned=owned(id),cost=worldCosts[lands.indexOf(world)];
@@ -733,11 +746,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   return '<div id="collection-scene" class="land-scene free-world collection-scene" role="group" aria-label="'+esc(l.name)+', including your arranged friends and decorations" style="background-image:url('+asset(picture)+')">'+personArt+friendArt+decorArt+treasureArt+'</div>';
  }
  function removeSceneObject(id,key){
-  if(key.startsWith('decor:')){const list=(a.hiddenDecorations[id]??=[]);if(!list.includes(key.slice(6)))list.push(key.slice(6));}
-  else if(key.startsWith('companion:')){if(!a.hiddenCompanions.includes(key.slice(10)))a.hiddenCompanions.push(key.slice(10));}
-  else if(key.startsWith('treasure:'))a.collectionExtraObjects[id]=(a.collectionExtraObjects[id]||[]).filter(x=>x!==key.slice(9));
-  else return;
-  save();computer(id);$('collection-report').textContent='Removed from scene. You still own it and can add it again.';
+  const ok=commitSceneMutation(()=>{
+   if(key.startsWith('decor:')){const list=(a.hiddenDecorations[id]??=[]);if(!list.includes(key.slice(6)))list.push(key.slice(6));}
+   else if(key.startsWith('companion:')){if(!a.hiddenCompanions.includes(key.slice(10)))a.hiddenCompanions.push(key.slice(10));}
+   else if(key.startsWith('treasure:'))a.collectionExtraObjects[id]=(a.collectionExtraObjects[id]||[]).filter(x=>x!==key.slice(9));
+   else return false;
+  },['hiddenDecorations','hiddenCompanions','collectionExtraObjects']);
+  if(!ok){$('collection-report').textContent='NOT saved. Item stays in your scene. Tell your teacher.';return}
+  computer(id);$('collection-report').textContent='Removed from scene. You still own it and can add it again.';
  }
  function enableCollectionDrag(id){
    const scene=$('collection-scene');if(!scene)return;
@@ -758,9 +774,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      return {x:Math.max(px,Math.min(100-px,(x-box.left)/box.width*100)),
        y:Math.max(py,Math.min(100-py,(y-box.top)/box.height*100))};
    };
-   const place=(el,key,p)=>{
-     if(!p)return;
-     (a.positions[id]??={})[key]=p;el.style.left=p.x+'%';el.style.top=p.y+'%';save();
+   const place=(el,key,p,previousStyle)=>{
+     if(!p)return false;
+     const prior=(a.positions[id]||{})[key];
+     const oldX=previousStyle?.x??(prior?prior.x+'%':el.style.left);
+     const oldY=previousStyle?.y??(prior?prior.y+'%':el.style.top);
+     const ok=commitSceneMutation(()=>{(a.positions[id]??={})[key]=p},['positions']);
+     if(!ok){el.style.left=oldX;el.style.top=oldY;return false}
+     el.style.left=p.x+'%';el.style.top=p.y+'%';
+     return true;
    };
    scene.querySelectorAll('[data-world-object]').forEach(el=>{
      const key=el.dataset.worldObject,isPlayer=key===a.selectedPlayerCharacterId;
@@ -777,7 +799,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
          e.preventDefault();e.stopPropagation();
          const p=(a.positions[id]??={})[key]||{x:parseFloat(el.style.left)||50,y:parseFloat(el.style.top)||50};
          const d=directions[e.key],next={x:Math.max(5,Math.min(95,p.x+d[0]*3)),y:Math.max(5,Math.min(95,p.y+d[1]*3))};
-         place(el,key,next);report('Position saved. Use arrow keys, drag, or click a new place.');
+         report(place(el,key,next)?'Position saved. Use arrow keys, drag, or click a new place.':'NOT saved. Position restored; tell your teacher.');
        }else if(e.key==='Enter'||e.key===' '){
          e.preventDefault();e.stopPropagation();arm(el);
        }else if(!isPlayer&&(e.key==='Delete'||e.key==='Backspace')){
@@ -792,9 +814,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
        if(!armed)return;
        const p=point(armed,e.clientX,e.clientY);if(!p)return;
        e.preventDefault();
-       place(armed,armed.dataset.worldObject,p);
+       const ok=place(armed,armed.dataset.worldObject,p);
        const placed=armed;clear();placed.focus({preventScroll:true});
-       report('Placed! The new location is saved.');
+       report(ok?'Placed! The new location is saved.':'NOT saved. Position restored; tell your teacher.');
        return;
      }
      e.preventDefault();
@@ -817,8 +839,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    scene.onpointerup=e=>{
      if(!drag||drag.pointer!==e.pointerId)return;
      if(drag.moved){
-       if(drag.x!==undefined)place(drag.el,drag.key,{x:drag.x,y:drag.y});
-       report('Saved! Your arrangement will be here next time.');
+       const ok=drag.x!==undefined&&place(drag.el,drag.key,{x:drag.x,y:drag.y},{x:drag.oldX,y:drag.oldY});
+       report(ok?'Saved! Your arrangement will be here next time.':'NOT saved. Position restored; tell your teacher.');
      }else arm(drag.el);
      drag.el.classList.remove('moving');drag=null;
    };
@@ -912,7 +934,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const player=a.friends[playerId];
     if(!player)return;
     if(player.homeLandId!==id){
-      player.homeLandId=id;save();computer(id);
+      if(!commitSceneMutation(()=>{player.homeLandId=id},['friends'])){
+       $('collection-report').textContent='NOT saved. Your player is still in the previous world.';return;
+      }
+      computer(id);
       $('collection-report').textContent='Your player is now in this world! Drag your character to move them.';
     }else{
       const sprite=[...document.querySelectorAll('#collection-scene [data-world-object]')].find(el=>el.dataset.worldObject===playerId);
@@ -947,31 +972,38 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   $('stuff-world-select').onchange=e=>computer(e.target.value);
   document.querySelectorAll('[data-stuff-world]').forEach(b=>b.onclick=()=>computer(b.dataset.stuffWorld));
   document.querySelectorAll('[data-stuff-decor]').forEach(b=>b.onclick=()=>{
-    const key=b.dataset.stuffDecor,hidden=(a.hiddenDecorations[id]??=[]);
-    if((a.decorations[id]||[]).includes(key)){
-      if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);
-      else hidden.push(key);
-    }else{
-      // A world-exclusive item cannot migrate into another theme. Keep all
-      // previous purchases and scene coordinates, including legacy placements.
-      const item=findDecoration(key);
-      const targetTheme=backgroundHomes.find(w=>w.id===id)?.theme||'all';
-      if(!moveOwnedDecoration(a,key,id,item,targetTheme))return;
-    }
-    save();refresh();
+    const key=b.dataset.stuffDecor;
+    const ok=commitSceneMutation(()=>{
+      const hidden=(a.hiddenDecorations[id]??=[]);
+      if((a.decorations[id]||[]).includes(key)){
+        if(hidden.includes(key))a.hiddenDecorations[id]=hidden.filter(x=>x!==key);
+        else hidden.push(key);
+      }else{
+        const item=findDecoration(key);
+        const targetTheme=backgroundHomes.find(w=>w.id===id)?.theme||'all';
+        if(!moveOwnedDecoration(a,key,id,item,targetTheme))return false;
+      }
+    },['decorations','hiddenDecorations']);
+    if(ok)refresh();else $('collection-report').textContent='NOT saved. Decoration unchanged; tell your teacher.';
   });
   document.querySelectorAll('[data-stuff-friend]').forEach(b=>b.onclick=()=>{
     const key=b.dataset.stuffFriend,friend=a.worldFriends?.[key];if(!friend)return;
-    const here=friend.homeLandId===id,hidden=a.hiddenCompanions.includes(key);
-    if(here&&!hidden)a.hiddenCompanions.push(key);
-    else{friend.homeLandId=id;a.hiddenCompanions=a.hiddenCompanions.filter(x=>x!==key);}
-    save();refresh();
+    const ok=commitSceneMutation(()=>{
+      const here=friend.homeLandId===id,hidden=a.hiddenCompanions.includes(key);
+      if(here&&!hidden)a.hiddenCompanions.push(key);
+      else{friend.homeLandId=id;a.hiddenCompanions=a.hiddenCompanions.filter(x=>x!==key);}
+    },['worldFriends','hiddenCompanions']);
+    if(ok)refresh();else $('collection-report').textContent='NOT saved. Friend remains where they were; tell your teacher.';
   });
   document.querySelectorAll('[data-stuff-treasure]').forEach(button=>button.onclick=()=>{
     const key=button.dataset.stuffTreasure;
-    const result=toggleCollectedInWorld(a,id,key);
-    if(!result.changed)return;
-    save();refresh();
+    let result;
+    const ok=commitSceneMutation(()=>{
+     result=toggleCollectedInWorld(a,id,key);
+     if(!result.changed)return false;
+    },['collectionExtraObjects']);
+    if(!ok){$('collection-report').textContent='NOT saved. Treasure unchanged; tell your teacher.';return}
+    refresh();
     const prop=[...document.querySelectorAll('#collection-scene [data-world-object]')]
       .find(el=>el.dataset.worldObject==='treasure:'+key);
     const note=$('collection-report');
