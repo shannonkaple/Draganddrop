@@ -24,6 +24,7 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
    el.classList.toggle('filled',!!completed);
    el.innerHTML=image(t.asset,'target-reference')+'<span>'+esc(t.label||'Match here')+'</span>';
    if(completed)el.innerHTML=image(level.engine==='pattern'?level.pieces.find(p=>p.key===state.roundPlaced[t.id])?.asset:level.pieces.find(p=>state.placed[p.id]===t.id)?.asset)+'<span>Done</span>';
+   if(completed&&level.engine==='order'){const p=level.pieces.find(p=>state.placed[p.id]===t.id),art=el.querySelector('img');if(p&&art){art.style.width=(p.w/t.w*100)+'%';art.style.height=(p.h/t.h*100)+'%'}}
    el.setAttribute('aria-label',(t.label||t.asset?.name||'Drop zone')+(completed?' — filled':''));
    targetLayer.append(el);targetNodes.set(t.id,el);layout(el,positionAt(t,time,motion));
   }

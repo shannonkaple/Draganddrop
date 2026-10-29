@@ -1,6 +1,6 @@
-import {teacherAccess,lockTeacher} from './teacher-access.mjs?v=20261029-engines1';
-import './viewport.mjs?v=20261029-engines1';
-import {openAdventure} from './adventure.mjs?v=20261029-engines1';
+import {teacherAccess,lockTeacher} from './teacher-access.mjs?v=20261029-engines2';
+import './viewport.mjs?v=20261029-engines2';
+import {openAdventure} from './adventure.mjs?v=20261029-engines2';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;
