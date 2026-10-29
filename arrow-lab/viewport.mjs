@@ -18,7 +18,10 @@ export function fitScreen(){
  if(guided&&!document.body.classList.contains('adventure-mode')){if(app.querySelector('[data-teacher]'))tellGuide('Choose your teacher. Then choose your number.','👩‍🏫 → 🔢');else if(app.querySelector('[data-number]'))tellGuide('Choose your classroom number.','🔢 → ✓');else if(app.querySelector('#maze'))tellGuide('Use your arrow keys. Start at the star and finish at the flag.','⭐ → ⬆️ ⬅️ ⬇️ ➡️ → 🏁');}
  const vh=window.visualViewport?.height||innerHeight, vw=window.visualViewport?.width||innerWidth;
  const top=Math.ceil(document.querySelector('body>header').getBoundingClientRect().bottom)+4;
- const left=guided&&!document.body.classList.contains('lab-map-active')&&!document.body.classList.contains('lab-collection-active')?Math.min(260,Math.max(190,vw*.23)):0;
+ // Phones and tablets need the FULL width for a readable maze and tap arrows.
+ // The teacher-guide sidebar remains available on Chromebook/desktop only.
+ const mobile=document.body.classList.contains('mobile-touch-enabled');
+ const left=guided&&!mobile&&!document.body.classList.contains('lab-map-active')&&!document.body.classList.contains('lab-collection-active')?Math.min(260,Math.max(190,vw*.23)):0;
  document.documentElement.style.setProperty('--screen-top',top+'px');document.documentElement.style.setProperty('--guide-width',left+'px');document.documentElement.style.setProperty('--screen-height',(vh-top-8)+'px');
  // Never shrink the entire Arrow Adventure UI: keep full-size controls,
  // scroll longer screens and reserve the visible viewport for maze play.
