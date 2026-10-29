@@ -41,11 +41,12 @@ export async function openAdventure({number,storageKey,teacherName,teachers,veri
  ];
  const activityNames=['First Steps','Rainbow Turns','Find the Treasure','Bridge Crossing','Star Path','Friend Quest','Winding Maze','World Finale'];
 
+ const HIDDEN_COLLECTIBLE_IDS=new Set(['cotton_candy','star_cookie','marshmallow']);
  const candyObjects=[
  ['lollipop','Lollipop'],['gummy_bear','Gummy Bear'],['cupcake','Cupcake'],['candy_cane','Candy Cane'],
  ['ice_cream','Ice Cream'],['wrapped_candy','Wrapped Candy'],['donut','Donut'],['candy_necklace','Candy Necklace'],
- ['chocolate_bar','Chocolate Bar'],['jellybean_jar','Jellybean Jar'],['star_cookie','Star Cookie'],['gumdrop','Gumdrop'],
- ['marshmallow','Marshmallow'],['cotton_candy','Cotton Candy'],['candy_apple','Candy Apple'],['gingerbread_house','Gingerbread House']
+ ['chocolate_bar','Chocolate Bar'],['jellybean_jar','Jellybean Jar'],['gumdrop','Gumdrop'],
+ ['candy_apple','Candy Apple'],['gingerbread_house','Gingerbread House']
  ];
  const candyLabels=Object.fromEntries(candyObjects);
  const candyNames=['Lollipop Lane','Cupcake Creek','Ice Cream Island','Donut Ridge','Candy Castle','Gummy Grove','Chocolate Falls','Sweet Summit'];
@@ -83,8 +84,8 @@ export async function openAdventure({number,storageKey,teacherName,teachers,veri
  const objectArtPaths=Object.fromEntries(Object.entries(objectGroups).flatMap(([world,items])=>items.map(([id])=>[id,'arrow-lab/collectibles/'+world+'/'+id+'.png'])));
  // New maze collectibles must have genuine PNG/JPEG files; never SVG or shape-built art.
  // Previously acquired rewards remain in each student's saved inventory.
- const pickupArtPath=id=>objectArtPaths[id]||data.computer_collectibles.find(o=>o.id===id)?.thumbnail||data.computer_collectibles.find(o=>o.id===id)?.image||'';
- const canSpawnPickup=id=>isSupportedCollectibleArt(pickupArtPath(id));
+ const pickupArtPath=id=>HIDDEN_COLLECTIBLE_IDS.has(id)?'':objectArtPaths[id]||data.computer_collectibles.find(o=>o.id===id)?.thumbnail||data.computer_collectibles.find(o=>o.id===id)?.image||'';
+ const canSpawnPickup=id=>!HIDDEN_COLLECTIBLE_IDS.has(id)&&isSupportedCollectibleArt(pickupArtPath(id));
  // Until the remaining four worlds' original transparent treasure art is
  // available, use two DISTINCT published computer-gear PNGs per maze instead
  // of the previous zero/one objectives. Do not invent missing art URLs.
@@ -94,7 +95,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,veri
    return [...new Set([...legacyIds.filter(id=>ids.includes(id)),...schedule[stageIndex].map(i=>ids[i])])].slice(0,2);
  };
  const pairFor=(worldIndex,stageIndex)=>{
-  if(worldIndex===0)return [candyObjects[(stageIndex*2)%10][0],candyObjects[(stageIndex*2+1)%10][0]];
+  if(worldIndex===0){const count=candyObjects.length;return [candyObjects[(stageIndex*2)%count][0],candyObjects[(stageIndex*2+1)%count][0]];}
   const objects=worldIndex===1?pirateObjects:worldIndex===2?arcticObjects:worldIndex===6?oceanObjects:null;
   return objects?[objects[(stageIndex*3)%10][0],objects[(stageIndex*3+4)%10][0]]:undefined;
  };
@@ -231,7 +232,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const pic=id=>{const c=char(id);return c?img(look(id).image,c.name,'friend-art'):'<span class="friend-art pending-character-art" role="img" aria-label="'+esc(id)+' saved friend, illustration unavailable"><span class="pending-character-initial">?</span><small class="pending-character-note">SAVED FRIEND</small></span>';};
 
  const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
- const itemArt=id=>objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
+ const itemArt=id=>HIDDEN_COLLECTIBLE_IDS.has(id)?'':objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
  // Never silently imply that a student's work was saved when storage is blocked.
  // Do not overwrite unreadable/corrupted old data: keep it untouched and warn.
@@ -873,7 +874,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const theme=backgroundHomes.find(w=>w.id===worldId)?.theme||worldId.replace('background_','');
   const themed=new Set((objectGroups[theme]||[]).map(item=>item[0]));
   const picked=new Set(Object.values(a.mazeRuns||{}).filter(run=>run?.id?.startsWith('lab_'+theme+'_')).flatMap(run=>(run.items||[]).filter(item=>item.collected).map(item=>item.id)));
-  return earnedKeys(a).filter(key=>isSupportedCollectibleArt(itemArt(key))&&(themed.has(key)||picked.has(key))).slice(0,10);
+  return earnedKeys(a).filter(key=>!HIDDEN_COLLECTIBLE_IDS.has(key)&&isSupportedCollectibleArt(itemArt(key))&&(themed.has(key)||picked.has(key))).slice(0,10);
  }
  function computer(worldId=null,section=null){
   // Keep the horizontal shelf in place when a student adds, moves or hides an item.
@@ -1083,6 +1084,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  report=valid&&!restart?'Welcome back! Keep going from your saved spot.':'Start at the star. Use your arrow keys.';
  r=valid&&!restart?old:buildLevel(def,crypto.getRandomValues(new Uint32Array(1))[0],settings.difficulty==='gentle');
  if(valid&&!restart){
+   r.items=r.items.filter(item=>!HIDDEN_COLLECTIBLE_IDS.has(item.id));
    // Repair malformed legacy enemy paths before scanning for missing objectives.
    // Older saves can contain an enemy with no patrol path; keep the student's run.
    restoreSavedEnemyRoster(r,def,settings.difficulty==='gentle');
