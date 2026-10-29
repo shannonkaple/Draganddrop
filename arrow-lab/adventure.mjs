@@ -1082,6 +1082,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    }
  }
  function startLevel(n,restart=false){
+ // A rejected restart write must not erase an unfinished saved maze in memory.
+ // Keep the previous active run and this maze's stored slot until the new
+ // start has been durably written to the student's existing record.
+ const priorRestart=restart?{
+   def,r,mapWorld:currentMapWorld,activeRun:a.activeRun,
+   hadMazeRun:Object.prototype.hasOwnProperty.call(a.mazeRuns,levels[n-1]?.id),
+   mazeRun:a.mazeRuns[levels[n-1]?.id]
+ }:null;
  clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;currentMapWorld=def.worldIndex;
  if(a.completedLevelIds.includes(def.id)&&!restart){
    modal('Maze '+def.worldStage+' Completed!','<p>You already finished this maze. It is saved, and you do not have to play it again.</p><button type="button" id="done-level-back" class="primary">← World Map</button><button type="button" id="done-level-replay">Play Again (Optional)</button>',()=>{
@@ -1103,7 +1111,21 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    ensureRunObjectives(r,def);
   }
  if(a.completedLevelIds.includes(def.id))r.rewarded=true;
- a.activeRun=r;save();maze();
+ a.activeRun=r;save();
+ if(restart&&!saved){
+   const attemptedId=def.id;
+   r=priorRestart.r;
+   def=priorRestart.def;
+   currentMapWorld=priorRestart.mapWorld;
+   a.activeRun=priorRestart.activeRun;
+   if(priorRestart.hadMazeRun)a.mazeRuns[attemptedId]=priorRestart.mazeRun;
+   else delete a.mazeRuns[attemptedId];
+   modal('Restart NOT saved',
+     '<p>Your Chromebook could not save the new maze. Your earlier maze progress is still protected. Tell your teacher, then try again.</p><button id="retry-maze-restart" type="button" class="primary">Try saving restart again</button>',
+     ()=>{$('retry-maze-restart').onclick=()=>{closeModal();startLevel(n,true)}});
+   return;
+ }
+ maze();
  if(def.worldStage===8&&tile(r.player)===tile(r.goal)&&r.items.every(i=>i.collected)&&(!r.skill||r.skill.done)){
    // A reload can happen after arrow 10 is saved but before the reward is committed.
    // Never strand that student on the finish tile or force a second ten-arrow trial.
