@@ -1,3 +1,4 @@
+import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {enablePickerArrows} from './picker-arrows.mjs?v=20261028';
 import {isMobileTouchDevice} from './mobile-touch.mjs?v=mobile-touch-20261028a';
 const mobileTouch = isMobileTouchDevice();
@@ -6,7 +7,7 @@ import './viewport.mjs?v=mobile-fullwidth-shelf-20261028a';
 import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import '../rainbow-road/read-aloud.mjs?v=20261021-menu';
-import {openAdventure} from './adventure.mjs?v=replay-reward-guard-20261029a';
+import {openAdventure} from './adventure.mjs?v=verified-save-20261029a';
 import {canSaveStudentProgress} from './student-storage-probe.mjs?v=non-destructive-login-20261029a';
 let adventureController=null,adventureActive=false;
 import {makeMaze,step,nextRun,awardWallet} from '../rainbow-road/core.mjs';
@@ -58,7 +59,7 @@ function save(){
     throw Error('Existing student record is unreadable; refusing overwrite');
    }
   }
-  localStorage.setItem(key(),JSON.stringify({...previous,run,wallet,teacherId:identity.teacherId,teacherName:identity.teacherName,studentNumber:identity.number}));
+  writeVerifiedStudentRecord(localStorage,key(),{...previous,run,wallet,teacherId:identity.teacherId,teacherName:identity.teacherName,studentNumber:identity.number});
   saving=true;
   document.getElementById('arrow-lab-storage-warning')?.remove();
  }catch{
