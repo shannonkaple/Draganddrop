@@ -18,7 +18,10 @@ export function fitScreen(){
  if(guided&&!document.body.classList.contains('adventure-mode')){if(app.querySelector('[data-teacher]'))tellGuide('Choose your teacher. Then choose your number.','👩‍🏫 → 🔢');else if(app.querySelector('[data-number]'))tellGuide('Choose your classroom number.','🔢 → ✓');else if(app.querySelector('#maze'))tellGuide('Use your arrow keys. Start at the star and finish at the flag.','⭐ → ⬆️ ⬅️ ⬇️ ➡️ → 🏁');}
  const vh=window.visualViewport?.height||innerHeight, vw=window.visualViewport?.width||innerWidth;
  const top=Math.ceil(document.querySelector('body>header').getBoundingClientRect().bottom)+4;
- const left=guided&&!document.body.classList.contains('lab-map-active')&&!document.body.classList.contains('lab-collection-active')?Math.min(260,Math.max(190,vw*.23)):0;
+ const hasGuide=guided&&!document.body.classList.contains('lab-map-active')&&!document.body.classList.contains('lab-collection-active');
+ const compact=hasGuide&&vw<=700;
+ document.body.classList.toggle('compact-directions',compact);
+ const left=hasGuide&&!compact?Math.min(260,Math.max(190,vw*.23)):0;
  document.documentElement.style.setProperty('--screen-top',top+'px');document.documentElement.style.setProperty('--guide-width',left+'px');document.documentElement.style.setProperty('--screen-height',(vh-top-8)+'px');
  // Never shrink the entire Arrow Adventure UI: keep full-size controls,
  // scroll longer screens and reserve the visible viewport for maze play.
@@ -26,15 +29,27 @@ export function fitScreen(){
  app.style.left=left+'px';
  app.style.width=(vw-left)+'px';
  app.style.maxWidth=(vw-left)+'px';
- app.style.height=(vh-top-8)+'px';
+ const guide=document.getElementById('kaple-guide');
+ const guideHeight=compact?Math.min(Math.max(80,(vh-top-8)*.4),guide.querySelector('.guide-bubble').scrollHeight+16):0;
+ document.documentElement.style.setProperty('--compact-guide-height',guideHeight+'px');
+ app.style.top=(top+guideHeight)+'px';
+ app.style.height=Math.max(0,vh-top-guideHeight-8)+'px';
  app.style.minHeight='0';
  app.style.overflowX='hidden';
  app.style.overflowY=document.body.classList.contains('playing')?'hidden':'auto';
+ // Fit every drag level around its actual wrapped directions and controls.
+ const lesson=app.querySelector('.drag-lesson'),field=app.querySelector('.drag-field');
+ if(lesson&&field){
+  const otherHeight=lesson.getBoundingClientRect().bottom-app.getBoundingClientRect().top+app.scrollTop-field.getBoundingClientRect().height+16;
+  field.style.height=Math.max(260,Math.min(540,app.clientHeight-otherHeight-8))+'px';
+ }
  if(document.body.classList.contains('adventure-mode'))return;
  // Login/teacher selection uses the same readable, scrollable layout.
  app.style.overflowY='auto';
 }
 function schedule(){if(!pending){pending=true;requestAnimationFrame(fitScreen)}}
 new MutationObserver(schedule).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['open','hidden']});
+if(guided)new MutationObserver(schedule).observe(document.getElementById('kaple-guide'),{childList:true,subtree:true,characterData:true});
+new ResizeObserver(schedule).observe(document.querySelector('body>header'));
 new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
 window.addEventListener('resize',schedule);window.visualViewport?.addEventListener('resize',schedule);document.fonts.ready.then(schedule);app.addEventListener('load',schedule,true);app.addEventListener('toggle',schedule,true);schedule();

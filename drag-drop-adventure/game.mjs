@@ -1,5 +1,5 @@
-import './viewport.mjs?v=20261028-wide';
-import {openAdventure} from './adventure.mjs?v=20261028-easy-characters';
+import './viewport.mjs?v=20261029-directions';
+import {openAdventure} from './adventure.mjs?v=20261029-directions';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;
