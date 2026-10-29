@@ -21,3 +21,19 @@ body.activity-playing #app{overflow-y:auto!important}body.activity-playing #app>
 .activity-map-legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0}.activity-map-legend button{font-size:14px;padding:7px;line-height:1.15}
 body.activity-playing #guide-words{font-size:clamp(15px,2.3vh,20px)}
 @media(max-width:700px){.activity-instructions{flex-wrap:wrap;gap:4px}.activity-instructions p{font-size:15px}.activity-count{font-size:13px}.activity-map-legend{grid-template-columns:repeat(2,minmax(0,1fr))}.activity-tools span{display:none}}
+
+
+/* Play box: the original image remains fully visible and interactive coordinates
+   remain unchanged. A second copy fills any letterbox space behind it. */
+html body.guided.activity-playing .activity-board{
+ background-color:#b9e7fd!important;
+ background-image:var(--activity-scene)!important;
+ background-size:cover!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+}
+html body.guided.activity-playing .activity-background{
+ display:block!important;z-index:0!important;
+ width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;
+}
