@@ -1,4 +1,5 @@
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
+import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
 import {buildArrowLabProgressCsv} from './progress-export.mjs?v=csv-safety-20261028b';
 import {isMobileTouchDevice,mobileArrowPadHtml,bindMobileArrows} from './mobile-touch.mjs?v=mobile-touch-20261028a';
 const mobileTouch = isMobileTouchDevice();
@@ -342,35 +343,35 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const companionArt=id=>{const c=companion(id);return c.art?img(c.art,c.name,'world-friend-art'):'<span class="world-friend-icon" role="img" aria-label="'+esc(c.name)+'">'+c.icon+'</span>'};
  function continueRescue(){rescue()}
  function selectCharacter(changing=false){
- view='select';
- const instructions=changing
-   ?'<p>Choose one of your available characters. Your worlds and maze progress will stay saved.</p>'
-   :'<p>Welcome to Arrow Adventure! Pick your character to start playing. Everyone gets a FREE starter world automatically—no home to choose!</p>';
- shell(changing?'Change Your Character':'Choose Your Character!',instructions+
-   (changing?'<button id="cancel-player">← Back</button>':'')+
-   '<div class="adventure-cards">'+chars.map(c=>
-     '<button type="button" data-hero="'+c.id+'" aria-label="Choose '+esc(c.name)+'">'+
-       img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
- document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{
-   const id=b.dataset.hero;
-   const prior=a.selectedPlayerCharacterId,home=a.friends[prior]?.homeLandId;
-   if(changing&&prior&&prior!==id)a.retiredPlayerCharacterIds=[...new Set([...(a.retiredPlayerCharacterIds||[]),prior])];
-   choosePlayerCharacter(a,id,starterWorldId);
-   if(changing&&home&&owned(home))a.friends[id].homeLandId=home;
-   if(!changing)enterWithStarterWorld();
-   else{save();map()}
- });
- if(changing)$('cancel-player').onclick=map;
+  view='select';
+  const instructions=changing
+    ?'<p>Choose one of your available characters. Your worlds and maze progress will stay saved.</p>'
+    :'<p>Welcome to Arrow Adventure! Pick your character to start playing. Everyone gets a FREE starter world automatically—no home to choose!</p>';
+  shell(changing?'Change Your Character':'Choose Your Character!',instructions+
+    '<p id="character-save-feedback" role="alert" hidden></p>'+
+    (changing?'<button id="cancel-player">← Back</button>':'')+
+    '<div class="adventure-cards">'+chars.map(c=>
+      '<button type="button" data-hero="'+c.id+'" aria-label="Choose '+esc(c.name)+'">'+
+        img(c.levels[0].image,c.name)+'<strong>'+esc(c.name)+'</strong></button>').join('')+'</div>');
+  document.querySelectorAll('[data-hero]').forEach(b=>b.onclick=()=>{
+    // Do not leave onboarding or change a returning student's active character
+    // until the choice and free starter world are durably saved together.
+    const committed=commitCharacterSelection({
+      progress:a,id:b.dataset.hero,changing,starterWorldId,
+      choose:choosePlayerCharacter,persist:()=>{save();return saved}
+    });
+    if(!committed){
+      const feedback=$('character-save-feedback');
+      feedback.hidden=false;
+      feedback.textContent='Character choice NOT saved. Your earlier progress is safe. Tell your teacher and try again.';
+      feedback.scrollIntoView?.({block:'nearest'});
+      return;
+    }
+    map();
+  });
+  if(changing)$('cancel-player').onclick=map;
  }
 
- function enterWithStarterWorld(){
-   // The starter world is granted silently, not an extra player setup screen.
-   if(!a.ownedWorldIds.includes(starterWorldId))a.ownedWorldIds.push(starterWorldId);
-   if(!a.primaryRainbowLandId||!owned(a.primaryRainbowLandId))a.primaryRainbowLandId=starterWorldId;
-   a.friends[a.selectedPlayerCharacterId]??={isRescued:true,upgradeStage:'starter',homeLandId:starterWorldId};
-   save();
-   map();
- }
  function landCards(){return '<div class="adventure-cards land-cards">'+backgroundHomes.map(l=>'<article>'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong></article>').join('')+'</div>'}
 
 
