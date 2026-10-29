@@ -203,3 +203,21 @@ html body>header.drag-banner-header .actions button{white-space:nowrap}
  html body>header.drag-banner-header .toolbar-right{grid-column:2;grid-row:1}
  html body>header.drag-banner-header .toolbar-center{grid-column:1/-1;grid-row:2}
 }
+
+
+/* Oct 29 shared maps: preserve existing raster assets, rainbow chrome. */
+body>header.lab-image-header.drag-banner-header,
+body>header.drag-banner-header .actions,
+body>header.drag-banner-header .brand {
+ background:linear-gradient(95deg,#f9b1e1,#ffe3a1 22%,#b7f2bd 46%,#9fdffa 70%,#d9b4ff)!important;
+}
+body.activity-playing>header.drag-banner-header:not(.heading-open) .brand{display:none!important;height:0!important;min-height:0!important}
+body.activity-playing #kaple-guide .guide-cast{display:none!important}
+body.guided.lab-map-active #app{overflow:hidden!important;padding:0 10px 4px!important}
+body.guided.lab-map-active #app>.adventure-title{display:none!important}
+body.guided.lab-map-active .lab-map-home{display:flex!important;flex-direction:column!important;box-sizing:border-box!important;height:100%!important;max-height:100%!important;overflow:hidden!important;padding:4px!important;gap:3px!important}
+body.guided.lab-map-active .lab-map-art-frame{flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important}
+body.guided.lab-map-active .lab-map-canvas{width:min(100%,calc((var(--screen-height,620px) - 165px) * 3.00293))!important;max-height:100%!important;aspect-ratio:2048/682!important}
+body.guided.lab-map-active .lab-map-canvas>.lab-main-map-art{width:100%!important;height:100%!important;object-fit:contain!important}
+body.guided.lab-map-active .lab-game-hud{flex-basis:48px!important;height:48px!important}
+body.guided.lab-map-active .lab-map-title{flex-basis:28px!important;height:28px!important}
