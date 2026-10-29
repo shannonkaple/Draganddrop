@@ -575,7 +575,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   shell('Change '+companion(id).name+'’s World','<p>Choose one of your purchased worlds.</p><div class="adventure-cards land-cards">'+
    lands.filter(l=>owned(l.id)).map(l=>'<button data-move-to="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong></button>').join('')+'</div><button id="move-back">← Friends</button>');
   $('move-back').onclick=rescuedFriends;
-  document.querySelectorAll('[data-move-to]').forEach(b=>b.onclick=()=>{a.worldFriends[id].homeLandId=b.dataset.moveTo;save();computer(b.dataset.moveTo,'friends')});
+  document.querySelectorAll('[data-move-to]').forEach(b=>b.onclick=()=>{
+   const destination=b.dataset.moveTo;
+   if(!owned(destination)||!a.worldFriends?.[id])return;
+   const previousWorld=a.worldFriends[id].homeLandId;
+   if(!commitPurchase(()=>{a.worldFriends[id].homeLandId=destination;},
+     ()=>{a.worldFriends[id].homeLandId=previousWorld;}))return;
+   computer(destination,'friends');
+  });
  }
 
  function decorShop(){
@@ -598,7 +605,18 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    const d=goods.find(x=>x.id===b.dataset.buyDecor);
    if(!d||!owned(id)||a.wallet.rainbowStars<d.cost||(a.decorations[id]||[]).includes(d.id))return;
    if(d.shopOnly){if(!buyShopExclusive(id,d.id))return;}
-   else{a.wallet.rainbowStars-=d.cost;(a.decorations[id]??=[]).push(d.id);save();}
+   else{
+    const previousStars=a.wallet.rainbowStars;
+    const previousDecorations=Array.isArray(a.decorations[id])?[...a.decorations[id]]:null;
+    if(!commitPurchase(()=>{
+      a.wallet.rainbowStars-=d.cost;
+      (a.decorations[id]??=[]).push(d.id);
+    },()=>{
+      a.wallet.rainbowStars=previousStars;
+      if(previousDecorations)a.decorations[id]=previousDecorations;
+      else delete a.decorations[id];
+    }))return;
+   }
    decorShop();
   });
  }
@@ -623,11 +641,25 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   document.querySelectorAll('[data-gift-friend]').forEach(b=>b.onclick=()=>friendGiftShop(b.dataset.giftFriend));
   document.querySelectorAll('[data-buy-gift]').forEach(b=>b.onclick=()=>{
    const d=gifts.find(x=>x.id===b.dataset.buyGift);if(!d)return;
-   if(!a.friendGifts[chosen.id]?.includes(d.id)){
-     if(a.wallet.rainbowStars<d.cost)return;
-     a.wallet.rainbowStars-=d.cost;(a.friendGifts[chosen.id]??=[]).push(d.id);
-   }
-   a.friendGiftEquipped[chosen.id]=d.id;save();friendGiftShop(chosen.id);
+   const alreadyOwned=!!a.friendGifts[chosen.id]?.includes(d.id);
+   if(!alreadyOwned&&a.wallet.rainbowStars<d.cost)return;
+   const previousStars=a.wallet.rainbowStars;
+   const previousGifts=Array.isArray(a.friendGifts[chosen.id])?[...a.friendGifts[chosen.id]]:null;
+   const previousEquipped=a.friendGiftEquipped[chosen.id];
+   if(!commitPurchase(()=>{
+     if(!alreadyOwned){
+       a.wallet.rainbowStars-=d.cost;
+       (a.friendGifts[chosen.id]??=[]).push(d.id);
+     }
+     a.friendGiftEquipped[chosen.id]=d.id;
+   },()=>{
+     a.wallet.rainbowStars=previousStars;
+     if(previousGifts)a.friendGifts[chosen.id]=previousGifts;
+     else delete a.friendGifts[chosen.id];
+     if(previousEquipped===undefined)delete a.friendGiftEquipped[chosen.id];
+     else a.friendGiftEquipped[chosen.id]=previousEquipped;
+   }))return;
+   friendGiftShop(chosen.id);
   });
  }
  function homeMap(){
