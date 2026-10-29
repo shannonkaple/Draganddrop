@@ -44,11 +44,12 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(!manifestResponse.ok)throw Error('Could not load activity artwork manifest');
  const artManifest=await manifestResponse.json();
 
+ const HIDDEN_COLLECTIBLE_IDS=new Set(['cotton_candy','star_cookie','marshmallow']);
  const candyObjects=[
  ['lollipop','Lollipop'],['gummy_bear','Gummy Bear'],['cupcake','Cupcake'],['candy_cane','Candy Cane'],
  ['ice_cream','Ice Cream'],['wrapped_candy','Wrapped Candy'],['donut','Donut'],['candy_necklace','Candy Necklace'],
- ['chocolate_bar','Chocolate Bar'],['jellybean_jar','Jellybean Jar'],['star_cookie','Star Cookie'],['gumdrop','Gumdrop'],
- ['marshmallow','Marshmallow'],['cotton_candy','Cotton Candy'],['candy_apple','Candy Apple'],['gingerbread_house','Gingerbread House']
+ ['chocolate_bar','Chocolate Bar'],['jellybean_jar','Jellybean Jar'],['gumdrop','Gumdrop'],
+ ['candy_apple','Candy Apple'],['gingerbread_house','Gingerbread House']
  ];
  const candyLabels=Object.fromEntries(candyObjects);
  const candyNames=['Lollipop Lane','Cupcake Creek','Ice Cream Island','Donut Ridge','Candy Castle','Gummy Grove','Chocolate Falls','Sweet Summit'];
@@ -93,7 +94,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
    return [...new Set([...legacyIds.filter(id=>ids.includes(id)),...schedule[stageIndex].map(i=>ids[i])])].slice(0,2);
  };
  const pairFor=(worldIndex,stageIndex)=>{
-  if(worldIndex===0)return candyObjects.slice(stageIndex*2,stageIndex*2+2).map(x=>x[0]);
+  if(worldIndex===0){const count=candyObjects.length;return [candyObjects[(stageIndex*2)%count][0],candyObjects[(stageIndex*2+1)%count][0]];}
   const objects=worldIndex===1?pirateObjects:worldIndex===2?arcticObjects:worldIndex===6?oceanObjects:null;
   return objects?[objects[(stageIndex*3)%10][0],objects[(stageIndex*3+4)%10][0]]:undefined;
  };
@@ -232,7 +233,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const pic=id=>{const c=char(id);return c?img(look(id).image,c.name,'friend-art'):'<span class="friend-art pending-character-art" role="img" aria-label="'+esc(id)+' saved friend, illustration unavailable"><span class="pending-character-initial">?</span><small class="pending-character-note">SAVED FRIEND</small></span>';};
 
  const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
- const itemArt=id=>objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
+ const itemArt=id=>HIDDEN_COLLECTIBLE_IDS.has(id)?'':objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
  const activityLevels=levels.map(def=>{
   const group=objectGroups[worldThemes[def.worldIndex].id]||[];
   const ids=[...new Set([...group.map(x=>x[0]),...def.collectibleIds,...data.computer_collectibles.map(x=>x.id)])];
@@ -562,7 +563,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function sceneTreasures(id){
   const theme=backgroundHomes.find(w=>w.id===id)?.theme||backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.theme||'candy';
   const eligible=new Set(levels.filter(l=>worldThemes[l.worldIndex].id===theme).flatMap(l=>l.collectibleIds||[]));
-  return [...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[])])].filter(key=>eligible.has(key)&&/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(key)||'')).slice(0,10);
+  return [...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[])])].filter(key=>!HIDDEN_COLLECTIBLE_IDS.has(key)&&eligible.has(key)&&/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(key)||'')).slice(0,10);
  }
  function collectionStage(id){
   const l=land(id),residents=Object.keys(a.friends).filter(c=>hasPlayerCharacter(c)&&a.friends[c]?.homeLandId===id);
