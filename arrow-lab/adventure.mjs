@@ -321,6 +321,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function celebrate(title,id,after){
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
  function shell(title,content){
+ $('lab-banner-stars').onclick=()=>navigate('shop');
  $('header-my-stuff').onclick=()=>navigate('computer');
  $('header-teacher').onclick=teacher;
  syncBannerStars();
