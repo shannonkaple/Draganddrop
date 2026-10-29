@@ -24,7 +24,7 @@ export function blockerPlan(stage,available,reducedMotion=false){
 export function movingBlockerHit(point,previous,current,halfWidth,halfHeight){
  return hitsBlocker(point,{x:point.x-(current.left-previous.left),y:point.y-(current.top-previous.top)},previous,halfWidth,halfHeight);
 }
-export function mountDragActivity(root,{stage,background,items,enemies=[],reducedMotion=false,completed=0,onDrop,onComplete}){
+export function mountDragActivity(root,{stage,background,items,enemies=[],reducedMotion=false,speed=2200,completed=0,onDrop,onComplete}){
  let count=Math.min(completed,requiredDrops(stage)),active=null,disposed=false;
  const total=requiredDrops(stage),abort=new AbortController(),plan=blockerPlan(stage,enemies.length,reducedMotion||matchMedia('(prefers-reduced-motion: reduce)').matches),hasBlocker=plan.length>0;
  let frame=0,blockers=[];
@@ -53,7 +53,7 @@ export function mountDragActivity(root,{stage,background,items,enemies=[],reduce
   if(disposed||count>=total)return;
   for(const [i,b] of blockers.entries()){
    const previous=b.rect;
-   if(b.moving)b.el.style.top=(b.y+Math.sin(time/2100+i*Math.PI)*b.amplitude)+'px';
+   if(b.moving)b.el.style.top=(b.y+Math.sin(time/Math.max(1600,Math.min(3200,Number(speed)||2200))+i*Math.PI)*b.amplitude)+'px';
    const current=bodyRect(b.el);
    if(active&&previous&&movingBlockerHit(active.last,previous,current,active.halfWidth,active.halfHeight))blocked();
    b.rect=current;

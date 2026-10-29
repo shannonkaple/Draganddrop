@@ -142,3 +142,18 @@ body.compact-directions #guide-speak{width:36px;height:36px;font-size:20px}
  .drag-target{width:clamp(68px,21vw,110px);padding:5px;font-size:12px}
  .drag-source-tray>span,.drag-piece span{font-size:12px;overflow-wrap:anywhere}
 }
+
+/* Navigation lives in the banner toolbar, outside the maps and activities. */
+body>header .actions [hidden]{display:none!important}
+body>header #header-profile{font-size:12px;padding:0 5px}
+#app .lab-main-nav,#app .lab-candy-actions{display:none!important}
+body.lab-map-active .lab-map-home{grid-template-rows:minmax(110px,144px) minmax(80px,90px) minmax(220px,1fr)!important}
+.teacher-access{left:0!important;max-width:min(460px,calc(100vw - 24px))!important;max-height:calc(100dvh - 24px);overflow:auto}
+.teacher-access label{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.teacher-access input{font:inherit;padding:10px;width:100%;min-width:0}
+.teacher-levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.teacher-levels section{border:2px solid #a450e0;border-radius:12px;padding:10px}
+.teacher-levels section>div{display:grid;gap:6px}
+.teacher-levels button{font-size:14px;text-align:left;padding:8px}
+.settings-import{max-width:100%;font-size:14px}.settings-import input{max-width:100%}
+body.teacher-preview #header-profile{background:#ffe78b;border-radius:8px;padding:5px}

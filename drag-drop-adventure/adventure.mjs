@@ -1,5 +1,6 @@
-import {mountDragActivity} from './drag-activity.mjs?v=20261028-wide';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261029-directions';
+import {teacherAccess} from './teacher-access.mjs?v=20261029-teacher';
+import {mountDragActivity} from './drag-activity.mjs?v=20261029-teacher';
+import {tellGuide,starIcon} from './viewport.mjs?v=20261029-teacher';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -21,7 +22,7 @@ const img=(p,name,cls='')=>{
 };
 const readJSON=async n=>{const r=await fetch(new URL('../rainbow-road/data/'+n+'.json',import.meta.url));if(!r.ok)throw Error('Could not load '+n);return r.json()};
 let dataPromise;
-export async function openAdventure({number,storageKey,teacherName,teachers,goPractice,onLogout}){
+export async function openAdventure({number,storageKey,teacherName,teachers,goPractice,onLogout,onTeacher,preview=false}){
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
  const worldThemes=[
@@ -188,7 +189,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...enemyRosters[wi]]};
  })),config=data.game_config,key=storageKey;
  config.levelCount=levels.length;
- let stored;try{stored=JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
+ let stored;try{stored=preview?{}:JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
  let dragSession=null;
  let settings;try{settings=JSON.parse(localStorage.getItem('drag-drop-adventure-teacher-settings')||'{}')}catch{settings={}}
@@ -210,6 +211,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(a.activeRun?.id&&!a.activeRun.complete&&!a.completedLevelIds.includes(a.activeRun.id))a.mazeRuns[a.activeRun.id]??=a.activeRun;
  // A saved student must never have to choose a new home merely to continue playing.
  if(!a.primaryRainbowLandId)a.primaryRainbowLandId=starterWorldId;
+ if(preview){
+  a.highestUnlockedLevel=levels.length;a.wallet.rainbowStars=99999;
+  a.selectedPlayerCharacterId=chars[0].id;a.unlockedCharacterIds=chars.map(c=>c.id);
+  a.friends=Object.fromEntries(chars.map(c=>[c.id,{isRescued:true,upgradeStage:'starter',homeLandId:starterWorldId}]));
+  a.ownedWorldIds=lands.map(l=>l.id);a.ownedBackgroundIds=lands.map(l=>l.id);
+ }
+ document.body.classList.toggle('teacher-preview',preview);
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
  const pic=id=>{const c=char(id);return c?img(look(id).image,c.name,'friend-art'):'<span class="friend-art pending-character-art" role="img" aria-label="'+esc(id)+' saved friend, illustration unavailable"><span class="pending-character-initial">?</span><small class="pending-character-note">SAVED FRIEND</small></span>';};
 
@@ -217,6 +225,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const itemArt=id=>objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
  function save(){
+  if(preview)return;
   try{
     if(r?.id){
       if(r.complete)delete a.mazeRuns[r.id];
@@ -273,8 +282,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
  $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
- const nav=ready?(view==='map'?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="computer" class="lab-my-stuff-entry">🧸 MY STUFF</button></div>'):'<button id="setup-home" type="button" class="always-home">🏠 HOME</button><span class="setup-steps">First time? Choose your character!</span>';
- $('app').innerHTML='<nav class="adventure-nav"><strong>'+esc(teacherName)+' · #'+number+' <span class="star-wallet">⭐ '+a.wallet.rainbowStars+'</span></strong>'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
+ $('header-stars').hidden=!ready;$('header-stuff').hidden=!ready;
+ $('header-stars').textContent='⭐ '+(preview?'Preview Stars':a.wallet.rainbowStars+' Stars');
+ $('header-profile').textContent=preview?'TEACHER PREVIEW · no student saves':teacherName+' · #'+number;
+ $('who').textContent=preview?'Exit Teacher Mode':'Change student';
+ $('app').innerHTML='<h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>{save();cleanup();onLogout()});
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play activities to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit one you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first&&view!=='select')first.hidden=true;
  }
@@ -364,7 +376,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   $('change-player').onclick=()=>selectCharacter(true);
   $('continue-adventure').onclick=playNext;
   $('ready-rescue')?.addEventListener('click',continueRescue);
-  $('teacher-settings').onclick=teacher;
+  $('teacher-settings').onclick=onTeacher;
   $('endless').onclick=playNext;
   document.querySelectorAll('[data-world-index]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.worldIndex);
@@ -864,7 +876,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const ids=[...new Set([...def.collectibleIds,...worldObjects.map(x=>x[0]),...data.computer_collectibles.map(x=>x.id)])].filter(id=>itemArt(id)).slice(0,6);
  dragSession=mountDragActivity($('drag-activity'),{
   enemies:def.enemyIds.map(id=>data.enemies.find(e=>e.id===id)).filter(Boolean).map(e=>({name:e.name,image:asset(e.thumbnail)})),
-  reducedMotion:settings.reducedMotion,stage:def.worldStage,background:asset(def.backgroundImage),items:ids.map(id=>({id,name:itemName(id),image:asset(itemArt(id))})),completed:r.drops||0,
+  reducedMotion:settings.reducedMotion||settings.difficulty==='gentle',speed:settings.speed,stage:def.worldStage,background:asset(def.backgroundImage),items:ids.map(id=>({id,name:itemName(id),image:asset(itemArt(id))})),completed:r.drops||0,
   onDrop:(count)=>{r.drops=count;save()},
   onComplete:()=>{
    for(const id of def.collectibleIds||[]){if(!(a.collectedWorldItems??=[]).includes(id))a.collectedWorldItems.push(id)}
@@ -1049,21 +1061,21 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  document.querySelectorAll('[data-companion-home]').forEach(b=>b.onclick=()=>{if(rescueWorld(a,id,b.dataset.companionHome)){save();sound();computer(b.dataset.companionHome,"friends")}});
  }
  function teacher(){
- const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label hidden>Challenge <select id="set-difficulty"><option value="standard">Standard · moving bad guys</option><option value="gentle">Gentle · stationary bad guys</option></select></label><label hidden>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show help'],['sound','Celebration sound'],['reducedMotion','Reduce motion']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
- modal('Teacher settings',content,()=>{$('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;for(const k of ['hints','sound','reducedMotion'])$('set-'+k).checked=settings[k];
- $('save-settings').onclick=()=>{settings.difficulty=$('set-difficulty').value;settings.speed=Number($('set-speed').value);for(const k of ['hints','sound','reducedMotion'])settings[k]=$('set-'+k).checked;settings.touchArrows=false;settings.costs={power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))};config.progression.upgradeCost={...settings.costs};try{localStorage.setItem('drag-drop-adventure-teacher-settings',JSON.stringify(settings))}catch{}save();closeModal();if(view==='maze')startLevel(def.number,false);else map()};
- $('skip-level').onclick=()=>{
-   // Unlock the next maze without completing the skipped maze, awarding stars,
-   // or deleting the student's unfinished saved run.
-   const next=Math.min(levels.length,a.highestUnlockedLevel+1);
-   if(next===a.highestUnlockedLevel){
-     $('skip-level').textContent='All 64 activities are already open';
-     $('skip-level').disabled=true;
-     return;
-   }
-   a.highestUnlockedLevel=next;save();closeModal();startLevel(next);
- };
- $('close-settings').onclick=closeModal;$('export-progress').onclick=()=>{const rows=[['Homeroom','Number','Levels','Friends','Rainbow Stars','Equipment','Skill badges']];for(const t of teachers)for(let n=1;n<=24;n++){try{const raw=JSON.parse(localStorage.getItem('drag-drop-adventure-v1:'+t.id+':'+n)||'null'),d=raw?.adventure;if(d)rows.push([raw.teacherName||t.name,n,d.completedLevelIds.length,Object.keys(d.friends).length,d.wallet.rainbowStars,d.collectedComputerGearIds.join(' / '),d.earnedSkillBadgeIds.join(' / ')])}catch{}}const csv=rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),link=document.createElement('a');link.href=url;link.download='arrow-adventure-progress.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ if(!preview){onTeacher?.();return}
+ const choices=[['sound','Celebration sound'],['reducedMotion','Reduce motion']];
+ const content='<p>These settings apply to <strong>every class and student on this browser</strong>. Export settings and import them on other classroom devices to use the same setup.</p><label>Bad guys <select id="set-difficulty"><option value="standard">Moving and stationary</option><option value="gentle">Stationary only</option></select></label><label>Movement pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+choices.map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><div class="actions"><button id="save-settings" class="primary">Save for all classes</button><button id="export-settings">Export settings</button><label class="settings-import">Import settings<input id="import-settings" type="file" accept="application/json,.json"></label><button id="change-password">Change password</button></div><p id="teacher-note" role="status"></p><h3>All 64 levels · teacher preview</h3><p>Every world and level is open here. Preview stars, purchases, and progress never change a student save.</p><div class="teacher-levels">'+worldThemes.map((w,i)=>'<section><h3>'+esc(w.name)+'</h3><div>'+levels.slice(i*8,i*8+8).map(l=>'<button type="button" data-preview-level="'+l.number+'">'+l.worldStage+' · '+esc(l.title)+'</button>').join('')+'</div></section>').join('')+'</div><div class="actions"><button id="close-settings">Preview world map</button><button id="exit-teacher">Lock & exit teacher mode</button></div>';
+ modal('Teacher controls · all classes',content,()=>{
+ const note=()=>$('teacher-note');
+ $('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;
+ for(const [k] of choices)$('set-'+k).checked=settings[k];
+ const read=()=>({...settings,difficulty:$('set-difficulty').value,speed:Number($('set-speed').value),sound:$('set-sound').checked,reducedMotion:$('set-reducedMotion').checked,costs:{power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))}});
+ const persist=next=>{localStorage.setItem('drag-drop-adventure-teacher-settings',JSON.stringify(next));settings=next;config.progression.upgradeCost={...settings.costs}};
+ $('save-settings').onclick=()=>{try{persist(read());note().textContent='Saved for all classes on this browser.'}catch{note().textContent='Settings could not save. Check browser storage.'}};
+ $('export-settings').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({version:1,settings:read()},null,2)],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download='drag-drop-class-settings.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $('import-settings').onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text()),x=data.settings;if(data.version!==1||!x||!['standard','gentle'].includes(x.difficulty)||![1600,2200,3200].includes(x.speed)||typeof x.sound!=='boolean'||typeof x.reducedMotion!=='boolean'||!Number.isFinite(x.costs?.power_up)||x.costs.power_up<1||x.costs.power_up>20||!Number.isFinite(x.costs?.super_power_additional)||x.costs.super_power_additional<1||x.costs.super_power_additional>30)throw Error();persist({...settings,difficulty:x.difficulty,speed:x.speed,sound:x.sound,reducedMotion:x.reducedMotion,costs:{...x.costs}});teacher();$('teacher-note').textContent='Imported for all classes on this browser.'}catch{note().textContent='Use a settings file exported from this game.'}};
+ $('change-password').onclick=()=>teacherAccess({change:true});
+ document.querySelectorAll('[data-preview-level]').forEach(b=>b.onclick=()=>{closeModal();startLevel(Number(b.dataset.previewLevel),true)});
+ $('close-settings').onclick=()=>{closeModal();map()};$('exit-teacher').onclick=()=>{cleanup();onLogout()};
  });
  }
  function keydown(e){
@@ -1090,5 +1102,5 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
  };
  if(!a.selectedPlayerCharacterId)selectCharacter();else if(canRescue())continueRescue();else map();
- return {cleanup,goHome:()=>{challengeKeys=null;$('adventure-dialog')?.close();if(a.selectedPlayerCharacterId)map();else{cleanup();onLogout()}}};
+ return {cleanup,teacherSettings:teacher,goShop:()=>{closeModal();starShop()},goStuff:()=>{closeModal();computer()},goHome:()=>{challengeKeys=null;$('adventure-dialog')?.close();if(a.selectedPlayerCharacterId)map();else{cleanup();onLogout()}}};
 }
