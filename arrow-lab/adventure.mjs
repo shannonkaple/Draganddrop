@@ -1249,7 +1249,25 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function finish(){
  if(def.worldStage===8&&(r.finalArrowIndex||0)<10){finalArrowChallenge();return}
- r.complete=true;if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
+ // Commit the completion before celebrating. If Chromebook storage refuses the
+ // write, restore every in-memory reward/unlock and the unfinished maze run.
+ // The saved tenth arrow remains intact so the student can retry without replay.
+ const beforeAdventure=JSON.parse(JSON.stringify(a));
+ const beforeRun=JSON.parse(JSON.stringify(r));
+ r.complete=true;
+ if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);
+ const stars=completeLevel(a,r,def,config);
+ save();
+ if(!saved){
+   a=beforeAdventure;
+   r=beforeRun;
+   syncBannerStars();
+   modal('Your finish is NOT saved yet',
+     '<p>Your Chromebook could not save this maze completion. No stars or rescues have been awarded. Please tell your teacher and try again.</p><button id="retry-finish-save" type="button" class="primary">Try saving again</button>',
+     ()=>{$('retry-finish-save').onclick=()=>{closeModal();finish()}});
+   return;
+ }
+ sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
  modal(ready?'YOU DID IT!':'You reached the flag!',(ready?'<div class="friend-reveal rescue-celebration">'+companionArt(pendingWorldRescue(a))+'</div>':'')+'<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'maze':'mazes')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
  // Optional completed-level replays do not grant extra stars or count as new finishes.
  // Keep the legacy wallet in sync for returning students. This is a SECOND
