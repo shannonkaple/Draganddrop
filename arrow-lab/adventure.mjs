@@ -505,24 +505,49 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function stuff(){map()}
  function owned(id){return a.ownedWorldIds.includes(id)}
 
+ // Never report a successful purchase when browser storage rejected it.
+ // Restore in-memory stars and ownership, leaving save()'s warning visible.
+ function commitPurchase(change,undo){
+  change();
+  save();
+  if(saved)return true;
+  undo();
+  syncBannerStars();
+  return false;
+ }
  function buyHome(id){
   const world=land(id);if(!world)return false;
-  if(!owned(id)){
-   const cost=worldCosts[lands.indexOf(world)];
-   if(a.wallet.rainbowStars<cost)return false;
-   a.wallet.rainbowStars-=cost;
-   a.ownedWorldIds.push(id);
-  }
-  a.primaryRainbowLandId=id;save();return true;
+  const wasOwned=owned(id),cost=worldCosts[lands.indexOf(world)];
+  if(!wasOwned&&a.wallet.rainbowStars<cost)return false;
+  const previousStars=a.wallet.rainbowStars;
+  const previousOwned=[...a.ownedWorldIds];
+  const previousHome=a.primaryRainbowLandId;
+  return commitPurchase(()=>{
+   if(!wasOwned){a.wallet.rainbowStars-=cost;a.ownedWorldIds.push(id)}
+   a.primaryRainbowLandId=id;
+  },()=>{
+   a.wallet.rainbowStars=previousStars;
+   a.ownedWorldIds=previousOwned;
+   a.primaryRainbowLandId=previousHome;
+  });
  }
  function shopArt(d){return d.artPath?img(d.artPath,d.name,'shop-decoration'):d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+(d.emoji||'⭐')+'</span>'}
  function buyShopExclusive(worldId,itemId){
    const item=shopExclusives.find(x=>x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
    if(!item||!owned(worldId)||Object.values(a.decorations||{}).some(list=>list.includes(itemId))||a.wallet.rainbowStars<item.cost)return false;
-   a.wallet.rainbowStars-=item.cost;
-   (a.decorations[worldId]??=[]).push(itemId);
-   if(a.hiddenDecorations?.[worldId])a.hiddenDecorations[worldId]=a.hiddenDecorations[worldId].filter(x=>x!==itemId);
-   save();return true;
+   const previousStars=a.wallet.rainbowStars;
+   const previousDecorations=Array.isArray(a.decorations[worldId])?[...a.decorations[worldId]]:null;
+   const previousHidden=Array.isArray(a.hiddenDecorations?.[worldId])?[...a.hiddenDecorations[worldId]]:null;
+   return commitPurchase(()=>{
+    a.wallet.rainbowStars-=item.cost;
+    (a.decorations[worldId]??=[]).push(itemId);
+    if(a.hiddenDecorations?.[worldId])a.hiddenDecorations[worldId]=a.hiddenDecorations[worldId].filter(x=>x!==itemId);
+   },()=>{
+    a.wallet.rainbowStars=previousStars;
+    if(previousDecorations)a.decorations[worldId]=previousDecorations;
+    else delete a.decorations[worldId];
+    if(previousHidden)a.hiddenDecorations[worldId]=previousHidden;
+   });
   }
   function starShop(){
   view='shop';shell('Star Shop',
