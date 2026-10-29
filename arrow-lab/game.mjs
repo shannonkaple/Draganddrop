@@ -1,4 +1,7 @@
 import {enablePickerArrows} from './picker-arrows.mjs?v=20261028';
+import {isMobileTouchDevice} from './mobile-touch.mjs?v=mobile-touch-20261028a';
+const mobileTouch = isMobileTouchDevice();
+if(mobileTouch)document.body.classList.add('mobile-touch-enabled');
 import './viewport.mjs?v=responsive-kbd-20261027a';
 import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
@@ -117,8 +120,16 @@ function pickNumber(teacher){
  enablePickerArrows(document.querySelector('.numbers'));
 }
 async function launchAdventure(){document.body.classList.remove('lab-teacher-active','lab-number-active');syncStudentBanner();adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,verifyTeacherCode,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
-function play(){document.body.classList.add('playing');syncStudentBanner();$('who').classList.remove('hidden');$('app').innerHTML='<div class="row" style="margin-bottom:16px"><span class="pill" id="road-level"></span><span class="pill">'+gem+' <span id="wallet"></span></span></div><div class="play-layout"><section><div class="board-wrap"><div id="maze" class="maze" role="img" aria-label="Rainbow maze. Start at the star and finish at the checkered flag."></div></div><p class="caption" id="status" role="status">Find the flag. Look, choose, press and release, check.</p></section><aside class="side"><section class="panel"><h3>Use your keys</h3><div class="keypad" aria-label="Keyboard arrow layout"><div class="key up" id="ArrowUp">↑</div><div class="key left" id="ArrowLeft">←</div><div class="key down" id="ArrowDown">↓</div><div class="key right" id="ArrowRight">→</div></div><p>One press. One move.<br>Let the key come up.</p><p class="small">Use your keyboard. Touching the screen does not move the rider.</p></section><section class="panel"><h3>My Arrow Amethysts</h3><div class="stat" id="gem-total"></div><p id="finished" class="small"></p><button id="rescue-friends" class="small">Rescue friends</button></section><div class="actions tools"><button id="reset" class="small">Back to the star</button><button id="full" class="small">Full screen</button></div></aside></div><p class="footnote" id="storage-note"></p>';
- $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0;save();board();$('status').textContent='Back at the star. Try your route again.'};$('full').onclick=()=>window.arrowLabToggleFullscreen();board();stats();requestAnimationFrame(fitMaze);}
+function play(){document.body.classList.add('playing');syncStudentBanner();$('who').classList.remove('hidden');$('app').innerHTML='<div class="row" style="margin-bottom:16px"><span class="pill" id="road-level"></span><span class="pill">'+gem+' <span id="wallet"></span></span></div><div class="play-layout"><section><div class="board-wrap"><div id="maze" class="maze" role="img" aria-label="Rainbow maze. Start at the star and finish at the checkered flag."></div></div><p class="caption" id="status" role="status">Find the flag. Look, choose, press and release, check.</p></section><aside class="side"><section class="panel"><h3>Use your keys</h3><div class="keypad" aria-label="Keyboard arrow layout"><div class="key up" id="ArrowUp">↑</div><div class="key left" id="ArrowLeft">←</div><div class="key down" id="ArrowDown">↓</div><div class="key right" id="ArrowRight">→</div></div><p>One press. One move.<br>Let the key come up.</p><p class="small">Use your keyboard. '+(mobileTouch?'Tap the arrows to move the rider.':'Touching the screen does not move the rider.')+'</p></section><section class="panel"><h3>My Arrow Amethysts</h3><div class="stat" id="gem-total"></div><p id="finished" class="small"></p><button id="rescue-friends" class="small">Rescue friends</button></section><div class="actions tools"><button id="reset" class="small">Back to the star</button><button id="full" class="small">Full screen</button></div></aside></div><p class="footnote" id="storage-note"></p>';
+ $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0;save();board();$('status').textContent='Back at the star. Try your route again.'};$('full').onclick=()=>window.arrowLabToggleFullscreen();
+ if(mobileTouch)for(const key of ['ArrowUp','ArrowLeft','ArrowDown','ArrowRight']){
+   const target=$(key);if(!target)continue;
+   target.setAttribute('role','button');target.tabIndex=0;
+   target.setAttribute('aria-label','Move '+key.slice(5));
+   target.onclick=()=>pressPracticeArrow(key);
+   target.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();pressPracticeArrow(key)}};
+ }
+ board();stats();requestAnimationFrame(fitMaze);}
 function fitMaze(){document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||window.innerHeight)+'px');if(!run||!$('maze'))return;const box=document.querySelector('.board-wrap');if(!box)return;const viewport=window.visualViewport?.height||window.innerHeight,caption=document.getElementById('status')?.getBoundingClientRect().height||30,foot=document.getElementById('storage-note')?.getBoundingClientRect().height||20;const availableH=Math.min(box.clientHeight-24,viewport-box.getBoundingClientRect().top-caption-foot-58);const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/run.w,availableH/run.h)));$('maze').style.width=(size*run.w)+'px';$('maze').style.height=(size*run.h)+'px';}
 window.addEventListener('resize',()=>requestAnimationFrame(fitMaze));window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitMaze));document.addEventListener('fullscreenchange',()=>requestAnimationFrame(fitMaze));
 if('ResizeObserver'in window)new ResizeObserver(()=>requestAnimationFrame(fitMaze)).observe(document.getElementById('app'));
@@ -196,11 +207,11 @@ document.addEventListener('fullscreenchange',syncFullscreenButton);
 const touchLoginPickerOpen=()=>document.body.classList.contains('lab-teacher-active')||
   document.body.classList.contains('lab-number-active');
 document.addEventListener('touchstart',event=>{
-  if(touchLoginPickerOpen())return; // Keep native taps and scrolling during login.
+  if(mobileTouch||touchLoginPickerOpen())return; // Native touch on phones/tablets; login on all touchscreens.
   if(event.cancelable)event.preventDefault();
 },{capture:true,passive:false});
 document.addEventListener('pointerdown',event=>{
-  if(touchLoginPickerOpen())return;
+  if(mobileTouch||touchLoginPickerOpen())return;
   if(event.pointerType && event.pointerType!=='mouse'){
     event.preventDefault();event.stopImmediatePropagation();
   }
@@ -220,7 +231,21 @@ $('global-home').onclick=()=>{
  login();
 };
 $('close-shop').onclick=()=>$('shop').close();$('next').onclick=next;$('win').addEventListener('cancel',e=>{e.preventDefault();next()});$('who').onclick=()=>{save();login()};
-document.addEventListener('keydown',e=>{if(adventureActive||!run)return;if($('win').open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)next()}else if(e.key.startsWith('Arrow'))e.preventDefault();return}if($('shop').open||$('characters')?.open||$('arrow-lab-help-dialog')?.open)return;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();if(e.repeat)return;const keyEl=$(e.key);keyEl?.classList.add('on');setTimeout(()=>keyEl?.classList.remove('on'),150);const r=step(run,e.key);if(r.moved){if(run.trail.length>500)run.trail=run.trail.slice(-500);if(r.won)wallet=awardWallet(wallet);save();board();$('status').textContent=r.won?'You reached the checkered flag!':'You moved '+e.key.slice(5).toLowerCase()+'.';if(r.won)showWin()}else $('status').textContent='There is a wall. Stop, look, and try another arrow.';});
+// Both the physical keyboard and (only on mobile) the on-screen practice
+// arrows use this same one-step movement and existing save/reward path.
+function pressPracticeArrow(key){
+ if(adventureActive||!run||!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key))return;
+ const keyEl=$(key);keyEl?.classList.add('on');setTimeout(()=>keyEl?.classList.remove('on'),150);
+ const result=step(run,key);
+ if(result.moved){
+   if(run.trail.length>500)run.trail=run.trail.slice(-500);
+   if(result.won)wallet=awardWallet(wallet);
+   save();board();
+   $('status').textContent=result.won?'You reached the checkered flag!':'You moved '+key.slice(5).toLowerCase()+'.';
+   if(result.won)showWin();
+ }else $('status').textContent='There is a wall. Stop, look, and try another arrow.';
+}
+document.addEventListener('keydown',e=>{if(adventureActive||!run)return;if($('win').open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)next()}else if(e.key.startsWith('Arrow'))e.preventDefault();return}if($('shop').open||$('characters')?.open||$('arrow-lab-help-dialog')?.open)return;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();if(e.repeat)return;pressPracticeArrow(e.key);});
 function legacyHelp(){
   // Keep written instructions available even when speech synthesis is missing.
   if($('win')?.open||$('shop')?.open||$('characters')?.open)return;
