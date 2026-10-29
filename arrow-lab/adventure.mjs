@@ -1142,7 +1142,26 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  r.complete=true;if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
  modal('You reached the flag!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'maze':'mazes')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
  // Optional completed-level replays do not grant extra stars or count as new finishes.
- try{if(stars>0){const old=JSON.parse(localStorage.getItem(key)||'{}');if(old.wallet){old.wallet.total+=5;old.wallet.earned+=5;old.wallet.finished+=1;localStorage.setItem(key,JSON.stringify(old))}}}catch{}
+ // Keep the legacy wallet in sync for returning students. This is a SECOND
+ // storage write after the adventure save, so a failure must never be silent.
+ // Do not replace a malformed old record or pretend its bonus was saved.
+ if(stars>0){
+   try{
+     const old=JSON.parse(localStorage.getItem(key)||'{}');
+     if(!old||typeof old!=='object'||Array.isArray(old))throw Error('Invalid student record');
+     if(old.wallet){
+       if(typeof old.wallet!=='object'||Array.isArray(old.wallet))throw Error('Invalid legacy wallet');
+       const wallet={...old.wallet,
+         total:(Number(old.wallet.total)||0)+5,
+         earned:(Number(old.wallet.earned)||0)+5,
+         finished:(Number(old.wallet.finished)||0)+1};
+       localStorage.setItem(key,JSON.stringify({...old,wallet}));
+     }
+   }catch{
+     saved=false;
+     showStorageWarning();
+   }
+ }
  }
  function afterLevel(){if(def?.worldIndex!=null){openWorld(def.worldIndex);return}map()}
  function rescue(){
