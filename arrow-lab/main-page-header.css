@@ -66,3 +66,26 @@ html body.guided.adventure-mode.lab-map-active>header.lab-image-header .lab-refe
  html body.guided.adventure-mode.lab-map-active>header.lab-image-header .lab-reference-toolbar{grid-template-columns:1fr 1fr!important}
  html body.guided.adventure-mode.lab-map-active>header.lab-image-header .toolbar-center{grid-column:1/-1;grid-row:2}
 }
+
+
+/* Oct 29: rainbow chrome and fitted illustrated home map on Chromebooks. */
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .brand,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .lab-reference-toolbar{
+ background:linear-gradient(100deg,#f8b5db,#ffe3a0 24%,#a9eeb7 47%,#9cdef9 72%,#dfb6fd)!important;
+}
+html body.guided.adventure-mode.lab-map-active #app{overflow:hidden!important;padding:0 10px 5px!important}
+html body.guided.adventure-mode.lab-map-active .lab-map-home{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ width:100%!important;height:100%!important;max-height:100%!important;
+ min-height:0!important;gap:3px!important;padding:4px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-art-frame{
+ flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;
+ display:flex!important;justify-content:center!important;align-items:center!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas{
+ width:min(100%,calc((var(--screen-height,620px) - 165px)*3.00293))!important;
+ max-height:100%!important;aspect-ratio:2048/682!important;
+}
+html body.guided.adventure-mode.playing #kaple-guide .guide-cast{display:none!important}
