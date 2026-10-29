@@ -432,11 +432,27 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function introduceFriend(i){
   const c=companions[i];
   if(a.friendIntrosShown?.[c.id]||a.worldFriends?.[c.id])return;
-  const prior=a.friendIntrosShown;
-  a.friendIntrosShown={...(prior&&typeof prior==='object'&&!Array.isArray(prior)?prior:{}),[c.id]:true};
-  save();if(!saved)a.friendIntrosShown=prior;
-  const d=modal('Meet '+c.name+'!', '<div class="friend-reveal">'+companionArt(c.id)+'<p>You are working to rescue '+esc(c.name)+'!</p><button id="friend-intro-go" class="primary">Let’s explore!</button></div>',()=>{$('friend-intro-go').onclick=closeModal});
+  // Only acknowledge the first introduction after the student presses Continue.
+  // Leaving the popup cannot silently consume the one-time introduction.
+  const d=modal('Meet '+c.name+'!', '<div class="friend-reveal">'+companionArt(c.id)+'<p>You are working to rescue '+esc(c.name)+'!</p><button id="friend-intro-go" class="primary">Let’s explore!</button></div>',()=>{
+    const go=$('friend-intro-go');
+    go.onclick=()=>{
+      const prior=a.friendIntrosShown;
+      a.friendIntrosShown={...(prior&&typeof prior==='object'&&!Array.isArray(prior)?prior:{}),[c.id]:true};
+      save();
+      if(!saved){
+        a.friendIntrosShown=prior;
+        go.textContent='Try saving to continue';
+        return;
+      }
+      closeModal();
+    };
+  });
   d.classList.add('friend-reveal-dialog');
+  // Avoid a Back/Escape loop reopening the same unacknowledged introduction.
+  d.querySelector('.modal-map').onclick=()=>{closeModal();map()};
+  d.oncancel=e=>{e.preventDefault();closeModal();map()};
+  $('friend-intro-go')?.focus({preventScroll:true});
  }
  function openCandyWorld(){
    currentMapWorld=0;
