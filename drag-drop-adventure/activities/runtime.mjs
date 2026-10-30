@@ -3,13 +3,23 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const image=(a,cls='')=>a?'<img class="'+cls+'" src="'+esc(a.image)+'" alt="'+esc(a.name||'')+'" draggable="false">':'';
 const layout=(el,r)=>{for(const [k,axis] of [['left','x'],['top','y'],['width','w'],['height','h']])el.style[k]=(r[axis]/(axis==='x'||axis==='w'?10:6))+'%'};
 export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMotion=false,speed=2200}){
+ const fullSceneDemo=level.world==='candy'&&level.engine==='maze';
+ const headerStrip=document.getElementById('header-activity-strip');
+ document.body.classList.toggle('drag-first-demo',fullSceneDemo);
+ if(headerStrip)headerStrip.hidden=!fullSceneDemo;
  const state=stateFor(level,saved),engine=ENGINES[level.engine],abort=new AbortController();
  const motion=!reducedMotion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;
  let active=null,disposed=false,frame=0,time=0,lastTime=null,finished=false,artError=false;
  root.innerHTML='<section class="activity-shell"><div class="activity-instructions"><p>'+esc(engine.instruction)+'</p><strong class="activity-count" aria-live="polite"></strong></div><div class="activity-frame"><div class="activity-board" style="--activity-scene:url(&quot;'+esc(level.background)+'&quot;)" role="group" aria-label="'+esc(level.title)+' play area"><img class="activity-background" src="'+esc(level.background)+'" alt="" draggable="false"><div class="activity-world"></div><div class="activity-targets"></div><div class="activity-pieces"></div><div class="activity-hazards"></div></div></div><div class="activity-feedback" role="status">Click and keep holding. Move. Let go inside a matching space.</div><div class="activity-tools"><button type="button" class="activity-listen">🔊 Hear directions</button><button type="button" class="activity-reset">Restart this activity</button><span>Finished placements save automatically.</span></div></section>';
  const board=root.querySelector('.activity-board'),world=root.querySelector('.activity-world'),targetLayer=root.querySelector('.activity-targets'),pieceLayer=root.querySelector('.activity-pieces'),hazardLayer=root.querySelector('.activity-hazards'),feedback=root.querySelector('.activity-feedback');
  const nodes=new Map(),targetNodes=new Map(),hazardNodes=new Map();
- const say=t=>feedback.textContent=t;
+ const say=t=>{
+  feedback.textContent=t;
+  if(fullSceneDemo&&headerStrip){
+   const status=document.getElementById('header-demo-feedback');
+   if(status)status.textContent=t;
+  }
+ };
  root.addEventListener('error',e=>{if(e.target.tagName==='IMG'){artError=true;cancel();say('An artwork file could not load. Please reload this activity.');}},{capture:true,signal:abort.signal});
  if(level.container){const el=document.createElement('div');el.className='activity-container';el.setAttribute('aria-label','Packing area');layout(el,level.container);world.append(el)}
  for(const wall of level.walls){const el=document.createElement('div');el.className='activity-wall';el.setAttribute('aria-label','Maze wall');layout(el,wall);world.append(el)}
@@ -37,7 +47,10 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
    layout(el,{x:p.x-p.w/2,y:p.y-p.h/2,w:p.w,h:p.h});pieceLayer.append(el);nodes.set(p.id,el);
    el.addEventListener('pointerdown',e=>begin(e,p,el),{signal:abort.signal});
   }
-  const progress=progressFor(level,state);root.querySelector('.activity-count').textContent=progress.done+' / '+progress.total+(level.engine==='pattern'?' · Pattern '+level.rounds[state.round].name:' done');
+  const progress=progressFor(level,state);const countText=progress.done+' / '+progress.total+(level.engine==='pattern'?' · Pattern '+level.rounds[state.round].name:' done');
+  root.querySelector('.activity-count').textContent=countText;
+  if(fullSceneDemo){const indicator=document.getElementById('header-demo-count');if(indicator)indicator.textContent=countText;}
+
  }
  for(const h of level.hazards){const el=document.createElement('div');el.className='activity-hazard';el.innerHTML=image(h.asset);el.setAttribute('aria-label',h.asset.name+' — avoid this bad guy');hazardLayer.append(el);hazardNodes.set(h.id,el);layout(el,positionAt(h,time,motion))}
  function point(e){const b=board.getBoundingClientRect();return {x:(e.clientX-b.left)/b.width*1000,y:(e.clientY-b.top)/b.height*600}}
@@ -104,8 +117,15 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
  const observer=new ResizeObserver(fit);observer.observe(root);observer.observe(document.getElementById('app'));observer.observe(document.querySelector('body>header'));
  window.addEventListener('resize',fit,{signal:abort.signal});window.visualViewport?.addEventListener('resize',fit,{signal:abort.signal});
  root.querySelector('.activity-listen').onclick=()=>{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(engine.instruction);u.rate=.8;speechSynthesis.speak(u)};
+ if(fullSceneDemo&&headerStrip){
+   document.getElementById('header-demo-instruction').textContent=engine.instruction;
+   document.getElementById('header-demo-listen').onclick=()=>root.querySelector('.activity-listen').click();
+   document.getElementById('header-demo-reset').onclick=()=>root.querySelector('.activity-reset').click();
+   document.getElementById('header-demo-feedback').textContent=feedback.textContent;
+ }
+
  root.querySelector('.activity-reset').onclick=()=>{cancel();state.placed={};state.round=0;state.roundPlaced={};state.complete=false;onProgress(structuredClone(state));redraw();say('This activity restarted. Your other levels and stars are safe.')};
  redraw();if(progressFor(level,state).done>=progressFor(level,state).total)queueMicrotask(()=>{if(!disposed&&!finished){finished=true;onComplete()}});requestAnimationFrame(fit);document.fonts?.ready.then(()=>{if(!disposed)fit()});
  if(motion&&(level.hazards.some(h=>h.motion)||level.targets.some(t=>t.motion)))frame=requestAnimationFrame(tick);
- return {cancel,destroy(){disposed=true;cancel();cancelAnimationFrame(frame);observer.disconnect();abort.abort();window.speechSynthesis?.cancel()}};
+ return {cancel,destroy(){disposed=true;cancel();cancelAnimationFrame(frame);observer.disconnect();abort.abort();window.speechSynthesis?.cancel();document.body.classList.remove('drag-first-demo');if(headerStrip)headerStrip.hidden=true}};
 }
