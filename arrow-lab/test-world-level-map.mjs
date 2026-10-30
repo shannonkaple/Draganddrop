@@ -9,7 +9,7 @@ assert.deepEqual(WORLD_STOP_POINTS.map(p=>[p.x,p.y]),[
   [6.7,41.7],[20.8,53.7],[33.1,70.6],[39.4,42.3],
   [53.5,57],[69.2,51.5],[84.2,69.8],[92.1,37.4]
 ]);
-assert.deepEqual(Object.keys(APPROVED_WORLD_LEVEL_MAPS),['candy'],'Original Candy art protected');
+assert.deepEqual(Object.keys(APPROVED_WORLD_LEVEL_MAPS),WORLD_IDS,'All eight teacher-approved world maps registered; Candy art unchanged');
 assert.equal(Object.keys(PUBLISHED_WORLD_LEVEL_MAPS).length,8,'Seven existing original JPEG world maps included');
 const levels=Array.from({length:64},(_,i)=>({id:'level_'+(i+1),number:i+1}));
 for(let world=0;world<8;world++){
