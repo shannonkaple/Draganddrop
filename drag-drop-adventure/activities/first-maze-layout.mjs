@@ -23,7 +23,7 @@ export function firstMazeLayout(worldIndex,enemyArt=[]){
  const between=gapLeft+(gapRight-gapLeft)/2;
  const hazards=worldIndex===0?[]:enemyArt.slice(0,worldIndex>=3?2:1).map((asset,i)=>{
   const h=i===0
-   ?{...rect(Math.round(between-32),250,64,64),motion:{axis:'x',range:Math.min(28,Math.floor((gapRight-gapLeft-64)/2)-12),period:6500+worldIndex*300}}
+   ?{...rect(Math.round(between-62),250,64,64),motion:{axis:'x',range:12,period:6500+worldIndex*300}}
    :{...rect(815,245,64,64),motion:{axis:'y',range:26,period:7400+worldIndex*300}};
   return {id:'hazard-'+i,asset,...h};
  });
@@ -35,7 +35,7 @@ export function firstMazeLayout(worldIndex,enemyArt=[]){
  }
  // Walk below the first wall, up between walls, then above the second wall.
  const bottom=Math.min(520,firstBottom+70);
- const center=Math.round(between);
+ const center=Math.round(between+60);
  const solution=[{x:95,y:120},{x:105,y:bottom},{x:center,y:bottom},
    {x:center,y:105},{x:915,y:105},{x:915,y:490}];
  return {walls,hazards,solution};
