@@ -368,19 +368,18 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   topPill.hidden=!ready;
   if(ready){
    const playerId=a.selectedPlayerCharacterId,hero=char(playerId);
-   const pending=pendingWorldRescue(a),next=nextLevel();
-   const friendIndex=pending?Math.max(0,companions.findIndex(c=>c.id===pending))
-     :Math.max(0,Math.min(companions.length-1,next.worldIndex));
-   const friend=companions[friendIndex],done=Math.max(0,Math.min(8,worldDoneCount(friendIndex)));
+   const next=nextLevel();
+   const roomIndex=view==='computer' ? backgroundHomes.findIndex(l=>l.id===a.collectionWorldId) : -1;
+   const worldIndex=Math.max(0,Math.min(7,
+      (view==='world-select'||view==='maze')&&currentMapWorld!=null ? currentMapWorld
+      : roomIndex>=0 ? roomIndex : next.worldIndex));
+   const done=Math.max(0,Math.min(8,worldDoneCount(worldIndex)));
+   const activeWorld=worldThemes[worldIndex];
    $('lab-top-player-art').innerHTML=pic(playerId);
    $('lab-top-player-name').textContent=hero?.name||'My Player';
-   $('lab-top-friend-label').textContent=pending
-     ?'Rescue '+friend.name+'!'
-     :a.worldFriends?.[friend.id]
-       ?friend.name+' rescued!'
-       :done+' / 8 · Rescue '+friend.name;
+   $('lab-top-friend-label').textContent=activeWorld.icon+' '+activeWorld.name+' World · '+done+' / 8 levels completed';
    $('lab-top-meter').setAttribute('aria-valuenow',String(done));
-   $('lab-top-meter').setAttribute('aria-label','Mazes toward '+friend.name);
+   $('lab-top-meter').setAttribute('aria-label',activeWorld.name+' World: '+done+' of 8 levels completed');
    $('lab-top-meter-fill').style.width=(done/8*100)+'%';
    $('lab-top-change-player').onclick=()=>tryLeave(()=>selectCharacter(true));
    $('lab-top-rescue').hidden=!canRescue();
