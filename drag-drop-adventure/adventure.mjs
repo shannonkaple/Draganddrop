@@ -221,14 +221,20 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // A saved student must never have to choose a new home merely to continue playing.
  if(!a.primaryRainbowLandId)a.primaryRainbowLandId=starterWorldId;
  if(preview){
-  a.highestUnlockedLevel=levels.length;a.wallet.rainbowStars=99999;
-  a.selectedPlayerCharacterId=chars[0].id;a.unlockedCharacterIds=chars.map(c=>c.id);
-  a.friends=Object.fromEntries(chars.map(c=>[c.id,{isRescued:true,upgradeStage:'starter',homeLandId:starterWorldId}]));
-  a.ownedWorldIds=lands.map(l=>l.id);a.ownedBackgroundIds=lands.map(l=>l.id);
-  a.collectedWorldItems=Object.keys(allWorldLabels);a.collectedComputerGearIds=data.computer_collectibles.map(x=>x.id);
-  a.worldFriends=Object.fromEntries(companions.map(c=>[c.id,{homeLandId:'background_'+c.id}]));
-  a.decorations=Object.fromEntries(backgroundHomes.map(w=>[w.id,fullDecorations.filter(d=>d.world==='all'||d.world===w.theme).map(d=>d.id)]));
+  // Teacher-only browsing is unlocked, but the preview playroom starts EMPTY.
+  // Do not populate purchases, collectibles, rescued friends, character homes,
+  // or decorations automatically. Preview never writes a student save.
+  a.highestUnlockedLevel=levels.length;
+  a.selectedPlayerCharacterId=chars[0]?.id||null; // UI avatar, NOT placed in scene
+  a.unlockedCharacterIds=[];a.friends={};a.worldFriends={};
+  a.decorations={};a.positions={};a.collectedWorldItems=[];
+  a.collectedComputerGearIds=[];a.collectionExtraObjects={};
+  a.hiddenDecorations={};a.hiddenCompanions=[];
+  a.ownedWorldIds=[starterWorldId];a.ownedBackgroundIds=[starterWorldId];
+  a.primaryRainbowLandId=starterWorldId;a.collectionWorldId=starterWorldId;
+  a.wallet.rainbowStars=0;
  }
+
  document.body.classList.toggle('teacher-preview',preview);
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
  const pic=id=>{const c=char(id);return c?img(look(id).image,c.name,'friend-art'):'<span class="friend-art pending-character-art" role="img" aria-label="'+esc(id)+' saved friend, illustration unavailable"><span class="pending-character-initial">?</span><small class="pending-character-note">SAVED FRIEND</small></span>';};
@@ -764,8 +770,6 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       '<button type="button" data-stuff-friend="'+esc(c.id)+'">'+(here?'Put Away / Show':'＋ Bring Here')+'</button></article>';
   }).join('');
   shell('MY STUFF','<section class="lab-collection-page my-stuff-room my-stuff-full-room" aria-label="My Stuff: arrange your world">'+
-    '<div class="my-stuff-heading"><div><h2>'+esc(land(id).name)+'</h2></div>'+
-    '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button><button id="stuff-store" type="button">⭐ Store</button></div></div>'+
     '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
     '<p id="collection-report" role="status">Click a character, then click where you want it to stand. Or drag with your trackpad.</p></div>'+
     '<div class="my-stuff-unified-shelf" aria-label="Browse worlds, characters, and purchases and collections">'+
@@ -804,14 +808,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     infoDialog.querySelector('#stuff-close-profile').onclick=()=>infoDialog.close();
     infoDialog.showModal();
   });
-  $('stuff-store').onclick=()=>{a.primaryRainbowLandId=id;save();decorShop()};
+  // Store is available in the persistent rainbow toolbar on My Stuff.
   const sceneImage=$('collection-scene').querySelector('.collection-background-size');
   const sizeScene=()=>fit();
   sceneImage.addEventListener('load',sizeScene,{once:true});sizeScene();
   const armCharacter=enableCollectionDrag(id);
   if(placeCharacterId)armCharacter(placeCharacterId);
-  $('stuff-home').onclick=map;
-  $('stuff-help').onclick=()=>{$('collection-report').textContent='Click a character ONCE, then click where it should stand. Or click their Move button below the picture. Dragging still works!'};
+  // Shared toolbar provides 🏠 Home and 🔊 How to Play.
   // Keep the tray in view after adding/putting away several objects in a row.
   const refresh=(characterId=null)=>{
     const appScroll=$('app').scrollTop, pageScroll=window.scrollY, trayScroll=$('my-stuff-tray')?.scrollLeft||0;
