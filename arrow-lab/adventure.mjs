@@ -443,11 +443,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="computer">🧸 MY STUFF — Make My Scene</button><button type="button" id="endless">Arrow Practice</button><button type="button" id="teacher-settings">Teacher Settings</button></details>'+
    '</section>'
   );
-  $('change-player').onclick=()=>selectCharacter(true);
+  $('change-player').onclick=()=>tryLeave(()=>selectCharacter(true));
   $('continue-adventure').onclick=playNext;
   $('ready-rescue')?.addEventListener('click',continueRescue);
   $('teacher-settings').onclick=teacher;
-  $('endless').onclick=()=>{save();cleanup();goPractice()};
+  $('endless').onclick=()=>tryLeave(()=>{cleanup();goPractice()});
   document.querySelectorAll('[data-world-index]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.worldIndex);
     if(!isWorldUnlocked(i)){
