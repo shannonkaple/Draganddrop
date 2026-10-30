@@ -24,7 +24,7 @@ export function firstMazeLayout(worldIndex,enemyArt=[]){
  const hazards=worldIndex===0?[]:enemyArt.slice(0,worldIndex>=3?2:1).map((asset,i)=>{
   const h=i===0
    ?{...rect(Math.round(between-32),250,64,64),motion:{axis:'x',range:Math.min(28,Math.floor((gapRight-gapLeft-64)/2)-12),period:6500+worldIndex*300}}
-   :{...rect(850,245,64,64),motion:{axis:'y',range:26,period:7400+worldIndex*300}};
+   :{...rect(815,245,64,64),motion:{axis:'y',range:26,period:7400+worldIndex*300}};
   return {id:'hazard-'+i,asset,...h};
  });
  for(const h of hazards){
