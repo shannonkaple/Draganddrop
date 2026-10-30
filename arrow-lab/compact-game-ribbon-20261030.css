@@ -345,3 +345,10 @@ body:not(.adventure-mode)>header.lab-image-header.drag-banner-header .brand img{
  display:block!important;width:100%!important;height:auto!important;
  object-fit:contain!important;
 }
+
+/* The rainbow banner already has Home, Store and My Stuff. Remove redundant
+   in-play navigation strips that take height away from the artwork. */
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.lab-collection-active,.activity-playing,.playing) #app>nav.adventure-nav{
+ display:none!important;height:0!important;min-height:0!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;
+}
