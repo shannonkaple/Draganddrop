@@ -239,7 +239,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const ids=[...new Set([...group.map(x=>x[0]),...def.collectibleIds,...data.computer_collectibles.map(x=>x.id)])];
   const items=ids.filter(id=>/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(id)||'')).map(id=>({id,name:itemName(id),image:asset(itemArt(id))}));
   const enemies=def.enemyIds.map(id=>data.enemies.find(e=>e.id===id)).filter(Boolean).map(e=>({name:e.name,image:asset(e.thumbnail)}));
-  return makeLevel(def,{items,enemies,background:asset(def.backgroundImage)},artManifest.levels?.[def.id]||{});
+  const activity=makeLevel(def,{items,enemies,background:asset(def.backgroundImage)},artManifest.levels?.[def.id]||{});
+  // First Candy activity is a gentle tutorial. Manifest overrides may not reintroduce enemies.
+  if(def.worldIndex===0&&def.worldStage===1)activity.hazards=[];
+  return activity;
  });
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
  function save(){
