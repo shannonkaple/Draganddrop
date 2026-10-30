@@ -150,7 +150,18 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
    document.getElementById('header-demo-feedback').textContent=feedback.textContent;
  }
 
- root.querySelector('.activity-reset').onclick=()=>{cancel();state.placed={};state.round=0;state.roundPlaced={};state.complete=false;onProgress(structuredClone(state));redraw();say('This activity restarted. Your other levels and stars are safe.')};
+ root.querySelector('.activity-reset').onclick=()=>{
+   cancel();const before=structuredClone(state);
+   state.placed={};state.round=0;state.roundPlaced={};state.complete=false;
+   let accepted=false;try{accepted=onProgress(structuredClone(state))!==false}catch{accepted=false}
+   if(!accepted){
+     state.placed=before.placed;state.round=before.round;
+     state.roundPlaced=before.roundPlaced;state.complete=before.complete;
+     redraw();say('Restart did NOT save. Your previous placements are safe. Try again.');
+     return;
+   }
+   redraw();say('This activity restarted. Your other levels and stars are safe.');
+ };
  redraw();if(progressFor(level,state).done>=progressFor(level,state).total)queueMicrotask(()=>{if(!disposed&&!finished){finished=true;onComplete()}});requestAnimationFrame(fit);document.fonts?.ready.then(()=>{if(!disposed)fit()});
  if(motion&&(level.hazards.some(h=>h.motion)||level.targets.some(t=>t.motion)))frame=requestAnimationFrame(tick);
  return {cancel,destroy(){disposed=true;cancel();cancelAnimationFrame(frame);observer.disconnect();abort.abort();window.speechSynthesis?.cancel();document.body.classList.remove('drag-first-demo','drag-full-scene');if(headerStrip)headerStrip.hidden=true}};
