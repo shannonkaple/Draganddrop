@@ -104,8 +104,30 @@ html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar b
  background:#fff!important;color:#202042!important;
 }
 html body.guided>header.lab-image-header :is(#heading-toggle,.heading-toggle){display:none!important;}
-/* Store is reached from the stars; avoid a redundant fourth center button. */
-html body.guided.adventure-mode>header.lab-image-header #lab-header-store{display:none!important;}
+/* The Star Store has its own clearly labeled banner button.
+   Stars remains a balance shortcut; students must not have to discover
+   that clicking the count is the only way to shop. */
+html body.guided.adventure-mode>header.lab-image-header .toolbar-center #lab-header-store:not([hidden]):not(.hidden){
+ display:inline-flex!important;visibility:visible!important;opacity:1!important;
+ flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+ width:auto!important;min-width:96px!important;max-width:none!important;
+ height:40px!important;min-height:40px!important;max-height:40px!important;
+ padding:5px 10px!important;margin:0!important;border-radius:18px!important;
+ white-space:nowrap!important;pointer-events:auto!important;
+}
+/* The store, stars, My Stuff, and Home stay in one compact center group. */
+html body.guided.adventure-mode>header.lab-image-header .toolbar-center{
+ gap:6px!important;flex-wrap:nowrap!important;
+}
+@media(max-width:800px){
+ html body.guided.adventure-mode>header.lab-image-header .toolbar-center{
+  flex-wrap:wrap!important;gap:5px!important;
+ }
+ html body.guided.adventure-mode>header.lab-image-header .toolbar-center #lab-header-store:not([hidden]):not(.hidden){
+  min-width:84px!important;padding:3px 7px!important;height:34px!important;
+  min-height:34px!important;max-height:34px!important;
+ }
+}
 /* Before login, show only fullscreen and help in a separate menu row. */
 html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .lab-reference-toolbar {
  display:flex!important;align-items:center!important;justify-content:flex-end!important;
