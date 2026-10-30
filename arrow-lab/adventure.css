@@ -248,3 +248,14 @@ body.lab-map-active .star-wallet{border:2px solid #ffbd28;background:linear-grad
  .lab-node-label em{display:none;}
  .lab-decor{opacity:.45;}
 }
+
+
+/* Maze-only compact toolbar: no duplicated Home or bottom button strip.
+   Desktop keeps keyboard arrows/SPACE; touch Duck stays visible on mobile. */
+.adventure-mode.playing .quest-strip{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.adventure-mode.playing .maze-tools{position:relative;margin-left:auto;z-index:12;font-size:13px}
+.adventure-mode.playing .maze-tools summary{list-style:revert;cursor:pointer;white-space:nowrap;border:2px solid #000;border-radius:10px;background:#fff;padding:5px 10px}
+.adventure-mode.playing .maze-tools[open] .maze-controls{position:absolute;right:0;top:calc(100% + 4px);display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;width:max-content;max-width:min(420px,90vw);padding:8px;background:#fff;border:2px solid #000;border-radius:12px;box-shadow:0 6px 12px #0002}
+.adventure-mode.playing .maze-tools .maze-controls button,
+.adventure-mode.playing .quest-strip>#duck-button{font-size:13px;padding:5px 8px;margin:0;white-space:nowrap}
+.adventure-mode.playing .maze-tools summary:focus-visible{outline:3px solid #ff8a00;outline-offset:2px}
