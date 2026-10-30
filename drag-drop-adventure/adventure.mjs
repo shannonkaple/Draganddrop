@@ -368,10 +368,18 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
       // A rejected write must not lose any newly completed placements.
       save();
       if(!saved&&!preview){
-       const warning=document.querySelector('#drag-activity .activity-feedback')||$('app');
-       warning.textContent='Your progress has NOT saved. Stay on this level and tell your teacher, then try Back to Map again.';
-       warning.hidden=false;
-       warning.setAttribute('role','alert');
+       const status=$('header-demo-feedback');
+       if(status){
+         status.textContent='NOT SAVED — stay on this level. Tell your teacher, then try Back to Map again.';
+         status.setAttribute('role','alert');
+       }
+       const warning=document.querySelector('#drag-activity .activity-feedback');
+       if(warning){
+         warning.textContent='Your progress has NOT saved. Stay on this level and tell your teacher.';
+         warning.hidden=false;
+         warning.style.setProperty('display','block','important');
+         warning.setAttribute('role','alert');
+       }
        return;
       }
       openWorld(def.worldIndex);
