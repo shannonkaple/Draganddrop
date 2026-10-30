@@ -1063,15 +1063,18 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // Keep a single horizontal shelf: Worlds, Characters, Purchases / Collections.
   // This changes presentation only, not item ownership, persistent IDs or positions.
   shell('MY STUFF','<section class="lab-collection-page my-stuff-room my-stuff-full-room" aria-label="My Stuff: arrange your world">'+
-    '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
-      '<p id="collection-report" role="status">'+
-        (mobileTouch?'Touch and drag an item, then let go to save.':'Click, hold and move an item with your trackpad, then let go to save.')+
-      '</p></div>'+
-    '<div class="my-stuff-unified-shelf" aria-label="Browse worlds, characters and collected items">'+
+    '<aside class="my-stuff-side-panel" aria-label="Directions and collection categories">'+
+      '<div class="my-stuff-direction-panel"><strong>MY STUFF</strong>'+
+        '<p id="collection-report" role="status">'+
+          (mobileTouch?'Tap an item to add it. Move it with your finger, then let go to save.':'Choose an item below. Click, hold and move it with your trackpad, then let go to save.')+
+        '</p></div>'+
       '<div class="my-stuff-unified-tabs" role="group" aria-label="Choose a collection">'+
         '<button type="button" data-stuff-tab="worlds" aria-pressed="false">🌍 Worlds</button>'+
         '<button type="button" data-stuff-tab="characters" aria-pressed="false">🐾 Characters</button>'+
         '<button type="button" data-stuff-tab="items" aria-pressed="true">🎁 Purchases / Collections</button></div>'+
+    '</aside>'+
+    '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div></div>'+
+    '<div class="my-stuff-unified-shelf" aria-label="Browse worlds, characters and collected items">'+
       '<div class="my-stuff-tray-controls">'+
         '<button id="stuff-scroll-prev" type="button" aria-label="Previous items">◀</button>'+
         '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="Use left and right arrows to browse">'+
