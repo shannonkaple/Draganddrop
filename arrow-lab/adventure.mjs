@@ -3,6 +3,7 @@ import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
 import {commitDuckTutorial} from './duck-tutorial-save-transaction.mjs?v=duck-ack-20261030a';
 import {commitTeacherSettings} from './teacher-settings-transaction.mjs?v=teacher-save-20261030a';
+import {commitSceneChange} from './scene-mutation-transaction.mjs?v=scene-rollback-20261030a';
 import {withLegacyMazeCompletion} from './completion-wallet-transaction.mjs?v=atomic-completion-20261029a';
 import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
 import {commitWorldView} from './world-view-transaction.mjs?v=world-view-save-20261029a';
@@ -598,16 +599,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  // Restore a student's MY STUFF state whenever storage refuses a write.
  function commitSceneMutation(change,fields){
-  const before=fields.map(field=>[field,Object.prototype.hasOwnProperty.call(a,field),
-   a[field]===undefined?undefined:JSON.parse(JSON.stringify(a[field]))]);
-  if(change()===false)return false;
-  save();
-  if(saved)return true;
-  for(const [field,existed,value] of before){
-   if(existed)a[field]=value;
-   else delete a[field];
-  }
-  return false;
+  return commitSceneChange({
+    progress:a,change,fields,
+    persist:()=>{save();return saved},
+    onRollback:syncBannerStars
+  });
  }
  function buyHome(id){
   const world=land(id);if(!world)return false;
