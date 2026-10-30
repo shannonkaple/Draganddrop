@@ -306,6 +306,30 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  $('header-stars').hidden=!ready;$('header-stuff').hidden=!ready;
  $('header-stars').textContent='⭐ '+(preview?'Preview Stars':a.wallet.rainbowStars+' Stars');
  $('header-profile').textContent=preview?'TEACHER PREVIEW · no student saves':teacherName+' · #'+number;
+ // The active student and rescue meter live in the top toolbar on every page.
+ const headerProgress=$('header-adventure-progress');
+ if(headerProgress){
+   headerProgress.hidden=!ready;
+   if(ready){
+     const hero=char(a.selectedPlayerCharacterId);
+     const nextFriend=companions.find(c=>!a.worldFriends?.[c.id]);
+     const worldIndex=nextFriend?companions.indexOf(nextFriend):7;
+     const completed=Math.max(0,Math.min(8,worldDoneCount(worldIndex)));
+     $('header-character-art').innerHTML=pic(hero.id);
+     $('header-character-name').textContent=hero.name;
+     $('header-progress-label').textContent=nextFriend
+       ? completed+' / 8 · Rescue '+nextFriend.name
+       : 'All world friends rescued!';
+     $('header-world-meter').setAttribute('aria-valuenow',String(completed));
+     $('header-world-meter').setAttribute('aria-label',nextFriend?'Activities toward rescuing '+nextFriend.name:'All friends rescued');
+     $('header-meter-fill').style.width=(completed/8*100)+'%';
+     $('header-change-player').onclick=()=>selectCharacter(true);
+     const rescueButton=$('header-rescue-friend');
+     rescueButton.hidden=!canRescue();
+     rescueButton.onclick=continueRescue;
+   }
+ }
+
  $('who').textContent=preview?'Exit Teacher Mode':'Change student';
  $('app').innerHTML='<h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>{save();cleanup();onLogout()});
@@ -386,9 +410,6 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const now=worldThemes[next.worldIndex]||worldThemes[7];
   shell('Rainbow World Map',
    '<section class="lab-map-home" aria-label="Interactive eight-world rainbow map">'+
-    '<div class="lab-game-hud"><div class="lab-player-compact"><div class="lab-player-figure">'+pic(playerId)+'</div><div class="lab-player-meta"><span class="lab-kicker">MY PLAYER</span><b>'+esc(char(playerId).name)+'</b><small>'+esc(currentStage(playerId))+'</small><button id="change-player" type="button">Change Player ›</button></div></div>'+
-    '<div class="lab-friend-compact"><span class="lab-kicker">NEXT FRIEND</span><b>'+esc(progress)+'</b><div class="lab-meter" role="progressbar" aria-valuenow="'+doneForFriend+'" aria-valuemin="0" aria-valuemax="8"><i style="width:'+(doneForFriend/8*100)+'%"></i></div>'+rescueAction+'</div></div>'+
-    '<div class="lab-map-title"><span>🌈 8 magical worlds · 8 activities each</span><h2>Choose Your World!</h2><p>Follow the rainbow road. Earn stars. Unlock new lands!</p></div>'+
     '<div class="lab-map-art-frame"><div class="lab-map-canvas" role="group" aria-label="Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean, Lava">'+
     '<img class="lab-main-map-art" src="'+asset('arrow-lab/assets/arrow-adventure-eight-worlds-user-20261028-hq.jpg?v=20261029-shared-map')+'" width="2048" height="682" alt="Eight illustrated worlds: Candy, Pirate, Arctic, Castle, Space, Jurassic, Ocean and Lava" draggable="false" loading="eager" decoding="async" onerror="this.onerror=null;this.src=\''+asset('arrow-lab/assets/arrow-adventure-eight-worlds-user-20261028.jpg')+'\'">'+nodes+'</div></div>'+
     '<button id="continue-adventure" type="button" class="lab-next-play">▶ PLAY NEXT <small>'+esc(now.name)+' · Activity '+next.worldStage+'</small></button>'+
@@ -396,7 +417,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '<details class="lab-overflow"><summary>⚙ More</summary><button type="button" data-nav="computer">🧸 MY STUFF — Make My Scene</button><button type="button" id="endless">Drag Practice</button>'+(preview?'<button type="button" id="teacher-settings">Teacher Settings</button>':'')+'</details>'+
    '</section>'
   );
-  $('change-player').onclick=()=>selectCharacter(true);
+  // Character selection and rescue progress now live in the shared header.
   $('continue-adventure').onclick=playNext;
   $('ready-rescue')?.addEventListener('click',continueRescue);
   $('teacher-settings')?.addEventListener('click',onTeacher);
