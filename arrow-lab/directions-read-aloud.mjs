@@ -23,6 +23,9 @@ function speak(text){
 function addButtons(){
   for(const target of document.querySelectorAll(selectors)){
     if(target.querySelector(':scope > .'+escCss))continue;
+    // Drag & Drop supplies its own accessible speaker directly after the one
+    // VAG-font directions sentence. Never inject a duplicate speaker there.
+    if(target.closest('.activity-instructions')?.querySelector('.activity-listen'))continue;
     if(target.closest('button, [aria-hidden="true"]'))continue;
     if(!target.textContent?.trim())continue;
     const button=document.createElement('button');
