@@ -456,6 +456,29 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
  }
 
+ function introduceFriend(i){
+  const c=companions[i];
+  if(!c||a.worldFriends?.[c.id]||a.friendIntrosShown?.[c.id])return;
+  const d=modal('Meet '+c.name+'!',
+    '<div class="friend-reveal intro-friend-portrait">'+companionArt(c.id)+'</div>'+
+    '<p>Finish 8 '+esc(worldThemes[i].name)+' World levels to rescue '+esc(c.name)+'!</p>'+
+    '<button type="button" id="friend-intro-continue" class="primary">OK</button>',()=>{
+      const go=$('friend-intro-continue');
+      go.onclick=()=>{
+        const previous=a.friendIntrosShown;
+        a.friendIntrosShown={...(previous&&typeof previous==='object'&&!Array.isArray(previous)?previous:{}),[c.id]:true};
+        save();
+        if(!saved&&!preview){
+          a.friendIntrosShown=previous;
+          go.textContent='Try Saving Again';
+          return;
+        }
+        closeModal();
+      };
+      go.focus({preventScroll:true});
+    });
+  d.classList.add('friend-reveal-dialog');
+ }
  function openCandyWorld(){openWorld(0)}
  function openWorld(i){
   if(!isWorldUnlocked(i))return map();
@@ -472,6 +495,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    if(b.getAttribute('aria-disabled')==='true'){modal('Activity locked','<p>Finish the previous activity first.</p><button id="locked-back">Back to map</button>',()=>{$('locked-back').onclick=closeModal});return}
    startLevel(Number(b.dataset.level));
   });
+  introduceFriend(i);
  }
 
  function stuff(){map()}
