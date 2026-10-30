@@ -6,7 +6,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 let controller=null;
 const teachers=await fetch(new URL('./teachers-grade2.json?v=20261028-wide',import.meta.url)).then(r=>{if(!r.ok)throw Error('Class list could not load');return r.json()});
 function login(){
- controller?.cleanup();controller=null;lockTeacher();document.body.classList.remove('teacher-preview');$('header-stars').hidden=true;$('header-stuff').hidden=true;$('header-profile').textContent='';document.body.classList.remove('playing','adventure-mode','lab-map-active');$('who').classList.add('hidden');
+ controller?.cleanup();controller=null;lockTeacher();document.body.classList.remove('teacher-preview');$('header-stars').hidden=true;$('header-store').hidden=true;$('header-stuff').hidden=true;$('header-profile').textContent='';document.body.classList.remove('playing','adventure-mode','lab-map-active');$('who').classList.add('hidden');
  $('app').innerHTML='<div class="hero"><h1>DRAG &amp; DROP ADVENTURE</h1><p>Click. Hold. Move. Let go!</p><p>Choose your teacher. Then choose your classroom number.</p></div><section class="panel"><h2>1. Second Grade · Pick your teacher</h2><div class="adventure-cards">'+teachers.map(t=>'<button data-teacher="'+t.id+'">'+esc(t.name)+'</button>').join('')+'</div></section>';
  document.querySelectorAll('[data-teacher]').forEach(b=>b.onclick=()=>numbers(teachers.find(t=>t.id===b.dataset.teacher)));
  $('help').onclick=()=>alert('Click and keep holding with one finger. Move the picture to its matching spot. Let go inside the spot.');
@@ -27,11 +27,12 @@ async function openTeacher(){
  controller.teacherSettings();
 }
 $('teacher-access').onclick=openTeacher;
-$('heading-toggle').onclick=()=>{const open=document.querySelector('body>header').classList.toggle('heading-open');$('heading-toggle').setAttribute('aria-expanded',String(open));$('heading-toggle').textContent=open?'Shrink heading':'Show heading'};
+// Static JPEG artwork appears only on login and the first main map; no hover/toggle controls.
 $('header-stars').onclick=()=>controller?.goShop();
+$('header-store').onclick=()=>controller?.goShop();
 $('header-stuff').onclick=()=>controller?.goStuff();
 $('global-home').onclick=()=>controller?controller.goHome():login();
 window.arrowLabToggleFullscreen=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{}};
 $('global-fullscreen').onclick=window.arrowLabToggleFullscreen;
-document.addEventListener('fullscreenchange',()=>{$('global-fullscreen').textContent=document.fullscreenElement?'Exit Full Screen':'⛶ Full Screen';$('global-fullscreen').setAttribute('aria-pressed',String(!!document.fullscreenElement))});
+document.addEventListener('fullscreenchange',()=>{$('global-fullscreen').textContent=document.fullscreenElement?'🖥️ Exit Full Screen':'🖥️ Full Screen';$('global-fullscreen').setAttribute('aria-pressed',String(!!document.fullscreenElement))});
 login();
