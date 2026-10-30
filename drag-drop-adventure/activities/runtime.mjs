@@ -1,4 +1,4 @@
-import {acceptsDragInput,ENGINES,stateFor,targetsFor,tryPlacement,progressFor,contains,positionAt,hitboxAt,swept,motionCollision} from './engines.mjs?v=mobiletouch-20261030';
+import {acceptsDragInput,isMobileTouchDevice,ENGINES,stateFor,targetsFor,tryPlacement,progressFor,contains,positionAt,hitboxAt,swept,motionCollision} from './engines.mjs?v=mobiletouch-20261030';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const image=(a,cls='')=>a?'<img class="'+cls+'" src="'+esc(a.image)+'" alt="'+esc(a.name||'')+'" draggable="false">':'';
 const layout=(el,r)=>{for(const [k,axis] of [['left','x'],['top','y'],['width','w'],['height','h']])el.style[k]=(r[axis]/(axis==='x'||axis==='w'?10:6))+'%'};
@@ -55,7 +55,7 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
   el.setPointerCapture(e.pointerId);el.classList.add('held');say('Keep holding. Move to your spot.');
  }
  function move(e){
-  if(!active||e.pointerId!==active.id)return;if(!acceptsDragInput(e)){cancel();return}e.preventDefault();
+  if(!active||e.pointerId!==active.id)return;if(e.pointerType!=='mouse'&&!(e.pointerType==='touch'&&isMobileTouchDevice())){cancel();return}e.preventDefault();
   const raw=point(e),next={x:raw.x-active.offset.x,y:raw.y-active.offset.y};
   active.distance=Math.max(active.distance,Math.hypot(raw.x-active.down.x,raw.y-active.down.y));
   if(blocked(active.last,next,active.p)){cancel('Oops! Back to the start. Try going around the wall or bad guy.');return}
