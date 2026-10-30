@@ -266,7 +266,7 @@ html body.guided.lab-world-active .activity-map-legend{
 /* Chromebook layout: controls only above the maps and activities. */
 html body:is(.lab-map-active,.lab-world-active,.activity-playing)>header.drag-banner-header .brand,
 html body:is(.lab-map-active,.lab-world-active,.activity-playing) #heading-toggle,
-html body:is(.lab-world-active,.activity-playing) #kaple-guide{display:none!important}
+html body:is(.lab-map-active,.lab-world-active,.activity-playing) #kaple-guide{display:none!important}
 html body:is(.lab-map-active,.lab-world-active,.activity-playing)>header.drag-banner-header{
  min-height:0!important;height:auto!important;padding:0!important;border:0!important;
 }
