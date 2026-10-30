@@ -1,5 +1,5 @@
 import {libraryShopDecorations} from '../drag-drop-adventure/shop-decor.mjs?v=world-scenes-20261030';
-import {newShopDecorationCatalog,publishedShopDecorations,isPublishedPngResponse,catalogWithArtAvailability} from './shop-purchasable-decorations.mjs?v=preserve-owned-shop-art-20261030a';
+import {newShopDecorationCatalog,publishedShopDecorations,probePublishedPngWithTimeout,catalogWithArtAvailability} from './shop-purchasable-decorations.mjs?v=shop-probe-deadline-20261030b';
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=maze-start-rollback-20261030a';
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
@@ -39,7 +39,7 @@ const readJSON=async n=>{const r=await fetch(new URL('../rainbow-road/data/'+n+'
 let dataPromise;
 export async function openAdventure({number,storageKey,teacherName,teachers,verifyTeacherCode=()=>false,goPractice,onLogout}){
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
- const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
+ const values=await(dataPromise??=Promise.all(names.map(readJSON)).catch(error=>{dataPromise=undefined;throw error}));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
  const worldThemes=[
  {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/arrow-lab/my-stuff-backgrounds/candy_world_background.jpg'},
  {name:'Pirate',icon:'🏴‍☠️',id:'pirate',color:'#d39a54',backgroundImage:'/arrow-lab/my-stuff-backgrounds/pirate_world_background.jpg'},
@@ -191,7 +191,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // Show brand-new shop decorations only after their exact original PNG is published.
  // Never sell a missing image, substitute collectible art, or change legacy purchase IDs.
  const readyOriginalShopDecorations=await publishedShopDecorations(path=>
-  fetch(asset(path),{method:'HEAD'}).then(isPublishedPngResponse).catch(()=>false));
+  probePublishedPngWithTimeout(path,fetch,asset,1800));
  const shopCatalogWithAvailability=catalogWithArtAvailability(newShopDecorationCatalog,readyOriginalShopDecorations);
  // Keep existing student purchases and positions discoverable even when HEAD is blocked/offline.
  const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives,...libraryShopDecorations,...shopCatalogWithAvailability];
