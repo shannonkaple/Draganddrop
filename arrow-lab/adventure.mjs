@@ -14,7 +14,7 @@ const mobileTouch = isMobileTouchDevice();
 import {tellGuide,starIcon} from './viewport.mjs?v=mobile-fullwidth-shelf-20261028a';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters,pendingCharacters} from './character-placeholders.mjs?v=approved-portraits-20261028a';
-import {WORLD_STOP_POINTS,PUBLISHED_WORLD_LEVEL_MAPS,worldStopModels,nextPlayableLevel} from './level-map-model.mjs?v=resume-play-20261029a';
+import {WORLD_STOP_POINTS,PUBLISHED_WORLD_LEVEL_MAPS,worldStopModels,nextPlayableLevel} from './level-map-model.mjs?v=valid-resume-20261030a';
 import {advanceHazardsSafely} from './hazard-save-transaction.mjs?v=hazard-rollback-20261029a';
 import {isSupportedCollectibleArt,earnedKeys,visibleCollectedKeys,toggleCollectedInWorld,canPlaceDecorationInWorld,moveOwnedDecoration} from './collection-inventory.mjs?v=world-exclusive-decor-20261029a';
 

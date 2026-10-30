@@ -34,16 +34,22 @@ export const PUBLISHED_WORLD_LEVEL_MAPS=APPROVED_WORLD_LEVEL_MAPS;
 // Prefer a student's durable unfinished maze when PLAY NEXT is selected.
 // Ignore stale, completed, locked, or malformed activeRun records rather than
 // opening an unrelated level or pretending that a broken run can be resumed.
+// Use the maze-entry validity rules for map status and resuming saved runs.
+// This is read-only: never discard or rewrite any student's old record.
+export function isResumableRun(level,run){
+ return !!(level&&run&&run.id===level.id&&run.complete!==true&&
+  Number.isInteger(run.w)&&run.w>=5&&Number.isInteger(run.h)&&run.h>=5&&
+  Array.isArray(run.grid)&&run.grid.length===run.h&&
+  run.grid.every(row=>Array.isArray(row)&&row.length===run.w)&&
+  Array.isArray(run.items)&&Array.isArray(run.hazards)&&
+  run.grid[run.player?.y]?.[run.player?.x]===0);
+}
 export function nextPlayableLevel(levels,progress){
  if(!Array.isArray(levels)||!levels.length)return null;
  const completed=new Set(Array.isArray(progress?.completedLevelIds)?progress.completedLevelIds:[]);
  const highest=Math.max(1,Math.min(levels.length,Math.floor(Number(progress?.highestUnlockedLevel)||1)));
  const playable=level=>level&&Number.isInteger(level.number)&&level.number<=highest&&!completed.has(level.id);
- const savedRun=(level,run)=>playable(level)&&run&&run.id===level.id&&run.complete!==true&&
-  Number.isInteger(run.w)&&run.w>=5&&Number.isInteger(run.h)&&run.h>=5&&
-  Array.isArray(run.grid)&&run.grid.length===run.h&&
-  Array.isArray(run.items)&&Array.isArray(run.hazards)&&
-  run.grid[run.player?.y]?.[run.player?.x]===0;
+ const savedRun=(level,run)=>playable(level)&&isResumableRun(level,run);
  const active=levels.find(level=>savedRun(level,progress?.activeRun));
  if(active)return active;
  const runs=progress?.mazeRuns&&typeof progress.mazeRuns==='object'&&!Array.isArray(progress.mazeRuns)?progress.mazeRuns:{};
@@ -51,10 +57,10 @@ export function nextPlayableLevel(levels,progress){
   levels.find(playable)||levels[levels.length-1];
 }
 export function worldStopStatus(level,progress){
- const completed=!!progress?.completedLevelIds?.includes(level.id);
+ const completed=Array.isArray(progress?.completedLevelIds)&&progress.completedLevelIds.includes(level.id);
  const saved=progress?.mazeRuns?.[level.id];
- const active=progress?.activeRun?.id===level.id?progress.activeRun:null;
- const started=!completed&&[saved,active].some(run=>run&&run.complete!==true);
+ const active=progress?.activeRun;
+ const started=!completed&&[saved,active].some(run=>isResumableRun(level,run));
  const unlocked=completed||level.number<=Number(progress?.highestUnlockedLevel||1);
  return Object.freeze({completed,started,unlocked,
   label:completed?'Completed — replay':started?'In progress — continue':unlocked?'Ready to play':'Locked',
