@@ -1,4 +1,4 @@
-import {acceptsDragInput,ENGINES,stateFor,targetsFor,tryPlacement,progressFor,contains,positionAt,hitboxAt,swept,motionCollision} from './engines.mjs?v=mouseonly1';
+import {acceptsDragInput,ENGINES,stateFor,targetsFor,tryPlacement,progressFor,contains,positionAt,hitboxAt,swept,motionCollision} from './engines.mjs?v=mobiletouch-20261030';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const image=(a,cls='')=>a?'<img class="'+cls+'" src="'+esc(a.image)+'" alt="'+esc(a.name||'')+'" draggable="false">':'';
 const layout=(el,r)=>{for(const [k,axis] of [['left','x'],['top','y'],['width','w'],['height','h']])el.style[k]=(r[axis]/(axis==='x'||axis==='w'?10:6))+'%'};
@@ -50,12 +50,12 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
  }
  function begin(e,p,el){
   if(disposed||finished||artError||active)return;
-  if(!acceptsDragInput(e)){e.preventDefault();say('Use your trackpad or mouse. Click and keep holding while you move.');return;}
+  if(!acceptsDragInput(e)){e.preventDefault();say('On a Chromebook, use your trackpad or mouse. On a phone or tablet, touch and drag.');return;}
   e.preventDefault();const down=point(e);active={p,el,id:e.pointerId,last:{x:p.x,y:p.y},offset:{x:down.x-p.x,y:down.y-p.y},down,distance:0};
   el.setPointerCapture(e.pointerId);el.classList.add('held');say('Keep holding. Move to your spot.');
  }
  function move(e){
-  if(!active||e.pointerId!==active.id)return;if(e.pointerType!=='mouse'){cancel();return}e.preventDefault();
+  if(!active||e.pointerId!==active.id)return;if(!acceptsDragInput(e)){cancel();return}e.preventDefault();
   const raw=point(e),next={x:raw.x-active.offset.x,y:raw.y-active.offset.y};
   active.distance=Math.max(active.distance,Math.hypot(raw.x-active.down.x,raw.y-active.down.y));
   if(blocked(active.last,next,active.p)){cancel('Oops! Back to the start. Try going around the wall or bad guy.');return}
