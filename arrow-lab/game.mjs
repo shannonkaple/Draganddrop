@@ -68,15 +68,23 @@ function save(){
  }
 }
 // Practice moves, rewards, restarts and purchases advance only after a
-// verified student-record write. Failed storage restores both prior records.
+// verified student-record write. Rejected/throwing changes must also restore
+// nested maze and wallet mutations, even when no storage write was attempted.
 function commitPracticeChange(change){
  const previousRun=structuredClone(run),previousWallet=structuredClone(wallet);
- const changed=change();
- if(changed===false)return true;
- save();
- if(saving)return true;
- run=previousRun;wallet=previousWallet;
- return false;
+ let committed=false;
+ try{
+  if(change()===false)return false;
+  save();
+  committed=saving===true;
+  return committed;
+ }catch{
+  saving=false;
+  showLoginStorageWarning();
+  return false;
+ }finally{
+  if(!committed){run=previousRun;wallet=previousWallet;}
+ }
 }
 function restore(){let d;try{d=JSON.parse(localStorage.getItem(key())||'null')}catch{}const r=d?.run,w=d?.wallet;const valid=r&&Number.isInteger(r.level)&&r.level>0&&r.w>=5&&r.w<=9&&r.h>=5&&r.h<=9&&Array.isArray(r.grid)&&r.grid.length===r.h&&r.grid.every(row=>Array.isArray(row)&&row.length===r.w&&row.every(n=>n===0||n===1))&&Number.isInteger(r.player?.x)&&Number.isInteger(r.player?.y)&&r.grid[r.player.y]?.[r.player.x]===0&&r.start?.x===1&&r.start?.y===1&&r.goal?.x===r.w-2&&r.goal?.y===r.h-2&&Array.isArray(r.trail)&&r.trail.length<10000&&w&&[w.total,w.earned,w.finished].every(n=>Number.isSafeInteger(n)&&n>=0)&&Array.isArray(w.owned)&&colors.some(c=>c.id===w.color);
  if(valid){run=r;wallet=w}else{run=makeMaze(seed(),1);wallet={total:0,earned:0,finished:0,color:'violet',owned:['violet']}}}
