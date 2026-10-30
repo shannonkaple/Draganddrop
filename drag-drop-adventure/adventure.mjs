@@ -1,9 +1,10 @@
+import {libraryShopDecorations} from './shop-decor.mjs?v=library-decor-20261030';
 import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=roomy-20261030';
 import {mountActivity} from './activities/runtime.mjs?v=roomy-20261030';
 import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs?v=mouseonly1';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
 import {isTeacherUnlocked} from './teacher-access.mjs?v=20261029-teacherlock1';
-import {tellGuide,starIcon} from './viewport.mjs?v=roomy-20261030';
+import {tellGuide,starIcon} from './viewport.mjs?v=library-decor-20261030';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -44,7 +45,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(!manifestResponse.ok)throw Error('Could not load activity artwork manifest');
  const artManifest=await manifestResponse.json();
 
- const HIDDEN_COLLECTIBLE_IDS=new Set(['cotton_candy','star_cookie','marshmallow','gumdrop','candy_apple','gingerbread_house']);
+ const REPLACEMENT_COLLECTIBLES={cotton_candy:['ice_cream','Ice Cream'],star_cookie:['donut','Donut'],marshmallow:['wrapped_candy','Wrapped Candy'],gumdrop:['gummy_bear','Gummy Bear'],candy_apple:['lollipop','Lollipop'],gingerbread_house:['cupcake','Cupcake']};
  const candyObjects=[
  ['lollipop','Lollipop'],['gummy_bear','Gummy Bear'],['cupcake','Cupcake'],['candy_cane','Candy Cane'],
  ['ice_cream','Ice Cream'],['wrapped_candy','Wrapped Candy'],['donut','Donut'],['candy_necklace','Candy Necklace'],
@@ -175,7 +176,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   {id:'shop_lava_magma_bridge',name:'Magma Crossing Bridge',world:'lava',kind:'decor',shopOnly:true,cost:8,art:'bridge'},
   {id:'shop_lava_treasure_chest',name:'Volcano Treasure Chest',world:'lava',kind:'decor',shopOnly:true,cost:9,art:'treasure'}
  ];
- const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives];
+ const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives,...libraryShopDecorations];
  const findDecoration=id=>fullDecorations.find(d=>d.id===id);
  const enemyRosters=[
    ['purple_slime','chomper_plant','storm_cloud','prickly_cactus'], // Candy: four different playful monsters
@@ -231,8 +232,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const char=id=>chars.find(c=>c.id===id),land=id=>lands.find(l=>l.id===id),look=id=>char(id).levels.find(l=>l.id===(a.friends[id]?.upgradeStage||'starter'));
  const pic=id=>{const c=char(id);return c?img(look(id).image,c.name,'friend-art'):'<span class="friend-art pending-character-art" role="img" aria-label="'+esc(id)+' saved friend, illustration unavailable"><span class="pending-character-initial">?</span><small class="pending-character-note">SAVED FRIEND</small></span>';};
 
- const itemName=id=>allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
- const itemArt=id=>HIDDEN_COLLECTIBLE_IDS.has(id)?'':objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
+ const itemName=id=>REPLACEMENT_COLLECTIBLES[id]?.[1]||allWorldLabels[id]||data.computer_collectibles.find(i=>i.id===id)?.name||data.skill_badges.find(i=>i.id===id)?.name||id;
+ const itemArt=id=>REPLACEMENT_COLLECTIBLES[id]?'arrow-lab/collectibles/candy/'+REPLACEMENT_COLLECTIBLES[id][0]+'.png':objectArtPaths[id]||(data.computer_collectibles.find(i=>i.id===id)?.thumbnail||data.computer_collectibles.find(i=>i.id===id)?.image)||(data.skill_badges.find(i=>i.id===id)?.thumbnail||data.skill_badges.find(i=>i.id===id)?.image);
  const activityLevels=levels.map(def=>{
   const group=objectGroups[worldThemes[def.worldIndex].id]||[];
   const ids=[...new Set([...group.map(x=>x[0]),...def.collectibleIds,...data.computer_collectibles.map(x=>x.id)])];
@@ -441,9 +442,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   }
   a.primaryRainbowLandId=id;save();return true;
  }
- function shopArt(d){return d.artPath?img(d.artPath,d.name,'shop-decoration'):d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+(d.emoji||'⭐')+'</span>'}
+ function shopArt(d){
+  if(d.sprite){const {width,height,region:[x,y,w,h]}=d.sprite;return '<span class="shop-decoration shop-sprite" role="img" aria-label="'+esc(d.name)+'" style="aspect-ratio:'+w+'/'+h+';background-image:url('+asset(d.artPath)+');background-size:'+(width/w*100)+'% '+(height/h*100)+'%;background-position:'+(x/(width-w)*100)+'% '+(y/(height-h)*100)+'%"></span>';}
+  return d.artPath?img(d.artPath,d.name,'shop-decoration'):d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+(d.emoji||'⭐')+'</span>'}
  function buyShopExclusive(worldId,itemId){
-   const item=shopExclusives.find(x=>x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
+   const item=fullDecorations.find(x=>x.shopOnly&&x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
    if(!item||!owned(worldId)||Object.values(a.decorations||{}).some(list=>list.includes(itemId))||a.wallet.rainbowStars<item.cost)return false;
    a.wallet.rainbowStars-=item.cost;
    (a.decorations[worldId]??=[]).push(itemId);
@@ -562,7 +565,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function sceneTreasures(id){
   const theme=backgroundHomes.find(w=>w.id===id)?.theme||backgroundHomes.find(w=>w.id===a.homeBackgrounds[id])?.theme||'candy';
   const eligible=new Set(levels.filter(l=>worldThemes[l.worldIndex].id===theme).flatMap(l=>l.collectibleIds||[]));
-  return [...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[])])].filter(key=>!HIDDEN_COLLECTIBLE_IDS.has(key)&&eligible.has(key)&&/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(key)||'')).slice(0,10);
+  return [...new Set([...(a.collectedWorldItems||[]),...(a.collectedComputerGearIds||[])])].filter(key=>(eligible.has(key)||(theme==='candy'&&REPLACEMENT_COLLECTIBLES[key]))&&/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(key)||'')).slice(0,10);
  }
  function collectionStage(id){
   const l=land(id),residents=Object.keys(a.friends).filter(c=>hasPlayerCharacter(c)&&a.friends[c]?.homeLandId===id);

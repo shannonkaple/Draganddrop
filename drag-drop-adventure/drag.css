@@ -303,3 +303,7 @@ html body.guided.lab-world-active .lab-candy-scenery{
 /* Runtime measures wrapped instructions and controls to size the board exactly. */
 html body.guided.activity-playing .activity-shell{max-height:none!important;max-width:none!important;overflow:visible!important}
 html body.guided.activity-playing .activity-board{width:var(--fitted-board-width,100%)!important;height:var(--fitted-board-height,auto)!important;flex:none!important;max-height:none!important}
+
+/* PNG sprite regions retain the original Space artwork without redrawing it. */
+.shop-sprite{display:block!important;width:100%;height:auto!important;max-width:180px;margin:auto;background-repeat:no-repeat;background-color:transparent;flex:none}
+.world-object .shop-sprite,.world-friend-gift .shop-sprite{max-width:100%;pointer-events:none}
