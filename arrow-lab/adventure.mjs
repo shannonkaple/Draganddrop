@@ -1,3 +1,4 @@
+import {libraryShopDecorations} from '../drag-drop-adventure/shop-decor.mjs?v=world-scenes-20261030';
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=maze-start-rollback-20261030a';
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
@@ -39,14 +40,14 @@ export async function openAdventure({number,storageKey,teacherName,teachers,veri
  const names=['characters','rainbow_lands','levels','game_config','enemies','computer_collectibles','skill_badges'];
  const values=await(dataPromise??=Promise.all(names.map(readJSON)));const data=Object.fromEntries(names.map((n,i)=>[n,values[i]]));
  const worldThemes=[
- {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/arrow-lab/scenes/candy.jpg?v=candyworld1'},
- {name:'Pirate',icon:'🏴‍☠️',id:'pirate',color:'#d39a54',backgroundImage:'/arrow-lab/scenes/pirate.jpg'},
- {name:'Arctic',icon:'🐧',id:'arctic',color:'#60c4f3',backgroundImage:'/arrow-lab/scenes/arctic.jpg'},
- {name:'Castle',icon:'🏰',id:'castle',color:'#9c7cdd',backgroundImage:'/arrow-lab/scenes/castle.jpg'},
- {name:'Space',icon:'🚀',id:'space',color:'#7659de',backgroundImage:'/arrow-lab/scenes/space.jpg'},
- {name:'Jurassic',icon:'🦕',id:'jurassic',color:'#5fbc74',backgroundImage:'/arrow-lab/scenes/jurassic.jpg'},
- {name:'Ocean',icon:'🐬',id:'ocean',color:'#41bce2',backgroundImage:'/arrow-lab/scenes/ocean.jpg'},
- {name:'Lava',icon:'🌋',id:'lava',color:'#ee7748',backgroundImage:'/arrow-lab/scenes/lava.jpg'}
+ {name:'Candy',icon:'🍬',id:'candy',color:'#f66cba',backgroundImage:'/arrow-lab/my-stuff-backgrounds/candy_world_background.jpg'},
+ {name:'Pirate',icon:'🏴‍☠️',id:'pirate',color:'#d39a54',backgroundImage:'/arrow-lab/my-stuff-backgrounds/pirate_world_background.jpg'},
+ {name:'Arctic',icon:'🐧',id:'arctic',color:'#60c4f3',backgroundImage:'/arrow-lab/my-stuff-backgrounds/arctic_world_background.jpg'},
+ {name:'Castle',icon:'🏰',id:'castle',color:'#9c7cdd',backgroundImage:'/arrow-lab/my-stuff-backgrounds/castle_world_background.jpg'},
+ {name:'Space',icon:'🚀',id:'space',color:'#7659de',backgroundImage:'/arrow-lab/my-stuff-backgrounds/space_world_background.jpg'},
+ {name:'Jurassic',icon:'🦕',id:'jurassic',color:'#5fbc74',backgroundImage:'/arrow-lab/my-stuff-backgrounds/jurassic_world_background.jpg'},
+ {name:'Ocean',icon:'🐬',id:'ocean',color:'#41bce2',backgroundImage:'/arrow-lab/my-stuff-backgrounds/ocean_world_background.jpg'},
+ {name:'Lava',icon:'🌋',id:'lava',color:'#ee7748',backgroundImage:'/arrow-lab/my-stuff-backgrounds/lava_world_background.jpg'}
  ];
  const activityNames=['First Steps','Rainbow Turns','Find the Treasure','Bridge Crossing','Star Path','Friend Quest','Winding Maze','World Finale'];
 
@@ -112,7 +113,7 @@ export async function openAdventure({number,storageKey,teacherName,teachers,veri
 // The approved 1254×1254 transparent PNGs must be uploaded unchanged to these paths.
 const approvedFriendFiles={pirate:'arrow-lab/friends/pirate-parrot.png',arctic:'arrow-lab/friends/arctic-penguin.png',castle:'arrow-lab/friends/royal-dragon.png',space:'arrow-lab/friends/space-alien.png',jurassic:'arrow-lab/friends/explorer-dino.png',ocean:'arrow-lab/friends/ocean-dolphin.png',lava:'arrow-lab/friends/lava-dragon.png'};
 const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Penguin','🐧'],['Royal Dragon','🐉'],['Space Alien','👽'],['Explorer Dino','🦖'],['Ocean Dolphin','🐬'],['Lava Dragon','🐲']].map(([name,icon],i)=>({id:worldThemes[i].id,name,icon,art:i===0?'arrow-lab/friends/candy-bunny.png':approvedFriendFiles[worldThemes[i].id],approvedArtPath:i===0?'arrow-lab/friends/candy-bunny.png':approvedFriendFiles[worldThemes[i].id]}));
- const homeArt=[candyStageBackgrounds[0],pirateStageBackgrounds[0],arcticStageBackgrounds[0],worldThemes[3].backgroundImage,worldThemes[4].backgroundImage,worldThemes[5].backgroundImage,oceanStageBackgrounds[0],worldThemes[7].backgroundImage];
+ const homeArt=worldThemes.map(w=>w.backgroundImage);
  const backgroundHomes=worldThemes.map((w,i)=>({id:'background_'+w.id,name:w.name+' World',homeBackground:homeArt[i],cardPreview:homeArt[i],availableAtStart:i===0,theme:w.id}));
  const themedGoods=[
  {id:'candy_cupcake',name:'Giant Cupcake',world:'candy',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/candy/cupcake.png'},
@@ -186,7 +187,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   {id:'shop_lava_magma_bridge',name:'Magma Crossing Bridge',world:'lava',kind:'decor',shopOnly:true,cost:8,art:'bridge'},
   {id:'shop_lava_treasure_chest',name:'Volcano Treasure Chest',world:'lava',kind:'decor',shopOnly:true,cost:9,art:'treasure'}
  ];
- const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives];
+ const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives,...libraryShopDecorations];
  const findDecoration=id=>fullDecorations.find(d=>d.id===id);
  const enemyRosters=[
    ['purple_slime','chomper_plant','storm_cloud','prickly_cactus'], // Candy: four different playful monsters
@@ -202,7 +203,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  levels=worldThemes.flatMap((world,wi)=>activityNames.map((title,ai)=>{
    const template=data.levels[ai];
    return {...template,id:'lab_'+world.id+'_'+(ai+1),number:wi*8+ai+1,title:world.name+' · '+(stageNames[world.id]?.[ai]||title),
-     worldIndex:wi,worldStage:ai+1,backgroundImage:wi===0?candyStageBackgrounds[ai]:wi===1?pirateStageBackgrounds[ai]:wi===2?arcticStageBackgrounds[ai]:wi===6&&ai===0?oceanStageBackgrounds[0]:world.backgroundImage,individualBackdrop:wi===0||wi===1||wi===2||(wi===6&&ai===0),sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:(pairFor(wi,ai)||fallbackGearPair(ai,template.computerGearIds)).filter(canSpawnPickup),
+     worldIndex:wi,worldStage:ai+1,backgroundImage:world.backgroundImage,individualBackdrop:true,sceneX:(ai%4)*100/3,sceneY:ai<4?0:100,primarySkill:'arrows',collectibleIds:(pairFor(wi,ai)||fallbackGearPair(ai,template.computerGearIds)).filter(canSpawnPickup),
      mazeGrid:{width:Math.max(11,template.mazeGrid.width),height:Math.max(9,template.mazeGrid.height)},computerGearIds:[...template.computerGearIds],
      skillBadgeIds:[...template.skillBadgeIds],enemyIds:[...enemyRosters[wi]]};
  })),config=data.game_config,key=storageKey;
@@ -623,7 +624,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  function shopArt(d){return d.artPath?img(d.artPath,d.name,'shop-decoration'):d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+(d.emoji||'⭐')+'</span>'}
  function buyShopExclusive(worldId,itemId){
-   const item=shopExclusives.find(x=>x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
+   const item=fullDecorations.find(x=>x.shopOnly&&x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
    if(!item||!owned(worldId)||Object.values(a.decorations||{}).some(list=>list.includes(itemId))||a.wallet.rainbowStars<item.cost)return false;
    const previousStars=a.wallet.rainbowStars;
    const previousDecorations=Array.isArray(a.decorations[worldId])?[...a.decorations[worldId]]:null;
@@ -989,7 +990,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const worldPreviews='<div class="my-stuff-quickworlds" role="group" aria-label="My owned world pictures">'+
     purchased.map(l=>'<button type="button" data-stuff-world="'+l.id+'" aria-pressed="'+(l.id===id)+'" aria-label="Show '+esc(l.name)+' world">'+
       img(l.cardPreview,l.name+' world preview')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div>';
-  const worldOnlyGoods=shopExclusives.filter(d=>d.world===backgroundHomes.find(w=>w.id===id)?.theme);
+  const worldOnlyGoods=fullDecorations.filter(d=>d.shopOnly&&d.world===backgroundHomes.find(w=>w.id===id)?.theme);
   const exclusiveStore='<section class="my-stuff-exclusive-store" aria-label="Shop-only decorations for '+esc(land(id).name)+'">'+
    '<h3>⭐ '+esc(land(id).name)+' · SHOP ONLY</h3><p>These items cannot be collected in mazes. Spend stars to buy them for your world!</p>'+
    '<div class="my-stuff-exclusive-cards">'+worldOnlyGoods.map(d=>{
@@ -1237,7 +1238,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  fit();
  }
  function fit(){
- if(view==='computer'){const scene=$('collection-scene'),box=scene?.parentElement;if(scene&&box){const image=scene.querySelector('.collection-background-size'),ratio=image?.naturalWidth&&image?.naturalHeight?image.naturalWidth/image.naturalHeight:16/9;const width=Math.min(box.clientWidth,box.clientHeight*ratio);scene.style.setProperty('width',width+'px','important');scene.style.setProperty('height',(width/ratio)+'px','important');}return}
+ if(view==='computer'){const scene=$('collection-scene'),box=scene?.parentElement;if(scene&&box){const image=scene.querySelector('.collection-background-size'),ratio=image?.naturalWidth&&image?.naturalHeight?image.naturalWidth/image.naturalHeight:16/9;const width=Math.min(image?.naturalWidth||1672,box.clientWidth,box.clientHeight*ratio);scene.style.setProperty('width',width+'px','important');scene.style.setProperty('height',(width/ratio)+'px','important');}return}
  if(view!=='maze'||!r)return;document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||innerHeight)+'px');
  const m=$('adventure-maze'),box=document.querySelector('.scenic-board');if(!m||!box)return;const viewport=window.visualViewport?.height||innerHeight;
  const size=Math.max(1,Math.floor(Math.min((box.clientWidth-12)/r.w,(box.clientHeight-12)/r.h)));m.style.width=size*r.w+'px';m.style.height=size*r.h+'px';

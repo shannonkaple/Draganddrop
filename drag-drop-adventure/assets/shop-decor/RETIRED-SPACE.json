@@ -1,0 +1,50 @@
+{
+  "reason": "Contact-sheet art removed at user request. Individual approved Space decorations not supplied yet. Saved IDs, ownership and positions are retained without rendering substitutes.",
+  "items": [
+    {
+      "id": "shop_space_galaxy_lounge",
+      "name": "Galaxy Lounge Couch",
+      "cost": 8
+    },
+    {
+      "id": "shop_space_rocket_playhouse",
+      "name": "Rocket Playhouse",
+      "cost": 10
+    },
+    {
+      "id": "shop_space_alien_garden",
+      "name": "Alien Garden Dome",
+      "cost": 8
+    },
+    {
+      "id": "shop_space_planet_mobile",
+      "name": "Floating Planet Mobile",
+      "cost": 6
+    },
+    {
+      "id": "shop_space_moon_firepit",
+      "name": "Moon Rock Fire Pit",
+      "cost": 7
+    },
+    {
+      "id": "shop_space_stargazer",
+      "name": "Stargazer Telescope",
+      "cost": 8
+    },
+    {
+      "id": "shop_space_snack_station",
+      "name": "Satellite Snack Station",
+      "cost": 9
+    },
+    {
+      "id": "shop_space_meteor_canopy",
+      "name": "Meteor Shower Canopy",
+      "cost": 9
+    },
+    {
+      "id": "shop_space_astronaut_bunk",
+      "name": "Astronaut Bunk Bed",
+      "cost": 10
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "project": "Ms. Kaple's A-MAZE-ING Arrow Adventure",
+  "assets": [
+    {
+      "world": "candy",
+      "source_filename": "whimsical_candy_kingdom_vista.png",
+      "original_png": "original_png/candy_world_background.png",
+      "jpeg_for_game": "game_jpeg/candy_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "1e66e8000e197162d87be5aebfbb04fa7a836874d0949ba84403516295faadee",
+      "jpg_sha256": "9cefe82f41a2ae6623ca43ed495c134a6769214fd284f14706f3bf8a2812090f",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/candy_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    },
+    {
+      "world": "pirate",
+      "source_filename": "pirate_island_cove_adventure.png",
+      "original_png": "original_png/pirate_world_background.png",
+      "jpeg_for_game": "game_jpeg/pirate_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "88b11f73af26a567dc0587f0e9d4acd183aad222acca91049d685ea1c1b5fd27",
+      "jpg_sha256": "068187b25039df9cd51002683ea294fd1fba3663a6d9c3e021c25b231bece8fa",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/pirate_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    },
+    {
+      "world": "arctic",
+      "source_filename": "aurora_over_the_arctic_village.png",
+      "original_png": "original_png/arctic_world_background.png",
+      "jpeg_for_game": "game_jpeg/arctic_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "ecef41999125a9773f42cf06cd48f625d7b74b16278694af4dab63051ff9d900",
+      "jpg_sha256": "3683d81ccaf0611301f9304122ef2619c7e798aac3914b728fefbdef1e6e5826",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/arctic_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    },
+    {
+      "world": "castle",
+      "source_filename": "enchanted_castle_courtyard_adventure.png",
+      "original_png": "original_png/castle_world_background.png",
+      "jpeg_for_game": "game_jpeg/castle_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "267ea2006ca2cfe054e1f893df5316c44f4b82b0e7152dc10c0e49a657a2aebb",
+      "jpg_sha256": "8e2957023a2a8400b7628b077b36f2683b9511bc73a8807c09e28f76d7140d2a",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/castle_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    },
+    {
+      "world": "space",
+      "source_filename": "cosmic_landing_pad_vista.png",
+      "original_png": "original_png/space_world_background.png",
+      "jpeg_for_game": "game_jpeg/space_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "078d4a854f47a3ab6ec9c73b462cc8374f76135f1cf87d6acee3df24b70ffca6",
+      "jpg_sha256": "db6acac6a647638a36450037f4aea226bb033bda2fed2a90bc5081e3cfb509d6",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/space_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    },
+    {
+      "world": "jurassic",
+      "source_filename": "vibrant_prehistoric_jungle_valley.png",
+      "original_png": "original_png/jurassic_world_background.png",
+      "jpeg_for_game": "game_jpeg/jurassic_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "c12d012befbded4da362fa792672e041ff985c79d6e26788fa0ce06c5b7a3259",
+      "jpg_sha256": "bb16153f127b4ee1b5f877115af3700f2104c9f0eec47c3f36c411a0ec98a327",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/jurassic_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    },
+    {
+      "world": "ocean",
+      "source_filename": "sunlit_underwater_coral_kingdom.png",
+      "original_png": "original_png/ocean_world_background.png",
+      "jpeg_for_game": "game_jpeg/ocean_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "3af85ed64909bd011ec949bfbadb0bca4c2c4d31f1845e5d79bb72722dd545f6",
+      "jpg_sha256": "7f55e2314e9f6de22ac7723909930904fdb521c072f09f2248288f1f70004896",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/ocean_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    },
+    {
+      "world": "lava",
+      "source_filename": "volcanic_fortress_over_lava_canyon.png",
+      "original_png": "original_png/lava_world_background.png",
+      "jpeg_for_game": "game_jpeg/lava_world_background.jpg",
+      "width": 1672,
+      "height": 941,
+      "ratio": "1672:941 (~16:9)",
+      "original_sha256": "bcf6c617efe8f78ab500beb0710d66b988501755f856d6393145d8631d6d6613",
+      "jpg_sha256": "a77c0daff6c3451a2692385cfbf32d418b595dce214088cdc1d9dd1295621d81",
+      "intended_repo_path": "arrow-lab/my-stuff-backgrounds/lava_world_background.jpg",
+      "status": "created, native dimensions verified; coding integration and user approval pending"
+    }
+  ],
+  "notes": [
+    "Each world has ONE new original scene; these eight are NOT sixty-four different level-specific backgrounds.",
+    "Each JPEG is encoded from its complete original PNG without any crop, rescale, or stretching.",
+    "Keep approved world map level circles and current student progress intact.",
+    "New art has not been added to the repository or verified in the running game."
+  ]
+}

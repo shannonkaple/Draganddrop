@@ -3,10 +3,6 @@
   "source": "ChatGPT Library",
   "files": [
     {
-      "name": "Glossy Space-Themed Sticker Collection.png",
-      "library_file_id": "libfile_3e679bc39ef0819187b9a20ddbb7f58d"
-    },
-    {
       "name": "image-gen-9(3).png",
       "library_file_id": "libfile_5727eb0a1a608191b0de94982d3a4c9c"
     },
@@ -155,5 +151,6 @@
     "36 original transparent PNGs copied byte-for-byte.",
     "Nine Space objects use individually positioned display regions of the original transparent PNG; no redrawn artwork.",
     "Shop-only items are separate from activity collectible pools."
-  ]
+  ],
+  "retiredSpace": "See RETIRED-SPACE.json. Contact sheet removed; individual approved art still needed."
 }

@@ -89,8 +89,8 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
   cancel();const shell=root.querySelector('.activity-shell'),app=document.getElementById('app'),frameEl=root.querySelector('.activity-frame');
   const outer=app.getBoundingClientRect(),top=shell.getBoundingClientRect().top+app.scrollTop-outer.top;
   const chrome=[...shell.children].filter(e=>e!==frameEl).reduce((n,e)=>n+e.getBoundingClientRect().height,0);
-  const h=Math.max(260,app.clientHeight-top-chrome-24),w=Math.min(frameEl.clientWidth,h*1000/600);
-  board.style.setProperty('--fitted-board-width',w+'px');board.style.setProperty('--fitted-board-height',w*.6+'px');app.dispatchEvent(new Event('activity-layout'));
+  const h=Math.max(260,app.clientHeight-top-chrome-24),w=Math.min(1672,frameEl.clientWidth,h*1672/941);
+  board.style.setProperty('--fitted-board-width',w+'px');board.style.setProperty('--fitted-board-height',w*941/1672+'px');app.dispatchEvent(new Event('activity-layout'));
  }
  const observer=new ResizeObserver(fit);observer.observe(root);observer.observe(document.getElementById('app'));observer.observe(document.querySelector('body>header'));
  window.addEventListener('resize',fit,{signal:abort.signal});window.visualViewport?.addEventListener('resize',fit,{signal:abort.signal});
