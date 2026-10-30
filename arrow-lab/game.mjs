@@ -3,7 +3,7 @@ import {enablePickerArrows} from './picker-arrows.mjs?v=20261028';
 import {isMobileTouchDevice} from './mobile-touch.mjs?v=mobile-touch-20261028a';
 const mobileTouch = isMobileTouchDevice();
 if(mobileTouch)document.body.classList.add('mobile-touch-enabled');
-import './viewport.mjs?v=mobile-fullwidth-shelf-20261028a';
+import './viewport.mjs?v=full-width-ribbon-20261030';
 import {classKey,copyLegacy} from './identity.mjs?v=lab1';
 const teachers=await fetch(new URL('../rainbow-road/data/teachers.json?v=20261021-all18',import.meta.url)).then(r=>r.json());
 import '../rainbow-road/read-aloud.mjs?v=20261021-menu';
