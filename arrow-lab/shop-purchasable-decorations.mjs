@@ -329,6 +329,14 @@ export const newShopDecorationCatalog=[
   }
 ];
 
+// A GitHub Pages 200 can be an HTML fallback, not a published transparent PNG.
+// HEAD avoids downloading dozens of large images on every student launch.
+export function isPublishedPngResponse(response){
+ if(!response?.ok)return false;
+ const type=response.headers?.get?.('content-type');
+ return typeof type==='string' && /^image\/png(?:\s*;|\s*$)/i.test(type.trim());
+}
+
 // Fail closed: an unpublished or unavailable PNG cannot be bought as a broken image.
 // probe receives the unmodified repository-relative artPath and returns a boolean.
 export async function publishedShopDecorations(probe){
