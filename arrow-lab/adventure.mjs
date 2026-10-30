@@ -220,7 +220,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     }
   }catch{studentSaveUnreadable=true}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
- let currentMapWorld=null,inventoryScrollLeft=0;
+ let currentMapWorld=null,inventoryScrollLeft=0,teacherAccessGranted=false;
  let settings;try{settings=JSON.parse(localStorage.getItem('arrow-lab-teacher-settings')||'{}')}catch{settings={}}
  settings={difficulty:'standard',speed:2200,hints:true,sound:false,reducedMotion:false,...settings,touchArrows:false};
  // Every student automatically owns one starter home. Never ask for a home during onboarding.
@@ -285,7 +285,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // Report the unsafe old record BEFORE a student starts a new activity.
  if(studentSaveUnreadable)showStorageWarning();
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
- function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);document.removeEventListener('visibilitychange',pauseHiddenHazards);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
+ function cleanup(){closed=true;teacherAccessGranted=false;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);document.removeEventListener('visibilitychange',pauseHiddenHazards);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
  // A failed save must not dismiss a rescue challenge, abandon an unfinished
  // maze, or log out the student. Keep the current screen and offer a retry.
@@ -1543,14 +1543,38 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  document.querySelectorAll('[data-companion-home]').forEach(b=>b.onclick=()=>{if(commitRescueHome(id,b.dataset.companionHome)){sound();computer(b.dataset.companionHome,"friends")}});
  }
  function teacher(){
- const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label>Challenge <select id="set-difficulty"><option value="standard">Standard · moving bad guys</option><option value="gentle">Gentle · stationary bad guys</option></select></label><label>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show hints'],['sound','Celebration sound'],['reducedMotion','Reduce motion']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><label for="teacher-skip-code">Teacher code (required for settings, skip, and export) <input id="teacher-skip-code" type="password" inputmode="numeric" autocomplete="off"></label><p id="teacher-skip-feedback" role="status" aria-live="polite"></p><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
+ // Teacher controls must not be visible to students merely because the
+ // Teacher button is present. Unlock only for this active student session.
+ if(!teacherAccessGranted){
+  modal('Teacher access',
+   '<p>Teacher tools are locked. Enter the teacher code to open settings.</p>'+
+   '<label for="teacher-access-code">Teacher code <input id="teacher-access-code" type="password" inputmode="numeric" autocomplete="off"></label>'+
+   '<p id="teacher-access-feedback" role="alert" aria-live="assertive"></p>'+
+   '<button id="unlock-teacher-tools" type="button" class="primary">Unlock teacher tools</button>',
+   ()=>{
+    const field=$('teacher-access-code'),feedback=$('teacher-access-feedback');
+    const unlock=()=>{
+     if(!verifyTeacherCode(field.value)){
+      feedback.textContent='Incorrect teacher code. Settings are still locked.';
+      field.value='';
+      field.focus({preventScroll:true});
+      return;
+     }
+     teacherAccessGranted=true;
+     closeModal();
+     teacher();
+    };
+    $('unlock-teacher-tools').onclick=unlock;
+    field.addEventListener('keydown',event=>{
+     if(event.key==='Enter'){event.preventDefault();unlock()}
+    });
+    field.focus({preventScroll:true});
+   });
+  return;
+ }
+ const content='<p>Settings apply on this browser. Skipping opens a level but does not award badges, stars, or friends.</p><label>Challenge <select id="set-difficulty"><option value="standard">Standard · moving bad guys</option><option value="gentle">Gentle · stationary bad guys</option></select></label><label>Obstacle pace <select id="set-speed"><option value="1600">Slow</option><option value="2200">Slower</option><option value="3200">Slowest</option></select></label>'+[['hints','Show hints'],['sound','Celebration sound'],['reducedMotion','Reduce motion']].map(([id,label])=>'<label><input id="set-'+id+'" type="checkbox"> '+label+'</label>').join('')+'<label>Power-Up stars <input id="cost-power" type="number" min="1" max="20" value="'+config.progression.upgradeCost.power_up+'"></label><label>Super Power stars <input id="cost-super" type="number" min="1" max="30" value="'+config.progression.upgradeCost.super_power_additional+'"></label><p class="teacher-unlocked-note">Teacher mode unlocked for this student session.</p><p id="teacher-skip-feedback" role="status" aria-live="polite"></p><button id="save-settings" class="primary">Save settings</button><button id="skip-level">Open next level · no rewards</button><button id="export-progress">Download progress CSV</button><button id="close-settings">Back</button>';
  modal('Teacher settings',content,()=>{$('set-difficulty').value=settings.difficulty;$('set-speed').value=settings.speed;for(const k of ['hints','sound','reducedMotion'])$('set-'+k).checked=settings[k];
- const requireTeacherCode=()=>{
-   if(verifyTeacherCode($('teacher-skip-code')?.value))return true;
-   $('teacher-skip-feedback').textContent='Enter the teacher code to use teacher tools.';
-   $('teacher-skip-code')?.focus();
-   return false;
- };
+ const requireTeacherCode=()=>teacherAccessGranted;
  $('save-settings').onclick=()=>{
    if(!requireTeacherCode())return;
    const next={
