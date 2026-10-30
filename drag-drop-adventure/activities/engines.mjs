@@ -1,4 +1,6 @@
-export const acceptsDragInput=e=>e.pointerType==='mouse'&&e.button===0&&e.isPrimary!==false;
+// Chromebook touchscreens must not bypass trackpad practice; phones/tablets may drag by touch.
+export const isMobileTouchDevice=()=>typeof navigator!=='undefined'&& !/CrOS/i.test(navigator.userAgent||'') && (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent||'')||navigator.userAgentData?.mobile===true);
+export const acceptsDragInput=e=>e.isPrimary!==false&&((e.pointerType==='mouse'&&e.button===0)||(e.pointerType==='touch'&&isMobileTouchDevice()));
 // Pure mechanics. Logical coordinates are independent of artwork and screen size.
 export const ACTIVITY_TYPES=['maze','sort','pack','path','pattern','scene','order','deliver'];
 export const ACTIVITY_NAMES=['Maze Escape','Sorting Station','Pack It Up','Fix the Path','Pattern Power','Build the Scene','Put It in Order','Catch & Deliver'];
