@@ -1,5 +1,5 @@
 import {libraryShopDecorations} from '../drag-drop-adventure/shop-decor.mjs?v=world-scenes-20261030';
-import {publishedShopDecorations} from './shop-purchasable-decorations.mjs?v=separate-shop-art-20261030';
+import {publishedShopDecorations,isPublishedPngResponse} from './shop-purchasable-decorations.mjs?v=verified-png-response-20261030a';
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=maze-start-rollback-20261030a';
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
@@ -191,7 +191,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // Show brand-new shop decorations only after their exact original PNG is published.
  // Never sell a missing image, substitute collectible art, or change legacy purchase IDs.
  const readyOriginalShopDecorations=await publishedShopDecorations(path=>
-  fetch(asset(path),{method:'HEAD'}).then(response=>response.ok).catch(()=>false));
+  fetch(asset(path),{method:'HEAD'}).then(isPublishedPngResponse).catch(()=>false));
  const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives,...libraryShopDecorations,...readyOriginalShopDecorations];
  const findDecoration=id=>fullDecorations.find(d=>d.id===id);
  const enemyRosters=[
