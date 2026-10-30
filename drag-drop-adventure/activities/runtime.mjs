@@ -86,9 +86,21 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
   cancel();
   if(drag.distance<12){say('Click and keep holding while you move the picture.');return}
   if(!candidates.length){say('Almost! Let go inside a matching space.');return}
+  // Save each new placement BEFORE displaying it or finishing the activity.
+  // If storage fails, restore the last actual saved step and let the child retry.
+  const priorState=structuredClone(state);
   const result=tryPlacement(level,state,p.id,candidates[0].id);
   if(!result.ok){say(result.message);return}
-  onProgress(structuredClone(state));redraw();
+  let accepted=false;
+  try{accepted=onProgress(structuredClone(state))!==false}catch{accepted=false}
+  if(!accepted){
+    state.placed=priorState.placed;state.round=priorState.round;
+    state.roundPlaced=priorState.roundPlaced;state.complete=priorState.complete;
+    redraw();
+    say('This move did NOT save. Your earlier work is safe. Please try again.');
+    return;
+  }
+  redraw();
   say(result.complete?'You did it! Activity complete!':result.nextRound?'Great pattern! Try the next one.':'Great placement! Keep going.');
   if(result.complete){finished=true;cancelAnimationFrame(frame);onComplete()}
  }
