@@ -353,3 +353,22 @@ export function catalogWithArtAvailability(catalog,published){
  const readyIds=new Set(published.map(item=>item.id));
  return catalog.map(item=>({...item,artUnavailable:!readyIds.has(item.id)}));
 }
+
+
+// Keep student login responsive when one or more missing GitHub Pages images
+// stall their HEAD requests. A late response never enables an unverified item.
+export async function probePublishedPngWithTimeout(path,fetcher,resolveUrl,timeoutMs=1800){
+ if(typeof fetcher!=='function'||typeof resolveUrl!=='function')throw new TypeError('A fetcher and URL resolver are required');
+ const controller=typeof AbortController==='function'?new AbortController():null;
+ const deadlineMs=Math.max(1,Math.min(10000,Number(timeoutMs)||1800));
+ let timer;
+ const deadline=new Promise(resolve=>{
+  timer=setTimeout(()=>{controller?.abort();resolve(false)},deadlineMs);
+ });
+ try{
+  const request=Promise.resolve()
+   .then(()=>fetcher(resolveUrl(path),{method:'HEAD',...(controller?{signal:controller.signal}:{})}))
+   .then(isPublishedPngResponse,()=>false);
+  return await Promise.race([request,deadline]);
+ }finally{clearTimeout(timer)}
+}
