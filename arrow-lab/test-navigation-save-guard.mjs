@@ -25,7 +25,7 @@ const cases = [
     assert.equal(navigateWithVerifiedSave(persist,()=>leaves++),true);
     assert.equal(leaves,1);
   }],
-  ['navigation helper does not change the student's progress', () => {
+  ["navigation helper does not change the student's progress", () => {
     const progress={stars:27,completed:['candy-1'],run:{player:{x:2,y:4}},rescued:['bunny']};
     const before=JSON.stringify(progress);
     navigateWithVerifiedSave(()=>false,()=>{throw Error('must not leave')});
