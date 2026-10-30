@@ -357,6 +357,27 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    }
  }
 
+ const worldBack=$('header-back-world');
+ if(worldBack){
+  worldBack.hidden=!(view==='drag'&&def);
+  if(!worldBack.hidden){
+    const world=worldThemes[def.worldIndex];
+    worldBack.textContent='↩️ Back to '+world.icon+' '+world.name+' Map';
+    worldBack.setAttribute('aria-label','Back to '+world.name+' World map, saving your activity first');
+    worldBack.onclick=()=>{
+      // A rejected write must not lose any newly completed placements.
+      save();
+      if(!saved&&!preview){
+       const warning=document.querySelector('#drag-activity .activity-feedback')||$('app');
+       warning.textContent='Your progress has NOT saved. Stay on this level and tell your teacher, then try Back to Map again.';
+       warning.hidden=false;
+       warning.setAttribute('role','alert');
+       return;
+      }
+      openWorld(def.worldIndex);
+    };
+  }
+ }
  $('who').textContent=preview?'Exit Teacher Mode':'Change student';
  $('app').innerHTML='<h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>{save();cleanup();onLogout()});
