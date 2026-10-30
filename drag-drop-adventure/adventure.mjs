@@ -200,6 +200,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  config.levelCount=levels.length;
  let stored;try{stored=preview?{}:JSON.parse(localStorage.getItem(key)||'{}')}catch{stored={}}
  let a=migrateAdventure(stored.adventure,stored.wallet,chars,lands),r=null,def=null,duck=false,heldSpace=false,interval=null,warning=null,closed=false,view='map',pendingFriend=null,challengeKeys=null,report='Look, choose, press and release, check.',saved=true;
+ let selectedWorldIndex=null; // view-only: track world map without touching student save schema
  let dragSession=null;
  let settings;try{settings=JSON.parse(localStorage.getItem('drag-drop-adventure-teacher-settings')||'{}')}catch{settings={}}
  settings={difficulty:'standard',speed:2200,hints:true,sound:false,reducedMotion:false,...settings,touchArrows:false};
@@ -326,16 +327,20 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    headerProgress.hidden=!ready;
    if(ready){
      const hero=char(a.selectedPlayerCharacterId);
-     const nextFriend=companions.find(c=>!a.worldFriends?.[c.id]);
-     const worldIndex=nextFriend?companions.indexOf(nextFriend):7;
+     const next=nextLevel();
+     const selectedRoom=view==='computer' ? backgroundHomes.findIndex(l=>l.id===a.collectionWorldId) : -1;
+     const worldIndex=Math.max(0,Math.min(7,
+       view==='world-select'&&selectedWorldIndex!=null ? selectedWorldIndex
+       : view==='drag'&&def ? def.worldIndex
+       : selectedRoom>=0 ? selectedRoom
+       : next.worldIndex));
      const completed=Math.max(0,Math.min(8,worldDoneCount(worldIndex)));
+     const activeWorld=worldThemes[worldIndex];
      $('header-character-art').innerHTML=pic(hero.id);
      $('header-character-name').textContent=hero.name;
-     $('header-progress-label').textContent=nextFriend
-       ? completed+' / 8 · Rescue '+nextFriend.name
-       : 'All world friends rescued!';
+     $('header-progress-label').textContent=activeWorld.icon+' '+activeWorld.name+' World · '+completed+' / 8 levels completed';
      $('header-world-meter').setAttribute('aria-valuenow',String(completed));
-     $('header-world-meter').setAttribute('aria-label',nextFriend?'Activities toward rescuing '+nextFriend.name:'All friends rescued');
+     $('header-world-meter').setAttribute('aria-label',activeWorld.name+' World: '+completed+' of 8 levels completed');
      $('header-meter-fill').style.width=(completed/8*100)+'%';
      $('header-change-player').onclick=()=>selectCharacter(true);
      const rescueButton=$('header-rescue-friend');
@@ -408,6 +413,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function isWorldUnlocked(i){return a.highestUnlockedLevel>=i*8+1}
  function worldDoneCount(i){return levels.slice(i*8,i*8+8).filter(l=>a.completedLevelIds.includes(l.id)).length}
  function map(){
+  selectedWorldIndex=null;
   view='map';
   const next=nextLevel(),playerId=a.selectedPlayerCharacterId;
   const nextFriend=companions.find(c=>!a.worldFriends?.[c.id]);
@@ -453,6 +459,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function openCandyWorld(){openWorld(0)}
  function openWorld(i){
   if(!isWorldUnlocked(i))return map();
+  selectedWorldIndex=i;
   const world=worldThemes[i],stages=levels.slice(i*8,i*8+8);view='world-select';
   const buttons=stages.map((l,k)=>{
    const done=a.completedLevelIds.includes(l.id),open=done||l.number<=a.highestUnlockedLevel,point=WORLD_STOP_POINTS_BY_WORLD[world.id][k];
