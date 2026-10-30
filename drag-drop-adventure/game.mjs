@@ -4,9 +4,27 @@ import {openAdventure} from './adventure.mjs?v=first-maze-full-board-voice-20261
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;
-const teachers=await fetch(new URL('./teachers-grade2.json?v=20261028-wide',import.meta.url)).then(r=>{if(!r.ok)throw Error('Class list could not load');return r.json()});
+let teachers=[],teacherLoadError=null;
+async function loadTeachers(){
+ try{
+  const response=await fetch(new URL('./teachers-grade2.json?v=20261030-selection-repair',import.meta.url),{cache:'no-cache'});
+  if(!response.ok)throw Error('Class list could not load');
+  const rows=await response.json();
+  if(!Array.isArray(rows)||!rows.length||!rows.every(t=>t&&t.id&&t.name))throw Error('Invalid class list');
+  teachers=rows;teacherLoadError=null;
+ }catch(error){
+  console.error('Drag & Drop teacher list load error',error);
+  teachers=[];teacherLoadError=error;
+ }
+}
+await loadTeachers();
 function login(){
  controller?.cleanup();controller=null;lockTeacher();document.body.classList.remove('teacher-preview');$('header-stars').hidden=true;$('header-store').hidden=true;$('header-stuff').hidden=true;$('header-profile').textContent='';document.body.classList.remove('playing','adventure-mode','lab-map-active');$('who').classList.add('hidden');
+ if(teacherLoadError){
+  $('app').innerHTML='<section class="panel" role="alert"><h2>Teacher list could not load</h2><p>Check your connection and try again.</p><button type="button" id="retry-teachers" class="primary">🔄 Try Again</button></section>';
+  $('retry-teachers').onclick=async()=>{await loadTeachers();login()};
+  return;
+ }
  $('app').innerHTML='<div class="hero"><h1>DRAG &amp; DROP ADVENTURE</h1><p>Click. Hold. Move. Let go!</p><p>Choose your teacher. Then choose your classroom number.</p></div><section class="panel"><h2>1. Second Grade · Pick your teacher</h2><div class="adventure-cards">'+teachers.map(t=>'<button data-teacher="'+t.id+'">'+esc(t.name)+'</button>').join('')+'</div></section>';
  document.querySelectorAll('[data-teacher]').forEach(b=>b.onclick=()=>numbers(teachers.find(t=>t.id===b.dataset.teacher)));
  $('help').onclick=()=>alert('Click and keep holding with one finger. Move the picture to its matching spot. Let go inside the spot.');
