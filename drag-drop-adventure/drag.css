@@ -459,3 +459,101 @@ body.lab-map-active .lab-map-home>.lab-map-art-frame .lab-map-canvas{
  body>header.drag-banner-header .actions .toolbar-right{order:3}
  body>header.drag-banner-header .header-character-art{height:43px;width:40px;flex-basis:40px}
 }
+
+/* 2026-10-30: show the ENTIRE unmodified Drag & Drop banner and provide
+   predictable, generously sized Chromebook navigation controls. */
+html body>header.lab-image-header.drag-banner-header,
+html body:is(.lab-map-active,.lab-world-active,.lab-collection-active,.activity-playing,.playing)>header.lab-image-header.drag-banner-header{
+ position:relative!important;display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;width:100%!important;max-width:none!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ overflow:visible!important;padding:0!important;gap:0!important;
+}
+html body>header.lab-image-header.drag-banner-header .brand,
+html body:is(.lab-map-active,.lab-world-active,.lab-collection-active,.activity-playing,.playing)>header.lab-image-header.drag-banner-header .brand,
+html body.activity-playing>header.drag-banner-header:not(.heading-open) .brand{
+ display:block!important;position:relative!important;flex:none!important;
+ width:100%!important;height:auto!important;max-height:none!important;
+ min-height:0!important;overflow:visible!important;margin:0!important;padding:0!important;
+ line-height:0!important;
+}
+html body>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art,
+html body:is(.lab-map-active,.lab-world-active,.lab-collection-active,.activity-playing,.playing)>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art,
+html body:is(.activity-playing,.lab-collection-active)>header.drag-banner-header:not(.heading-open) .brand>img.drag-banner-art{
+ display:block!important;position:static!important;inset:auto!important;
+ width:100%!important;height:auto!important;max-height:none!important;
+ min-height:0!important;object-fit:contain!important;object-position:center!important;
+ transform:none!important;clip-path:none!important;
+ margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;
+}
+html body>header.lab-image-header.drag-banner-header .actions{
+ position:relative!important;display:grid!important;
+ grid-template-columns:minmax(145px,1fr) minmax(235px,1.25fr) auto auto!important;
+ grid-auto-rows:minmax(46px,auto)!important;align-items:center!important;
+ justify-items:stretch!important;gap:8px 12px!important;
+ width:100%!important;max-width:none!important;
+ height:auto!important;min-height:54px!important;max-height:none!important;
+ padding:6px 12px!important;margin:0!important;
+ overflow:visible!important;
+ background:linear-gradient(100deg,#f9b4dd,#ffe8ac 24%,#aff0bd 48%,#a7e2fa 73%,#dfb6fc)!important;
+}
+html body>header.drag-banner-header .actions :is(.toolbar-left,.toolbar-center,.toolbar-right){
+ position:static!important;display:flex!important;flex-direction:row!important;
+ flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;width:auto!important;min-width:0!important;
+ height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;
+}
+html body>header.drag-banner-header .actions .toolbar-left{grid-column:1!important;justify-content:flex-start!important}
+html body>header.drag-banner-header .actions .header-adventure-progress{
+ grid-column:2!important;flex:none!important;width:100%!important;
+ max-width:none!important;min-width:0!important;min-height:46px!important;
+ order:0!important;box-sizing:border-box!important;
+}
+html body>header.drag-banner-header .actions .toolbar-center{grid-column:3!important}
+html body>header.drag-banner-header .actions .toolbar-right{grid-column:4!important;justify-content:flex-end!important}
+html body>header.drag-banner-header .actions button,
+html body>header.drag-banner-header .actions #who,
+html body>header.drag-banner-header .actions #global-home{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;position:static!important;flex:0 0 auto!important;
+ width:auto!important;height:44px!important;min-height:44px!important;max-height:none!important;
+ min-width:54px!important;max-width:none!important;
+ margin:0!important;padding:7px 11px!important;
+ font:700 clamp(12px,1vw,15px)/1.14 VAG,Arial,sans-serif!important;
+ color:#1c1941!important;background:#fff!important;
+ border:2px solid #282047!important;border-radius:12px!important;
+ box-shadow:0 2px 3px #2020443b!important;white-space:nowrap!important;
+ opacity:1!important;cursor:pointer!important;transform:none!important;
+}
+html body>header.drag-banner-header .actions :is(button[hidden],button.hidden){display:none!important}
+html body>header.drag-banner-header .actions button:focus-visible{
+ outline:3px solid #ff8a00!important;outline-offset:2px!important;
+}
+html body>header.drag-banner-header .actions #header-profile{
+ font-size:clamp(12px,1.05vw,15px)!important;
+ font-weight:800!important;white-space:nowrap!important;
+}
+html body>header.drag-banner-header .actions #header-change-player{
+ min-width:58px!important;padding:6px 9px!important;
+}
+@media(max-width:1460px){
+ html body>header.lab-image-header.drag-banner-header .actions{
+  grid-template-columns:minmax(180px,1fr) minmax(230px,1.2fr) minmax(260px,auto)!important;
+  grid-auto-rows:minmax(46px,auto)!important;
+ }
+ html body>header.drag-banner-header .actions .toolbar-left{grid-column:1!important;grid-row:1!important}
+ html body>header.drag-banner-header .actions .header-adventure-progress{grid-column:2!important;grid-row:1!important}
+ html body>header.drag-banner-header .actions .toolbar-center{grid-column:3!important;grid-row:1!important}
+ html body>header.drag-banner-header .actions .toolbar-right{grid-column:1/-1!important;grid-row:2!important;justify-content:center!important}
+}
+@media(max-width:850px){
+ html body>header.lab-image-header.drag-banner-header .actions{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:5px!important;padding:5px!important;
+ }
+ html body>header.drag-banner-header .actions .toolbar-left{grid-column:1!important;grid-row:1!important}
+ html body>header.drag-banner-header .actions .header-adventure-progress{grid-column:2!important;grid-row:1!important}
+ html body>header.drag-banner-header .actions .toolbar-center{grid-column:1/-1!important;grid-row:2!important}
+ html body>header.drag-banner-header .actions .toolbar-right{grid-column:1/-1!important;grid-row:3!important}
+ html body>header.drag-banner-header .actions button{height:42px!important;min-height:42px!important}
+}
