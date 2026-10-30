@@ -307,3 +307,100 @@ html body.guided.activity-playing .activity-board{width:var(--fitted-board-width
 /* PNG sprite regions retain the original Space artwork without redrawing it. */
 html body.guided.adventure-mode .shop-sprite{display:block!important;width:100%!important;height:auto!important;max-width:180px;margin:auto;background-repeat:no-repeat;background-color:transparent;flex:none}
 .world-object .shop-sprite,.world-friend-gift .shop-sprite{max-width:100%;pointer-events:none}
+
+
+/* 2026-10-30 My Stuff: the world scene owns the game viewport, with one shelf. */
+body.lab-collection-active .my-stuff-full-room{
+  display:flex!important;flex-direction:column!important;gap:5px!important;
+  width:100%!important;max-width:none!important;min-height:0!important;
+  height:calc(100dvh - var(--my-stuff-header-height, 146px))!important;
+  padding:4px 8px 6px!important;overflow:hidden!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-heading{
+  flex:0 0 auto!important;margin:0!important;padding:2px 4px!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-heading h2{font-size:clamp(17px,2.1vw,23px)!important}
+body.lab-collection-active .my-stuff-full-room .my-stuff-stage{
+  display:flex!important;flex:1 1 0!important;min-height:0!important;
+  width:100%!important;flex-direction:column!important;gap:2px!important;
+  align-items:center!important;justify-content:center!important;margin:0!important;padding:0!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-stage .collection-world-showcase{
+  width:100%!important;height:100%!important;max-width:100%!important;
+  min-height:0!important;display:flex!important;justify-content:center!important;align-items:center!important;
+}
+body.lab-collection-active .my-stuff-full-room #collection-scene{
+  width:100%!important;height:100%!important;max-width:100%!important;
+  max-height:100%!important;aspect-ratio:auto!important;position:relative!important;
+  background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;
+}
+body.lab-collection-active .my-stuff-full-room #collection-scene .collection-background-size{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+body.lab-collection-active .my-stuff-full-room #collection-report{
+  flex:0 0 auto!important;margin:0!important;padding:2px 5px!important;
+  font-size:clamp(10px,1.2vw,13px)!important;line-height:1.15!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-unified-shelf{
+  flex:0 0 auto!important;display:flex!important;flex-direction:column!important;
+  gap:3px!important;width:100%!important;min-height:0!important;
+  padding:5px!important;border:2px solid #8556aa!important;border-radius:14px!important;
+  background:#f0f8ff!important;
+}
+body.lab-collection-active .my-stuff-unified-tabs{
+  display:flex!important;flex-wrap:nowrap!important;justify-content:center!important;
+  gap:5px!important;min-width:0!important;
+}
+body.lab-collection-active .my-stuff-unified-tabs button{
+  flex:1 1 0!important;min-width:0!important;padding:5px 4px!important;
+  font-size:clamp(10px,1.2vw,14px)!important;border-radius:9px!important;
+}
+body.lab-collection-active .my-stuff-unified-tabs button[aria-pressed="true"]{
+  background:#dfceff!important;border-color:#8155bd!important;font-weight:800!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-tray-controls{
+  display:flex!important;align-items:center!important;gap:4px!important;
+  width:100%!important;min-height:0!important;
+}
+body.lab-collection-active .my-stuff-full-room #stuff-scroll-prev,
+body.lab-collection-active .my-stuff-full-room #stuff-scroll-next{
+  flex:0 0 38px!important;min-width:38px!important;height:72px!important;
+  padding:2px!important;font-size:22px!important;
+}
+body.lab-collection-active .my-stuff-full-room #my-stuff-tray{
+  display:block!important;flex:1 1 0!important;width:auto!important;min-width:0!important;
+  overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin!important;
+  padding:2px!important;white-space:nowrap!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-shelf-page{
+  display:flex!important;gap:7px!important;align-items:stretch!important;width:max-content!important;
+  min-width:100%!important;min-height:80px!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-shelf-page[hidden]{display:none!important}
+body.lab-collection-active .my-stuff-full-room .my-stuff-shelf-page .my-stuff-item{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  flex:0 0 130px!important;min-width:110px!important;max-width:140px!important;
+  padding:3px!important;gap:2px!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-item img,
+body.lab-collection-active .my-stuff-full-room .my-stuff-item .friend-art{
+  width:100%!important;height:44px!important;max-height:44px!important;object-fit:contain!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-item strong{
+  font-size:11px!important;overflow:hidden!important;text-overflow:ellipsis!important;
+}
+body.lab-collection-active .my-stuff-full-room .my-stuff-item button{
+  font-size:10px!important;padding:3px!important;min-height:25px!important;
+}
+body.lab-collection-active .my-stuff-character-dialog .my-stuff-character-profile{
+  display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px;text-align:center;
+}
+.my-stuff-character-dialog .my-stuff-character-profile img{
+  width:min(240px,60vw);height:min(240px,40vh);object-fit:contain;
+}
+@media(max-height:750px){
+ body.lab-collection-active .my-stuff-full-room .my-stuff-unified-shelf{padding:3px!important}
+ body.lab-collection-active .my-stuff-full-room #stuff-scroll-prev,
+ body.lab-collection-active .my-stuff-full-room #stuff-scroll-next{height:61px!important}
+ body.lab-collection-active .my-stuff-full-room .my-stuff-shelf-page .my-stuff-item img{height:32px!important}
+}
