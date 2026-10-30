@@ -1,0 +1,116 @@
+/* Match Drag & Drop's compact rainbow ribbon. A game map or level
+   must never reserve viewport height for the rejected JPEG heading. */
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header{
+ display:flex!important;position:fixed!important;top:0!important;left:0!important;right:0!important;
+ width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+ flex-direction:column!important;align-items:stretch!important;gap:0!important;
+ overflow:visible!important;margin:0!important;padding:0!important;
+ z-index:80!important;
+ background:linear-gradient(100deg,#f9b4dd,#ffe8ac 24%,#aff0bd 48%,#a7e2fa 73%,#dfb6fc)!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .brand,
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header img#lab-jpeg-banner{
+ display:none!important;height:0!important;min-height:0!important;max-height:0!important;
+ overflow:hidden!important;margin:0!important;padding:0!important;border:0!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-reference-toolbar{
+ box-sizing:border-box!important;display:grid!important;position:static!important;
+ grid-template-columns:minmax(160px,1fr) minmax(235px,1.35fr) auto auto!important;
+ grid-auto-rows:minmax(46px,auto)!important;
+ align-items:center!important;justify-content:stretch!important;gap:6px 10px!important;
+ padding:5px 10px!important;margin:0!important;width:100%!important;
+ height:auto!important;min-height:54px!important;max-height:none!important;
+ background:linear-gradient(100deg,#f9b4dd,#ffe8ac 24%,#aff0bd 48%,#a7e2fa 73%,#dfb6fc)!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header #lab-student-header{
+ display:flex!important;grid-column:1!important;grid-row:1!important;
+ justify-content:flex-start!important;align-items:center!important;gap:5px!important;
+ flex-wrap:wrap!important;height:auto!important;min-width:0!important;margin:0!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .toolbar-center{
+ display:flex!important;grid-column:3!important;grid-row:1!important;
+ justify-content:center!important;align-items:center!important;gap:5px!important;
+ flex-wrap:wrap!important;height:auto!important;min-width:0!important;margin:0!important;padding:0!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .toolbar-right{
+ display:flex!important;grid-column:4!important;grid-row:1!important;
+ justify-content:flex-end!important;align-items:center!important;gap:5px!important;
+ flex-wrap:wrap!important;height:auto!important;min-width:0!important;margin:0!important;padding:0!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-reference-toolbar button{
+ box-sizing:border-box!important;display:inline-flex!important;position:static!important;
+ flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+ min-width:48px!important;width:auto!important;max-width:none!important;
+ height:44px!important;min-height:44px!important;max-height:none!important;
+ border:2px solid #282047!important;border-radius:12px!important;
+ background:#fff!important;color:#1c1941!important;box-shadow:0 2px 3px #2020443b!important;
+ padding:6px 10px!important;margin:0!important;
+ font:700 clamp(12px,1vw,15px)/1.12 VAG,Arial,sans-serif!important;
+ white-space:nowrap!important;opacity:1!important;transform:none!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-reference-toolbar :is(button[hidden],button.hidden){display:none!important}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-reference-toolbar button:focus-visible{
+ outline:3px solid #f6a500!important;outline-offset:2px!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header :is(#header-my-stuff,#header-teacher){display:inline-flex!important}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-header-progress{
+ display:flex!important;grid-column:2!important;grid-row:1!important;
+ width:100%!important;min-width:0!important;max-width:none!important;
+ flex-direction:row!important;align-items:center!important;gap:6px!important;
+ min-height:47px!important;height:auto!important;padding:3px 6px!important;
+ border:2px solid #9168be!important;border-radius:12px!important;
+ background:#fff!important;box-sizing:border-box!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-header-progress[hidden]{display:none!important}
+.lab-header-progress .lab-top-player-art{width:42px;height:44px;flex:0 0 42px;display:flex;align-items:center;justify-content:center}
+.lab-header-progress .lab-top-player-art img{width:100%;height:100%;object-fit:contain}
+.lab-header-progress .lab-top-progress-details{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:1px;font-size:11px;line-height:1.15}
+.lab-header-progress #lab-top-player-name{font-size:clamp(12px,1.2vw,15px);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.lab-header-progress #lab-top-friend-label{color:#442961;white-space:normal}
+.lab-header-progress .lab-top-meter{display:block;width:100%;height:9px;border:1px solid #7451a5;border-radius:20px;background:#e8dcff;overflow:hidden}
+.lab-header-progress .lab-top-meter i{display:block;height:100%;width:0;background:#42ac7a;border-radius:20px}
+html body.guided.adventure-mode.lab-map-active .lab-game-hud,
+html body.guided.adventure-mode.lab-map-active .lab-map-title{display:none!important}
+html body.guided.adventure-mode.lab-map-active .lab-map-home{
+ display:flex!important;flex-direction:column!important;min-height:0!important;
+ width:100%!important;height:100%!important;max-height:100%!important;
+ gap:0!important;padding:3px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-art-frame{
+ display:flex!important;flex:1 1 0!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-height:0!important;max-height:100%!important;padding:0!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas{
+ flex:0 1 auto!important;width:min(100%,calc((var(--screen-height,620px) - 25px)*3.00293))!important;
+ max-width:100%!important;max-height:100%!important;height:auto!important;
+ min-height:0!important;aspect-ratio:2048/682!important;margin:0!important;border-width:2px!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-main-map-art{
+ display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;
+}
+html body.guided.adventure-mode:is(.lab-world-active,.playing) #app>.adventure-title{
+ display:block!important;font:700 clamp(18px,2.2vw,27px)/1.1 VAG,Arial,sans-serif!important;
+ margin:2px 0 3px!important;text-align:center!important;
+}
+html body.guided.adventure-mode:is(.lab-world-active,.playing) #kaple-guide{display:none!important}
+@media(max-width:1400px){
+ html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-reference-toolbar{
+  grid-template-columns:minmax(165px,1fr) minmax(230px,1.3fr) auto!important;
+ }
+ html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .toolbar-right{
+  grid-column:1/-1!important;grid-row:2!important;justify-content:center!important;
+ }
+}
+@media(max-width:850px){
+ html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-reference-toolbar{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:4px!important;padding:4px!important;
+ }
+ html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .lab-header-progress{grid-column:2!important;grid-row:1!important}
+ html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .toolbar-center{
+  grid-column:1/-1!important;grid-row:2!important;
+ }
+ html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing)>header.lab-image-header .toolbar-right{
+  grid-column:1/-1!important;grid-row:3!important;
+ }
+}
