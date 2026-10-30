@@ -1,5 +1,5 @@
 import {libraryShopDecorations} from '../drag-drop-adventure/shop-decor.mjs?v=world-scenes-20261030';
-import {publishedShopDecorations,isPublishedPngResponse} from './shop-purchasable-decorations.mjs?v=verified-png-response-20261030a';
+import {newShopDecorationCatalog,publishedShopDecorations,isPublishedPngResponse,catalogWithArtAvailability} from './shop-purchasable-decorations.mjs?v=preserve-owned-shop-art-20261030a';
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=maze-start-rollback-20261030a';
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
@@ -192,7 +192,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // Never sell a missing image, substitute collectible art, or change legacy purchase IDs.
  const readyOriginalShopDecorations=await publishedShopDecorations(path=>
   fetch(asset(path),{method:'HEAD'}).then(isPublishedPngResponse).catch(()=>false));
- const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives,...libraryShopDecorations,...readyOriginalShopDecorations];
+ const shopCatalogWithAvailability=catalogWithArtAvailability(newShopDecorationCatalog,readyOriginalShopDecorations);
+ // Keep existing student purchases and positions discoverable even when HEAD is blocked/offline.
+ const fullDecorations=[...decorations.map(d=>({...d,world:'all',kind:'decor'})),...themedGoods,...shopExclusives,...libraryShopDecorations,...shopCatalogWithAvailability];
  const findDecoration=id=>fullDecorations.find(d=>d.id===id);
  const enemyRosters=[
    ['purple_slime','chomper_plant','storm_cloud','prickly_cactus'], // Candy: four different playful monsters
@@ -663,9 +665,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    a.primaryRainbowLandId=previousHome;
   });
  }
- function shopArt(d){return d.artPath?img(d.artPath,d.name,'shop-decoration'):d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+(d.emoji||'⭐')+'</span>'}
+ function shopArt(d){return d.artUnavailable?'<span class="shop-art-pending" role="note">Original artwork temporarily unavailable</span>':d.artPath?img(d.artPath,d.name,'shop-decoration'):d.art?img('trackpad-adventure/decorations/'+d.art+'.webp',d.name,'shop-decoration'):'<span class="shop-emoji">'+(d.emoji||'⭐')+'</span>'}
  function buyShopExclusive(worldId,itemId){
-   const item=fullDecorations.find(x=>x.shopOnly&&x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
+   const item=fullDecorations.find(x=>x.shopOnly&&!x.artUnavailable&&x.id===itemId&&x.world===backgroundHomes.find(w=>w.id===worldId)?.theme);
    if(!item||!owned(worldId)||Object.values(a.decorations||{}).some(list=>list.includes(itemId))||a.wallet.rainbowStars<item.cost)return false;
    const previousStars=a.wallet.rainbowStars;
    const previousDecorations=Array.isArray(a.decorations[worldId])?[...a.decorations[worldId]]:null;
@@ -721,7 +723,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   view='decor';
   if(!owned(a.primaryRainbowLandId))a.primaryRainbowLandId=a.ownedWorldIds.find(id=>land(id))||'background_candy';
   const id=a.primaryRainbowLandId,world=land(id),theme=backgroundHomes.find(x=>x.id===id)?.theme||'all';
-  const goods=fullDecorations.filter(d=>d.kind==='decor'&&(d.world==='all'||d.world===theme));
+  const goods=fullDecorations.filter(d=>d.kind==='decor'&&!d.artUnavailable&&(d.world==='all'||d.world===theme));
   shell('Decorate My World','<p>Buy special decorations you cannot collect in mazes. Then arrange them in MY STUFF using your trackpad.</p>'+
    '<div class="world-tabs">'+lands.filter(l=>owned(l.id)).map(l=>'<button data-decor-world="'+l.id+'" aria-pressed="'+(l.id===id)+'">'+esc(l.name)+'</button>').join('')+'</div>'+
    '<h2>For '+esc(world.name)+'</h2><p>⭐ '+a.wallet.rainbowStars+' stars</p>'+
@@ -1031,7 +1033,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const worldPreviews='<div class="my-stuff-quickworlds" role="group" aria-label="My owned world pictures">'+
     purchased.map(l=>'<button type="button" data-stuff-world="'+l.id+'" aria-pressed="'+(l.id===id)+'" aria-label="Show '+esc(l.name)+' world">'+
       img(l.cardPreview,l.name+' world preview')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div>';
-  const worldOnlyGoods=fullDecorations.filter(d=>d.shopOnly&&d.world===backgroundHomes.find(w=>w.id===id)?.theme);
+  const worldOnlyGoods=fullDecorations.filter(d=>d.shopOnly&&!d.artUnavailable&&d.world===backgroundHomes.find(w=>w.id===id)?.theme);
   const exclusiveStore='<section class="my-stuff-exclusive-store" aria-label="Shop-only decorations for '+esc(land(id).name)+'">'+
    '<h3>⭐ '+esc(land(id).name)+' · SHOP ONLY</h3><p>These items cannot be collected in mazes. Spend stars to buy them for your world!</p>'+
    '<div class="my-stuff-exclusive-cards">'+worldOnlyGoods.map(d=>{

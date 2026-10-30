@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {newShopDecorationCatalog,publishedShopDecorations,isPublishedPngResponse} from '../shop-purchasable-decorations.mjs';
+import {newShopDecorationCatalog,publishedShopDecorations,isPublishedPngResponse,catalogWithArtAvailability} from '../shop-purchasable-decorations.mjs';
 
 // No bundled sheets, borrowed collectible images or placeholder SVGs may be sold.
 assert.equal(newShopDecorationCatalog.length,36);
@@ -30,3 +30,15 @@ assert.equal(isPublishedPngResponse(response(false,'image/png')),false);
 assert.equal(isPublishedPngResponse(response(true,null)),false);
 assert.equal(isPublishedPngResponse(null),false);
 console.log('PASS: all new shop IDs, one PNG per item, world exclusivity, and missing-art safety');
+
+// A transient failed HEAD must not erase a previously bought item from MY STUFF.
+const unavailableCatalog=catalogWithArtAvailability(newShopDecorationCatalog,[]);
+assert.equal(unavailableCatalog.length,36);
+assert.ok(unavailableCatalog.every(item=>item.artUnavailable===true));
+assert.deepEqual(unavailableCatalog.map(item=>item.id),newShopDecorationCatalog.map(item=>item.id));
+assert.notStrictEqual(unavailableCatalog[0],newShopDecorationCatalog[0]);
+const mixedCatalog=catalogWithArtAvailability(newShopDecorationCatalog,newShopDecorationCatalog.filter(item=>item.world==='space'));
+assert.equal(mixedCatalog.filter(item=>!item.artUnavailable).length,9);
+assert.equal(mixedCatalog.filter(item=>item.artUnavailable).length,27);
+assert.equal(mixedCatalog.find(item=>item.world==='ocean').artPath,newShopDecorationCatalog.find(item=>item.world==='ocean').artPath);
+console.log('PASS: unavailable artwork preserves saved decoration metadata without enabling purchases');

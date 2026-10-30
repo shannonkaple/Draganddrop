@@ -346,3 +346,10 @@ export async function publishedShopDecorations(probe){
  }));
  return checked.filter(Boolean);
 }
+
+// Retain the metadata for already-owned items when a network probe fails.
+// This NEVER makes an unpublished decoration available to buy.
+export function catalogWithArtAvailability(catalog,published){
+ const readyIds=new Set(published.map(item=>item.id));
+ return catalog.map(item=>({...item,artUnavailable:!readyIds.has(item.id)}));
+}
