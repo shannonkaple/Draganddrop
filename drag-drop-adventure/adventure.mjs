@@ -718,27 +718,64 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     '</div><div class="my-stuff-shop-actions">'+
       '<button class="my-stuff-action" type="button" id="stuff-decor-shop">⭐ Get More Decorations</button>'+
       '<button class="my-stuff-action" type="button" id="stuff-buy-world">🌍 Get Another World</button></div>';
-  const characterStrip='<section class="my-stuff-characters" aria-label="My Characters">'+
-    '<strong>MY CHARACTERS <small>Move for free</small></strong>'+
-    '<div class="my-stuff-character-list">'+ownedPlayers.map(c=>{
-      const here=a.friends[c.id].homeLandId===id;
-      const where=land(a.friends[c.id].homeLandId)?.name||'another world';
-      return '<div class="my-stuff-character-mini">'+pic(c.id)+
-        '<span>'+esc(c.name)+'</span><small>'+(here?'Here':'In '+esc(where))+'</small>'+
-        '<button type="button" data-stage-player="'+esc(c.id)+'" aria-label="'+(here?'Move ':'Place ')+esc(c.name)+(here?' on picture':' in this world')+'">'+
-        (here?'✋ Move':'＋ Place Here')+'</button></div>';
-    }).join('')+'</div></section>';
-  shell('MY STUFF','<section class="lab-collection-page my-stuff-room" aria-label="My Stuff: make and play with my world">'+
-      '<div class="my-stuff-heading"><div><small>MY WORLD • MY SCENE • MY FRIENDS</small><h2>'+esc(land(id).name)+'</h2></div>'+
-        '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button></div></div>'+
-      '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
-       '<p id="collection-report" role="status">To move a character, click their picture once, then click a new spot. Or drag them!</p></div>'+characterStrip+
-      '<div class="my-stuff-world-quickstrip" aria-label="Quickly change to a world you own">'+
-        '<strong>🌍 My Worlds</strong><div class="my-stuff-quickworlds">'+purchased.map(l=>
-          '<button type="button" data-stuff-world="'+l.id+'" aria-label="Show my '+esc(l.name)+' world" aria-pressed="'+(l.id===id)+'">'+
-          img(l.cardPreview,l.name,'my-stuff-thumb')+'<span>'+esc(l.name)+'</span></button>').join('')+'</div></div>'+
-      '<div class="my-stuff-toolbox"><h3>Make Your Scene!</h3>'+
-        '<div class="my-stuff-tray-panel">'+tray+'</div></div></section>');
+  const worldCards=purchased.map(l=>'<article class="my-stuff-item my-stuff-world-item">'+
+    '<button class="my-stuff-world-card" type="button" data-stuff-world="'+l.id+'" aria-pressed="'+(l.id===id)+'">'+
+    img(l.cardPreview,l.name,'my-stuff-thumb')+'<strong>'+esc(l.name)+'</strong></button></article>').join('');
+  // One shelf is the only inventory surface. Selecting a tab changes its contents,
+  // not the scene, world positions, purchases or saved student inventory.
+  const characterCards=ownedPlayers.map(c=>{
+    const here=a.friends[c.id].homeLandId===id;
+    return '<article class="my-stuff-item my-stuff-character-item">'+pic(c.id)+
+      '<button type="button" class="my-stuff-info" data-stuff-character-info="'+esc(c.id)+'">🔎 '+esc(c.name)+'</button>'+
+      '<button type="button" data-stage-player="'+esc(c.id)+'">'+(here?'✋ Move':'＋ Place Here')+'</button></article>';
+  }).join('')+rescued.map(c=>{
+    const here=a.worldFriends[c.id].homeLandId===id;
+    return '<article class="my-stuff-item my-stuff-character-item">'+companionArt(c.id)+
+      '<button type="button" class="my-stuff-info" data-stuff-character-info="'+esc(c.id)+'">🔎 '+esc(c.name)+'</button>'+
+      '<button type="button" data-stuff-friend="'+esc(c.id)+'">'+(here?'Put Away / Show':'＋ Bring Here')+'</button></article>';
+  }).join('');
+  shell('MY STUFF','<section class="lab-collection-page my-stuff-room my-stuff-full-room" aria-label="My Stuff: arrange your world">'+
+    '<div class="my-stuff-heading"><div><h2>'+esc(land(id).name)+'</h2></div>'+
+    '<div class="my-stuff-scene-actions"><button id="stuff-home" type="button">🏠 Home</button><button id="stuff-help" type="button">✋ How to Move</button><button id="stuff-store" type="button">⭐ Store</button></div></div>'+
+    '<div class="my-stuff-stage"><div class="collection-world-showcase">'+collectionStage(id)+'</div>'+
+    '<p id="collection-report" role="status">Click a character, then click where you want it to stand. Or drag with your trackpad.</p></div>'+
+    '<div class="my-stuff-unified-shelf" aria-label="Browse worlds, characters, and purchases and collections">'+
+      '<div class="my-stuff-unified-tabs" role="group" aria-label="Choose what to browse">'+
+        '<button data-stuff-tab="worlds" aria-pressed="false" type="button">🌍 Worlds</button>'+
+        '<button data-stuff-tab="characters" aria-pressed="false" type="button">🐾 Characters</button>'+
+        '<button data-stuff-tab="items" aria-pressed="true" type="button">🎁 Purchases / Collections</button></div>'+
+      '<div class="my-stuff-tray-controls"><button id="stuff-scroll-prev" type="button" aria-label="Previous items">◀</button>'+
+        '<div id="my-stuff-tray" class="my-stuff-tray" tabindex="0" role="region" aria-label="Browse items left and right">'+
+          '<div class="my-stuff-shelf-page" data-stuff-page="worlds" hidden>'+worldCards+'</div>'+
+          '<div class="my-stuff-shelf-page" data-stuff-page="characters" hidden>'+characterCards+'</div>'+
+          '<div class="my-stuff-shelf-page" data-stuff-page="items">'+(hasObjects?decorationCards+friendCards+treasureCards:'<p>Finish activities to fill your collection.</p>')+'</div>'+
+        '</div><button id="stuff-scroll-next" type="button" aria-label="Next items">▶</button></div>'+
+      '</div></section>');
+  // Use the existing dialog mechanism without navigating out of the arranged scene.
+  let infoDialog=document.getElementById('stuff-character-dialog');
+  if(!infoDialog){infoDialog=document.createElement('dialog');infoDialog.id='stuff-character-dialog';infoDialog.className='dialog my-stuff-character-dialog';document.body.append(infoDialog);}
+  const tabs=[...document.querySelectorAll('[data-stuff-tab]')];
+  const selectTab=(name)=>{
+    tabs.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.stuffTab===name)));
+    document.querySelectorAll('[data-stuff-page]').forEach(page=>page.hidden=page.dataset.stuffPage!==name);
+    $('my-stuff-tray').scrollLeft=0;
+    a.collectionTab=name;save();
+  };
+  tabs.forEach(b=>b.onclick=()=>selectTab(b.dataset.stuffTab));
+  selectTab(['worlds','characters','items'].includes(section)?section:['worlds','characters','items'].includes(a.collectionTab)?a.collectionTab:'items');
+  document.querySelectorAll('[data-stuff-character-info]').forEach(b=>b.onclick=()=>{
+    const key=b.dataset.stuffCharacterInfo;
+    const player=chars.find(c=>c.id===key),friend=companions.find(c=>c.id===key);
+    const who=player||friend;if(!who)return;
+    const home=player?a.friends[key]?.homeLandId:a.worldFriends?.[key]?.homeLandId;
+    infoDialog.innerHTML='<div class="my-stuff-character-profile">'+(player?pic(key):companionArt(key))+
+      '<h2>'+esc(who.name)+'</h2><p>'+(player?'Your collected player character':'Your rescued friend')+
+      '</p><p>Home: '+esc(land(home)?.name||'Your collection')+'</p>'+
+      '<button type="button" id="stuff-close-profile">Close</button></div>';
+    infoDialog.querySelector('#stuff-close-profile').onclick=()=>infoDialog.close();
+    infoDialog.showModal();
+  });
+  $('stuff-store').onclick=()=>{a.primaryRainbowLandId=id;save();decorShop()};
   const sceneImage=$('collection-scene').querySelector('.collection-background-size');
   const sizeScene=()=>fit();
   sceneImage.addEventListener('load',sizeScene,{once:true});sizeScene();
@@ -749,7 +786,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // Keep the tray in view after adding/putting away several objects in a row.
   const refresh=(characterId=null)=>{
     const appScroll=$('app').scrollTop, pageScroll=window.scrollY, trayScroll=$('my-stuff-tray')?.scrollLeft||0;
-    computer(id,null,characterId);
+    computer(id,a.collectionTab,characterId);
     $('app').scrollTop=appScroll;
     if($('my-stuff-tray'))$('my-stuff-tray').scrollLeft=trayScroll;
     // Depending on Chromebook viewport, either the page or the app is scrollable.
@@ -819,7 +856,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     if(buyShopExclusive(id,button.dataset.buyShopOnly))refresh();
   });
   $('stuff-decor-shop')?.addEventListener('click',()=>{a.primaryRainbowLandId=id;save();decorShop()});
-  $('stuff-buy-world')?.addEventListener('click',homeMap);
+  // Worlds and store are now available from the unified shelf and Store button.
  }
  function finale(){view='finale';sound();shell('You Built Your Rainbow Computer!','<div class="computer-build celebrate '+(settings.reducedMotion?'still':'')+'">'+data.computer_collectibles.map(i=>img(i.image,i.name)).join('')+'</div><p>You used your arrow keys, explored, and kept trying!</p><button id="more-adventures" class="primary">Keep adventuring →</button>');a.computerBuilt=true;save();$('more-adventures').onclick=map;}
  // Non-destructive migration for existing unfinished activity saves created
