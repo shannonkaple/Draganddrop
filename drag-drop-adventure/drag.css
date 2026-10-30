@@ -557,3 +557,92 @@ html body>header.drag-banner-header .actions #header-change-player{
  html body>header.drag-banner-header .actions .toolbar-right{grid-column:1/-1!important;grid-row:3!important}
  html body>header.drag-banner-header .actions button{height:42px!important;min-height:42px!important}
 }
+
+/* October 30 Chromebook viewport fix.
+   JPEG headings are for the landing/login experience only. Never spend play-area
+   height on a raster heading on a world map, world selector or activity. */
+html body:is(.lab-map-active,.lab-world-active,.activity-playing,.playing)>header.lab-image-header.drag-banner-header .brand,
+html body:is(.lab-map-active,.lab-world-active,.activity-playing,.playing)>header.lab-image-header.drag-banner-header .brand>img.drag-banner-art{
+ display:none!important;height:0!important;min-height:0!important;max-height:0!important;
+ padding:0!important;margin:0!important;border:0!important;
+}
+html body:is(.lab-map-active,.lab-world-active,.activity-playing,.playing)>header.lab-image-header.drag-banner-header{
+ display:flex!important;flex-direction:column!important;height:auto!important;min-height:0!important;
+ max-height:none!important;padding:0!important;overflow:visible!important;
+}
+html body:is(.lab-map-active,.lab-world-active,.activity-playing,.playing)>header.lab-image-header.drag-banner-header .actions{
+ margin:0!important;min-height:52px!important;
+}
+html body.guided.activity-playing #app{
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:flex-start!important;
+ box-sizing:border-box!important;min-height:0!important;overflow:hidden!important;
+ padding:4px 9px 5px!important;
+}
+html body.guided.activity-playing #app>.adventure-title{
+ flex:0 0 auto!important;display:block!important;
+ font-size:clamp(17px,2vw,24px)!important;line-height:1.1!important;margin:1px 0 3px!important;
+}
+html body.guided.activity-playing #app>#drag-activity{
+ display:flex!important;flex:1 1 0!important;min-height:0!important;
+ width:100%!important;overflow:hidden!important;
+}
+html body.guided.activity-playing #drag-activity>.activity-shell{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ flex:1 1 0!important;width:100%!important;max-width:none!important;
+ height:100%!important;min-height:0!important;max-height:100%!important;
+ padding:0!important;margin:0!important;gap:4px!important;overflow:hidden!important;
+}
+html body.guided.activity-playing #drag-activity .activity-instructions,
+html body.guided.activity-playing #drag-activity .activity-feedback,
+html body.guided.activity-playing #drag-activity .activity-tools{
+ flex:0 0 auto!important;margin:0!important;padding:4px 8px!important;
+ min-height:0!important;line-height:1.15!important;
+}
+html body.guided.activity-playing #drag-activity .activity-instructions p{
+ margin:0!important;font-size:clamp(13px,1.45vw,18px)!important;
+}
+html body.guided.activity-playing #drag-activity .activity-frame{
+ display:flex!important;flex:1 1 0!important;width:100%!important;
+ min-width:0!important;min-height:0!important;max-height:100%!important;
+ align-items:center!important;justify-content:center!important;overflow:hidden!important;
+ padding:0!important;margin:0!important;
+}
+html body.guided.activity-playing #drag-activity .activity-board{
+ box-sizing:border-box!important;flex:0 0 auto!important;
+ width:var(--fitted-board-width,100%)!important;
+ height:var(--fitted-board-height,auto)!important;
+ max-width:100%!important;max-height:100%!important;
+ min-height:0!important;aspect-ratio:1672/941!important;
+ margin:0!important;padding:0!important;overflow:hidden!important;
+}
+html body.guided.lab-map-active #app{
+ padding:2px 5px 3px!important;overflow:hidden!important;
+}
+html body.guided.lab-map-active .lab-map-home{
+ height:100%!important;max-height:100%!important;min-height:0!important;
+ padding:2px!important;gap:2px!important;overflow:hidden!important;
+}
+html body.guided.lab-map-active .lab-map-art-frame{
+ display:flex!important;flex:1 1 0!important;min-height:0!important;
+ width:100%!important;align-items:center!important;justify-content:center!important;
+ overflow:hidden!important;padding:0!important;
+}
+html body.guided.lab-map-active .lab-map-canvas{
+ width:min(100%,calc((var(--screen-height,600px) - 25px)*3.00293))!important;
+ max-width:100%!important;max-height:100%!important;
+ height:auto!important;aspect-ratio:2048/682!important;
+ min-height:0!important;margin:0!important;
+}
+html body.guided.lab-world-active .lab-candy-world{
+ height:100%!important;max-height:100%!important;min-height:0!important;
+ display:flex!important;flex-direction:column!important;justify-content:center!important;
+ padding:1px 3px!important;gap:2px!important;
+}
+html body.guided.lab-world-active .lab-candy-scenery{
+ flex:0 1 auto!important;
+ width:min(100%,calc((var(--screen-height,600px) - 45px)*3.00293))!important;
+ max-width:100%!important;max-height:100%!important;height:auto!important;
+ min-height:0!important;aspect-ratio:2048/682!important;
+ margin:auto!important;overflow:visible!important;
+}
