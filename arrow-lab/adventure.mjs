@@ -1,4 +1,5 @@
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
+import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=maze-start-rollback-20261030a';
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
 import {withLegacyMazeCompletion} from './completion-wallet-transaction.mjs?v=atomic-completion-20261029a';
 import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
@@ -1133,11 +1134,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // A rejected restart write must not erase an unfinished saved maze in memory.
  // Keep the previous active run and this maze's stored slot until the new
  // start has been durably written to the student's existing record.
- const priorRestart=restart?{
-   def,r,mapWorld:currentMapWorld,activeRun:a.activeRun,
-   hadMazeRun:Object.prototype.hasOwnProperty.call(a.mazeRuns,levels[n-1]?.id),
-   mazeRun:a.mazeRuns[levels[n-1]?.id]
- }:null;
+ const priorStart=snapshotMazeStart({run:r,definition:def,mapWorld:currentMapWorld,progress:a});
  clearClock();def=levels[n-1];if(!def||n>a.highestUnlockedLevel)return;currentMapWorld=def.worldIndex;
  if(a.completedLevelIds.includes(def.id)&&!restart){
    modal('Maze '+def.worldStage+' Completed!','<p>You already finished this maze. It is saved, and you do not have to play it again.</p><button type="button" id="done-level-back" class="primary">← World Map</button><button type="button" id="done-level-replay">Play Again (Optional)</button>',()=>{
@@ -1160,17 +1157,16 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   }
  if(a.completedLevelIds.includes(def.id))r.rewarded=true;
  a.activeRun=r;save();
- if(restart&&!saved){
-   const attemptedId=def.id;
-   r=priorRestart.r;
-   def=priorRestart.def;
-   currentMapWorld=priorRestart.mapWorld;
-   a.activeRun=priorRestart.activeRun;
-   if(priorRestart.hadMazeRun)a.mazeRuns[attemptedId]=priorRestart.mazeRun;
-   else delete a.mazeRuns[attemptedId];
-   modal('Restart NOT saved',
-     '<p>Your Chromebook could not save the new maze. Your earlier maze progress is still protected. Tell your teacher, then try again.</p><button id="retry-maze-restart" type="button" class="primary">Try saving restart again</button>',
-     ()=>{$('retry-maze-restart').onclick=()=>{closeModal();startLevel(n,true)}});
+ if(!saved){
+   // A rejected new start, restart or repaired resume must never overwrite
+   // the student's previous run, items, maze slot or active level in memory.
+   const restored=restoreMazeStart(priorStart,a);
+   r=restored.run;
+   def=restored.definition;
+   currentMapWorld=restored.mapWorld;
+   modal(restart?'Restart NOT saved':'Maze start NOT saved',
+     '<p>Your Chromebook could not save this maze. Your earlier maze, pickups and progress are protected. Tell your teacher, then try again.</p><button id="retry-maze-start" type="button" class="primary">Try saving the maze again</button>',
+     ()=>{$('retry-maze-start').onclick=()=>{closeModal();startLevel(n,restart)}});
    return;
  }
  maze();
