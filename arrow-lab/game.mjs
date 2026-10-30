@@ -67,6 +67,17 @@ function save(){
   showLoginStorageWarning();
  }
 }
+// Practice moves, rewards, restarts and purchases advance only after a
+// verified student-record write. Failed storage restores both prior records.
+function commitPracticeChange(change){
+ const previousRun=structuredClone(run),previousWallet=structuredClone(wallet);
+ const changed=change();
+ if(changed===false)return true;
+ save();
+ if(saving)return true;
+ run=previousRun;wallet=previousWallet;
+ return false;
+}
 function restore(){let d;try{d=JSON.parse(localStorage.getItem(key())||'null')}catch{}const r=d?.run,w=d?.wallet;const valid=r&&Number.isInteger(r.level)&&r.level>0&&r.w>=5&&r.w<=9&&r.h>=5&&r.h<=9&&Array.isArray(r.grid)&&r.grid.length===r.h&&r.grid.every(row=>Array.isArray(row)&&row.length===r.w&&row.every(n=>n===0||n===1))&&Number.isInteger(r.player?.x)&&Number.isInteger(r.player?.y)&&r.grid[r.player.y]?.[r.player.x]===0&&r.start?.x===1&&r.start?.y===1&&r.goal?.x===r.w-2&&r.goal?.y===r.h-2&&Array.isArray(r.trail)&&r.trail.length<10000&&w&&[w.total,w.earned,w.finished].every(n=>Number.isSafeInteger(n)&&n>=0)&&Array.isArray(w.owned)&&colors.some(c=>c.id===w.color);
  if(valid){run=r;wallet=w}else{run=makeMaze(seed(),1);wallet={total:0,earned:0,finished:0,color:'violet',owned:['violet']}}}
 
@@ -123,7 +134,7 @@ function pickNumber(teacher){
 }
 async function launchAdventure(){document.body.classList.remove('lab-teacher-active','lab-number-active');syncStudentBanner();adventureActive=true;const number=identity.number;try{adventureController=await openAdventure({number,storageKey:key(),teacherName:identity.teacherName,teachers,verifyTeacherCode,onLogout:login,goPractice:()=>{$('help').onclick=legacyHelp;adventureActive=false;restore();$('who').onclick=()=>{save();login()};play();if(run.complete)showWin(false)}})}catch(error){adventureActive=false;$('app').innerHTML='<section class="panel"><h2>The adventure could not load.</h2><p>Please refresh and try again.</p><button id="practice-fallback">Open endless practice</button></section>';$('practice-fallback').onclick=()=>{restore();play()};console.error(error)}}
 function play(){document.body.classList.add('playing');syncStudentBanner();$('who').classList.remove('hidden');$('app').innerHTML='<div class="row" style="margin-bottom:16px"><span class="pill" id="road-level"></span><span class="pill">'+gem+' <span id="wallet"></span></span></div><div class="play-layout"><section><div class="board-wrap"><div id="maze" class="maze" role="img" aria-label="Rainbow maze. Start at the star and finish at the checkered flag."></div></div><p class="caption" id="status" role="status">Find the flag. Look, choose, press and release, check.</p></section><aside class="side"><section class="panel"><h3>Use your keys</h3><div class="keypad" aria-label="Keyboard arrow layout"><div class="key up" id="ArrowUp">↑</div><div class="key left" id="ArrowLeft">←</div><div class="key down" id="ArrowDown">↓</div><div class="key right" id="ArrowRight">→</div></div><p>One press. One move.<br>Let the key come up.</p><p class="small">Use your keyboard. '+(mobileTouch?'Tap the arrows to move the rider.':'Touching the screen does not move the rider.')+'</p></section><section class="panel"><h3>My Arrow Amethysts</h3><div class="stat" id="gem-total"></div><p id="finished" class="small"></p><button id="rescue-friends" class="small">Rescue friends</button></section><div class="actions tools"><button id="reset" class="small">Back to the star</button><button id="full" class="small">Full screen</button></div></aside></div><p class="footnote" id="storage-note"></p>';
- $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0;save();board();$('status').textContent='Back at the star. Try your route again.'};$('full').onclick=()=>window.arrowLabToggleFullscreen();
+ $('rescue-friends').onclick=chooseCharacter;$('reset').onclick=()=>{const ok=commitPracticeChange(()=>{run.player={...run.start};run.trail=[[1,1]];run.steps=0});board();$('status').textContent=ok?'Back at the star. Try your route again.':'Reset NOT saved. Your previous maze position is protected. Tell your teacher, then retry.'};$('full').onclick=()=>window.arrowLabToggleFullscreen();
  if(mobileTouch)for(const key of ['ArrowUp','ArrowLeft','ArrowDown','ArrowRight']){
    const target=$(key);if(!target)continue;
    target.setAttribute('role','button');target.tabIndex=0;
@@ -135,11 +146,11 @@ function play(){document.body.classList.add('playing');syncStudentBanner();$('wh
 function fitMaze(){document.documentElement.style.setProperty('--view-height',(window.visualViewport?.height||window.innerHeight)+'px');if(!run||!$('maze'))return;const box=document.querySelector('.board-wrap');if(!box)return;const viewport=window.visualViewport?.height||window.innerHeight,caption=document.getElementById('status')?.getBoundingClientRect().height||30,foot=document.getElementById('storage-note')?.getBoundingClientRect().height||20;const availableH=Math.min(box.clientHeight-24,viewport-box.getBoundingClientRect().top-caption-foot-58);const size=Math.max(1,Math.floor(Math.min((box.clientWidth-24)/run.w,availableH/run.h)));$('maze').style.width=(size*run.w)+'px';$('maze').style.height=(size*run.h)+'px';}
 window.addEventListener('resize',()=>requestAnimationFrame(fitMaze));window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitMaze));document.addEventListener('fullscreenchange',()=>requestAnimationFrame(fitMaze));
 if('ResizeObserver'in window)new ResizeObserver(()=>requestAnimationFrame(fitMaze)).observe(document.getElementById('app'));
-function stats(){$('wallet').textContent=wallet.total+' Arrow Amethysts';$('gem-total').textContent=wallet.total;$('finished').textContent=wallet.finished+' mazes finished';$('road-level').textContent='Rainbow road '+run.level;$('storage-note').textContent=saving?'Progress saves by teacher and number on this browser.':'This browser is not saving progress. You can still play this session.';}
+function stats(){$('wallet').textContent=wallet.total+' Arrow Amethysts';$('gem-total').textContent=wallet.total;$('finished').textContent=wallet.finished+' mazes finished';$('road-level').textContent='Rainbow road '+run.level;$('storage-note').textContent=saving?'Progress saves by teacher and number on this browser.':'This browser is NOT saving progress. Moves and rewards are paused until saving works. Tell your teacher.';}
 function board(){const m=$('maze');m.style.setProperty('--w',run.w);m.style.setProperty('--h',run.h);m.style.setProperty('--player',colors.find(c=>c.id===wallet.color).hex);const trail=new Set(run.trail.map(p=>p.join(',')));let out='';for(let y=0;y<run.h;y++)for(let x=0;x<run.w;x++){const road=run.grid[y][x]===0,player=x===run.player.x&&y===run.player.y;out+='<div class="cell '+(road?'road':'wall')+(road&&trail.has(x+','+y)?' trail':'')+'" style="--c:'+rainbow[(x+y)%rainbow.length]+'">'+(x===1&&y===1?star:x===run.goal.x&&y===run.goal.y?flag:'')+(player?rider():'')+'</div>'}m.innerHTML=out;stats();requestAnimationFrame(fitMaze);}
 function showWin(earned=true){$('earned').innerHTML=gem+(earned?' +5 Arrow Amethysts!':'This maze is already finished.')+'<br>You have '+wallet.total+' Arrow Amethysts.';if(!$('win').open)$('win').showModal();}
-function next(){if(!run?.complete)return;$('win').close();run=nextRun(run);save();board();$('status').textContent='New maze! Start at the star and find the flag.';}
-function openShop(){$('shop-items').innerHTML=colors.map(c=>'<button data-color="'+c.id+'"><span class="swatch" style="background:'+c.hex+'"></span>'+c.name+'<br><span class="small">'+(wallet.color===c.id?'Using now':wallet.owned.includes(c.id)?'Choose this color':c.cost+' Arrow Amethysts')+'</span></button>').join('');document.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{const c=colors.find(c=>c.id===b.dataset.color);if(!wallet.owned.includes(c.id)){if(wallet.total<c.cost){$('shop-note').textContent='Keep exploring! Finish more mazes to unlock this color.';return}wallet.total-=c.cost;wallet.owned.push(c.id)}wallet.color=c.id;save();board();$('shop-note').textContent=c.name+' is ready!';openShop()});if(!$('shop').open)$('shop').showModal();}
+function next(){if(!run?.complete)return;const ok=commitPracticeChange(()=>{run=nextRun(run)});if(!ok){let note=$('practice-next-save-warning');if(!note){note=document.createElement('p');note.id='practice-next-save-warning';note.setAttribute('role','alert');$('win').append(note)}note.textContent='Next maze NOT saved. Your completed maze and stars are protected. Tell your teacher, then press Next again.';return}$('practice-next-save-warning')?.remove();$('win').close();board();$('status').textContent='New maze! Start at the star and find the flag.';}
+function openShop(){$('shop-items').innerHTML=colors.map(c=>'<button data-color="'+c.id+'"><span class="swatch" style="background:'+c.hex+'"></span>'+c.name+'<br><span class="small">'+(wallet.color===c.id?'Using now':wallet.owned.includes(c.id)?'Choose this color':c.cost+' Arrow Amethysts')+'</span></button>').join('');document.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{const c=colors.find(c=>c.id===b.dataset.color);if(!wallet.owned.includes(c.id)&&wallet.total<c.cost){$('shop-note').textContent='Keep exploring! Finish more mazes to unlock this color.';return}const ok=commitPracticeChange(()=>{if(!wallet.owned.includes(c.id)){wallet.total-=c.cost;wallet.owned.push(c.id)}wallet.color=c.id});board();if(!ok){$('shop-note').setAttribute('role','alert');$('shop-note').textContent='Color purchase NOT saved. Your gems and owned colors are protected. Tell your teacher, then retry.';return}$('shop-note').textContent=c.name+' is ready!';openShop()});if(!$('shop').open)$('shop').showModal();}
 const fullscreenButton=$('global-fullscreen');
 function syncFullscreenButton(){
   const active=!!document.fullscreenElement;
@@ -238,14 +249,18 @@ $('close-shop').onclick=()=>$('shop').close();$('next').onclick=next;$('win').ad
 function pressPracticeArrow(key){
  if(adventureActive||!run||!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key))return;
  const keyEl=$(key);keyEl?.classList.add('on');setTimeout(()=>keyEl?.classList.remove('on'),150);
- const result=step(run,key);
- if(result.moved){
+ let result;
+ const ok=commitPracticeChange(()=>{
+   result=step(run,key);
+   if(!result.moved)return false;
    if(run.trail.length>500)run.trail=run.trail.slice(-500);
    if(result.won)wallet=awardWallet(wallet);
-   save();board();
-   $('status').textContent=result.won?'You reached the checkered flag!':'You moved '+key.slice(5).toLowerCase()+'.';
-   if(result.won)showWin();
- }else $('status').textContent='There is a wall. Stop, look, and try another arrow.';
+ });
+ if(!result.moved){$('status').textContent='There is a wall. Stop, look, and try another arrow.';return}
+ board();
+ if(!ok){$('status').textContent='Move NOT saved. Your previous position and stars are protected. Tell your teacher, then press the arrow again.';return}
+ $('status').textContent=result.won?'You reached the checkered flag!':'You moved '+key.slice(5).toLowerCase()+'.';
+ if(result.won)showWin();
 }
 document.addEventListener('keydown',e=>{if(adventureActive||!run)return;if($('win').open){if(e.key==='Enter'){e.preventDefault();if(!e.repeat)next()}else if(e.key.startsWith('Arrow'))e.preventDefault();return}if($('shop').open||$('characters')?.open||$('arrow-lab-help-dialog')?.open)return;if(!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();if(e.repeat)return;pressPracticeArrow(e.key);});
 function legacyHelp(){
