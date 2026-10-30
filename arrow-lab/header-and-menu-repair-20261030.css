@@ -159,3 +159,129 @@ html body.guided:is(.lab-teacher-active,.lab-number-active) #app{
 html body.guided.adventure-mode.lab-map-active :is(.adventure-nav,.lab-main-nav,.lab-overflow) {
  display:none!important;
 }
+
+/* 2026-10-30 screenshot follow-up: teacher picker, hand-scroll and source JPEG visibility. */
+/* A previous stylesheet hid the approved original banner with visibility,
+   opacity, and zero width in addition to display:none. Undo ALL of those on
+   the screens where the original artwork belongs. */
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .brand,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .brand,
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .brand>img#lab-jpeg-banner,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .brand>img#lab-jpeg-banner{
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ position:relative!important;inset:auto!important;transform:none!important;
+ pointer-events:auto!important;clip-path:none!important;
+ background-image:none!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .brand,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .brand{
+ display:block!important;aspect-ratio:6/1!important;line-height:0!important;
+ overflow:hidden!important;flex:0 0 auto!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .brand>img#lab-jpeg-banner,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .brand>img#lab-jpeg-banner{
+ display:block!important;aspect-ratio:6/1!important;object-fit:contain!important;
+ object-position:center!important;
+}
+/* The teacher/number selection is PRE-login: there is no student name, store,
+   Home, My Stuff, or Teacher navigation yet. Never stretch the Home button
+   across the screen. Show only Full Screen / How to Play underneath the JPEG. */
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .lab-reference-toolbar{
+ display:flex!important;flex-direction:row!important;justify-content:flex-end!important;
+ align-items:center!important;gap:8px!important;min-height:48px!important;
+ padding:4px 12px!important;max-height:none!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header :is(
+ .toolbar-center,#lab-student-header,.lab-header-progress,#lab-header-store,
+ #lab-banner-stars,#global-home,#header-my-stuff,#header-back-world,#header-teacher
+){display:none!important;visibility:hidden!important}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .toolbar-right{
+ display:flex!important;grid-column:auto!important;grid-row:auto!important;
+ justify-content:flex-end!important;flex:0 0 auto!important;
+ width:auto!important;height:auto!important;min-width:0!important;
+ max-height:none!important;padding:0!important;gap:8px!important;
+ position:static!important;align-self:center!important;overflow:visible!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header :is(#global-fullscreen,#help){
+ display:inline-flex!important;flex:0 0 auto!important;width:auto!important;
+ min-width:0!important;max-width:175px!important;height:38px!important;
+ min-height:38px!important;max-height:38px!important;
+ font-size:13px!important;line-height:1!important;
+ border-radius:18px!important;padding:5px 12px!important;margin:0!important;
+}
+/* Remove old side portrait/duplicated character art from the teacher/number
+   and character-selection pages. Approved Ms. Kaple and Rigby remain in JPEG. */
+html body.guided:is(.lab-teacher-active,.lab-number-active)>#kaple-guide,
+html body.guided.adventure-mode:has(#app [data-hero])>#kaple-guide,
+html body.guided.adventure-mode.lab-map-active>#kaple-guide{
+ display:none!important;visibility:hidden!important;
+}
+/* Fingers can scroll the entire selection screen, even when dragging a
+   button, character portrait, or a currently focused choice. Maze input stays
+   unchanged and trackpad/keyboard selection continues to work. */
+html body.guided:is(.lab-teacher-active,.lab-number-active) #app,
+html body.guided.adventure-mode:has(#app [data-hero]) #app{
+ overflow-x:hidden!important;overflow-y:auto!important;
+ touch-action:pan-y!important;overscroll-behavior-y:contain!important;
+ -webkit-overflow-scrolling:touch!important;
+ scrollbar-width:auto!important;scroll-behavior:auto!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active) #app :is(
+ .lab-entry-screen,.lab-teacher-list,.lab-number-list,.lab-teacher-cards,
+ .numbers,.lab-teacher-cards button,.numbers button
+),
+html body.guided.adventure-mode:has(#app [data-hero]) #app :is(
+ .adventure-cards,.adventure-cards [data-hero],.adventure-cards [data-hero] img
+){
+ touch-action:pan-y!important;
+}
+html body.guided.adventure-mode:has(#app [data-hero]) #app .adventure-cards:has([data-hero]){
+ overflow:visible!important;max-height:none!important;
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:12px!important;padding:8px!important;
+}
+/* Rounded, kid-friendly picture and choice buttons; no old sharp-edge UI
+   and no block-wide Home/Store controls. Do not replace character PNGs. */
+html body.guided:is(.lab-teacher-active,.lab-number-active) #app :is(
+ .lab-teacher-cards>button,.lab-number-list .numbers button,
+ #other-teacher
+),
+html body.guided.adventure-mode:has(#app [data-hero]) #app [data-hero]{
+ box-sizing:border-box!important;border-radius:24px!important;
+ border:3px solid #7051a9!important;
+ background:linear-gradient(180deg,#ffffff,#f5efff)!important;
+ color:#231545!important;
+ box-shadow:0 3px 0 #bda7e2,0 5px 12px #664e9020!important;
+ min-width:0!important;max-width:100%!important;
+ cursor:pointer!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active) #app :is(
+ .lab-teacher-cards>button,.lab-number-list .numbers button,
+ #other-teacher
+):is(:hover,:focus-visible),
+html body.guided.adventure-mode:has(#app [data-hero]) #app [data-hero]:is(:hover,:focus-visible){
+ background:#fff4be!important;border-color:#ee9a22!important;
+ outline:3px solid #fdba44!important;outline-offset:2px!important;
+}
+html body.guided>header.lab-image-header .lab-reference-toolbar button:not([hidden]):not(.hidden){
+ border-radius:18px!important;box-shadow:0 2px 3px #32215b25!important;
+}
+html body.guided.adventure-mode:has(#app [data-hero]) #app [data-hero]{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;gap:5px!important;
+ padding:12px 8px!important;min-height:155px!important;
+}
+html body.guided.adventure-mode:has(#app [data-hero]) #app [data-hero] img{
+ display:block!important;width:100%!important;height:110px!important;
+ object-fit:contain!important;pointer-events:none!important;
+}
+@media(max-width:850px){
+ html body.guided.adventure-mode:has(#app [data-hero]) #app .adventure-cards:has([data-hero]){
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ html body.guided:is(.lab-teacher-active,.lab-number-active) #app :is(
+  .lab-teacher-cards>button,.lab-number-list .numbers button
+ ){border-radius:19px!important}
+}
