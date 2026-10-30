@@ -1004,7 +1004,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  r={id:def.id,dragVersion:2,patternVersion:level.patternVersion||1,activityState,items:[],complete:false,rewarded:a.completedLevelIds.includes(def.id),...(!restart&&previous?.dragVersion===1?{legacyDragV1:previous}:{})};
  view='drag';shell(esc(def.title),'<div id="drag-activity"></div>');document.body.classList.add('activity-playing');
  dragSession=mountActivity($('drag-activity'),{level,saved:activityState,reducedMotion:settings.reducedMotion||settings.difficulty==='gentle',speed:settings.speed,
-  onProgress:state=>{r.activityState=state;save()},
+  onProgress:state=>{
+    const prior=structuredClone(r.activityState);
+    r.activityState=state;
+    save();
+    if(!saved&&!preview){r.activityState=prior;return false}
+    return true;
+  },
   onComplete:()=>{
    for(const id of def.collectibleIds||[])if(!(a.collectedWorldItems??=[]).includes(id))a.collectedWorldItems.push(id);
    r.items=(def.collectibleIds||[]).map(id=>({id,collected:true}));r.skill={done:true,type:level.engine};finish();
