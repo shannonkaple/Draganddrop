@@ -355,11 +355,13 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  sound();modal(title,'<div class="celebrate '+(settings.reducedMotion?'still':'')+'">🌟 '+(id?pic(id):'🌈')+' 🌟</div><p>You kept trying. Look what you earned!</p><button id="celebrate-next" class="primary">Hooray! →</button>',()=>{$('celebrate-next').onclick=()=>{closeModal();after()}})}
  function shell(title,content){
  $('lab-banner-stars').onclick=()=>navigate('shop');
+ $('lab-header-store').hidden=false;
+ $('lab-header-store').onclick=()=>navigate('shop');
  $('header-my-stuff').onclick=()=>navigate('computer');
  $('header-teacher').onclick=teacher;
  syncBannerStars();
  clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-world-active',view==='world-select');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
- $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>tryLeave(()=>{cleanup();onLogout()});
+ $('who').classList.remove('hidden');$('who').textContent='👤 Change Student';$('who').onclick=()=>tryLeave(()=>{cleanup();onLogout()});
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
  const topPill=$('lab-header-progress');
  if(topPill){
