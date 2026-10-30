@@ -1,5 +1,6 @@
 import {libraryShopDecorations} from './shop-decor.mjs?v=world-scenes-20261030';
 import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=roomy-20261030';
+import {firstMazeLayout} from './activities/first-maze-layout.mjs?v=eight-worlds-20261030';
 import {mountActivity} from './activities/runtime.mjs?v=mobiletouch-20261030';
 import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs?v=mobiletouch-20261030';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
@@ -240,8 +241,15 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const items=ids.filter(id=>/\.(png|jpe?g)(?:[?#]|$)/i.test(itemArt(id)||'')).map(id=>({id,name:itemName(id),image:asset(itemArt(id))}));
   const enemies=def.enemyIds.map(id=>data.enemies.find(e=>e.id===id)).filter(Boolean).map(e=>({name:e.name,image:asset(e.thumbnail)}));
   const activity=makeLevel(def,{items,enemies,background:asset(def.backgroundImage)},artManifest.levels?.[def.id]||{});
-  // First Candy activity is a gentle tutorial. Manifest overrides may not reintroduce enemies.
-  if(def.worldIndex===0&&def.worldStage===1)activity.hazards=[];
+  // Every world's FIRST maze has a distinct route. Apply after optional art
+  // overrides so approved art cannot accidentally put a bad guy inside a wall.
+  // Existing activityState, IDs, purchases, save keys and all later levels remain intact.
+  if(def.worldStage===1&&activity.engine==='maze'){
+    const maze=firstMazeLayout(def.worldIndex,enemies);
+    activity.walls=maze.walls;
+    activity.hazards=maze.hazards;
+    activity.solution=maze.solution;
+  }
   return activity;
  });
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
