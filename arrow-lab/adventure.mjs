@@ -1,4 +1,5 @@
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
+import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
 import {withLegacyMazeCompletion} from './completion-wallet-transaction.mjs?v=atomic-completion-20261029a';
 import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
 import {commitWorldView} from './world-view-transaction.mjs?v=world-view-save-20261029a';
@@ -283,9 +284,30 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function clearClock(){clearInterval(interval);clearTimeout(warning);interval=null;warning=null;duck=false}
  function cleanup(){closed=true;clearClock();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);document.removeEventListener('visibilitychange',pauseHiddenHazards);window.removeEventListener('resize',fit);window.visualViewport?.removeEventListener('resize',fit);observer?.disconnect();if($('kaple-guide'))document.body.append($('kaple-guide'));$('adventure-dialog')?.remove();document.body.classList.remove('adventure-mode','lab-collection-active','lab-map-active','lab-world-active');}
  function sound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),gain=ctx.createGain();o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(990,ctx.currentTime+.25);gain.gain.setValueAtTime(.07,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);o.connect(gain);gain.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.4);o.onended=()=>ctx.close()}catch{}}
+ // A failed save must not dismiss a rescue challenge, abandon an unfinished
+ // maze, or log out the student. Keep the current screen and offer a retry.
+ function tryLeave(proceed){
+  return navigateWithVerifiedSave(
+   ()=>{save();return saved},
+   proceed,
+   ()=>{
+    const dialog=$('adventure-dialog');
+    const host=(dialog?.open?dialog.querySelector('.dialog-content'):null)||$('app');
+    if(host&&!host.querySelector('.lab-leave-save-warning')){
+     const note=document.createElement('p');
+     note.className='lab-leave-save-warning';
+     note.setAttribute('role','alert');
+     note.textContent='Your progress was NOT saved. Stay here and tell your teacher, then press Home or Back again to retry.';
+     host.prepend(note);
+    }
+   }
+  );
+ }
  function returnToCurrentMap(){
-  challengeKeys=null;save();$('adventure-dialog')?.close();
-  if(currentMapWorld!==null)openWorld(currentMapWorld);else map();
+  tryLeave(()=>{
+   challengeKeys=null;$('adventure-dialog')?.close();
+   if(currentMapWorld!==null)openWorld(currentMapWorld);else map();
+  });
  }
  function modal(title,body,bind){
   clearClock();
@@ -306,7 +328,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   const home=document.createElement('button');
   home.type='button';home.className='modal-home';home.textContent='🏠 HOME';
   home.setAttribute('aria-label','Leave this activity and return home');
-  home.onclick=()=>{challengeKeys=null;save();d.close();map()};
+  home.onclick=()=>tryLeave(()=>{challengeKeys=null;d.close();map()});
   const fullscreen=document.createElement('button');
   fullscreen.type='button';fullscreen.className='modal-fullscreen';
   fullscreen.textContent='⛶ FULL SCREEN';
@@ -332,14 +354,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  $('header-teacher').onclick=teacher;
  syncBannerStars();
  clearClock();document.body.classList.remove('playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-world-active',view==='world-select');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
- $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
+ $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>tryLeave(()=>{cleanup();onLogout()});
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
  const nav=ready?(view==='map'?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="computer" class="lab-my-stuff-entry">🧸 MY STUFF</button></div>'):'<button id="setup-home" type="button" class="always-home">🏠 HOME</button><span class="setup-steps">First time? Choose your character!</span>';
  $('app').innerHTML='<nav class="adventure-nav">'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
- document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>{save();cleanup();onLogout()});
+ document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>tryLeave(()=>{cleanup();onLogout()}));
  const first=$('app').querySelector(':scope > p');tellGuide(({map:'Play mazes to earn stars. Visit the Star Shop to buy upgrades, worlds, and decorations.',friends:'Choose a character to upgrade.',lands:'Buy a world, or visit one you own.',decor:'Choose something for your world.'}[view]||first?.textContent||title),'⭐ → 🏁');if(first&&view!=='select')first.hidden=true;
  }
- function navigate(where){if(r)save();if(where==='map')map();if(where==='stuff')computer();if(where==='shop')starShop();if(where==='play')playNext();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='myworlds')myWorlds();if(where==='rescuegallery')rescuedFriends();if(where==='gifts')friendGiftShop();if(where==='decor')decorShop();if(where==='computer')computer()}
+ function navigate(where){const go=()=>{if(where==='map')map();if(where==='stuff')computer();if(where==='shop')starShop();if(where==='play')playNext();if(where==='friends')friends();if(where==='lands')homeMap();if(where==='myworlds')myWorlds();if(where==='rescuegallery')rescuedFriends();if(where==='gifts')friendGiftShop();if(where==='decor')decorShop();if(where==='computer')computer()};if(r)tryLeave(go);else go()}
  function nextLevel(){return nextPlayableLevel(levels,a)}
  function playNext(){startLevel(nextLevel().number)}
  function canRescue(){return rescueReady(a)}
@@ -1603,6 +1625,6 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
  };
  if(!a.selectedPlayerCharacterId)selectCharacter();else if(canRescue())continueRescue();else map();
- return {cleanup,goHome:()=>{challengeKeys=null;$('adventure-dialog')?.close();if(a.selectedPlayerCharacterId)map();else{cleanup();onLogout()}}};
+ return {cleanup,goHome:()=>tryLeave(()=>{challengeKeys=null;$('adventure-dialog')?.close();if(a.selectedPlayerCharacterId)map();else{cleanup();onLogout()}})};
 }
 
