@@ -289,7 +289,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // Keep the controls in a dedicated row, and all content in a separate sizing
   // wrapper. A fresh wrapper prevents a stale, empty top-layer popup on reuse.
   if($('kaple-guide'))document.body.append($('kaple-guide'));
-  d.classList.remove('final-arrow-modal');
+  d.classList.remove('final-arrow-modal','level-finish-dialog');
   d.setAttribute('aria-labelledby','adventure-dialog-title');
   d.innerHTML='<div class="dialog-toolbar" role="group" aria-label="Popup navigation"></div><div class="dialog-content"><h2 id="adventure-dialog-title">'+esc(title)+'</h2>'+body+'</div>';
   const toolbar=d.querySelector('.dialog-toolbar');
@@ -1113,11 +1113,43 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
  }
  function finish(){
-
- r.complete=true;if(def.collectibleIds)for(const id of def.computerGearIds||[])if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);const stars=completeLevel(a,r,def,config);save();sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
- modal('Great dragging and dropping!','<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished activity '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'activity':'activities')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
- // Optional completed-level replays do not grant extra stars or count as new finishes.
- try{if(stars>0){const old=JSON.parse(localStorage.getItem(key)||'{}');if(old.wallet){old.wallet.total+=5;old.wallet.earned+=5;old.wallet.finished+=1;localStorage.setItem(key,JSON.stringify(old))}}}catch{}
+  // A new completion awards exactly 3 Rainbow Stars. Older earned totals and
+  // replays stay untouched; collectible and skill ownership are still saved.
+  const priorAdventure=JSON.parse(JSON.stringify(a));
+  const priorRun=JSON.parse(JSON.stringify(r));
+  r.complete=true;
+  for(const id of def.computerGearIds||[]){
+   if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);
+  }
+  const rewardRules={...config,progression:{...config.progression,
+   starRewards:{completion:3,itemCollection:0,skillChallenge:0}}};
+  const stars=completeLevel(a,r,def,rewardRules);
+  save();
+  if(!saved&&!preview){
+   a=priorAdventure;r=priorRun;
+   modal('Not saved','<p>Your Chromebook could not save this completion. Your earlier progress is safe.</p><button id="retry-finish" class="primary">Try Again</button>',
+    ()=>{$('retry-finish').onclick=()=>{closeModal();finish()}});
+   return;
+  }
+  sound();
+  const ready=canRescue(),friendId=ready?pendingWorldRescue(a):null;
+  const body=(ready?'<div class="friend-reveal rescue-celebration">'+companionArt(friendId)+'</div>':'')+
+    '<p class="simple-star-reward">+'+stars+' ⭐</p><button id="level-next" type="button" class="primary simple-ok">OK</button>';
+  const d=modal(ready?'YOU DID IT!':'',body,()=>{
+   $('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()};
+   $('level-next').focus({preventScroll:true});
+  });
+  d.classList.add('level-finish-dialog');
+  // Keep the existing legacy progress totals aligned to the actual new award.
+  try{
+   if(stars>0&&!preview){
+    const old=JSON.parse(localStorage.getItem(key)||'{}');
+    if(old.wallet){
+     old.wallet.total+=stars;old.wallet.earned+=stars;old.wallet.finished+=1;
+     localStorage.setItem(key,JSON.stringify(old));
+    }
+   }
+  }catch{}
  }
  function afterLevel(){if(def?.worldIndex!=null){openWorld(def.worldIndex);return}map()}
  function rescue(){
