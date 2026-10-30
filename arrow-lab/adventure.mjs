@@ -326,7 +326,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   // Keep the controls in a dedicated row, and all content in a separate sizing
   // wrapper. A fresh wrapper prevents a stale, empty top-layer popup on reuse.
   if($('kaple-guide'))document.body.append($('kaple-guide'));
-  d.classList.remove('final-arrow-modal','friend-reveal-dialog');
+  d.classList.remove('final-arrow-modal','friend-reveal-dialog','level-finish-dialog');
   d.setAttribute('aria-labelledby','adventure-dialog-title');
   d.innerHTML='<div class="dialog-toolbar" role="group" aria-label="Popup navigation"></div><div class="dialog-content"><h2 id="adventure-dialog-title">'+esc(title)+'</h2>'+body+'</div>';
   const toolbar=d.querySelector('.dialog-toolbar');
@@ -1532,10 +1532,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const beforeRun=JSON.parse(JSON.stringify(r));
  r.complete=true;
  // Physical pickups already grant ownership; no extra completion objects.
- const stars=completeLevel(a,r,def,config);
+ const stars=completeLevel(a,r,def,{...config,progression:{...config.progression,starRewards:{completion:3,itemCollection:0,skillChallenge:0}}});
  // Save the maze completion and any legacy practice reward together.
  // A rejected write restores the unfinished maze below; no partial award.
- save({awardLegacyMaze:stars>0?5:0});
+ save({awardLegacyMaze:stars>0?3:0});
  if(!saved){
    a=beforeAdventure;
    r=beforeRun;
@@ -1545,8 +1545,14 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
      ()=>{$('retry-finish-save').onclick=()=>{closeModal();finish()}});
    return;
  }
- sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
- modal(ready?'YOU DID IT!':'You reached the flag!',(ready?'<div class="friend-reveal rescue-celebration">'+companionArt(pendingWorldRescue(a))+'</div>':'')+'<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'maze':'mazes')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
+ sound();const ready=canRescue(),friendId=ready?pendingWorldRescue(a):null;
+ const body=(ready?'<div class="friend-reveal rescue-celebration">'+companionArt(friendId)+'</div>':'')+
+  '<p class="simple-star-reward">+'+stars+' ⭐</p><button type="button" id="level-next" class="primary simple-ok">OK</button>';
+ const d=modal(ready?'YOU DID IT!':'',body,()=>{
+  $('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()};
+  $('level-next').focus({preventScroll:true});
+ });
+ d.classList.add('level-finish-dialog');
  // The legacy practice-wallet update is included in the verified save above;
  // never perform a second write that can leave only half the reward saved.
  }
