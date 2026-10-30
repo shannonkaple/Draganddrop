@@ -285,3 +285,78 @@ html body.guided.adventure-mode:has(#app [data-hero]) #app [data-hero] img{
   .lab-teacher-cards>button,.lab-number-list .numbers button
  ){border-radius:19px!important}
 }
+
+/* 2026-10-30 teacher guide, banner spacing, Home and stars refinements. */
+/* Keep the already approved 1200x200 panorama visible on the eight-world home.
+   Never replace, crop, or stretch its artwork. */
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .brand,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .brand>img#lab-jpeg-banner{
+ display:block!important;visibility:visible!important;opacity:1!important;
+ width:100%!important;height:auto!important;
+ min-width:0!important;min-height:0!important;max-width:100%!important;max-height:none!important;
+ position:relative!important;inset:auto!important;aspect-ratio:6/1!important;
+ object-fit:contain!important;object-position:center!important;
+ transform:none!important;
+}
+/* All buttons get top breathing room separate from the actual JPEG row. */
+html body.guided>header.lab-image-header .lab-reference-toolbar,
+html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar,
+html body.guided.adventure-mode.lab-map-active>header.lab-image-header .lab-reference-toolbar{
+ padding-top:12px!important;padding-bottom:8px!important;
+ row-gap:6px!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>header.lab-image-header .lab-reference-toolbar{
+ padding-top:11px!important;padding-bottom:8px!important;
+}
+/* A Home control should be an easy, consistently sized button, not a tiny word
+   nor a page-wide stretched rectangle. Exclude it from pre-login entirely. */
+html body.guided.adventure-mode>header.lab-image-header button#global-home:not([hidden]){
+ display:inline-flex!important;justify-content:center!important;align-items:center!important;
+ flex:0 0 auto!important;width:auto!important;min-width:110px!important;
+ max-width:148px!important;height:44px!important;min-height:44px!important;max-height:44px!important;
+ padding:7px 14px!important;font-size:15px!important;line-height:1!important;
+ font-weight:700!important;border-radius:18px!important;
+}
+html body.guided.adventure-mode>header.lab-image-header #lab-banner-stars:not(.hidden):not([hidden]){
+ display:inline-flex!important;gap:7px!important;align-items:center!important;
+ white-space:nowrap!important;min-width:104px!important;
+ padding-inline:9px!important;
+}
+html body.guided.adventure-mode>header.lab-image-header #lab-star-value{margin-right:3px!important}
+@media(max-width:800px){
+ html body.guided.adventure-mode>header.lab-image-header button#global-home:not([hidden]){
+  min-width:92px!important;max-width:115px!important;height:39px!important;min-height:39px!important;max-height:39px!important;
+  font-size:13px!important;padding:6px 10px!important;
+ }
+}
+/* Correct guide placement: teacher and number picker show only the relevant
+   spoken instruction bubble in the reserved left guide rail. Remove old
+   duplicate portraits instead of taking away useful read-aloud help. */
+html body.guided:is(.lab-teacher-active,.lab-number-active)>#kaple-guide{
+ display:flex!important;visibility:visible!important;position:fixed!important;
+ left:8px!important;top:var(--screen-top,250px)!important;
+ height:var(--screen-height,450px)!important;width:max(0px,calc(var(--guide-width,215px) - 16px))!important;
+ flex-direction:column!important;justify-content:center!important;
+ pointer-events:none!important;z-index:12!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>#kaple-guide .guide-cast{
+ display:none!important;visibility:hidden!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>#kaple-guide .guide-bubble{
+ display:block!important;visibility:visible!important;
+ position:relative!important;max-height:calc(var(--screen-height,450px) - 35px)!important;
+ overflow-y:auto!important;pointer-events:auto!important;
+ margin:0!important;padding:10px!important;
+ border-radius:22px!important;
+}
+html body.guided:is(.lab-teacher-active,.lab-number-active)>#kaple-guide .guide-bubble:after{
+ display:none!important;
+}
+/* Map already has Ms. Kaple, Rigby and its eight world labels in the JPEG,
+   so never overlay a duplicate speech bubble on clickable world circles. */
+html body.guided.adventure-mode.lab-map-active>#kaple-guide{
+ display:none!important;
+}
+/* Character choice has its own clear instruction above portraits; the legacy
+   guide stays off that page to avoid obscuring portraits or buttons. */
+html body.guided.adventure-mode:has(#app [data-hero])>#kaple-guide{display:none!important}
