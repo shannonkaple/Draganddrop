@@ -494,8 +494,11 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   });
   d.classList.add('friend-reveal-dialog');
   // Avoid a Back/Escape loop reopening the same unacknowledged introduction.
-  d.querySelector('.modal-map').onclick=()=>{closeModal();map()};
-  d.oncancel=e=>{e.preventDefault();closeModal();map()};
+  // Even an unacknowledged introduction may contain an unfinished maze save.
+  // Back and Escape must use the same verified-save gate as other dialogs.
+  const leaveIntro=()=>tryLeave(()=>{closeModal();map()});
+  d.querySelector('.modal-map').onclick=leaveIntro;
+  d.oncancel=e=>{e.preventDefault();leaveIntro()};
   $('friend-intro-go')?.focus({preventScroll:true});
  }
  function openCandyWorld(){
