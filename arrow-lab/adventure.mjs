@@ -392,6 +392,16 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   }
  }
 
+ const worldBack=$('header-back-world');
+ if(worldBack){
+   worldBack.hidden=!(view==='maze'&&def);
+   if(!worldBack.hidden){
+     const activeWorld=worldThemes[def.worldIndex];
+     worldBack.textContent='↩️ Back to '+activeWorld.icon+' '+activeWorld.name+' Map';
+     worldBack.setAttribute('aria-label','Save progress and return to '+activeWorld.name+' World map');
+     worldBack.onclick=returnToCurrentMap; // Existing verified-save navigation.
+   }
+ }
  const nav=ready?((view==='map'||view==='maze')?'':'<div class="actions"><button type="button" data-nav="map" class="always-home">🏠 HOME</button><button data-nav="computer" class="lab-my-stuff-entry">🧸 MY STUFF</button></div>'):'<button id="setup-home" type="button" class="always-home">🏠 HOME</button><span class="setup-steps">First time? Choose your character!</span>';
  $('app').innerHTML='<nav class="adventure-nav">'+nav+'</nav><h1 class="adventure-title">'+title+'</h1>'+content+(saved?'':'<p role="alert">Progress could not save on this browser.</p>');
  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$('setup-home')?.addEventListener('click',()=>tryLeave(()=>{cleanup();onLogout()}));
