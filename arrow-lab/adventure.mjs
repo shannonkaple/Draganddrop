@@ -2,6 +2,7 @@ import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verifie
 import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=maze-start-rollback-20261030a';
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
 import {commitDuckTutorial} from './duck-tutorial-save-transaction.mjs?v=duck-ack-20261030a';
+import {commitTeacherSettings} from './teacher-settings-transaction.mjs?v=teacher-save-20261030a';
 import {withLegacyMazeCompletion} from './completion-wallet-transaction.mjs?v=atomic-completion-20261029a';
 import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
 import {commitWorldView} from './world-view-transaction.mjs?v=world-view-save-20261029a';
@@ -783,7 +784,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function place(id,rescuing=false){
  pendingFriend=id;view='place';const worlds=lands.filter(l=>owned(l.id));
  shell('Where will '+esc(char(id).name)+' live?','<p>'+(worlds.length?'Choose one of your worlds. Adding a friend is free.':'Your friend needs a home. Visit Worlds to buy your first world, then come back to place your friend.')+'</p><div class="placing-friend">'+pic(id)+'</div><div class="adventure-cards land-cards">'+worlds.map(l=>'<button data-land="'+l.id+'">'+img(l.cardPreview,l.name)+'<strong>'+esc(l.name)+'</strong><span>Owned ✓ · Add friend free</span></button>').join('')+'</div>'+(!worlds.length?'<button id="placement-worlds" class="primary">🌍 Go to Worlds</button>':'')+'<button id="place-back">← '+(rescuing?'Choose a different friend':'Upgrades')+'</button>');
- $('placement-worlds')?.addEventListener('click',homeMap);$('place-back').onclick=()=>{if(rescuing){a.pendingRescueFriendId=null;save();rescue()}else friends()};
+ $('placement-worlds')?.addEventListener('click',homeMap);$('place-back').onclick=()=>{if(rescuing){const previousPending=a.pendingRescueFriendId;a.pendingRescueFriendId=null;save();if(!saved){a.pendingRescueFriendId=previousPending;return}rescue()}else friends()};
  document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{const world=b.dataset.land;if(!owned(world))return;const placed=commitSceneMutation(()=>placeFriend(a,id,world),['friends']);if(!placed)return;pendingFriend=null;sound();computer(world,rescuing?'friends':'decor')});
  }
  const worldTreasureCards=(world,arr)=>'<h2>'+world.toUpperCase()+' TREASURES</h2><div class="adventure-cards lab-candy-collection">'+arr.map(([id,name])=>'<article class="'+((a.collectedWorldItems||[]).includes(id)?'earned-item':'waiting-item')+'">'+img(itemArt(id),name)+'<strong>'+esc(name)+'</strong><p>'+((a.collectedWorldItems||[]).includes(id)?'✓ FOUND':'Find in '+world+' World')+'</p></article>').join('')+'</div>';
@@ -1550,7 +1551,33 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    $('teacher-skip-code')?.focus();
    return false;
  };
- $('save-settings').onclick=()=>{if(!requireTeacherCode())return;settings.difficulty=$('set-difficulty').value;settings.speed=Number($('set-speed').value);for(const k of ['hints','sound','reducedMotion'])settings[k]=$('set-'+k).checked;settings.touchArrows=false;settings.costs={power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))};config.progression.upgradeCost={...settings.costs};try{localStorage.setItem('arrow-lab-teacher-settings',JSON.stringify(settings))}catch{}save();closeModal();if(view==='maze')startLevel(def.number,false);else map()};
+ $('save-settings').onclick=()=>{
+   if(!requireTeacherCode())return;
+   const next={
+     difficulty:$('set-difficulty').value,
+     speed:Number($('set-speed').value),
+     hints:$('set-hints').checked,
+     sound:$('set-sound').checked,
+     reducedMotion:$('set-reducedMotion').checked,
+     touchArrows:false,
+     costs:{
+       power_up:Math.max(1,Math.min(20,Number($('cost-power').value)||2)),
+       super_power_additional:Math.max(1,Math.min(30,Number($('cost-super').value)||4))
+     }
+   };
+   const ok=commitTeacherSettings({
+     settings,config,next,storage:localStorage,
+     persist:()=>{save();return saved}
+   });
+   if(!ok){
+     const feedback=$('teacher-skip-feedback');
+     feedback.setAttribute('role','alert');
+     feedback.textContent='Teacher settings were NOT saved. Your previous settings and student progress are protected. Fix browser storage, then try again.';
+     return;
+   }
+   closeModal();
+   if(view==='maze')startLevel(def.number,false);else map();
+ };
  if(a.highestUnlockedLevel>=levels.length){
    const skipButton=$('skip-level');
    skipButton.disabled=true;
