@@ -8,6 +8,7 @@ import {isTeacherUnlocked} from './teacher-access.mjs?v=20261029-teacherlock1';
 import {tellGuide,starIcon} from './viewport.mjs?v=library-decor-20261030';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
+import {awardActivityStars,withLegacyActivityBonus} from './activities/replay-rewards.mjs?v=20261030-all-plays';
 
 import {directions,tile,route,buildLevel,migrateAdventure,upgradeFriend,completeLevel,rescueWorld,rescueReady,pendingWorldRescue,arrowPattern,buyWorld,placeFriend,choosePlayerCharacter,restoreSavedEnemyRoster} from '../arrow-lab/adventure-core.mjs?v=varied-patterns-20261029';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -260,16 +261,22 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   return activity;
  });
  const currentStage=id=>['Starter','Power-Up','Super Power'][char(id).levels.findIndex(l=>l.id===(a.friends[id]?.upgradeStage||'starter'))];
- function save(){
-  if(preview)return;
+ function save({legacyBonus=0}={}){
+  if(preview){saved=true;return}
   try{
     if(r?.id){
       if(r.complete)delete a.mazeRuns[r.id];
       else a.mazeRuns[r.id]=r;
       a.activeRun=r;
     }
-    const old=JSON.parse(localStorage.getItem(key)||'{}');
-    localStorage.setItem(key,JSON.stringify({...old,adventure:{...a,activeRun:r||a.activeRun||null}}));
+    // Never replace a damaged or unreadable saved student record with a blank.
+    const raw=localStorage.getItem(key);
+    const old=raw===null?{}:JSON.parse(raw);
+    if(!old||typeof old!=='object'||Array.isArray(old))throw Error('Invalid saved student record');
+    const next=withLegacyActivityBonus({...old,adventure:{...a,activeRun:r||a.activeRun||null}},legacyBonus);
+    const written=JSON.stringify(next);
+    localStorage.setItem(key,written);
+    if(localStorage.getItem(key)!==written)throw Error('Student record write did not verify');
     saved=true;
   }catch{saved=false}
  }
@@ -1145,10 +1152,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
   for(const id of def.computerGearIds||[]){
    if(!a.collectedComputerGearIds.includes(id))a.collectedComputerGearIds.push(id);
   }
-  const rewardRules={...config,progression:{...config.progression,
-   starRewards:{completion:3,itemCollection:0,skillChallenge:0}}};
-  const stars=completeLevel(a,r,def,rewardRules);
-  save();
+  const stars=awardActivityStars(a,r,def,config,completeLevel);
+  // Save the adventure star award and the legacy wallet together, atomically.
+  // Replays never reset a level's completed state or its collectibles.
+  save({legacyBonus:stars});
   if(!saved&&!preview){
    a=priorAdventure;r=priorRun;
    modal('Not saved','<p>Your Chromebook could not save this completion. Your earlier progress is safe.</p><button id="retry-finish" class="primary">Try Again</button>',
@@ -1164,16 +1171,6 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
    $('level-next').focus({preventScroll:true});
   });
   d.classList.add('level-finish-dialog');
-  // Keep the existing legacy progress totals aligned to the actual new award.
-  try{
-   if(stars>0&&!preview){
-    const old=JSON.parse(localStorage.getItem(key)||'{}');
-    if(old.wallet){
-     old.wallet.total+=stars;old.wallet.earned+=stars;old.wallet.finished+=1;
-     localStorage.setItem(key,JSON.stringify(old));
-    }
-   }
-  }catch{}
  }
  function afterLevel(){if(def?.worldIndex!=null){openWorld(def.worldIndex);return}map()}
  function rescue(){
