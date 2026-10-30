@@ -48,7 +48,15 @@ for(const worldId of worldIds){
  assert.equal(rescueWorld(state,worldId,'background_candy'),true,`${worldId}: rescue into free starter home`);
  assert.equal(pendingWorldRescue(state),null,`${worldId}: no duplicate rescues`);
 }
-const patterns=Array.from({length:12},(_,i)=>arrowPattern(123,i));assert.equal(new Set(patterns.map(JSON.stringify)).size,6);assert.notDeepEqual(patterns[0],patterns[1]);
+const patterns=Array.from({length:24},(_,i)=>arrowPattern(123,i));
+assert.equal(new Set(patterns.map(JSON.stringify)).size,24,'24 attempts have 24 distinct patterns');
+assert.ok(patterns.every(p=>p.length===4&&new Set(p).size>=3),'each new pattern uses at least three directions');
+assert.deepEqual(arrowPattern(123,7),patterns[7],'new patterns remain deterministic for save/retry');
+for(let seed=1;seed<=64;seed++){
+ const pattern=arrowPattern(seed,0);
+ assert.equal(pattern.length,4,'each maze offers four arrows');
+ assert.ok(new Set(pattern).size>=3,'no four-of-a-kind or two-direction-only skill patterns');
+}
 
 const onboardingCharacters=[{id:'astro_ace'},{id:'sunny_kitten'}];
 const onboardingLands=[{id:'background_candy'},{id:'background_pirate'}];
