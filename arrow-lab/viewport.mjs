@@ -21,7 +21,9 @@ export function fitScreen(){
  // Phones and tablets need the FULL width for a readable maze and tap arrows.
  // The teacher-guide sidebar remains available on Chromebook/desktop only.
  const mobile=document.body.classList.contains('mobile-touch-enabled');
- const left=guided&&!mobile&&!document.body.classList.contains('lab-map-active')&&!document.body.classList.contains('lab-collection-active')?Math.min(260,Math.max(190,vw*.23)):0;
+ // World maps and mazes use every available pixel; directions are read aloud from the screen.
+ const stageOrMap=['lab-map-active','lab-world-active','playing','lab-collection-active'].some(c=>document.body.classList.contains(c));
+ const left=guided&&!mobile&&!stageOrMap?Math.min(260,Math.max(190,vw*.23)):0;
  document.documentElement.style.setProperty('--screen-top',top+'px');document.documentElement.style.setProperty('--guide-width',left+'px');document.documentElement.style.setProperty('--screen-height',(vh-top-8)+'px');
  // Never shrink the entire Arrow Adventure UI: keep full-size controls,
  // scroll longer screens and reserve the visible viewport for maze play.
