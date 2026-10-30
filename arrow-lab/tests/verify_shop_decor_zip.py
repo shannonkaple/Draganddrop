@@ -39,7 +39,7 @@ def verify(archive_path, manifest_path):
             raw = archive.read(name)
             digest = hashlib.sha256(raw).hexdigest()
             assert digest == item['file_sha256'], f'SHA-256 mismatch: {name}'
-            assert raw.startswith(b'\\x89PNG\\r\\n\\x1a\\n'), f'not PNG: {name}'
+            assert raw.startswith(b'\x89PNG\r\n\x1a\n'), f'not PNG: {name}'
             with Image.open(io.BytesIO(raw)) as image:
                 image.load()
                 assert image.format == 'PNG', name
