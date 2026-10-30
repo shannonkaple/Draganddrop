@@ -1,9 +1,9 @@
-import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=varied-patterns-20261029';
-import {mountActivity} from './activities/runtime.mjs?v=fit-art-20261029a';
+import {makeLevel,ACTIVITY_NAMES} from './activities/levels.mjs?v=roomy-20261030';
+import {mountActivity} from './activities/runtime.mjs?v=roomy-20261030';
 import {ENGINES,stateFor,targetsFor,tryPlacement,progressFor} from './activities/engines.mjs?v=mouseonly1';
 import {WORLD_STOP_POINTS_BY_WORLD,PUBLISHED_WORLD_LEVEL_MAPS} from '../arrow-lab/level-map-model.mjs';
 import {isTeacherUnlocked} from './teacher-access.mjs?v=20261029-teacherlock1';
-import {tellGuide,starIcon} from './viewport.mjs?v=20261029-mouseonly';
+import {tellGuide,starIcon} from './viewport.mjs?v=roomy-20261030';
 import {decorations} from '../trackpad-adventure/economy.mjs?v=20261021-class24';
 import {arrowLabCharacters} from '../arrow-lab/character-placeholders.mjs?v=approved-friends-luna-20261028a';
 
@@ -44,12 +44,11 @@ export async function openAdventure({number,storageKey,teacherName,teachers,goPr
  if(!manifestResponse.ok)throw Error('Could not load activity artwork manifest');
  const artManifest=await manifestResponse.json();
 
- const HIDDEN_COLLECTIBLE_IDS=new Set(['cotton_candy','star_cookie','marshmallow']);
+ const HIDDEN_COLLECTIBLE_IDS=new Set(['cotton_candy','star_cookie','marshmallow','gumdrop','candy_apple','gingerbread_house']);
  const candyObjects=[
  ['lollipop','Lollipop'],['gummy_bear','Gummy Bear'],['cupcake','Cupcake'],['candy_cane','Candy Cane'],
  ['ice_cream','Ice Cream'],['wrapped_candy','Wrapped Candy'],['donut','Donut'],['candy_necklace','Candy Necklace'],
- ['chocolate_bar','Chocolate Bar'],['jellybean_jar','Jellybean Jar'],['gumdrop','Gumdrop'],
- ['candy_apple','Candy Apple'],['gingerbread_house','Gingerbread House']
+ ['chocolate_bar','Chocolate Bar'],['jellybean_jar','Jellybean Jar']
  ];
  const candyLabels=Object.fromEntries(candyObjects);
  const candyNames=['Lollipop Lane','Cupcake Creek','Ice Cream Island','Donut Ridge','Candy Castle','Gummy Grove','Chocolate Falls','Sweet Summit'];
@@ -129,9 +128,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  // no stretching and no borrowed world maps.
  {id:'candy_donut',name:'Sweet Donut Seat',world:'candy',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/candy/donut.png'},
  {id:'candy_icecream',name:'Ice Cream Sculpture',world:'candy',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/candy/ice_cream.png'},
- {id:'candy_gingerbread',name:'Gingerbread Cottage',world:'candy',kind:'decor',cost:6,artPath:'arrow-lab/collectibles/candy/gingerbread_house.png'},
- {id:'candy_cottoncandy',name:'Cotton Candy Tree',world:'candy',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/candy/cotton_candy.png'},
- {id:'candy_apple_present',name:'Candy Apple Gift',world:'candy',kind:'gift',cost:3,artPath:'arrow-lab/collectibles/candy/candy_apple.png'},
+ {id:'candy_gingerbread',name:'Cupcake Cottage',world:'candy',kind:'decor',cost:6,artPath:'arrow-lab/collectibles/candy/cupcake.png'},
+ {id:'candy_cottoncandy',name:'Lollipop Tree',world:'candy',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/candy/lollipop.png'},
+ {id:'candy_apple_present',name:'Wrapped Candy Gift',world:'candy',kind:'gift',cost:3,artPath:'arrow-lab/collectibles/candy/wrapped_candy.png'},
  {id:'pirate_shipwheel',name:'Captain’s Ship Wheel',world:'pirate',kind:'decor',cost:5,artPath:'arrow-lab/collectibles/pirate/ship_wheel.png'},
  {id:'pirate_goldcoins',name:'Gold Coin Pile',world:'pirate',kind:'decor',cost:4,artPath:'arrow-lab/collectibles/pirate/gold_coins.png'},
  {id:'pirate_spyglass',name:'Pirate Spyglass',world:'pirate',kind:'decor',cost:3,artPath:'arrow-lab/collectibles/pirate/spyglass.png'},

@@ -17,7 +17,7 @@ export function makeLevel(def,theme,override={}){
   const shift=(wi%3)*15;
   level.walls=[rect(250+shift,0,38,390),rect(565-shift,210,38,390)];
   level.solution=[{x:95,y:120},{x:120,y:480},{x:420,y:480},{x:420,y:110},{x:730,y:110},{x:915,y:490}];
-  level.hazards=theme.enemies.slice(0,wi>2?2:1).map((asset,i)=>({id:'hazard-'+i,asset,...rect(i?735:390,i?270:290,80,80),motion:wi%2||i?{axis:'x',range:45,period:6500+wi*300}:null}));
+  level.hazards=(wi===0?[]:theme.enemies.slice(0,wi>2?2:1)).map((asset,i)=>({id:'hazard-'+i,asset,...rect(i?735:390,i?270:290,80,80),motion:wi%2||i?{axis:'x',range:45,period:6500+wi*300}:null}));
  }else if(engine==='sort'){
   const n=6+wi%5;
   for(let i=0;i<n;i++)pieces.push({...piece(i,'group-'+i%3,78),...tray(i,n),asset:art(i%3)});

@@ -262,3 +262,44 @@ html body.guided.lab-map-active .lab-map-home .lab-overflow,
 html body.guided.lab-world-active .activity-map-legend{
  display:none!important;
 }
+
+/* Chromebook layout: controls only above the maps and activities. */
+html body:is(.lab-map-active,.lab-world-active,.activity-playing)>header.drag-banner-header .brand,
+html body:is(.lab-map-active,.lab-world-active,.activity-playing) #heading-toggle,
+html body:is(.lab-world-active,.activity-playing) #kaple-guide{display:none!important}
+html body:is(.lab-map-active,.lab-world-active,.activity-playing)>header.drag-banner-header{
+ min-height:0!important;height:auto!important;padding:0!important;border:0!important;
+}
+html body:is(.lab-map-active,.lab-world-active,.activity-playing)>header.drag-banner-header .actions{
+ min-height:38px!important;padding:3px 8px!important;gap:4px!important;
+ background:linear-gradient(95deg,#f9b1e1,#ffe3a1 22%,#b7f2bd 46%,#9fdffa 70%,#d9b4ff)!important;
+}
+html body:is(.lab-map-active,.lab-world-active,.activity-playing)>header .actions button{
+ min-height:30px!important;padding:4px 8px!important;font-size:13px!important;line-height:1.1!important;
+}
+html body.guided.lab-map-active .lab-map-home{min-height:0!important;border-radius:12px!important}
+html body.guided.lab-map-active .lab-game-hud{
+ flex:0 0 auto!important;min-height:0!important;height:auto!important;padding:0!important;justify-content:center!important;gap:12px!important;
+}
+html body.guided.lab-map-active :is(.lab-player-compact,.lab-friend-compact){
+ min-height:0!important;height:54px!important;width:auto!important;max-width:none!important;padding:3px 10px!important;flex:0 1 auto!important;
+}
+html body.guided.lab-map-active .lab-player-figure img{width:42px!important;height:44px!important}
+html body.guided.lab-map-active .lab-player-meta small,
+html body.guided.lab-map-active .lab-kicker{display:none!important}
+html body.guided.lab-map-active .lab-map-title{min-height:0!important;height:28px!important;flex:0 0 28px!important;padding:0!important}
+html body.guided.lab-map-active .lab-map-title h2{font-size:22px!important;margin:0!important}
+html body.guided.lab-map-active .lab-map-title>span,
+html body.guided.lab-map-active .lab-map-title p{display:none!important}
+html body.guided.lab-map-active .lab-map-art-frame{padding:0!important;width:100%!important;min-height:0!important}
+html body.guided.lab-map-active .lab-map-canvas{
+ flex:none!important;width:min(100%,calc((var(--screen-height) - 100px)*3.00293))!important;
+ height:auto!important;min-height:0!important;max-width:none!important;margin:0!important;aspect-ratio:2048/682!important;
+}
+html body.guided.lab-world-active .lab-candy-scenery{
+ flex:none!important;width:min(100%,calc((var(--screen-height) - 48px)*3.00293))!important;
+ min-height:0!important;max-height:none!important;height:auto!important;aspect-ratio:2048/682!important;
+}
+/* Runtime measures wrapped instructions and controls to size the board exactly. */
+html body.guided.activity-playing .activity-shell{max-height:none!important;max-width:none!important;overflow:visible!important}
+html body.guided.activity-playing .activity-board{width:var(--fitted-board-width,100%)!important;height:var(--fitted-board-height,auto)!important;flex:none!important;max-height:none!important}

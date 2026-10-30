@@ -18,7 +18,7 @@ export function fitScreen(){
  if(guided&&!document.body.classList.contains('adventure-mode')){if(app.querySelector('[data-teacher]'))tellGuide('Choose your teacher. Then choose your number.','👩‍🏫 → 🔢');else if(app.querySelector('[data-number]'))tellGuide('Choose your classroom number.','🔢 → ✓');else if(app.querySelector('#maze'))tellGuide('Use your arrow keys. Start at the star and finish at the flag.','⭐ → ⬆️ ⬅️ ⬇️ ➡️ → 🏁');}
  const vh=window.visualViewport?.height||innerHeight, vw=window.visualViewport?.width||innerWidth;
  const top=Math.ceil(document.querySelector('body>header').getBoundingClientRect().bottom)+4;
- const hasGuide=guided&&!document.body.classList.contains('lab-map-active')&&!document.body.classList.contains('lab-collection-active');
+ const hasGuide=guided&&!['lab-map-active','lab-world-active','activity-playing','lab-collection-active'].some(name=>document.body.classList.contains(name));
  const compact=hasGuide&&vw<=700;
  document.body.classList.toggle('compact-directions',compact);
  const left=hasGuide&&!compact?Math.min(260,Math.max(190,vw*.23)):0;
