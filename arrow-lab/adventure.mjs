@@ -1,4 +1,5 @@
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
+import {withLegacyMazeCompletion} from './completion-wallet-transaction.mjs?v=atomic-completion-20261029a';
 import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
 import {commitWorldView} from './world-view-transaction.mjs?v=world-view-save-20261029a';
 import {buildArrowLabProgressCsv} from './progress-export.mjs?v=csv-safety-20261028b';
@@ -256,7 +257,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     value.textContent=Number.isFinite(stars)?String(Math.max(0,Math.floor(stars))):'0';
     slot.classList.remove('hidden');
  }
- function save(){
+ function save({awardLegacyMaze=0}={}){
   syncBannerStars();
   try{
     if(studentSaveUnreadable)throw Error('Original student save unreadable; refuse overwrite');
@@ -268,7 +269,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
     const raw=localStorage.getItem(key);
     const old=raw===null?{}:JSON.parse(raw);
     if(!old||typeof old!=='object'||Array.isArray(old))throw Error('Invalid existing student record');
-    writeVerifiedStudentRecord(localStorage,key,{...old,adventure:{...a,activeRun:r||a.activeRun||null}});
+    const combined=withLegacyMazeCompletion({...old,adventure:{...a,activeRun:r||a.activeRun||null}},awardLegacyMaze);
+    writeVerifiedStudentRecord(localStorage,key,combined);
     saved=true;
     document.getElementById('arrow-lab-storage-warning')?.remove();
   }catch{
@@ -1479,7 +1481,9 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  r.complete=true;
  // Physical pickups already grant ownership; no extra completion objects.
  const stars=completeLevel(a,r,def,config);
- save();
+ // Save the maze completion and any legacy practice reward together.
+ // A rejected write restores the unfinished maze below; no partial award.
+ save({awardLegacyMaze:stars>0?5:0});
  if(!saved){
    a=beforeAdventure;
    r=beforeRun;
@@ -1491,31 +1495,8 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  }
  sound();const ready=canRescue(),left=8-worldDoneCount(def.worldIndex);
  modal(ready?'YOU DID IT!':'You reached the flag!',(ready?'<div class="friend-reveal rescue-celebration">'+companionArt(pendingWorldRescue(a))+'</div>':'')+'<p class="reward-stars">+'+stars+' Rainbow Stars ⭐</p><p>You finished maze '+def.number+'!</p><p>'+(ready?companion(pendingWorldRescue(a)).name+' is ready to come home!':left>0?left+' more '+(left===1?'maze':'mazes')+' to rescue '+companions[def.worldIndex].name+'.':'Keep earning stars for your worlds!')+'</p><button id="level-next" class="primary big-next">'+('🗺 '+worldThemes[def.worldIndex].name+' Map')+'</button>',()=>{$('level-next').onclick=()=>{closeModal();if(ready)rescue();else afterLevel()}});
- // Optional completed-level replays do not grant extra stars or count as new finishes.
- // Keep the legacy wallet in sync for returning students. This is a SECOND
- // storage write after the adventure save, so a failure must never be silent.
- // Do not replace a malformed old record or pretend its bonus was saved.
- // Only update the practice wallet if the adventure write was verified.
- // A rejected adventure save must never trigger a second write to the same
- // student record. Verify this write too: managed storage may silently ignore it.
- if(stars>0&&saved){
-   try{
-     const raw=localStorage.getItem(key);
-     const old=raw===null?null:JSON.parse(raw);
-     if(!old||typeof old!=='object'||Array.isArray(old))throw Error('Invalid student record');
-     if(old.wallet){
-       if(typeof old.wallet!=='object'||Array.isArray(old.wallet))throw Error('Invalid legacy wallet');
-       const wallet={...old.wallet,
-         total:(Number(old.wallet.total)||0)+5,
-         earned:(Number(old.wallet.earned)||0)+5,
-         finished:(Number(old.wallet.finished)||0)+1};
-       writeVerifiedStudentRecord(localStorage,key,{...old,wallet});
-     }
-   }catch{
-     saved=false;
-     showStorageWarning();
-   }
- }
+ // The legacy practice-wallet update is included in the verified save above;
+ // never perform a second write that can leave only half the reward saved.
  }
  function afterLevel(){if(def?.worldIndex!=null){openWorld(def.worldIndex);return}map()}
  // A rescued friend is not placed until the student's saved record confirms it.
