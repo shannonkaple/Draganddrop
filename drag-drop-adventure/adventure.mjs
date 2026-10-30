@@ -332,6 +332,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  const headerProgress=$('header-adventure-progress');
  if(headerProgress){
    headerProgress.hidden=!ready;
+   $('header-change-player').hidden=!ready;
    if(ready){
      const hero=char(a.selectedPlayerCharacterId);
      const next=nextLevel();
