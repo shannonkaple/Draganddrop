@@ -1,6 +1,6 @@
 import {teacherAccess,lockTeacher} from './teacher-access.mjs?v=20261029-teacherlock1';
 import './viewport.mjs?v=library-decor-20261030';
-import {openAdventure} from './adventure.mjs?v=header-progress-20261030';
+import {openAdventure} from './adventure.mjs?v=first-maze-full-board-voice-20261030';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let controller=null;
