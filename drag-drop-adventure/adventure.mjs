@@ -315,10 +315,10 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  function shell(title,content){
  dragSession?.destroy();dragSession=null;
  clearClock();document.body.classList.remove('playing','activity-playing');document.body.classList.add('adventure-mode');document.body.classList.toggle('lab-map-active',view==='map');document.body.classList.toggle('lab-world-active',view==='world-select');document.body.classList.toggle('lab-collection-active',view==='computer');document.body.classList.toggle('reduce-adventure-motion',settings.reducedMotion);
- $('who').classList.remove('hidden');$('who').textContent='Change student';$('who').onclick=()=>{save();cleanup();onLogout()};
+ $('who').classList.remove('hidden');$('who').textContent='👤 Change Student';$('who').onclick=()=>{save();cleanup();onLogout()};
  const ready=!!a.selectedPlayerCharacterId&&!!a.primaryRainbowLandId;
- $('header-stars').hidden=!ready;$('header-stuff').hidden=!ready;
- $('header-stars').textContent='⭐ '+(preview?'Preview Stars':a.wallet.rainbowStars+' Stars');
+ $('header-stars').hidden=!ready;$('header-store').hidden=!ready;$('header-stuff').hidden=!ready;
+ $('header-stars').textContent='⭐ Star Shop · '+a.wallet.rainbowStars;
  $('header-profile').textContent=preview?'TEACHER PREVIEW · no student saves':teacherName+' · #'+number;
  // The active student and rescue meter live in the top toolbar on every page.
  const headerProgress=$('header-adventure-progress');
