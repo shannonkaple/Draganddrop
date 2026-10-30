@@ -1,6 +1,7 @@
 import {writeVerifiedStudentRecord} from './verified-student-write.mjs?v=verified-save-20261029a';
 import {snapshotMazeStart,restoreMazeStart} from './maze-start-save-guard.mjs?v=maze-start-rollback-20261030a';
 import {navigateWithVerifiedSave} from './navigation-save-guard.mjs?v=guard-leave-20261029a';
+import {commitDuckTutorial} from './duck-tutorial-save-transaction.mjs?v=duck-ack-20261030a';
 import {withLegacyMazeCompletion} from './completion-wallet-transaction.mjs?v=atomic-completion-20261029a';
 import {commitCharacterSelection} from './character-selection-transaction.mjs?v=first-choice-rollback-20261029a';
 import {commitWorldView} from './world-view-transaction.mjs?v=world-view-save-20261029a';
@@ -1182,12 +1183,16 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(r.skill&&!r.skill.done&&tile(r.player)===tile(r.skill)){
    challenge('arrows');return;
  }
- if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{r.duckLearned=true;a.duckTutorialSeen=true;save();closeModal()}});
+ if(r.barrier&&!a.duckTutorialSeen)modal('A new move: DUCK!','<p>Hold the <strong>SPACE bar</strong> while you press an arrow to move under a striped low bridge. Let go to stand up.</p><p>The DOWN arrow still moves down. You can also hold the big Duck button.</p><button id="duck-ready" class="primary">I’m ready to try!</button>',()=>{$('duck-ready').onclick=()=>{
+  const ok=commitDuckTutorial({run:r,progress:a,persist:()=>{save();return saved}});
+  if(!ok){const button=$('duck-ready');button.textContent='NOT saved — try again';button.setAttribute('aria-label','Tutorial not saved. Try again after telling your teacher.');return}
+  closeModal();
+}});
  }
  function maze(){
  view='maze';shell(esc(def.title),'<div class="quest-strip"><span>MAZE '+def.number+'</span><span id="quest-items"></span></div><div class="play-layout adventure-layout"><section><div class="board-wrap scenic-board'+(def.worldIndex===0?' lab-candy-maze':def.individualBackdrop?' lab-individual-maze':'')+'" style="--lab-sprite-x:'+def.sceneX+'%;--lab-sprite-y:'+def.sceneY+'%;background-image:url('+asset(def.backgroundImage)+')"><div id="adventure-maze" class="maze" tabindex="0" aria-label="Move with keyboard arrows or, on mobile, touch arrow buttons. Start at the star. Collect the items and reach the checkered flag."></div></div><p id="adventure-status" class="caption" role="status">'+esc(report)+'</p></section></div>'+(mobileTouch?mobileArrowPadHtml('Touch arrows to move through the maze'):'')+'<div class="maze-controls"><button hidden id="maze-shop" class="star-shop-button">'+starIcon+'<span>Star Shop</span></button><button id="hint-route">💡 Help me</button><button id="duck-button" aria-pressed="false" '+(!r.barrier?'hidden':'')+'>Hold SPACE to duck</button><button id="restart-level">Start over</button><button id="adventure-full" type="button">⛶ Full Screen</button></div>');
  document.body.classList.add('playing');
- $('maze-shop').onclick=()=>{save();starShop()};$('restart-level').onclick=()=>modal('Start this maze over?',
+ $('maze-shop').onclick=()=>tryLeave(starShop);$('restart-level').onclick=()=>modal('Start this maze over?',
     '<p>This will restart <strong>only this maze</strong>. Your other mazes, stars, friends, and decorations stay saved.</p>'+
     '<p>Your current position and items collected in this maze will be lost.</p>'+
     '<button id="keep-maze" class="primary" type="button">Keep My Progress</button>'+
@@ -1391,7 +1396,7 @@ const companions=[['Candy Bunny','🐰'],['Pirate Parrot','🦜'],['Arctic Pengu
  if(kind==='arrows')body='<p>'+(mobileTouch?'Tap the matching arrow to follow the pattern.':'Use your keyboard to follow these directions.')+' Your progress is saved if you leave and return.</p><div id="skill-sequence" aria-label="Arrow pattern">'+sequenceHtml(i)+'</div>'+(mobileTouch?mobileArrowPadHtml('Tap the matching pattern arrow'):'');
  if(kind==='drag_and_drop')body='<p>Click and hold the keyboard. Drag it into the box, then let go.</p><div class="drag-space"><div id="drag-picture" tabindex="0" role="button" aria-label="Drag keyboard. Keyboard alternative: press Enter to pick up, Tab to box, Enter to drop.">'+img(data.computer_collectibles.find(i=>i.id==='keyboard').thumbnail,'Keyboard')+'</div><div id="drag-box" tabindex="0" role="button" aria-label="Keyboard drop box">Drop here</div></div>';
  modal('Computer skill stop',body+back,()=>{
- $('try-later').onclick=()=>{challengeKeys=null;closeModal();save();draw()};
+ $('try-later').onclick=()=>tryLeave(()=>{challengeKeys=null;closeModal();draw()});
  $('retry-skill-completion').onclick=win;
  if(kind==='click')$('skill-target').onclick=win;
  if(kind==='double_click'){let last=null;$('skill-target').onclick=()=>{const now=performance.now();if(last!==null&&now-last<=1300){win();last=null}else{last=now;$('skill-feedback').textContent='One click—click once more!'}};}
