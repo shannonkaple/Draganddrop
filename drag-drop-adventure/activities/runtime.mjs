@@ -3,14 +3,17 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const image=(a,cls='')=>a?'<img class="'+cls+'" src="'+esc(a.image)+'" alt="'+esc(a.name||'')+'" draggable="false">':'';
 const layout=(el,r)=>{for(const [k,axis] of [['left','x'],['top','y'],['width','w'],['height','h']])el.style[k]=(r[axis]/(axis==='x'||axis==='w'?10:6))+'%'};
 export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMotion=false,speed=2200}){
- const fullSceneDemo=level.world==='candy'&&level.engine==='maze';
+ // Apply the successful Candy Level 1 viewport treatment to all 64
+ // activities. Retain the existing CSS hook so older Chromebook CSS cannot
+ // silently restore the tiny board layout on another stage.
+ const fullSceneDemo=true;
  const headerStrip=document.getElementById('header-activity-strip');
- document.body.classList.toggle('drag-first-demo',fullSceneDemo);
- if(headerStrip)headerStrip.hidden=!fullSceneDemo;
+ document.body.classList.add('drag-first-demo','drag-full-scene');
+ if(headerStrip)headerStrip.hidden=false;
  const state=stateFor(level,saved),engine=ENGINES[level.engine],abort=new AbortController();
  const motion=!reducedMotion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;
  let active=null,disposed=false,frame=0,time=0,lastTime=null,finished=false,artError=false;
- root.innerHTML='<section class="activity-shell"><div class="activity-instructions"><p>'+esc(engine.instruction)+'</p><strong class="activity-count" aria-live="polite"></strong></div><div class="activity-frame"><div class="activity-board" style="--activity-scene:url(&quot;'+esc(level.background)+'&quot;)" role="group" aria-label="'+esc(level.title)+' play area"><img class="activity-background" src="'+esc(level.background)+'" alt="" draggable="false"><div class="activity-world"></div><div class="activity-targets"></div><div class="activity-pieces"></div><div class="activity-hazards"></div></div></div><div class="activity-feedback" role="status">Click and keep holding. Move. Let go inside a matching space.</div><div class="activity-tools"><button type="button" class="activity-listen">🔊 Hear directions</button><button type="button" class="activity-reset">Restart this activity</button><span>Finished placements save automatically.</span></div></section>';
+ root.innerHTML='<section class="activity-shell"><div class="activity-instructions" aria-label="Activity directions"><p class="activity-directions-text">'+esc(engine.instruction)+'</p><button type="button" class="activity-listen" aria-label="Read these directions aloud" title="Read directions aloud">🔊</button><strong class="activity-count" aria-live="polite"></strong></div><div class="activity-frame"><div class="activity-board" style="--activity-scene:url(&quot;'+esc(level.background)+'&quot;)" role="group" aria-label="'+esc(level.title)+' play area"><img class="activity-background" src="'+esc(level.background)+'" alt="" draggable="false"><div class="activity-world"></div><div class="activity-targets"></div><div class="activity-pieces"></div><div class="activity-hazards"></div></div></div><div class="activity-feedback" role="status">Click and keep holding. Move. Let go inside a matching space.</div><div class="activity-tools"><button type="button" class="activity-reset">Restart this activity</button></div></section>';
  const board=root.querySelector('.activity-board'),world=root.querySelector('.activity-world'),targetLayer=root.querySelector('.activity-targets'),pieceLayer=root.querySelector('.activity-pieces'),hazardLayer=root.querySelector('.activity-hazards'),feedback=root.querySelector('.activity-feedback');
  const nodes=new Map(),targetNodes=new Map(),hazardNodes=new Map();
  const say=t=>{
@@ -110,16 +113,27 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
   const width=Math.min(1672,spaceWidth,spaceHeight*1672/941);
   const fittedWidth=Math.max(1,Math.floor(width));
   const fittedHeight=Math.max(1,Math.floor(fittedWidth*941/1672));
+  // Direction bar and artwork share this exact measured width.
+  root.style.setProperty('--fitted-board-width',fittedWidth+'px');
+  root.style.setProperty('--fitted-board-height',fittedHeight+'px');
   board.style.setProperty('--fitted-board-width',fittedWidth+'px');
   board.style.setProperty('--fitted-board-height',fittedHeight+'px');
   app.dispatchEvent(new Event('activity-layout'));
  }
  const observer=new ResizeObserver(fit);observer.observe(root);observer.observe(document.getElementById('app'));observer.observe(document.querySelector('body>header'));
  window.addEventListener('resize',fit,{signal:abort.signal});window.visualViewport?.addEventListener('resize',fit,{signal:abort.signal});
- root.querySelector('.activity-listen').onclick=()=>{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(engine.instruction);u.rate=.8;speechSynthesis.speak(u)};
- if(fullSceneDemo&&headerStrip){
-   document.getElementById('header-demo-instruction').textContent=engine.instruction;
-   document.getElementById('header-demo-listen').onclick=()=>root.querySelector('.activity-listen').click();
+ const listen=root.querySelector('.activity-listen');
+ listen.disabled=!(window.speechSynthesis&&window.SpeechSynthesisUtterance);
+ listen.onclick=()=>{
+   if(listen.disabled)return;
+   window.speechSynthesis.cancel();
+   const utterance=new window.SpeechSynthesisUtterance(engine.instruction);
+   utterance.rate=.8;
+   window.speechSynthesis.speak(utterance);
+ };
+ if(headerStrip){
+   // Count, restart and feedback live in the toolbar; written directions
+   // appear only once immediately above the matching-width game background.
    document.getElementById('header-demo-reset').onclick=()=>root.querySelector('.activity-reset').click();
    document.getElementById('header-demo-feedback').textContent=feedback.textContent;
  }
@@ -127,5 +141,5 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
  root.querySelector('.activity-reset').onclick=()=>{cancel();state.placed={};state.round=0;state.roundPlaced={};state.complete=false;onProgress(structuredClone(state));redraw();say('This activity restarted. Your other levels and stars are safe.')};
  redraw();if(progressFor(level,state).done>=progressFor(level,state).total)queueMicrotask(()=>{if(!disposed&&!finished){finished=true;onComplete()}});requestAnimationFrame(fit);document.fonts?.ready.then(()=>{if(!disposed)fit()});
  if(motion&&(level.hazards.some(h=>h.motion)||level.targets.some(t=>t.motion)))frame=requestAnimationFrame(tick);
- return {cancel,destroy(){disposed=true;cancel();cancelAnimationFrame(frame);observer.disconnect();abort.abort();window.speechSynthesis?.cancel();document.body.classList.remove('drag-first-demo');if(headerStrip)headerStrip.hidden=true}};
+ return {cancel,destroy(){disposed=true;cancel();cancelAnimationFrame(frame);observer.disconnect();abort.abort();window.speechSynthesis?.cancel();document.body.classList.remove('drag-first-demo','drag-full-scene');if(headerStrip)headerStrip.hidden=true}};
 }
