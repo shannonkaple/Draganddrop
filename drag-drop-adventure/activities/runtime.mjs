@@ -86,11 +86,20 @@ export function mountActivity(root,{level,saved,onProgress,onComplete,reducedMot
   frame=requestAnimationFrame(tick);
  }
  function fit(){
-  cancel();const shell=root.querySelector('.activity-shell'),app=document.getElementById('app'),frameEl=root.querySelector('.activity-frame');
-  const outer=app.getBoundingClientRect(),top=shell.getBoundingClientRect().top+app.scrollTop-outer.top;
-  const chrome=[...shell.children].filter(e=>e!==frameEl).reduce((n,e)=>n+e.getBoundingClientRect().height,0);
-  const h=Math.max(260,app.clientHeight-top-chrome-24),w=Math.min(1672,frameEl.clientWidth,h*1672/941);
-  board.style.setProperty('--fitted-board-width',w+'px');board.style.setProperty('--fitted-board-height',w*941/1672+'px');app.dispatchEvent(new Event('activity-layout'));
+  if(disposed)return;
+  cancel();
+  const frameEl=root.querySelector('.activity-frame'),app=document.getElementById('app');
+  if(!frameEl||!app)return;
+  // Measure the actual flexed play box, not a fixed viewport subtraction.
+  // The original JPEG is 1672×941: fill whichever axis fits without crop.
+  const frame=frameEl.getBoundingClientRect();
+  const spaceWidth=Math.max(1,frame.width-4),spaceHeight=Math.max(1,frame.height-4);
+  const width=Math.min(1672,spaceWidth,spaceHeight*1672/941);
+  const fittedWidth=Math.max(1,Math.floor(width));
+  const fittedHeight=Math.max(1,Math.floor(fittedWidth*941/1672));
+  board.style.setProperty('--fitted-board-width',fittedWidth+'px');
+  board.style.setProperty('--fitted-board-height',fittedHeight+'px');
+  app.dispatchEvent(new Event('activity-layout'));
  }
  const observer=new ResizeObserver(fit);observer.observe(root);observer.observe(document.getElementById('app'));observer.observe(document.querySelector('body>header'));
  window.addEventListener('resize',fit,{signal:abort.signal});window.visualViewport?.addEventListener('resize',fit,{signal:abort.signal});
