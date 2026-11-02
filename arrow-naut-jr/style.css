@@ -79,3 +79,13 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 @keyframes next-pulse{0%,100%{box-shadow:0 0 2px 2px #ffe66988}50%{box-shadow:0 0 12px 7px #fff178ce}}
 @media(prefers-reduced-motion:reduce){.pickup-picture,.piece.next-up button{animation:none}}
 @media(max-height:640px){.game-title{gap:2px}.game-mini-meter{padding:2px 6px;font-size:10px}.directions{padding:3px 6px}}
+
+/* Clear, repeatable audio help for emergent readers. Kept above the board
+   so trackpad selection never relies on reading the mission instructions. */
+.directions{gap:10px;justify-content:space-between}
+.directions strong{flex:1 1 auto;min-width:0}
+.directions .listen{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:7px;min-height:48px;min-width:154px;padding:6px 12px;border:3px solid #5940a5;border-radius:15px;background:#fff3a1;color:#241461;box-shadow:0 3px 0 #e0b944;font:900 clamp(11px,1.05vw,15px) Arial,sans-serif;white-space:nowrap}
+.directions .listen:hover,.directions .listen:focus-visible{background:#ffdf6b}
+.directions .speaker-icon{font:normal 27px/1 "Apple Color Emoji","Segoe UI Emoji",sans-serif}
+@media(max-width:700px){.directions .listen{min-width:54px;padding:4px 8px}.directions .listen-label{font-size:0}.directions .speaker-icon{font-size:29px}}
+@media(max-height:640px){.directions .listen{min-height:39px;padding:3px 8px}.directions .speaker-icon{font-size:24px}}
