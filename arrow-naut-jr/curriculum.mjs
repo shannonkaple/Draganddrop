@@ -123,12 +123,12 @@ export function createMission(world,stage){
   gate:{x:5,y:3,img:moveFind('lightning_energy_cell')},
   pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',moveFind(world===3?'blue_ice_key':'golden_signal_key'),'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
  if(stage===6)return {...base,kind:'relay',name:NAMES[6],
-  directions:'MATCH THE SPACE DOCKS! Click the glowing piece FIRST. Move it around obstacles and FIT it in the outline with the SAME PICTURE AND SIZE. Then choose the next!',
-  pieces:[pc('trackpad','Little Robot Probe',1,3,{x:10,y:2},art[0]),
+  directions:'MATCH THE SPACE DOCKS! Click the highlighted piece FIRST. Steer each cargo around other pictures. FIT it into the matching outline and size. Then choose the next!',
+  pieces:[pc('trackpad','Little Robot Probe',4,3,{x:10,y:2},art[0]),
    pc('arrows','L-Shaped Cargo',1,0,{x:9,y:1},cargoL,2,3,'L'),
-   pc('laptop','T-Shaped Cargo',1,4,{x:6,y:3},cargoT,3,3,'T')],
+   pc('laptop','T-Shaped Cargo',1,3,{x:6,y:4},cargoT,3,3,'T')],
   deliveryOrder:world%3===0?['trackpad','arrows','laptop']:world%3===1?['arrows','laptop','trackpad']:['laptop','trackpad','arrows'],
-  rocks:[[5,0],[5,6],...(world>=4?[[7,0],[7,6]]:[])]};
+  rocks:[]};
  const maze=makeFinalMaze(world);
  return {...base,kind:'maze',name:NAMES[7],
   directions:'RESCUE MAZE! CLICK your explorer. Use the ARROW KEYS to find EXIT. Space bad guys move on safe side paths!',
