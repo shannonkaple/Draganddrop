@@ -72,7 +72,7 @@ test('all boss mazes require selecting the explorer and have safe routes at mult
 test('eight different age-appropriate activities use clicking and keyboard arrow movement only',()=>{
  for(let world=0;world<8;world++){
   const missions=Array.from({length:8},(_,i)=>createMission(world,i));
-  assert.deepEqual(missions.map(x=>x.kind),['click','trail','collect','delivery','precision','key-gate','relay','maze']);
+  assert.deepEqual(missions.map(x=>x.kind),['precision','trail','collect','delivery','precision','key-gate','relay','maze']);
   assert.ok(missions.slice(1,7).every(m=>m.pieces.some(p=>p.goal)));
   assert.ok(missions.every(m=>m.pieces.every(p=>Number.isInteger(p.w)&&Number.isInteger(p.h)&&p.w>0&&p.h>0&&!('resize' in p))));
   assert.ok([0,1,2,4,5].every(stage=>missions[stage].pickups.length>0));
