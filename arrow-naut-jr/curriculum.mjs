@@ -63,7 +63,7 @@ export const ITEMS=[
  {id:'space_rover',name:'Moon Rover',price:9,img:'./assets/new-space-art/space_rover.png'},
  {id:'star_wand',name:'Star Wand',price:10,img:'./assets/new-space-art/star_wand.png'}
 ];
-export const NAMES=['Space Star Search','Starlight Trail','Fuel Crystal Hunt','Cargo Scan & Deliver','Find the Secret Cargo','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
+export const NAMES=['Find & Dock','Starlight Trail','Fuel Crystal Hunt','Match the Space Cargo','Find the Secret Cargo','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
 const pc=(id,name,x,y,goal,img,w=1,h=1,shape=null)=>({id,name,x,y,goal,img,w,h,shape});
 const cargoL=puzzle('l_shaped_cargo'),cargoT=puzzle('t_shaped_cargo');
 
