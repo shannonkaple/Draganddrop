@@ -26,6 +26,47 @@ export function firstWorldSafeRoute(openCells){
  while(current){route.add(current);current=previous.get(current)}
  return route;
 }
+/** Four different two-cell patrol lanes on side branches, never the required escape route.
+ * If a maze has no side branches, carve connected alcoves for the bad guys.
+ */
+function safeSidePatrols(open,safe,planetIndex,start,goal){
+ const dist=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+ const touchesRoute=p=>directions.some(([dx,dy])=>safe.has(key(p.x+dx,p.y+dy)));
+ const cells=[];
+ for(let y=1;y<MAZE_HEIGHT-1;y++)for(let x=1;x<MAZE_WIDTH-1;x++){
+  const p={x,y};
+  if(safe.has(key(x,y))||dist(p,start)<=2||dist(p,goal)<=2)continue;
+  cells.push(p);
+ }
+ const allowed=new Set(cells.map(p=>key(p.x,p.y))),chosen=[],used=new Set();
+ for(let i=0;i<4;i++){
+  let options=[];
+  for(const a of cells){
+   if(used.has(key(a.x,a.y)))continue;
+   for(const [dx,dy] of [[1,0],[0,1]]){
+    const b={x:a.x+dx,y:a.y+dy};
+    if(!allowed.has(key(b.x,b.y))||used.has(key(b.x,b.y)))continue;
+    const connected=[a,b].some(p=>open.has(key(p.x,p.y))||
+     directions.some(([xx,yy])=>open.has(key(p.x+xx,p.y+yy))));
+    if(!connected)continue;
+    const original=Number(open.has(key(a.x,a.y)))+Number(open.has(key(b.x,b.y)));
+    const nearby=Number(touchesRoute(a))+Number(touchesRoute(b));
+    const separation=chosen.length?Math.min(...chosen.map(pair=>Math.min(
+      dist(a,pair.a),dist(a,pair.b),dist(b,pair.a),dist(b,pair.b)))):4;
+    const score=separation*8+original*4+nearby*2;
+    options.push({a,b,score});
+   }
+  }
+  options.sort((a,b)=>b.score-a.score||
+   (a.a.y-b.a.y)||(a.a.x-b.a.x));
+  if(!options.length)throw Error('Cannot build safe four-enemy patrols for planet '+planetIndex);
+  const winner=options[0];
+  open.add(key(winner.a.x,winner.a.y));open.add(key(winner.b.x,winner.b.y));
+  used.add(key(winner.a.x,winner.a.y));used.add(key(winner.b.x,winner.b.y));
+  chosen.push(winner);
+ }
+ return chosen.map(({a,b},i)=>({id:'hazard-'+(i+1),type:(planetIndex*3+i)%8,a,b}));
+}
 export function makeFinalMaze(planetIndex){
  if(!Number.isInteger(planetIndex)||planetIndex<0||planetIndex>7)throw Error('Unknown finale planet');
  const random=randomFor(20261102+planetIndex*173);
@@ -73,26 +114,13 @@ export function makeFinalMaze(planetIndex){
   const walls=[];
   for(let y=0;y<MAZE_HEIGHT;y++)for(let x=0;x<MAZE_WIDTH;x++)
    if(!open.has(key(x,y)))walls.push([x,y]);
-  return {start,goal,walls,enemies,open:[...open]};
+  return {start,goal,walls,enemies,safeRoute:[...safe],open:[...open]};
  }
- const enemies=[];
- for(let i=0;i<4;i++){
-  const options=cells.filter(v=>!enemies.some(e=>key(e.a.x,e.a.y)===key(v.x,v.y)||key(e.b.x,e.b.y)===key(v.x,v.y)))
-   .map(v=>({v,neighbors:directions.map(([dx,dy])=>({x:v.x+dx,y:v.y+dy}))
-    .filter(n=>open.has(key(n.x,n.y))&&distance(n,start)>2&&distance(n,goal)>1)}))
-   .filter(o=>o.neighbors.length);
-  options.sort((a,b)=>{
-   const score=v=>Math.min(distance(v,start),distance(v,goal),...enemies.map(e=>distance(v,e.a)),...enemies.map(e=>distance(v,e.b)));
-   return score(b.v)-score(a.v);
-  });
-  if(!options.length)throw Error('Not enough enemy patrol corridors');
-  const choice=options[Math.min(i%2,options.length-1)];
-  const neighbor=choice.neighbors[Math.floor(random()*choice.neighbors.length)];
-  enemies.push({id:'hazard-'+(i+1),type:(planetIndex*3+i)%8,a:choice.v,b:neighbor});
- }
+ const safe=firstWorldSafeRoute([...open]);
+ const enemies=safeSidePatrols(open,safe,planetIndex,start,goal);
  const walls=[];
  for(let y=0;y<MAZE_HEIGHT;y++)for(let x=0;x<MAZE_WIDTH;x++)if(!open.has(key(x,y)))walls.push([x,y]);
- return {start,goal,walls,enemies,open:[...open]};
+ return {start,goal,walls,enemies,safeRoute:[...safe],open:[...open]};
 }
 function boardOpenFromWalls(walls){
  const blocked=new Set(walls.map(([x,y])=>key(x,y))),cells=[];
