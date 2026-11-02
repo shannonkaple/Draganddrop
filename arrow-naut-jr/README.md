@@ -7,7 +7,7 @@ This is a separate first-grade version of the second-grade Arrow-Naut Space Adve
 ## First-grade classroom scope
 
 - 8 illustrated planets and 8 missions per planet (64 total). Every moving puzzle now requires both horizontal and vertical arrow movement; no straight-across-only missions.
-- Missions: Space Star Search (precision clicking), Starlight Trail (visit stars in order), Fuel Crystal Hunt (collect while navigating rocks), Cargo Scan & Deliver (each tool visits its scanner), Find the Secret Computer (select a target among decoys and activate signals), Unlock the Force Field (find a key to open the gate), Space Signal Relay (deliver three devices in a new order each world), and Rescue Maze.
+- Missions: Find & Dock (each world's first mission requires choosing the right space picture, collecting a signal checkpoint, and navigating with arrows to its matching dock), Starlight Trail, Fuel Crystal Hunt, Match the Space Cargo (fit L and T into their pictured spaces **without scan stars**), Find the Secret Cargo, Unlock the Force Field, Space Signal Relay, and Rescue Maze.
 - Every mission now has a distinct task and visible on-screen progress. The number of collectibles, placement of scan points, and relay ordering varies across worlds. All pieces stay fixed-size throughout. Students can press or hold keyboard arrows to move once their picture is selected.
 - Rescue Maze: select the explorer with one trackpad click, then move with the keyboard arrows. Four moving bad guys patrol safe side branches, so the route cannot be permanently blocked.
 - First-clear awards: regular mission = 1 star; rescue finale = 10 stars; completed replays = 0 additional stars.
