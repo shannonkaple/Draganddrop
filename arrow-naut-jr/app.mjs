@@ -88,7 +88,7 @@ function game(){
  }
  return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(m.name)+'</h1>'+
  '<span class="game-mini-meter" aria-live="polite">'+esc(meter)+'</span><button data-action="world">Back to World Map</button></div>'+
- '<div class="directions"><strong>'+esc(m.directions)+'</strong><button class="listen" data-action="listen" aria-label="Read directions aloud">Listen</button></div>'+
+ '<div class="directions"><strong>'+esc(m.directions)+'</strong><button type="button" class="listen" data-action="listen" aria-label="Read the level directions aloud" title="Click to hear the instructions again"><span class="speaker-icon" aria-hidden="true">🔊</span><span class="listen-label">HEAR DIRECTIONS</span></button></div>'+
  '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
  '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
  '<div class="grid"></div>'+targets+walls+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+
@@ -226,10 +226,17 @@ function nav(action){
   case 'character-close':state.modal=null;render();break;
   case 'victory-ok':state.modal=null;showWorld(state.world);break;
   case 'listen':
-   if(state.mission&&typeof window.speechSynthesis!=='undefined'){
-    window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(state.mission.directions);
-    utterance.rate=.82;window.speechSynthesis.speak(utterance);
-   }break;
+   // Every mission can be reread on demand; clicking the speaker restarts it.
+   if(!state.mission)break;
+   if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){
+    notice('Speech is not available on this Chromebook. Ask your teacher to help.',true);
+    break;
+   }
+   window.speechSynthesis.cancel();
+   const utterance=new SpeechSynthesisUtterance(state.mission.directions.replace(/!\s*/g,'. ').replace(/\bCLICK\b/g,'click').replace(/\bTRACKPAD\b/g,'trackpad'));
+   utterance.lang='en-US';utterance.rate=.84;utterance.pitch=1;
+   window.speechSynthesis.speak(utterance);
+   break;
  }
 }
 let lastPointer='mouse';
