@@ -4,7 +4,7 @@ import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20
 import {verifiedWrite,writeTabSession,readTabSession,clearTabSession,storageProbe} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
 const root=document.getElementById('app');
 const esc=v=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null,tabSignature:null};
+const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null,tabSignature:null,expectedSavedRaw:null};
 const fileImg=(src,alt,cls='')=>'<img class="'+cls+'" src="'+src+'" alt="'+esc(alt)+'" draggable="false" loading="eager" onerror="this.onerror=null;this.src=\'../game-assets/collectibles/computer/laptop_512.png\'">';
 const chosen=()=>CHARACTERS.find(x=>x.id===state.progress?.character)||CHARACTERS[0];
 const saveKey=(teacher,num)=>'mskaple-arrownaut-junior-v1:'+teacher+':'+num;
@@ -22,7 +22,11 @@ function notice(message,error=false){state.notice=message;state.error=error?mess
 function persist(progress){
  if(!state.key||state.brokenSave){notice('Student progress cannot be saved. Ask the teacher.',true);return false}
  try{
+  // Never overwrite newer work from another tab using the same teacher/number.
+  if(localStorage.getItem(state.key)!==state.expectedSavedRaw)
+   throw Error('Another tab changed this student record');
   verifiedWrite(localStorage,state.key,progress);
+  state.expectedSavedRaw=JSON.stringify(progress);
   state.progress=progress;
   const label=root.querySelector('#save-state');if(label){label.textContent='Saved';label.classList.remove('save-error')}
   return true;
@@ -214,7 +218,7 @@ function render(){
 function openStudent(number,restore=null){
  if(!Number.isInteger(number)||number<1||number>30)return;
  state.number=number;state.key=saveKey(state.teacher,number);state.brokenSave='';
- try{state.progress=readProgress(localStorage.getItem(state.key))}
+ try{const raw=localStorage.getItem(state.key);state.progress=readProgress(raw);state.expectedSavedRaw=raw;}
  catch(e){state.brokenSave=e.message;state.error=e.message;state.view='teachers';render();return}
  if(!storageProbe(localStorage)){
   state.brokenSave='Chromebook storage is blocked';state.error='Your Chromebook cannot save progress. Tell your teacher before starting.';
@@ -291,7 +295,7 @@ function nav(action){
   case 'shop':state.view='shop';state.modal=null;render();break;
   case 'stuff':state.view='stuff';state.modal=null;state.pending=null;render();break;
   case 'help':state.view='help';state.modal=null;render();break;
-  case 'logout':try{clearTabSession(sessionStorage)}catch{}state.tabSignature=null;state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
+  case 'logout':try{clearTabSession(sessionStorage)}catch{}state.tabSignature=null;state.expectedSavedRaw=null;state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
   case 'characters':state.modal={type:'character'};render();break;
   case 'character-close':state.modal=null;render();break;
   case 'victory-ok':state.modal=null;showWorld(state.world);break;
@@ -397,8 +401,7 @@ async function init(){
  render();
 }
 window.addEventListener('pagehide',()=>{
- if(state.progress&&state.key&&!state.brokenSave){
-  try{verifiedWrite(localStorage,state.key,state.progress)}catch{}
- }
+ // Every action was synchronously verified. Do not issue an unguarded
+ // duplicate write on pagehide: another tab may have saved newer progress.
 });
 init();
