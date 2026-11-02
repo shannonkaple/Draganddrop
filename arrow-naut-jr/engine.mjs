@@ -42,11 +42,23 @@ export function move(mission,run,key){
  const piece=run.pieces.find(x=>x.id===run.selected);
  if(!piece)return {ok:false,run,reason:'Click a space picture first.'};
  const [dx,dy]=directions[key],x=piece.x+dx,y=piece.y+dy;
- if(x<0||y<0||x>=COLS||y>=ROWS||mission.rocks.some(([rx,ry])=>rx===x&&ry===y)||
-  (mission.gate&&!run.gateOpen&&mission.gate.x===x&&mission.gate.y===y)||
-  run.pieces.some(other=>other.id!==piece.id&&other.x===x&&other.y===y))
-  return {ok:false,run,reason:mission.gate&&!run.gateOpen&&mission.gate.x===x&&mission.gate.y===y?
-    'The force field is locked! Find its magic key first.':'Blocked! Try a different arrow key.'};
+ // A fixed-size L or T cargo image occupies its own unique footprint.
+ // First graders MOVE it one space; they never stretch or rotate it.
+ const cells=(item,atX=item.x,atY=item.y)=>{
+  const offsets=item.shape==='L'?[[0,0],[0,1],[1,1]]:
+   item.shape==='T'?[[0,0],[1,0],[2,0],[1,1]]:
+   Array.from({length:item.w||1},(_,ix)=>Array.from({length:item.h||1},(_,iy)=>[ix,iy])).flat();
+  return offsets.map(([ox,oy])=>[atX+ox,atY+oy]);
+ };
+ const occupied=new Set(run.pieces.filter(other=>other.id!==piece.id)
+  .flatMap(other=>cells(other)).map(v=>v.join(',')));
+ const obstacles=new Set(mission.rocks.map(v=>v.join(',')));
+ const nextCells=cells(piece,x,y);
+ const out=nextCells.some(([cx,cy])=>cx<0||cy<0||cx>=COLS||cy>=ROWS);
+ const gateBlocked=!!(mission.gate&&!run.gateOpen&&nextCells.some(([cx,cy])=>mission.gate.x===cx&&mission.gate.y===cy));
+ const blocked=out||gateBlocked||nextCells.some(v=>obstacles.has(v.join(','))||occupied.has(v.join(',')));
+ if(blocked)return {ok:false,run,reason:gateBlocked?
+  'The force field is locked! Find its magic key first.':'Blocked! Try a different arrow key.'};
  const next=clone(run),update=next.pieces.find(p=>p.id===piece.id);
  update.x=x;update.y=y;next.attempts++;
  let reason='Great movement! Keep going.';
