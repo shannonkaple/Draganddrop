@@ -113,7 +113,7 @@ export function mazeMove(mission,state,direction){
     mission.walls.some(w=>w[0]===x&&w[1]===y))
   return {ok:false,state,reason:'A space-rock wall is blocking you. Try another direction.'};
  const next=JSON.parse(JSON.stringify(state));next.maze.x=x;next.maze.y=y;next.attempts++;
- if(next.maze.enemies.some(e=>e.x===x&&e.y===y)&&!(mission.planetIndex===0&&firstWorldSafeRoute(mission.walls.length?boardOpenFromWalls(mission.walls):[]).has(key(x,y)))){
+ if(next.maze.enemies.some(e=>e.x===x&&e.y===y)&&!(mission.planetIndex===0&&firstWorldSafeRoute(boardOpenFromWalls(mission.walls)).has(key(x,y)))){
   next.maze.x=mission.mazeStart.x;next.maze.y=mission.mazeStart.y;
   next.maze.hits++;return {ok:true,state:next,reason:'A bad guy caught you! Back to the start. Try again.'};
  }
