@@ -28,7 +28,7 @@ export function move(mission,run,key){
  if(run.complete)return {ok:false,run,reason:'This level is finished.'};
  if(mission.kind==='click')return {ok:false,run,reason:'Click the requested picture to finish this level.'};
  if(mission.kind==='maze'){
-  const m={...mission,kind:'final-maze',planetIndex:mission.world};
+  const m={...mission,kind:'final-maze',planetIndex:mission.world,walls:mission.rocks};
   const result=mazeMove(m,run,key);
   return {ok:result.ok,run:result.state,reason:result.reason};
  }
@@ -48,7 +48,7 @@ export function move(mission,run,key){
 }
 export function patrol(mission,run){
  if(mission.kind!=='maze'||run.complete)return {ok:false,run};
- const result=mazeEnemyTick({...mission,kind:'final-maze',planetIndex:mission.world},run);
+ const result=mazeEnemyTick({...mission,kind:'final-maze',planetIndex:mission.world,walls:mission.rocks},run);
  return {ok:result.ok,run:result.state,reason:result.reason};
 }
 export function finish(progress,mission){
