@@ -17,37 +17,51 @@ export function goalMet(piece){const g=piece.goal;return !!g&&piece.x===g.x&&pie
   (g.w===undefined||piece.w===g.w)&&(g.h===undefined||piece.h===g.h);}
 export function missionComplete(mission,state){return mission.kind==='click'?state.complete:
  mission.pieces.filter(p=>p.goal).every(p=>goalMet(state.pieces.find(x=>x.id===p.id)));}
-/** Clicking inside selects movement. Clicking an actual visible handle selects resizing. */
+/** A click INSIDE selects an object; arrow keys always MOVE it, never resize it. */
 export function selectObject(mission,state,id,mode='move'){
  const piece=state.pieces.find(p=>p.id===id);
  if(!piece)return {ok:false,state,reason:'Click INSIDE an object.'};
- if(mode==='resize'&&state.selected!==id)return {ok:false,state,reason:'First click INSIDE the object to select it. Then click the corner handle.'};
- if(mode==='resize'&&!piece.resize)return {ok:false,state,reason:'This object cannot be resized. Click inside to move it.'};
+ if(mode!=='move')return {ok:false,state,reason:'Hold and DRAG a resize handle with your trackpad to stretch the object.'};
  if(mission.kind==='click'){
   if(id!==mission.clickTarget)return {ok:false,state,reason:'Look for the requested color. Carefully click INSIDE that box.'};
   return {ok:true,state:{...state,selected:id,mode:'move',complete:true,attempts:state.attempts+1},reason:'Perfect click!'};
  }
  if(mission.kind==='precision'&&id!==mission.clickTarget)return {ok:false,state,reason:'That is the wrong module. Click INSIDE the blue one.'};
- return {ok:true,state:{...state,selected:id,mode,attempts:state.attempts+1},reason:mode==='resize'?'Resize handle selected. Use arrow keys.':'Selected! Use your arrow keys to move.'};
+ return {ok:true,state:{...state,selected:id,mode:'move',attempts:state.attempts+1},reason:'Selected! Use the arrow keys to MOVE this object.'};
 }
 export function arrowAction(mission,state,key){
  if(!DIRECTIONS[key])return {ok:false,state,reason:'Use the arrow keys.'};
  if(!state.selected)return {ok:false,state,reason:'First click INSIDE the box you want to move.'};
  const piece=state.pieces.find(p=>p.id===state.selected);
  if(!piece)return {ok:false,state,reason:'Click INSIDE a box to select it.'};
- const [dx,dy]=DIRECTIONS[key],next=clone(state);
- const p=next.pieces.find(x=>x.id===state.selected);
- if(state.mode==='resize'){
-  if(!p.resize||p.cells)return {ok:false,state,reason:'This object cannot be resized.'};
-  // Anchored top-left, no cropping: width and height only change dimensions.
-  // Right widens; left narrows; down makes taller; up makes shorter.
-  p.w+=dx;p.h+=dy;
-  if(p.w<1||p.h<1)return {ok:false,state,reason:'An object must stay at least one square wide and tall.'};
- }else{p.x+=dx;p.y+=dy;}
+ const [dx,dy]=DIRECTIONS[key],next=clone(state),p=next.pieces.find(x=>x.id===state.selected);
+ p.x+=dx;p.y+=dy;
  if(!validPosition(mission,next.pieces,p.id))return {ok:false,state,reason:'That would hit a wall, another object, or the edge. Try a different arrow.'};
- next.attempts++;
+ next.mode='move';next.attempts++;
  next.complete=missionComplete(mission,next);
  return {ok:true,state:next,reason:next.complete?'Mission complete!':'Great! Keep going.'};
+}
+/** Grid-snapped handle dragging, with the opposite edge/corner held in place.
+ * deltaColumns/deltaRows are pointer movement rounded to whole puzzle squares.
+ * The same collision and bounds rules apply to both moving and stretching.
+ */
+export function resizeByHandle(mission,state,id,handle,deltaColumns,deltaRows){
+ const piece=state.pieces.find(p=>p.id===id);
+ if(!piece?.resize||piece.cells)return {ok:false,state,reason:'This object cannot be stretched.'};
+ if(!['n','ne','e','se','s','sw','w','nw'].includes(handle))return {ok:false,state,reason:'Use a visible resize handle.'};
+ if(!Number.isInteger(deltaColumns)||!Number.isInteger(deltaRows))return {ok:false,state,reason:'Drag the handle across the puzzle squares.'};
+ const x=handle.includes('e')||handle.includes('w')?deltaColumns:0;
+ const y=handle.includes('n')||handle.includes('s')?deltaRows:0;
+ if(!x&&!y)return {ok:false,state,reason:'Hold the handle and drag it to stretch or shrink.'};
+ const next=clone(state),p=next.pieces.find(p=>p.id===id);
+ if(handle.includes('w')){p.x+=x;p.w-=x}
+ if(handle.includes('e'))p.w+=x;
+ if(handle.includes('n')){p.y+=y;p.h-=y}
+ if(handle.includes('s'))p.h+=y;
+ if(p.w<1||p.h<1)return {ok:false,state,reason:'Keep at least one square in each direction.'};
+ if(!validPosition(mission,next.pieces,id))return {ok:false,state,reason:'That stretch would hit another object, a wall, or the edge.'};
+ next.selected=id;next.mode='move';next.attempts++;next.complete=missionComplete(mission,next);
+ return {ok:true,state:next,reason:next.complete?'Mission complete!':'Good stretching! Now fit the object into its outline.'};
 }
 /** Awards 3 stars on EVERY completed play, including replays, but unlocks once. */
 export function finishMission(progress,mission){
