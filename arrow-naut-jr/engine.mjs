@@ -20,8 +20,10 @@ export function select(mission,run,id){
   if(mission.target!==id)return {ok:false,run,reason:'Try again! Find and click the golden star.'};
   return {ok:true,run:{...run,selected:id,complete:true,attempts:run.attempts+1},reason:'You clicked the golden star!'};
  }
- if(mission.kind==='precision'&&mission.target!==id)
-  return {ok:false,run,reason:'Find the SECRET COMPUTER! Click its picture, not the others.'};
+ if(mission.kind==='precision'&&mission.target!==id){
+  const requested=mission.pieces.find(p=>p.id===mission.target);
+  return {ok:false,run,reason:'Look for '+(requested?.name||'the correct picture')+'! Click its MIDDLE, not the decoys.'};
+ }
  if(mission.kind==='relay'){
   const remaining=mission.deliveryOrder.filter(name=>!(run.delivered||[]).includes(name));
   if(id!==remaining[0])return {ok:false,run,reason:'Look for the highlighted '+mission.pieces.find(p=>p.id===remaining[0])?.name+' first!'};
