@@ -7,7 +7,7 @@ test('eight worlds, 64 unique grade-one levels, no resizing controls',()=>{
  const all=allMissions();assert.equal(WORLDS.length,8);assert.equal(all.length,64);
  assert.equal(new Set(all.map(x=>x.id)).size,64);
  assert.ok(all.every(m=>m.pieces.every(p=>Number.isInteger(p.w)&&Number.isInteger(p.h)&&p.w>0&&p.h>0&&!('resize' in p))));
- assert.ok(all.every(m=>['click','trail','collect','delivery','precision','key-gate','relay','maze'].includes(m.kind)));
+ assert.ok(all.every(m=>['precision','trail','collect','delivery','precision','key-gate','relay','maze'].includes(m.kind)));
 });
 test('picture must be clicked before an arrow moves it',()=>{
  const m=createMission(0,1),initial=startRun(m);
@@ -17,10 +17,21 @@ test('picture must be clicked before an arrow moves it',()=>{
  assert.equal(result.run.pieces[0].x,2);assert.equal(initial.pieces[0].x,1);
  assert.equal(result.run.pieces[0].w,1);
 });
-test('target clicking counts, decoys do not',()=>{
- const mission=createMission(0,0),run=startRun(mission);
- assert.equal(select(mission,run,'decoy1').ok,false);
- assert.equal(select(mission,run,'star').run.complete,true);
+test('first mission now teaches real click, checkpoint, arrow movement and picture docking',()=>{
+ for(let world=0;world<8;world++){
+  const mission=createMission(world,0),run=startRun(mission);
+  assert.equal(mission.kind,'precision');
+  assert.equal(mission.pieces.filter(p=>p.goal).length,1);
+  assert.ok(mission.pickups.length>=1);
+  assert.equal(select(mission,run,'decoy1').ok,false);
+  const selected=select(mission,run,'target');
+  assert.equal(selected.ok,true);
+  assert.equal(selected.run.complete,false,'correct clicking alone must not finish');
+  assert.equal(move(mission,run,'ArrowRight').ok,false,'movement requires a click');
+  assert.equal(move(mission,selected.run,'ArrowRight').ok,true);
+  assert.notEqual(mission.pieces.find(p=>p.id==='target').goal.y,
+   mission.pieces.find(p=>p.id==='target').y,'target must not be straight across');
+ }
 });
 test('precision challenges reject wrong selections',()=>{
  const mission=createMission(4,4),run=startRun(mission);
@@ -64,7 +75,8 @@ test('eight different age-appropriate activities use clicking and keyboard arrow
   assert.deepEqual(missions.map(x=>x.kind),['click','trail','collect','delivery','precision','key-gate','relay','maze']);
   assert.ok(missions.slice(1,7).every(m=>m.pieces.some(p=>p.goal)));
   assert.ok(missions.every(m=>m.pieces.every(p=>Number.isInteger(p.w)&&Number.isInteger(p.h)&&p.w>0&&p.h>0&&!('resize' in p))));
-  assert.ok(missions.slice(1,6).every(m=>m.pickups.length>0));
+  assert.ok([0,1,2,4,5].every(stage=>missions[stage].pickups.length>0));
+  assert.equal(missions[3].pickups.length,0,'L and T earn their star by shape fit, not scans');
   assert.equal(missions[5].gate.x,5);
   assert.equal(missions[6].deliveryOrder.length,3);
  }
@@ -191,6 +203,17 @@ test('each non-click mission requires a turn or directional change to finish',()
    const requiresHorizontal=p.goal.x!==p.x||checkpoints.some(x=>x.x!==p.x);
    assert.equal(requiresVertical&&requiresHorizontal,true,'world '+w+' stage '+stage+' piece '+p.id);
   }
+ }
+});
+test('L and T cargo fit earns one level star without chasing scan stars',()=>{
+ for(let world=0;world<8;world++){
+  const mission=createMission(world,3);
+  assert.deepEqual(mission.pickups,[]);
+  assert.equal(mission.pieces.filter(p=>p.goal).length,2);
+  assert.ok(mission.pieces.some(p=>p.shape==='L'));
+  assert.ok(mission.pieces.some(p=>p.shape==='T'));
+  const result=finish(createProgress(),mission);
+  assert.equal(result.stars,1);
  }
 });
 test('first-grade selection rejects touch and stylus clicks, including touch-generated mouse clicks',()=>{
