@@ -111,3 +111,24 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .branding>div{display:flex;flex-direction:column;gap:2px;min-width:0}
 .branding .astronaut-corner{width:48px;height:54px;object-fit:contain;flex:none;filter:drop-shadow(0 0 5px #9efaff)}
 @media(max-width:1000px){.branding .astronaut-corner{width:36px;height:41px}.branding>div strong{font-size:clamp(13px,1.3vw,20px)}}
+
+
+/* Real illustrated whole-PNG landing pads; never stretch/crop the art.
+   Preserve the outlined L/T matching targets in the shape lessons. */
+.goal-dock.dock-green,.goal-dock.dock-blue{
+ background-color:rgba(13,81,95,.32);
+ background-repeat:no-repeat;
+ background-size:contain;
+ background-position:center;
+ border-color:#a7ffdf;
+}
+.goal-dock.dock-green{background-image:url('./assets/move-find/green_docking_dock.png')}
+.goal-dock.dock-blue{background-image:url('./assets/move-find/blue_landing_dock.png')}
+.goal-dock.dock-green .goal-picture,.goal-dock.dock-blue .goal-picture{
+ position:absolute;
+ top:5%;left:15%;width:70%;height:70%;
+ opacity:.28;object-fit:contain;
+}
+.goal-dock.dock-green small,.goal-dock.dock-blue small{
+ bottom:-1px;z-index:1;padding:1px 3px;border-radius:4px;background:#073f52c9;
+}
