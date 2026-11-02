@@ -32,3 +32,11 @@
 .player-pick-grid button .player-choice-art{display:block;width:min(100%,110px);height:auto;aspect-ratio:1/1;border-radius:9px;pointer-events:none}
 .player-pick-grid button strong{font:12px/1.1 VAG,'Arial Rounded MT Bold',Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 @media(max-width:980px){.player-pick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.player-pick-grid button .player-choice-art{height:78px}.choose-player-button{font-size:11px!important}.header-player-img{width:26px;height:27px}.shop-grid{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}.scene.space-scene .scene-object{flex-basis:90px;width:90px;min-height:100px}.scene.space-scene .scene-object .scene-object-image{width:82px;height:70px}}
+
+/* Use illustrated space equipment as the visual focus instead of opaque color blocks. */
+.piece:not(.poly-piece){background:rgba(14,22,66,.25);border-color:#ecf6ffb0;box-shadow:0 3px 16px #0a184c88}
+.piece:not(.poly-piece) .piece-interior{background:rgba(22,30,79,.12)!important;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);border-radius:10px;color:white;box-shadow:none}
+.piece:not(.poly-piece) .piece-interior:hover{background:rgba(59,84,143,.19)!important}
+.piece:not(.poly-piece) .piece-interior .piece-illustration{width:min(84%,105px);max-height:77%;min-height:0;aspect-ratio:1/1;border-radius:8px;flex-shrink:1}
+.piece .piece-interior .piece-name{color:#fff;text-shadow:0 2px 4px #000,0 0 5px #15113c;font-weight:800;font-size:clamp(8px,.88vw,12px)}
+.piece.selected:not(.poly-piece){border-color:#fff0a9;outline:2px dotted #fbe57a;outline-offset:2px}
