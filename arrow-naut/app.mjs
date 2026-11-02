@@ -130,7 +130,7 @@ function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=
  const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
 function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage))return;
  const m=createMission(state.planet,stage),old=state.progress.active;
- const run=old?.id===m.id&&!old.complete?clone(old):initialMission(m);
+ const run=old?.id===m.id&&!old.complete&&(m.kind!=='final-maze'||(old.maze&&Array.isArray(old.maze.enemies)))?clone(old):initialMission(m);
  if(!old||old.id!==m.id||old.complete){const next={...state.progress,active:clone(run)};if(!persist(next))return;}
  state.mission=m;state.run=run;state.view='mission';state.message=m.kind==='final-maze'?'Use arrow keys to dodge the moving bad guys and reach EXIT!':'Click INSIDE to select. Arrows MOVE; hold and DRAG a resize handle to STRETCH.';state.error='';render();}
 function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
