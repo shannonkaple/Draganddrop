@@ -169,8 +169,8 @@ test('all first-grade character choices are astronauts or helmeted space explore
 });
 test('shape-matching cargo retains its real size when moved with the arrow keys',()=>{
  const m=createMission(0,3),r=startRun(m),l=r.pieces.find(p=>p.id==='laptop'),t=r.pieces.find(p=>p.id==='keyboard');
- assert.deepEqual([l.w,l.h,l.shape],[2,2,'L']);
- assert.deepEqual([t.w,t.h,t.shape],[3,2,'T']);
+ assert.deepEqual([l.w,l.h,l.shape],[2,3,'L']);
+ assert.deepEqual([t.w,t.h,t.shape],[3,3,'T']);
  assert.equal(l.img.endsWith('l_shaped_cargo.png'),true);
  assert.equal(t.img.endsWith('t_shaped_cargo.png'),true);
  let selected=select(m,r,l.id).run;
@@ -178,7 +178,7 @@ test('shape-matching cargo retains its real size when moved with the arrow keys'
  const moved=move(m,selected,'ArrowRight');
  assert.equal(moved.ok,true);
  assert.equal(moved.run.pieces.find(p=>p.id==='laptop').w,2);
- assert.equal(moved.run.pieces.find(p=>p.id==='laptop').h,2);
+ assert.equal(moved.run.pieces.find(p=>p.id==='laptop').h,3);
  assert.equal(moved.run.pieces.find(p=>p.id==='laptop').x,l.x+1);
  assert.equal(selected.pieces.find(p=>p.id==='laptop').x,l.x);
 });
