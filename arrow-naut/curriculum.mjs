@@ -2,21 +2,22 @@
  * All planet names, characters and visual assets are new to this game.
  * Illustrations in the prototype are temporary, not final approved art.
  */
+import {makeFinalMaze} from './finale-maze.mjs?v=finale-20261102';
 export const GRID={columns:12,rows:7};
 export const PLANETS=[
   // IMPORTANT: legacy internal IDs stay intact to protect saved progress.
-  {id:'launch',name:'Candy Moon',symbol:'🍬',friend:'Pip the Star Sprout',hue:315,blurb:'Careful space clicking on the candy moon.',enemyIdeas:['Moon Mite','Sprinkle Drone','Gumdrop Hopper','Sugar Sprite']},
-  {id:'moon',name:'Rocket Launch',symbol:'🚀',friend:'Momo Moon Mouse',hue:213,blurb:'Move your rover at the launch base.',enemyIdeas:['Rocket Gremlin','Fuel Beetle','Zap Bot','Spark Drone']},
-  {id:'robot',name:'Neon Ringed Planet',symbol:'🪐',friend:'Beebo Bot',hue:275,blurb:'Fit colorful cargo into space bays.',enemyIdeas:['Orbit Mite','Ring Crawler','Plasma Pixie','Zap Sprite']},
-  {id:'crystal',name:'Crystal Ice',symbol:'❄️',friend:'Glimmer Gecko',hue:195,blurb:'Resize and arrange icy space tools.',enemyIdeas:['Ice Mite','Prism Moth','Snow Sprite','Frost Drone']},
-  {id:'slime',name:'Robot Space Station',symbol:'🤖',friend:'Bloop the Blob',hue:190,blurb:'Repair robots using careful selection.',enemyIdeas:['Glitch Bug','Gear Gremlin','Circuit Crawler','Battery Bot']},
-  {id:'ice',name:'Dino Asteroid',symbol:'🦖',friend:'Frosty Ferret',hue:105,blurb:'Solve prehistoric asteroid puzzles.',enemyIdeas:['Meteor Beetle','Fossil Hopper','Crater Crab','Comet Crawler']},
-  {id:'jungle',name:'Ocean Planet',symbol:'🌊',friend:'Zuzu Comet Cub',hue:185,blurb:'Fit equipment in a watery world.',enemyIdeas:['Wave Mite','Bubble Bot','Coral Crab','Reef Crawler']},
-  {id:'core',name:'Lava Planet',symbol:'🌋',friend:'Nova Starling',hue:14,blurb:'Combine all your skills at the final planet.',enemyIdeas:['Lava Blob','Ember Beetle','Magma Sprite','Fire Drone']},
+  {id:'launch',name:'Candy Moon',friend:'Pip the Star Sprout',hue:315,blurb:'Careful space clicking on the candy moon.',enemyIdeas:['Moon Mite','Sprinkle Drone','Gumdrop Hopper','Sugar Sprite']},
+  {id:'moon',name:'Rocket Launch',friend:'Momo Moon Mouse',hue:213,blurb:'Move your rover at the launch base.',enemyIdeas:['Rocket Gremlin','Fuel Beetle','Zap Bot','Spark Drone']},
+  {id:'robot',name:'Neon Ringed Planet',friend:'Beebo Bot',hue:275,blurb:'Fit colorful cargo into space bays.',enemyIdeas:['Orbit Mite','Ring Crawler','Plasma Pixie','Zap Sprite']},
+  {id:'crystal',name:'Crystal Ice',friend:'Glimmer Gecko',hue:195,blurb:'Resize and arrange icy space tools.',enemyIdeas:['Ice Mite','Prism Moth','Snow Sprite','Frost Drone']},
+  {id:'slime',name:'Robot Space Station',friend:'Bloop the Blob',hue:190,blurb:'Repair robots using careful selection.',enemyIdeas:['Glitch Bug','Gear Gremlin','Circuit Crawler','Battery Bot']},
+  {id:'ice',name:'Dino Asteroid',friend:'Frosty Ferret',hue:105,blurb:'Solve prehistoric asteroid puzzles.',enemyIdeas:['Meteor Beetle','Fossil Hopper','Crater Crab','Comet Crawler']},
+  {id:'jungle',name:'Ocean Planet',friend:'Zuzu Comet Cub',hue:185,blurb:'Fit equipment in a watery world.',enemyIdeas:['Wave Mite','Bubble Bot','Coral Crab','Reef Crawler']},
+  {id:'core',name:'Lava Planet',friend:'Nova Starling',hue:14,blurb:'Combine all your skills at the final planet.',enemyIdeas:['Lava Blob','Ember Beetle','Magma Sprite','Fire Drone']},
 ];
 export const MISSION_NAMES=[
   'Target Click','Rover Route','Cargo Bay Fit','Resize the Rocket',
-  'Careful Selection','Satellite Repair','Space Station Builder','Rescue Mission'
+  'Careful Selection','Satellite Repair','Space Station Builder','Planet Maze Finale'
 ];
 export const MISSION_SKILLS=[
   'Click carefully INSIDE the requested box.',
@@ -26,7 +27,7 @@ export const MISSION_SKILLS=[
   'Click the correct object, not the one overlapping it. Then move it.',
   'Move the satellite with arrows. DRAG the panel handle to resize it.',
   'Click inside to select, use arrows to move, and DRAG handles to stretch the pieces.',
-  'Click, use arrow keys to move, and DRAG resize handles to complete the rescue.'
+  'Use arrow keys to escape the maze, dodge four moving space bad guys, and reach the rescue flag! Beat the maze to earn 10 stars and unlock the next planet.'
 ];
 const shape=(id,name,x,y,cells,goal,color)=>({id,name,x,y,w:Math.max(...cells.map(c=>c[0]))+1,h:Math.max(...cells.map(c=>c[1]))+1,cells,goal,color,resize:false});
 const rectangle=(id,name,x,y,w,h,goal,color,resize=false)=>({id,name,x,y,w,h,goal,color,resize});
@@ -72,11 +73,10 @@ export function createMission(planetIndex,stage){
   rectangle('window','Space window',1,4,2,2,{x:6,y:planetIndex>=4?2:3,w:3+(planetIndex>=4?1:0),h:2+(planetIndex>=4?1:0)},'pink',true),
   rectangle('console','Control console',4,5,2,1,{x:7,y:5,w:2,h:1},'blue'),
  ]};
- return {...base,kind:'rescue',pieces:[
-  rectangle('bridge','Rescue bridge',1,4,2,1,{x:5-(planetIndex>=4?1:0),y:4,w:4+Math.floor(planetIndex/3),h:1},'mint',true),
-  rectangle('beacon','Rescue beacon',2,1,1,1,{x:10,y:1,w:1,h:1},'pink'),
-  ...(planetIndex>=5?[rectangle('signal','Emergency signal',1,6,1,1,{x:10,y:5,w:1,h:1},'blue')]:[]),
- ]};
+ const final=makeFinalMaze(planetIndex);
+ return {...base,kind:'final-maze',title:'Planet Maze Finale',directions:MISSION_SKILLS[7],
+  pieces:[],obstacles:[],walls:final.walls,mazeStart:final.start,mazeGoal:final.goal,enemies:final.enemies};
+
 }
 export function allMissions(){return PLANETS.flatMap((_,pi)=>MISSION_NAMES.map((_,stage)=>createMission(pi,stage)))}
 export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
@@ -84,17 +84,17 @@ export function completedCount(progress,planetIndex){const prefix=PLANETS[planet
 export function planetUnlocked(progress,index){return index===0||PLANETS.slice(0,index).every((_,i)=>completedCount(progress,i)===8)}
 export function stageUnlocked(progress,pi,stage){return planetUnlocked(progress,pi)&&(stage===0||((progress.completed||[]).includes(`${PLANETS[pi].id}-${stage}`)))}
 export const SPACE_SHOP=[
- {id:'telescope',name:'Starlight Telescope',price:6,symbol:'🔭'},
- {id:'moon-buggy',name:'Mini Moon Buggy',price:9,symbol:'🚙'},
- {id:'robot-pet',name:'Robot Pet',price:12,symbol:'🤖'},
- {id:'crystals',name:'Crystal Garden',price:15,symbol:'💎'},
- {id:'rocket-lamp',name:'Rocket Lamp',price:18,symbol:'🚀'},
- {id:'alien-plant',name:'Alien Plant',price:21,symbol:'🌱'},
- {id:'space-helmet',name:'Astronaut Helmet',price:9,symbol:'🪐'},
- {id:'rocket-boots',name:'Rocket Boots',price:12,symbol:'🚀'},
- {id:'star-cape',name:'Starlight Cape',price:15,symbol:'⭐'},
- {id:'astro-goggles',name:'Astro Goggles',price:12,symbol:'✨'},
- {id:'mini-ufo',name:'Mini UFO',price:18,symbol:'🛸'},
- {id:'solar-satellite',name:'Solar Satellite',price:18,symbol:'🛰️'},
- {id:'cosmic-snowglobe',name:'Space Snow Globe',price:21,symbol:'🌌'},
+ {id:'telescope',name:'Starlight Telescope',price:6},
+ {id:'moon-buggy',name:'Mini Moon Buggy',price:9},
+ {id:'robot-pet',name:'Robot Pet',price:12},
+ {id:'crystals',name:'Crystal Garden',price:15},
+ {id:'rocket-lamp',name:'Rocket Lamp',price:18},
+ {id:'alien-plant',name:'Alien Plant',price:21},
+ {id:'space-helmet',name:'Astronaut Helmet',price:9},
+ {id:'rocket-boots',name:'Rocket Boots',price:12},
+ {id:'star-cape',name:'Starlight Cape',price:15},
+ {id:'astro-goggles',name:'Astro Goggles',price:12},
+ {id:'mini-ufo',name:'Mini UFO',price:18},
+ {id:'solar-satellite',name:'Solar Satellite',price:18},
+ {id:'cosmic-snowglobe',name:'Space Snow Globe',price:21},
 ];
