@@ -1,4 +1,4 @@
-import {COLS,ROWS,WORLDS,createProgress} from './curriculum.mjs?v=jr-space-true-footprints-v2-20261102';
+import {COLS,ROWS,WORLDS,createProgress} from './curriculum.mjs?v=jr-first1-cargo-friendly-20261102';
 import {mazeInitial,mazeMove,mazeEnemyTick} from '../arrow-naut/finale-maze.mjs?v=all-boss-safe-lasers-20261102';
 export const clone=v=>JSON.parse(JSON.stringify(v));
 const directions={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
