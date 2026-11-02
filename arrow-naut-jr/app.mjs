@@ -1,0 +1,275 @@
+import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked} from './curriculum.mjs';
+import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs';
+const root=document.getElementById('app');
+const esc=v=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null};
+const fileImg=(src,alt,cls='')=>'<img class="'+cls+'" src="'+src+'" alt="'+esc(alt)+'" draggable="false" loading="eager">';
+const chosen=()=>CHARACTERS.find(x=>x.id===state.progress?.character)||CHARACTERS[0];
+const saveKey=(teacher,num)=>'mskaple-arrownaut-junior-v1:'+teacher+':'+num;
+function notice(message,error=false){state.notice=message;state.error=error?message:'';const box=document.getElementById('feedback');if(box){box.textContent=message;box.classList.toggle('error',error)}}
+function persist(progress){
+ if(!state.key||state.brokenSave){notice('Student progress cannot be saved. Ask the teacher.',true);return false}
+ try{
+  const text=JSON.stringify(progress);localStorage.setItem(state.key,text);
+  if(localStorage.getItem(state.key)!==text)throw Error('Save verification failed');
+  state.progress=progress;return true;
+ }catch(e){notice('NOT SAVED. Do not close this tab. Tell your teacher.',true);return false}
+}
+function header(){
+ const playing=!!state.progress;
+ const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
+ return '<header class="topbar" id="topbar"><div class="branding"><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div>'+
+ (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button></nav>':'<span></span>')+
+ '<nav class="side-nav"><button data-action="help">How to Play</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
+}
+function login(){
+ if(state.view==='teachers')return '<main class="entry"><h1>First Grade Space Explorers</h1><p>Choose your first-grade teacher.</p>'+
+ (state.error?'<p class="error" role="alert">'+esc(state.error)+'</p>':'')+
+ '<div class="choose-grid">'+state.teachers.map(t=>'<button data-teacher="'+esc(t.id)+'">'+esc(t.name)+'</button>').join('')+'</div></main>';
+ return '<main class="entry"><button data-action="teachers">Back to Teachers</button><h1>Choose Your Student Number</h1>'+
+ '<div class="choose-grid student-nums">'+Array.from({length:30},(_,i)=>'<button data-student="'+(i+1)+'">'+(i+1)+'</button>').join('')+'</div></main>';
+}
+function home(){
+ return '<main class="map-page"><div class="map-stage"><img src="'+GALAXY+'" class="map-art" alt="Eight illustrated space planets" draggable="false">'+
+ WORLDS.map((world,i)=>{
+ const done=completedCount(state.progress,i),unlocked=worldUnlocked(state.progress,i),pad=WORLD_STOPS[i];
+ return '<button class="world-pin" data-world="'+i+'" style="left:'+pad.x+'%;top:'+pad.y+'%" '+(unlocked?'':'disabled')+
+ ' aria-label="'+esc(world.name)+(unlocked?'':' locked')+'"><strong>'+esc(world.name)+'</strong><small>'+ (unlocked?done+'/8 levels':'LOCKED')+'</small></button>';
+ }).join('')+'<div class="map-note">'+state.progress.completed.length+'/64 levels · '+state.progress.stars+' stars · Click a planet!</div></div></main>';
+}
+function worldMap(){
+ const w=WORLDS[state.world],done=completedCount(state.progress,state.world);
+ return '<main class="map-page"><div class="map-stage"><img src="'+w.jpg+'" class="map-art" alt="'+esc(w.name)+' illustrated world" draggable="false">'+
+ '<div class="map-heading">'+esc(w.name)+' · '+done+'/8 complete</div>'+
+ NAMES.map((name,i)=>{
+ const available=levelUnlocked(state.progress,state.world,i),completed=state.progress.completed.includes(w.id+'-'+(i+1)),at=LEVEL_STOPS[i];
+ return '<button class="level-pin" data-level="'+i+'" style="left:'+at.x+'%;top:'+at.y+'%" '+(available?'':'disabled')+
+ ' aria-label="Level '+(i+1)+' '+esc(name)+'"><strong>'+(available?i+1:'LOCK')+'</strong><small>'+esc(name)+(completed?' · DONE':'')+'</small></button>';
+ }).join('')+'<button class="map-back" data-action="home">All Planets</button></div></main>';
+}
+const stylePos=(x,y,w=1,h=1)=>'left:'+(x/COLS*100)+'%;top:'+(y/ROWS*100)+'%;width:'+(w/COLS*100)+'%;height:'+(h/ROWS*100)+'%';
+function piece(p){
+ const selected=state.run.selected===p.id;
+ return '<div class="piece'+(selected?' chosen':'')+'" style="'+stylePos(p.x,p.y)+'">'+
+ '<button data-select="'+esc(p.id)+'" aria-label="Select '+esc(p.name)+'" title="Click inside '+esc(p.name)+' to select">'+
+ fileImg(p.img,p.name,'piece-picture')+'</button></div>';
+}
+function game(){
+ const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
+ const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal" style="'+stylePos(p.goal.x,p.goal.y)+'" title="Finish for '+esc(p.name)+'">GOAL</div>').join('');
+ const walls=m.rocks.map(([x,y])=>'<div class="rock" style="'+stylePos(x,y)+'">'+
+ fileImg('../game-assets/enemies/rock_golem_256.png','Space rock','rock-picture')+'</div>').join('');
+ let mazePieces='';
+ if(isMaze){
+  const current=chosen();
+  const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'</div>').join('');
+  mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">EXIT</div>'+enemies+
+   '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button></div>';
+ }
+ return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(m.name)+'</h1>'+
+ '<button data-action="world">Back to World Map</button></div>'+
+ '<div class="directions"><strong>'+esc(m.directions)+'</strong><button class="listen" data-action="listen" aria-label="Read directions aloud">Listen</button></div>'+
+ '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
+ '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
+ '<div class="grid"></div>'+targets+walls+(isMaze?mazePieces:run.pieces.map(piece).join(''))+
+ '</div></div><p id="feedback" class="feedback'+(state.error?' error':'')+'" role="status">'+esc(state.notice||'Click a picture with your trackpad. Move with keyboard arrows.')+'</p></main>';
+}
+function shop(){
+ return '<main class="content-page"><h1>Space Star Shop</h1><p>You have '+state.progress.stars+' stars. Earn 1 star on a new level and 10 stars for a rescue maze. Replays are for practice.</p>'+
+ '<div class="item-grid">'+ITEMS.map(x=>{
+ const owned=state.progress.purchases.includes(x.id);
+ return '<div class="shop-card">'+fileImg(x.img,x.name,'shop-picture')+'<strong>'+esc(x.name)+'</strong>'+
+ '<button data-buy="'+x.id+'" '+(owned||state.progress.stars<x.price?'disabled':'')+'>'+
+ (owned?'OWNED':'Buy · '+x.price+' stars')+'</button></div>';
+ }).join('')+'</div></main>';
+}
+function stuff(){
+ const p=state.progress,w=p.sceneWorld??0,owned=[
+ ...p.purchases.map(id=>ITEMS.find(x=>x.id===id)).filter(Boolean).map(x=>({...x,key:'item:'+x.id})),
+ ...p.rescued.map(id=>WORLDS.find(x=>x.id===id)).filter(Boolean).map(x=>({key:'friend:'+x.id,name:x.name+' Friend',img:x.friend}))
+ ];
+ const placed=(Array.isArray(p.worldScene)?p.worldScene:[]).filter(x=>x.world===w);
+ return '<main class="stuff-page"><h1>My Space World</h1><p>Click an item, then click the background to place it. Put away an item whenever you want.</p>'+
+ '<div class="world-tabs">'+WORLDS.map((x,i)=>'<button data-stuff-world="'+i+'" '+(i===w?'aria-pressed="true"':'')+'>'+esc(x.name)+'</button>').join('')+'</div>'+
+ '<div class="decor-scene" data-scene="yes">'+fileImg(WORLDS[w].jpg,WORLDS[w].name,'scene-backdrop')+
+ placed.map(x=>{const item=owned.find(i=>i.key===x.key);if(!item)return '';
+ return '<div class="scene-decor" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%">'+
+ fileImg(item.img,item.name,'decor-image')+'<button data-remove="'+esc(x.key)+'" aria-label="Put '+esc(item.name)+' away">×</button></div>';
+ }).join('')+'</div>'+
+ '<p class="status-text">'+(state.pending?'Click a place on your world picture.':'Choose an item below to place it.')+'</p>'+
+ '<div class="inventory">'+owned.map(x=>'<button data-place="'+esc(x.key)+'" '+(state.pending===x.key?'aria-pressed="true"':'')+'>'+
+ fileImg(x.img,x.name,'inventory-image')+'<small>'+esc(x.name)+'</small></button>').join('')+
+ (owned.length?'':'<p>Play levels to earn stars and rescue friends. Buy decorations at the Star Shop!</p>')+'</div></main>';
+}
+function help(){
+ return '<main class="content-page"><h1>How to Play · First Grade</h1><div class="howto">'+
+ '<p><strong>1. TRACKPAD:</strong> Move the pointer to the MIDDLE of a picture and CLICK once.</p>'+
+ '<p><strong>2. KEYBOARD:</strong> Press the LEFT, RIGHT, UP, or DOWN arrow key to MOVE the selected picture.</p>'+
+ '<p><strong>3. GREEN GOALS:</strong> Move pictures to their matching finish spaces.</p>'+
+ '<p><strong>4. RESCUE MAZE:</strong> CLICK your explorer first, then use KEYBOARD ARROWS to reach EXIT. Bad guys move on side paths.</p>'+
+ '<p>Finish levels to earn stars. No dragging and no touchscreen play. Move just one square with each arrow press.</p></div>'+
+ '<button data-action="home">Back to My Worlds</button></main>';
+}
+function modal(){
+ if(!state.modal)return '';
+ const x=state.modal;
+ let inner='';
+ if(x.type==='victory'){
+  const friend=WORLDS[x.world].friend;
+  inner='<h2>'+(x.rescue?'WORLD RESCUED!':'Mission Complete!')+'</h2>'+
+  (x.rescue?fileImg(friend,'Rescued space friend','reward-image')+'<p>Your new friend is saved in My Stuff!</p>':'')+
+  '<strong class="reward">'+(x.stars?'+'+x.stars+' STARS':'Practice Complete')+'</strong>'+
+  '<button data-action="victory-ok">Continue</button>';
+ }else if(x.type==='character'){
+  inner='<h2>Choose Your Space Explorer</h2><div class="character-grid">'+
+  CHARACTERS.map(p=>'<button data-character="'+p.id+'" '+(state.progress.character===p.id?'aria-pressed="true"':'')+'>'+
+   fileImg(p.img,p.name,'character-image')+'<span>'+esc(p.name)+'</span></button>').join('')+
+  '</div><button data-action="character-close">Done</button>';
+ }
+ return '<div class="veil"><section class="dialog" role="dialog" aria-modal="true">'+inner+'</section></div>';
+}
+function render(){
+ root.innerHTML=header()+
+ (state.view==='teachers'||state.view==='students'?login():state.view==='home'?home():state.view==='world'?worldMap():
+  state.view==='game'?game():state.view==='shop'?shop():state.view==='stuff'?stuff():help())+modal();
+ clockSync();
+}
+function openStudent(number){
+ if(!Number.isInteger(number)||number<1||number>30)return;
+ state.number=number;state.key=saveKey(state.teacher,number);state.brokenSave='';
+ try{state.progress=readProgress(localStorage.getItem(state.key))}
+ catch(e){state.brokenSave=e.message;state.error=e.message;state.view='teachers';render();return}
+ state.view='home';state.error='';state.notice='';render();
+}
+function showWorld(i){
+ if(!state.progress||!worldUnlocked(state.progress,i))return;
+ state.world=i;state.view='world';state.run=null;state.mission=null;state.modal=null;state.error='';render();
+}
+function openLevel(stage){
+ if(!levelUnlocked(state.progress,state.world,stage))return;
+ const m=createMission(state.world,stage),old=state.progress.active;
+ let resume=old&&old.id===m.id&&!old.complete&&Array.isArray(old.pieces);
+ if(m.kind==='maze')resume=resume&&old.maze?.version===2&&Array.isArray(old.maze.enemies);
+ const run=resume?clone(old):startRun(m);
+ if(!resume&&!persist({...state.progress,active:clone(run)}))return;
+ state.mission=m;state.run=run;state.view='game';state.notice='Click inside a picture. Use keyboard arrows to move.';state.error='';render();
+}
+function actRun(next,msg){
+ if(!persist({...state.progress,active:clone(next)}))return;
+ state.run=next;state.notice=msg;state.error='';
+ if(next.complete){
+  const result=finish(state.progress,state.mission);
+  if(!persist(result.progress))return;
+  state.modal={type:'victory',stars:result.stars,rescue:result.rescue,world:state.mission.world};
+ }
+ render();
+}
+function selectPiece(id){
+ if(state.view!=='game'||state.modal)return;
+ const r=select(state.mission,state.run,id);
+ if(!r.ok){notice(r.reason,true);return}
+ actRun(r.run,r.reason);
+}
+function moveArrow(key){
+ if(state.view!=='game'||state.modal)return;
+ const r=move(state.mission,state.run,key);
+ if(!r.ok){notice(r.reason,true);return}
+ actRun(r.run,r.reason);
+}
+let timer=null;
+function clockSync(){
+ const active=state.view==='game'&&state.mission?.kind==='maze'&&!state.modal&&!state.run?.complete;
+ if(!active){if(timer){clearInterval(timer);timer=null}return}
+ if(timer)return;
+ timer=setInterval(()=>{
+  if(state.view!=='game'||state.mission?.kind!=='maze'||state.modal)return;
+  const t=patrol(state.mission,state.run);
+  if(!t.ok)return;
+  if(!persist({...state.progress,active:clone(t.run)}))return;
+  state.run=t.run;state.notice=t.reason;render();
+ },Math.max(1050,1650-state.mission.world*70));
+}
+function nav(action){
+ switch(action){
+  case 'home':if(state.progress){state.view='home';state.modal=null;state.run=null;state.mission=null;render()}break;
+  case 'teachers':state.view='teachers';state.error='';render();break;
+  case 'world':showWorld(state.world);break;
+  case 'shop':state.view='shop';state.modal=null;render();break;
+  case 'stuff':state.view='stuff';state.modal=null;state.pending=null;render();break;
+  case 'help':state.view='help';state.modal=null;render();break;
+  case 'logout':state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
+  case 'characters':state.modal={type:'character'};render();break;
+  case 'character-close':state.modal=null;render();break;
+  case 'victory-ok':state.modal=null;showWorld(state.world);break;
+  case 'listen':
+   if(state.mission&&typeof window.speechSynthesis!=='undefined'){
+    window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(state.mission.directions);
+    utterance.rate=.82;window.speechSynthesis.speak(utterance);
+   }break;
+ }
+}
+let lastPointer='mouse';
+root.addEventListener('pointerdown',e=>{lastPointer=e.pointerType},true);
+root.addEventListener('click',e=>{
+ if(e.pointerType==='touch'||lastPointer==='touch'){notice('Use the Chromebook TRACKPAD, not the touchscreen.',true);return}
+ const target=e.target.closest('button');
+ if(target){
+  const d=target.dataset;
+  if(d.action){nav(d.action);return}
+  if(d.teacher){state.teacher=d.teacher;state.view='students';state.error='';render();return}
+  if(d.student){openStudent(Number(d.student));return}
+  if(d.world!==undefined){showWorld(Number(d.world));return}
+  if(d.level!==undefined){openLevel(Number(d.level));return}
+  if(d.select){selectPiece(d.select);return}
+  if(d.buy){
+   const item=ITEMS.find(i=>i.id===d.buy);
+   if(!item)return;const res=purchase(state.progress,item);
+   if(!res.ok){notice(res.reason,true);return}
+   if(persist(res.progress))render();return;
+  }
+  if(d.character){
+   if(persist({...state.progress,character:d.character})){state.modal=null;render()}
+   return;
+  }
+  if(d.stuffWorld!==undefined){
+   if(persist({...state.progress,sceneWorld:Number(d.stuffWorld)})){state.pending=null;render()}
+   return;
+  }
+  if(d.place){state.pending=d.place;render();return}
+  if(d.remove){
+   const p=state.progress,world=p.sceneWorld??0,scene=Array.isArray(p.worldScene)?p.worldScene:[];
+   if(persist({...p,worldScene:scene.filter(x=>!(x.world===world&&x.key===d.remove))}))render();
+   return;
+  }
+ }
+ const scene=e.target.closest('[data-scene]');
+ if(scene&&state.pending){
+  const box=scene.getBoundingClientRect();
+  const x=Math.max(6,Math.min(94,Math.round(100*(e.clientX-box.left)/box.width)));
+  const y=Math.max(9,Math.min(91,Math.round(100*(e.clientY-box.top)/box.height)));
+  const p=state.progress,world=p.sceneWorld??0,prev=Array.isArray(p.worldScene)?p.worldScene:[];
+  const next={...p,worldScene:[...prev.filter(t=>!(t.key===state.pending&&t.world===world)),{world,key:state.pending,x,y}]};
+  if(persist(next)){state.pending=null;render()}
+ }
+});
+root.addEventListener('dragstart',e=>e.preventDefault());
+root.addEventListener('touchstart',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+window.addEventListener('keydown',e=>{
+ if(state.view!=='game'||state.modal||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
+ if(e.target.closest('input,textarea,select'))return;
+ e.preventDefault();moveArrow(e.key);
+});
+async function init(){
+ render();
+ try{
+  const response=await fetch('../rainbow-road/data/teachers.json',{cache:'no-cache'});
+  if(!response.ok)throw Error('Teacher roster unavailable');
+  const teachers=await response.json();
+  if(!Array.isArray(teachers)||!teachers.length)throw Error('Teacher list invalid');
+  state.teachers=teachers.filter(x=>x.id?.startsWith('grade1-'));
+  if(!state.teachers.length)throw Error('No first-grade teachers in roster');
+  state.error='';
+ }catch(e){state.error='The first-grade teacher list did not load. Refresh this page.'}
+ render();
+}
+init();
