@@ -1,0 +1,153 @@
+import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,planetUnlocked,stageUnlocked,SPACE_SHOP} from './curriculum.mjs';
+import {clone,initialMission,selectObject,arrowAction,finishMission,purchase,validatedSave,occupiedCells} from './mechanics.mjs';
+const root=document.getElementById('app');
+const $=selector=>root.querySelector(selector);
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const state={teacher:null,student:null,teachers:[],progress:null,view:'teachers',planet:0,mission:null,run:null,modal:null,message:'',error:'',dataError:'',key:null};
+const saveKey=(teacher,number)=>`mskaple-arrownaut-v1:${teacher}:${number}`;
+const idOf=mission=>mission.id;
+function speak(text){
+ if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){notify('Speech is unavailable on this browser.');return}
+ window.speechSynthesis.cancel();let u=new window.SpeechSynthesisUtterance(text);u.rate=.82;window.speechSynthesis.speak(u);
+}
+function notify(message,isError=false){state.message=message;state.error=isError?message:'';let status=$('#live-status');if(status){status.textContent=message;status.classList.toggle('error',isError)}}
+function persist(next){
+ if(!state.key||state.dataError){notify('The saved student record could not be read. Nothing has been overwritten.',true);return false}
+ try{const text=JSON.stringify(next);localStorage.setItem(state.key,text);
+  if(localStorage.getItem(state.key)!==text)throw Error('Write did not verify');
+  state.progress=next;state.dataError='';return true;
+ }catch(error){notify('NOT SAVED. Your previous work is safe. Tell your teacher and try again.',true);return false}
+}
+const progressText=()=>state.progress?`${state.progress.stars} ⭐`:'0 ⭐';
+function header(){
+ const hasStudent=!!state.progress;
+ const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
+ return `<header class="topbar" id="main-header"><div class="brand"><strong>🚀 Ms. Kaple's ARROW-NAUT Space Adventure</strong><small>${hasStudent?esc(studentText):'SECOND GRADE · CLICK · MOVE · RESIZE · FIT'}</small></div>
+ <nav class="center-controls" aria-label="Game controls">${hasStudent?
+  `<button data-action="home">🏠 Home</button><button data-action="shop">⭐ Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button>`:''}</nav>
+ <nav class="right-controls" aria-label="Help and student controls"><button data-action="help">🔊 How to Play</button>${hasStudent?'<button data-action="logout">👤 Change Student</button>':''}</nav></header>`;
+}
+function entry(){
+ if(state.view==='teachers')return `<main class="main"><section class="hero"><span class="tag">WELCOME, SPACE EXPLORER</span><h1>Choose Your Teacher</h1><p>Click carefully. Get ready to use your trackpad and arrow keys on an out-of-this-world mission!</p></section>
+ ${state.error?`<p class="error-banner" role="alert">${esc(state.error)} <button data-action="reload-teachers">Try Again</button></p>`:''}
+ <section class="entry"><h2>Who is your teacher?</h2><div class="selection-grid">${state.teachers.map(t=>`<button data-teacher="${esc(t.id)}">${esc(t.name)}</button>`).join('')}</div></section></main>`;
+ return `<main class="main"><section class="entry"><button data-action="teachers">← Teachers</button><h1>Choose Your Student Number</h1><p>Use your classroom number. Your progress stays with this teacher and number on this Chromebook.</p>
+ <div class="selection-grid number-grid">${Array.from({length:30},(_,i)=>`<button data-student="${i+1}">${i+1}</button>`).join('')}</div></section></main>`;
+}
+function home(){
+ return `<main class="main"><section class="hero"><div class="tag">SPACE TRAINING MISSION</div><h1>Explore 8 Planets.<br>Master Your Arrow Keys.</h1><p>Click INSIDE objects, move them with arrow keys, and select a corner handle when you need to resize. No dragging. No cropping.</p></section>
+ <div class="page-head" style="margin-top:16px"><div><h1>Choose a Planet</h1><p>Complete eight missions per planet to rescue a space friend.</p></div><span class="pill">${state.progress.completed.length} / 64 missions</span></div>
+ <div class="planet-grid">${PLANETS.map((p,i)=>{let unlocked=planetUnlocked(state.progress,i),done=completedCount(state.progress,i);return `<button class="planet" style="--planet-hue:${p.hue}" data-planet="${i}" ${unlocked?'':'disabled'} aria-label="${esc(p.name)}, ${done} of 8 levels complete${unlocked?'':' locked'}"><span class="orb">${p.symbol}</span><h3>${i+1}. ${esc(p.name)}</h3><p>${esc(p.blurb)}</p><span class="lock">${unlocked?`${done} / 8 complete`:'🔒 Locked'}</span></button>`}).join('')}</div>
+ <p class="note">Prototype illustrations are temporary. Original planet maps, characters, enemies and collectible PNG/JPEG art will be created separately and approved before publication.</p></main>`;
+}
+function planetMap(){
+ const p=PLANETS[state.planet],done=completedCount(state.progress,state.planet);
+ return `<main class="main"><div class="page-head"><div><h1>${p.symbol} ${esc(p.name)} Planet</h1><p>${done} of 8 levels completed · Rescue ${esc(p.friend)}</p></div><button data-action="home">🏠 All Planets</button></div>
+ <div class="level-grid">${MISSION_NAMES.map((title,i)=>{let done=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=stageUnlocked(state.progress,state.planet,i);return `<button class="level-card" data-level="${i}" ${unlocked?'':'disabled'}><strong>${i+1}. ${esc(title)}</strong><small>${done?'⭐ Completed — Replay for 3 more stars':unlocked?'▶ Ready for training':'🔒 Finish the previous level'}</small></button>`}).join('')}</div>
+ <section class="card" style="margin-top:14px"><h2 style="margin:0 0 7px">Meet your planet friend</h2><p style="margin:0">${esc(p.friend)} needs help! Finish every mission to bring your friend home.</p></section></main>`;
+}
+function positionStyle(piece){return `left:${piece.x/GRID.columns*100}%;top:${piece.y/GRID.rows*100}%;width:${piece.w/GRID.columns*100}%;height:${piece.h/GRID.rows*100}%;`}
+function goalShape(piece){const g=piece.goal;if(!g)return '';
+ const bbox={...piece,x:g.x,y:g.y,w:g.w??piece.w,h:g.h??piece.h};
+ if(piece.cells)return `<div class="goal" style="${positionStyle(bbox)}" aria-hidden="true">${piece.cells.map(([dx,dy])=>`<i class="goal-shape-cell" style="left:${dx/bbox.w*100}%;top:${dy/bbox.h*100}%;width:${100/bbox.w}%;height:${100/bbox.h}%"></i>`).join('')}</div>`;
+ return `<div class="goal" style="${positionStyle(bbox)}" aria-hidden="true"><span class="goal-label">FIT HERE</span></div>`;
+}
+function pieceHtml(piece){
+ const selected=state.run.selected===piece.id,cls=`piece ${piece.cells?'poly-piece ':''}${piece.color||'blue'}${selected?' selected':''}${selected&&state.run.mode==='resize'?' resize-selected':''}`;
+ let inner='';
+ if(piece.cells)inner=piece.cells.map(([x,y],i)=>`<button type="button" class="piece-cell" data-select="${esc(piece.id)}" aria-label="Select ${esc(piece.name)}" style="left:${x/piece.w*100}%;top:${y/piece.h*100}%;width:${100/piece.w}%;height:${100/piece.h}%">${i===0?'✦':''}</button>`).join('');
+ else inner=`<button class="piece-interior" type="button" data-select="${esc(piece.id)}" aria-label="Click inside ${esc(piece.name)} to select and move">${esc(piece.name)}</button>`;
+ return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize?`<button type="button" class="resize-handle" data-resize="${esc(piece.id)}" title="Select resize handle" aria-label="Resize ${esc(piece.name)} using arrow keys">↘</button>`:''}</div>`;
+}
+function missionPage(){
+ const m=state.mission,run=state.run;
+ const boardTargets=m.pieces.filter(p=>p.goal).map(p=>goalShape(p)).join('');
+ const obstacles=(m.obstacles||[]).map(([x,y])=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%"></div>`).join('');
+ return `<main class="main playing"><div class="mission-head"><h1>${m.planet.symbol} ${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${run.selected?`${run.mode==='resize'?'↘ Resizing':'↔ Moving'}: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'👆 Click INSIDE to select'}</span><button class="back" data-action="planet">↩️ Back to ${m.planet.symbol} ${esc(m.planet.name)} Map</button></div>
+ <section class="mission-frame" aria-label="Arrow-key computer skills game"><div class="directions-bar"><p>${esc(m.directions)}</p><button class="speak" data-action="listen" aria-label="Read directions aloud" title="Read directions aloud">🔊</button></div>
+ <div class="board-frame"><div class="space-board" id="space-board" style="--world-hue:${m.planet.hue}" tabindex="0" role="group" aria-label="Space puzzle. Click inside a box to select, then use arrow keys."><div class="grid-lines"></div>${boardTargets}${obstacles}${run.pieces.map(pieceHtml).join('')}</div></div></section>
+ <div class="feedback${state.error?' error':''}" role="status" id="live-status">${esc(state.message||'Click an object inside its border, then use your arrow keys.')}</div></main>`;
+}
+function shop(){return `<main class="main"><div class="page-head"><div><h1>⭐ Space Star Shop</h1><p>Stars: ${progressText()} · Earn 3 every time you complete a mission—even a replay!</p></div><button data-action="home">🏠 Home</button></div><div class="shop-grid">${SPACE_SHOP.map(item=>{const bought=state.progress.purchases.includes(item.id);return `<div class="shop-item card"><span class="symbol">${item.symbol}</span><strong>${esc(item.name)}</strong><p>Decorate your own space station.</p><button data-buy="${esc(item.id)}" ${bought||state.progress.stars<item.price?'disabled':''}>${bought?'✓ Owned':`⭐ Buy for ${item.price}`}</button></div>`}).join('')}</div></main>`}
+function stuff(){return `<main class="main"><div class="page-head"><div><h1>🎒 My Space Station</h1><p>Your rescued friends and the things you've bought are saved here.</p></div><button data-action="shop">⭐ Store</button></div><section class="scene"><h2>My Space World</h2><div class="scene-objects">${state.progress.purchases.map(id=>{let item=SPACE_SHOP.find(x=>x.id===id);return item?`<div class="scene-object">${item.symbol}<small>${esc(item.name)}</small></div>`:''}).join('')}${state.progress.rescued.map(id=>{let p=PLANETS.find(x=>x.id===id);return p?`<div class="scene-object">🧑‍🚀<small>${esc(p.friend)}</small></div>`:''}).join('')||'<p>Finish missions to rescue friends and earn stars to decorate here.</p>'}</div></section></main>`}
+function errorPage(){return `<main class="main"><section class="entry" role="alert"><h1>Student save needs help</h1><p>${esc(state.dataError)}</p><p>No progress was overwritten. Ask your teacher before trying again.</p><button data-action="students">↩️ Choose Another Number</button></section></main>`}
+function help(){return `<main class="main"><section class="entry how-to"><h1>🚀 How to Control Your Arrow-Naut</h1><ol>
+ <li><strong>Click INSIDE</strong> a space object. Clicking its border is not the same as clicking inside.</li>
+ <li><strong>Press keyboard arrows</strong> ↑ ↓ ← → to move the selected object one square at a time.</li>
+ <li><strong>To resize:</strong> click the small ↘ corner handle. Then press → to widen, ← to narrow, ↓ to make taller, or ↑ to make shorter.</li>
+ <li><strong>Fit blocks carefully:</strong> move each object into its dotted outline. Avoid walls and other objects.</li>
+ <li><strong>Earn 3 stars</strong> every time you finish any mission, including replays.</li>
+ </ol><p><strong>No dragging, no touchscreen shortcuts, and no cropping.</strong> Use the Chromebook trackpad and keyboard arrows.</p><button data-action="home">🏠 Back to Planets</button></section></main>`}
+function modalHtml(){const modal=state.modal;if(!modal)return '';
+ let content='';if(modal.kind==='intro'){const p=PLANETS[modal.planet];content=`<h2>Meet ${esc(p.friend)}!</h2><div class="friend-symbol">${p.symbol}</div><p>Complete eight ${esc(p.name)} missions to rescue your new space friend.</p><button data-action="intro-ok">OK</button>`}
+ else if(modal.kind==='reward'){content=`<h2>${modal.friend?'YOU DID IT!':'Mission Complete!'}</h2>${modal.friend?`<div class="friend-symbol">🧑‍🚀</div><p>You've rescued <strong>${esc(modal.friend)}</strong>!</p>`:''}<div class="big-reward">+3 ⭐</div><button data-action="reward-ok">OK</button>`}
+ return `<div class="dialog-scrim"><section class="dialog-panel" role="dialog" aria-modal="true" aria-label="${modal.kind==='intro'?'Meet your rescue friend':'Mission complete'}">${content}${state.error?`<p class="error-banner" role="alert">${esc(state.error)}</p>`:''}</section></div>`;
+}
+function render(){root.innerHTML=header()+(state.view==='teachers'||state.view==='students'?entry():state.view==='home'?home():state.view==='planet'?planetMap():state.view==='mission'?missionPage():state.view==='shop'?shop():state.view==='stuff'?stuff():state.view==='error'?errorPage():help())+modalHtml();scheduleFit()}
+function scheduleFit(){requestAnimationFrame(()=>{const header=$('#main-header');const board=$('#space-board');if(!header)return;const height=Math.round(header.getBoundingClientRect().height);root.style.setProperty('--bar-height',height+'px');if(!board)return;const frame=$('.board-frame');if(!frame)return;const rect=frame.getBoundingClientRect();const w=Math.max(100,Math.min(rect.width-6,(rect.height-6)*12/7));root.style.setProperty('--board-width',Math.floor(w)+'px')})}
+function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=i;state.view='planet';state.mission=null;state.run=null;state.message='';state.error='';render();
+ const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
+function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage))return;
+ const m=createMission(state.planet,stage),old=state.progress.active;
+ const run=old?.id===m.id&&!old.complete?clone(old):initialMission(m);
+ if(!old||old.id!==m.id||old.complete){const next={...state.progress,active:clone(run)};if(!persist(next))return;}
+ state.mission=m;state.run=run;state.view='mission';state.message='Click INSIDE an object to select it. No dragging!';state.error='';render();}
+function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
+ state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
+function award(){const result=finishMission(state.progress,state.mission);if(!persist(result.progress))return;
+ // Leave the finished scene visible beneath the reward dialog until OK.\n state.message='';state.error='';state.modal={kind:'reward',friend:result.friend};render();}
+function chooseObject(id,mode){if(state.view!=='mission'||state.modal)return;
+ const result=selectObject(state.mission,state.run,id,mode);if(!result.ok){notify(result.reason,true);return}
+ saveMissionAction(result.state,result.reason);
+}
+function onArrow(key){if(state.view!=='mission'||state.modal)return;const result=arrowAction(state.mission,state.run,key);
+ if(!result.ok){notify(result.reason,true);return}
+ saveMissionAction(result.state,result.reason);
+}
+function applyPurchase(id){const item=SPACE_SHOP.find(x=>x.id===id);if(!item)return;const result=purchase(state.progress,item);if(!result.ok){notify(result.reason,true);return}if(persist(result.progress)){state.message='You bought '+item.name+'!';state.error='';render();}}
+function openStudent(number){state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';let loaded;
+ try{loaded=validatedSave(localStorage.getItem(state.key))}catch(e){state.dataError=e.message;state.error=e.message;state.view='error';render();return}
+ state.progress=loaded;state.view='home';state.message='';state.error='';render();}
+function logOut(){state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
+function onAction(action){
+ switch(action){case 'teachers':state.view='teachers';render();break;
+ case 'students':state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
+ case 'logout':logOut();break;
+ case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
+ case 'planet':showPlanet(state.planet);break;
+ case 'shop':if(state.progress){state.view='shop';state.modal=null;render()}break;
+ case 'stuff':if(state.progress){state.view='stuff';state.modal=null;render()}break;
+ case 'help':state.view='help';state.modal=null;render();break;
+ case 'listen':if(state.mission)speak(state.mission.directions);break;
+ case 'intro-ok':{const next={...state.progress,seenIntros:[...state.progress.seenIntros,PLANETS[state.modal.planet].id]};if(persist(next)){state.modal=null;state.error='';render()};break}
+ case 'reward-ok':state.modal=null;showPlanet(state.planet);break;
+ case 'reload-teachers':loadTeachers();break;
+ }
+}
+function mouseEligible(event){return !event.pointerType||event.pointerType==='mouse'||event.detail===0}
+root.addEventListener('click',event=>{
+ if(!mouseEligible(event)){notify('Use the trackpad and keyboard—not the touchscreen.',true);return}
+ const el=event.target.closest('button,[data-boundary]');if(!el)return;
+ if(el.dataset.action){onAction(el.dataset.action);return}
+ if(el.dataset.teacher){state.teacher=el.dataset.teacher;state.view='students';state.error='';render();return}
+ if(el.dataset.student){openStudent(Number(el.dataset.student));return}
+ if(el.dataset.planet){showPlanet(Number(el.dataset.planet));return}
+ if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
+ if(el.dataset.buy){applyPurchase(el.dataset.buy);return}
+ if(el.dataset.resize){chooseObject(el.dataset.resize,'resize');return}
+ if(el.dataset.select){chooseObject(el.dataset.select,'move');return}
+ if(el.dataset.boundary){notify('Click INSIDE the box, or click its corner handle to resize.',true);return}
+});
+root.addEventListener('dragstart',event=>event.preventDefault());
+window.addEventListener('keydown',event=>{
+ if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)||state.view!=='mission'||state.modal)return;
+ if(event.target.closest('input,select,textarea'))return;
+ event.preventDefault();onArrow(event.key);
+});
+window.addEventListener('resize',scheduleFit);
+async function loadTeachers(){state.view='teachers';state.error='';render();
+ try{const r=await fetch('../drag-drop-adventure/teachers-grade2.json',{cache:'no-cache'});if(!r.ok)throw Error('Teacher roster not found');const data=await r.json();
+  if(!Array.isArray(data)||!data.length||!data.every(t=>t.id&&t.name))throw Error('Teacher roster invalid');state.teachers=data;state.error='';
+ }catch(e){state.error='Teacher list could not load. Check the connection and choose Try Again.';state.teachers=[]}
+ render();}
+loadTeachers();
