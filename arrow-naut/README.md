@@ -19,12 +19,12 @@ New **isolated** localStorage namespace: `mskaple-arrownaut-v1:<class-id>:<stude
 
 ## Keyboard controls
 - **Click inside**: select movement mode.
-- **Click yellow ↘ handle**: select resize mode, arrow right/left controls width, arrow down/up controls height.
-- **Arrow keys**: move or resize selected object. No touchscreen support on Chromebooks; only the resize handles are dragged, not the puzzle objects; no crop/double-click-to-crop.
+- **Click inside, then DRAG**: hold and drag any of eight visible edge/corner resize handles with the trackpad; release to save.
+- **Arrow keys**: move selected object ONE grid square; never resize. No touchscreen support on Chromebooks; only the resize handles are dragged, not the puzzle objects; no crop/double-click-to-crop.
 - **Speech**: speaker icon appended once to mission direction line.
 
 ## Testing
-`node --test mechanics.test.mjs` — 12 foundational tests. Additional browser QA required at 1366×768 and 1280×720 plus fullscreen and progress reload. The first version is a playable prototype, not final original illustrated art. Do not claim final approval or production-quality acceptance before live tests.
+`node --test mechanics.test.mjs` — movement, trackpad stretching, collision, progress, and challenge-ramp tests (run again after deployment). Additional browser QA required at 1366×768 and 1280×720 plus fullscreen and progress reload. The first version is a playable prototype, not final original illustrated art. Do not claim final approval or production-quality acceptance before live tests.
 
 ## Original galaxy art (2026-11-02)
 
