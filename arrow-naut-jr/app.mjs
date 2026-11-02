@@ -71,7 +71,7 @@ function piece(p){
  const delivered=state.mission.kind==='relay'&&(state.run.delivered||[]).includes(p.id);
  const graphic=p.id==='rover'?chosen().img:p.img;
  const pictureName=p.id==='rover'?chosen().name:p.name;
- return '<div class="piece'+(selected?' chosen':'')+(isNext?' next-up':'')+(delivered?' docked':'')+'" data-piece="'+esc(p.id)+'" style="'+stylePos(p.x,p.y)+'">'+
+ return '<div class="piece'+(selected?' chosen':'')+(isNext?' next-up':'')+(delivered?' docked':'')+'" data-piece="'+esc(p.id)+'" style="'+stylePos(p.x,p.y,p.w,p.h)+'">'+
  '<button data-select="'+esc(p.id)+'" aria-label="Select '+esc(p.name)+'" title="Click inside '+esc(p.name)+' to select">'+
  fileImg(graphic,pictureName,'piece-picture')+'</button></div>';
 }
@@ -128,7 +128,7 @@ function refreshGameDisplay(){
 }
 function game(){
  const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
- const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock" style="'+stylePos(p.goal.x,p.goal.y)+'" title="Dock for '+esc(p.name)+'">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small>DOCK</small></div>').join('');
+ const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock'+(p.shape?' shape-match '+p.shape:'')+'" style="'+stylePos(p.goal.x,p.goal.y,p.w,p.h)+'" title="Fit the '+esc(p.name)+' here">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small>'+(p.shape?'MATCH '+p.shape:'DOCK')+'</small></div>').join('');
  const pickups=(m.pickups||[]).filter(p=>!(run.collected||[]).includes(p.id)).map(p=>
   '<div class="pickup" data-pickup="'+esc(p.id)+'" style="'+stylePos(p.x,p.y)+'" role="img" aria-label="'+esc(p.name)+'">'+
    fileImg(p.img,p.name,'pickup-picture')+'<small>'+esc(p.name)+'</small></div>').join('');
