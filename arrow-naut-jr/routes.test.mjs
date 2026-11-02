@@ -5,8 +5,8 @@ import {startRun,select,move,patrol} from './engine.mjs';
 const directions=[['ArrowRight',1,0],['ArrowLeft',-1,0],['ArrowDown',0,1],['ArrowUp',0,-1]];
 const key=(x,y)=>x+','+y;
 function cells(p,x=p.x,y=p.y){
- const rel=p.shape==='L'?[[0,0],[0,1],[1,1]]:
-  p.shape==='T'?[[0,0],[1,0],[2,0],[1,1]]:
+ const rel=p.shape==='L'?[[0,0],[0,1],[0,2],[1,2]]:
+  p.shape==='T'?[[0,0],[1,0],[2,0],[1,1],[1,2]]:
   Array.from({length:p.w||1},(_,i)=>Array.from({length:p.h||1},(_,j)=>[i,j])).flat();
  return rel.map(([a,b])=>[a+x,b+y]);
 }
@@ -90,8 +90,8 @@ test('large cargo must occupy its exact shape, cannot resize or pass other shape
    const m=createMission(w,stage);
    const l=m.pieces.find(p=>p.shape==='L'),t=m.pieces.find(p=>p.shape==='T');
    assert.ok(l&&t,m.id+' needs both silhouette types');
-   assert.equal(l.w,2);assert.equal(l.h,2);
-   assert.equal(t.w,3);assert.equal(t.h,2);
+   assert.equal(l.w,2);assert.equal(l.h,3);
+   assert.equal(t.w,3);assert.equal(t.h,3);
    assert.ok(l.img.endsWith('.png')&&t.img.endsWith('.png'));
    assert.ok(!('resize' in l)&&!('resize' in t));
   }
