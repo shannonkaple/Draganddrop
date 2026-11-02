@@ -21,6 +21,7 @@ export function missionComplete(mission,state){return mission.kind==='click'?sta
 export function selectObject(mission,state,id,mode='move'){
  const piece=state.pieces.find(p=>p.id===id);
  if(!piece)return {ok:false,state,reason:'Click INSIDE an object.'};
+ if(mode==='resize'&&state.selected!==id)return {ok:false,state,reason:'First click INSIDE the object to select it. Then click the corner handle.'};
  if(mode==='resize'&&!piece.resize)return {ok:false,state,reason:'This object cannot be resized. Click inside to move it.'};
  if(mission.kind==='click'){
   if(id!==mission.clickTarget)return {ok:false,state,reason:'Look for the requested color. Carefully click INSIDE that box.'};
