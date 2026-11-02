@@ -2,7 +2,7 @@
  * All planet names, characters and visual assets are new to this game.
  * Illustrations in the prototype are temporary, not final approved art.
  */
-import {makeFinalMaze} from './finale-maze.mjs?v=boss-route-fix-20261102';
+import {makeFinalMaze} from './finale-maze.mjs?v=all-boss-safe-lasers-20261102';
 export const GRID={columns:12,rows:7};
 export const PLANETS=[
   // IMPORTANT: legacy internal IDs stay intact to protect saved progress.
