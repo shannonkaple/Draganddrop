@@ -1,4 +1,4 @@
-import {mazeInitial,mazeMove,mazeEnemyTick} from './finale-maze.mjs?v=finale-20261102';
+import {mazeInitial,mazeMove,mazeEnemyTick} from './finale-maze.mjs?v=boss-route-fix-20261102';
 import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=space-difficulty-20261102';
 export const DIRECTIONS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
 export const clone=value=>JSON.parse(JSON.stringify(value));
