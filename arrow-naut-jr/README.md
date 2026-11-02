@@ -6,7 +6,7 @@ This is a separate first-grade version of the second-grade Arrow-Naut Space Adve
 
 ## First-grade classroom scope
 
-- 8 illustrated planets and 8 missions per planet (64 total).
+- 8 illustrated planets and 8 missions per planet (64 total). Every moving puzzle now requires both horizontal and vertical arrow movement; no straight-across-only missions.
 - Missions: Space Star Search (precision clicking), Starlight Trail (visit stars in order), Fuel Crystal Hunt (collect while navigating rocks), Cargo Scan & Deliver (each tool visits its scanner), Find the Secret Computer (select a target among decoys and activate signals), Unlock the Force Field (find a key to open the gate), Space Signal Relay (deliver three devices in a new order each world), and Rescue Maze.
 - Every mission now has a distinct task and visible on-screen progress. The number of collectibles, placement of scan points, and relay ordering varies across worlds. All pieces stay fixed-size throughout. Students can press or hold keyboard arrows to move once their picture is selected.
 - Rescue Maze: select the explorer with one trackpad click, then move with the keyboard arrows. Four moving bad guys patrol safe side branches, so the route cannot be permanently blocked.
@@ -41,3 +41,11 @@ This is a separate first-grade version of the second-grade Arrow-Naut Space Adve
 - Progress from this version is separate from every other game. Do not clear browser storage or reuse existing save keys.
 
 Live browser QA on classroom Chromebooks should cover arrow-key focus and movement, Google Classroom access, first-grade teacher list, all 8 mazes, purchase and placement, save indicator, refresh in My Stuff and mid-puzzle, same-browser versus new-device behavior, and changing student. Logic simulations do not replace hands-on testing.
+
+## November 2 artwork and character update
+
+- Character picker includes only Astro Ace, Nova Panda Astronaut, Comet Kitty Astronaut, and Orbit Space Robot. Older non-space choices are safely mapped to Astro Ace without losing progress.
+- The generated **Nova Panda astronaut PNG** appears at the left corner of the header; no personal or cat photographs.
+- **10 full independent PNG artworks** from the user's Library are installed at `/arrow-naut-jr/assets/explorers/` and `/arrow-naut-jr/assets/new-space-art/`, including characters, enemies, decorations, and signals; see [Artwork and QA manifest](ARTWORK_AND_LEVEL_QA_2026-11-02.md).
+- Existing complete L/T cargo PNGs and other puzzle assets are retained and used as exact-size matching silhouettes.
+- All 64 mission routes and 26 regression checks passed. Completed work and My Stuff saved state are preserved; only unfinished older-format puzzle placement may restart.
