@@ -45,8 +45,8 @@ export function move(mission,run,key){
  // A fixed-size L or T cargo image occupies its own unique footprint.
  // First graders MOVE it one space; they never stretch or rotate it.
  const cells=(item,atX=item.x,atY=item.y)=>{
-  const offsets=item.shape==='L'?[[0,0],[0,1],[1,1]]:
-   item.shape==='T'?[[0,0],[1,0],[2,0],[1,1]]:
+  const offsets=item.shape==='L'?[[0,0],[0,1],[0,2],[1,2]]:
+   item.shape==='T'?[[0,0],[1,0],[2,0],[1,1],[1,2]]:
    Array.from({length:item.w||1},(_,ix)=>Array.from({length:item.h||1},(_,iy)=>[ix,iy])).flat();
   return offsets.map(([ox,oy])=>[atX+ox,atY+oy]);
  };
