@@ -1,4 +1,4 @@
-import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked} from './curriculum.mjs?v=jr-illustrated-art-20261102';
+import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked} from './curriculum.mjs?v=jr-move-find-12-pngs-20261102';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-quests-nov02c';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
 import {verifiedWrite,writeTabSession,readTabSession,clearTabSession,storageProbe} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
@@ -137,7 +137,7 @@ function game(){
  const meter=missionMeter(m,run);
  
  const walls=m.rocks.map(([x,y])=>'<div class="rock" style="'+stylePos(x,y)+'">'+
- fileImg('../game-assets/enemies/rock_golem_256.png','Space rock','rock-picture')+'</div>').join('');
+ fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':'../game-assets/enemies/rock_golem_256.png',m.world===3?'Ice wall':'Space rock','rock-picture')+'</div>').join('');
  let mazePieces='';
  if(isMaze){
   const current=chosen();
