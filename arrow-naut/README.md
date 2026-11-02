@@ -7,7 +7,7 @@ This is a **NEW second-grade arrow-key game**, separate from the existing first-
 ## The skills
 - Carefully click **inside** an object to select it, not the border.
 - Use keyboard arrows to move one grid cell at a time.
-- Click the visible bottom-right handle, then use arrow keys to resize width/height.
+- Click inside the object, then click, HOLD and DRAG its edge/corner handle with the trackpad to resize its frame.
 - Fit nonrectangular cargo pieces into their dotted target shapes without dragging or overlapping.
 - Combine selection, movement, resizing and problem-solving. **No cropping.**
 
@@ -20,7 +20,7 @@ New **isolated** localStorage namespace: `mskaple-arrownaut-v1:<class-id>:<stude
 ## Keyboard controls
 - **Click inside**: select movement mode.
 - **Click yellow ↘ handle**: select resize mode, arrow right/left controls width, arrow down/up controls height.
-- **Arrow keys**: move or resize selected object. No touchscreen support on Chromebooks; no drag/drop, no crop/double-click-to-crop.
+- **Arrow keys**: move or resize selected object. No touchscreen support on Chromebooks; only the resize handles are dragged, not the puzzle objects; no crop/double-click-to-crop.
 - **Speech**: speaker icon appended once to mission direction line.
 
 ## Testing
@@ -39,3 +39,8 @@ The game now uses an original illustrated **63-sprite space-game atlas** for a s
 No cropping lesson/tool, no gameplay dragging, and no touchscreen completion. New optional `playerId` on the v1 student record is backwards-compatible; finished mission IDs, stars, purchases, and rescue flags remain unchanged.
 
 **Art quality:** Portraits are compact, transparent-corner picture badges extracted from original generated artwork for *prototype game use*. They are not approved individually generated transparent full-body assets; the 24 remaining enemy designs, full art production, real Pages/Chromebook QA, and final character approval remain open.
+
+## 2026-11-02: real-world resizing and challenge ramp
+Resizing now uses eight click-hold-drag trackpad handles. Keyboard arrows move only. Drag releases snap to the 12x7 puzzle grid, reject collisions/out-of-bounds, and verify student saves before awarding progress. Planet difficulty grows from 1 through 8: additional distractors, more obstacles on solvable routes, more equipment, and bigger resize targets. The original 64 level IDs and independent student save namespace stay stable.
+
+A new 54-PNG illustrated space-equipment asset pack and preview are prepared separately for approval/integration. The game already includes original atlas graphics; they are emphasized over opaque CSS boxes. Do NOT claim the new PNG pack is deployed until its actual binaries are uploaded and browser-tested.
