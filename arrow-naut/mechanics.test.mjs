@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {PLANETS,createMission,createProgress,allMissions,planetUnlocked,stageUnlocked} from './curriculum.mjs';
-import {initialMission,selectObject,arrowAction,resizeByHandle,finishMission,occupiedCells,validPosition,purchase,validatedSave,goalMet} from './mechanics.mjs';
+import {initialMission,selectObject,arrowAction,resizeByHandle,finishMission,occupiedCells,validPosition,purchase,validatedSave,goalMet,mazeEnemyTick} from './mechanics.mjs';
 
 test('eight distinct planets each have eight no-crop missions',()=>{
  const missions=allMissions();assert.equal(PLANETS.length,8);assert.equal(missions.length,64);
@@ -80,12 +80,39 @@ test('reaching a goal completes the mission',()=>{
  const step=arrowAction(m,s,'ArrowRight');assert.equal(step.ok,true);assert.equal(step.state.complete,true);
  assert.ok(goalMet(step.state.pieces[0]));
 });
-test('every completion, even a replay, earns three stars, without unlocking twice',()=>{
- const m=createMission(0,0),p=createProgress();const first=finishMission(p,m);
- assert.equal(first.stars,3);assert.equal(first.progress.stars,3);assert.equal(first.progress.completed.length,1);
- const replay=finishMission(first.progress,m);
- assert.equal(replay.progress.stars,6);assert.equal(replay.progress.completed.length,1);
- assert.equal(p.stars,0,'previous save object unchanged');
+test('regular levels earn one star, final mazes ten; completed replays earn zero',()=>{
+ const normal=createMission(0,0),boss=createMission(0,7),p=createProgress();
+ const first=finishMission(p,normal);
+ assert.equal(first.stars,1);assert.equal(first.progress.stars,1);
+ const replay=finishMission(first.progress,normal);
+ assert.equal(replay.stars,0);assert.equal(replay.progress.stars,1);
+ const finish=finishMission(replay.progress,boss);
+ assert.equal(finish.stars,10);assert.equal(finish.progress.stars,11);
+ const bossReplay=finishMission(finish.progress,boss);
+ assert.equal(bossReplay.stars,0);assert.equal(bossReplay.progress.stars,11);
+ assert.equal(p.stars,0,'original balance unchanged');
+});
+test('eight unique finale mazes have four active moving enemies and solvable routes',()=>{
+ for(let pi=0;pi<8;pi++){
+  const m=createMission(pi,7);assert.equal(m.kind,'final-maze');
+  assert.equal(m.enemies.length,4);
+  const blocked=new Set(m.walls.map(cell=>cell.join(',')));
+  assert.equal(blocked.has('1,1'),false);assert.equal(blocked.has('10,5'),false);
+  const seen=new Set(['1,1']),queue=[[1,1]];let reached=false;
+  while(queue.length){
+   const [x,y]=queue.shift();
+   if(x===10&&y===5){reached=true;break}
+   for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const nx=x+dx,ny=y+dy,k=nx+','+ny;
+    if(nx<0||nx>=12||ny<0||ny>=7||seen.has(k)||blocked.has(k))continue;
+    seen.add(k);queue.push([nx,ny]);
+   }
+  }
+  assert.ok(reached,`maze ${pi} must have a route`);
+  const run=initialMission(m);assert.equal(run.maze.enemies.length,4);
+  const tick=mazeEnemyTick(m,run);assert.equal(tick.ok,true);
+  assert.ok(tick.state.maze.enemies.some((e,i)=>e.x!==run.maze.enemies[i].x||e.y!==run.maze.enemies[i].y));
+ }
 });
 test('other seven planets stay locked until eight stages finished',()=>{
  const p=createProgress();assert.equal(planetUnlocked(p,0),true);assert.equal(planetUnlocked(p,1),false);
