@@ -95,7 +95,8 @@ function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage
 function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
  state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
 function award(){const result=finishMission(state.progress,state.mission);if(!persist(result.progress))return;
- // Leave the finished scene visible beneath the reward dialog until OK.\n state.message='';state.error='';state.modal={kind:'reward',friend:result.friend};render();}
+ // Leave the finished scene visible beneath the reward dialog until OK.
+ state.message='';state.error='';state.modal={kind:'reward',friend:result.friend};render();}
 function chooseObject(id,mode){if(state.view!=='mission'||state.modal)return;
  const result=selectObject(state.mission,state.run,id,mode);if(!result.ok){notify(result.reason,true);return}
  saveMissionAction(result.state,result.reason);
