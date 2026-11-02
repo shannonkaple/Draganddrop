@@ -35,7 +35,7 @@ function persist(progress){
 function header(){
  const playing=!!state.progress;
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
- return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="../game-assets/characters/starter/png_512/astro_ace.png" alt="Astronaut logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
+ return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="./assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
  (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
  '<nav class="side-nav"><button data-action="help">How to Play</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
@@ -225,6 +225,11 @@ function openStudent(number,restore=null){
   state.view='teachers';render();return;
  }
  state.view='home';state.error='';state.notice='';
+ // Old animal/fantasy choices are no longer available; change only the
+ // portrait preference and preserve all stars, purchased/placed objects, and wins.
+ if(!CHARACTERS.some(c=>c.id===state.progress.character)){
+  if(!persist({...state.progress,character:CHARACTERS[0].id}))return;
+ }
  if(restore&&worldUnlocked(state.progress,restore.world)){
   state.world=restore.world;
   if(restore.view==='game'&&restore.stage!==null&&levelUnlocked(state.progress,restore.world,restore.stage)){
