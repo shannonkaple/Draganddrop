@@ -72,7 +72,7 @@ export function createMission(world,stage){
  if(!Number.isInteger(world)||world<0||world>=8||!Number.isInteger(stage)||stage<0||stage>7)
   throw Error('Unknown first-grade mission');
  const id=WORLDS[world].id+'-'+(stage+1),w=WORLDS[world];
- const base={id,world,stage,mechanicVersion:4,kind:'move',name:NAMES[stage],
+ const base={id,world,stage,mechanicVersion:(stage===0||stage===3)?4:3,kind:'move',name:NAMES[stage],
   pieces:[],rocks:[],pickups:[],target:null,worldData:w};
  const offset=world%3;
  const gold='../arrow-lab/assets/star-icon.png',gem='./assets/new-space-art/crystal_moon.png',starSignal='./assets/new-space-art/star_beacon.png';
