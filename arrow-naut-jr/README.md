@@ -7,8 +7,8 @@ This is a separate first-grade version of the second-grade Arrow-Naut Space Adve
 ## First-grade classroom scope
 
 - 8 illustrated planets and 8 missions per planet (64 total).
-- Missions: Find the Star (precise clicking), Move the Explorer, Avoid the Space Rocks, Two Deliveries, Choose Carefully, Space Helpers, Three Star Deliveries, and Rescue Maze.
-- More objects and obstacles are introduced over time; all pieces remain fixed-size throughout.
+- Missions: Space Star Search (precision clicking), Starlight Trail (visit stars in order), Fuel Crystal Hunt (collect while navigating rocks), Cargo Scan & Deliver (each tool visits its scanner), Find the Secret Computer (select a target among decoys and activate signals), Unlock the Force Field (find a key to open the gate), Space Signal Relay (deliver three devices in a new order each world), and Rescue Maze.
+- Every mission now has a distinct task and visible on-screen progress. The number of collectibles, placement of scan points, and relay ordering varies across worlds. All pieces stay fixed-size throughout. Students can press or hold keyboard arrows to move once their picture is selected.
 - Rescue Maze: select the explorer with one trackpad click, then move with the keyboard arrows. Four moving bad guys patrol safe side branches, so the route cannot be permanently blocked.
 - First-clear awards: regular mission = 1 star; rescue finale = 10 stars; completed replays = 0 additional stars.
 - Completing eight stages rescues a friend and unlocks the next planet.
@@ -24,7 +24,8 @@ This is a separate first-grade version of the second-grade Arrow-Naut Space Adve
 - `engine.mjs`: trackpad selection, arrow-key movement, collision rules, missions, stars, saved progress.
 - `app.mjs`: independent student UI and level interactions.
 - `style.css`: full-game Chromebook layout, image aspect-ratio preservation.
-- `engine.test.mjs`: Node test suite; run `node --test arrow-naut-jr/engine.test.mjs` at repository root.
+- `engine.test.mjs`: Node test suite covering all eight challenge types, ordered pickups, force-field gates, relay progression, maze solvability, old saves and star rewards; run `node --test arrow-naut-jr/engine.test.mjs` at repository root.
+- Existing students keep all cleared mission IDs, stars, purchases and rescued friends. An unfinished run saved before the new mission mechanic version automatically restarts **only that unfinished puzzle**, not the student's progress or wallet.
 
 ## Guardrails
 
