@@ -1,0 +1,53 @@
+{
+  "note": "Temporary signed source URLs for one-time GitHub Actions import. Remove this manifest after successful binary commit.",
+  "assets": [
+    {
+      "name": "solar_panel_satellite",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F123c89b9-58bb-4bbf-9e92-4b2a3a513576/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAHZ_QH0eSuVdhgI8kpS4s4Ijg58ttIp5CgPKS_LCSwHJ&exp=1793664644&osig=AAAAAAAAAAAAAAAAAAAAAH5xUme50F2JgJsPZaUu681nASbyA8bhZtM2usF0D8Uh&signer=media-rpc&token=AAIAAU0AJDEyM2M4OWI5LTU4YmItNGJiZi05ZTkyLTRiMmEzYTUxMzU3NgAAAAABoZ6-c6AI-bkAdazye4yIGJYSRJIETSSMspZ1iJbqQxJ7rc04lQ&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "blue_landing_dock",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F011270f9-ce20-42e1-9bb6-c59d524554d9/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAACOVMvEJRK7bkL7hj5VaYttxjsRoGGL_upgNPqSTJig6&exp=1793664027&osig=AAAAAAAAAAAAAAAAAAAAAGqCOJ88AYgt7RZyesaiAVZKIweD3mhUo4dUna0ODgAL&signer=media-rpc&token=AAIAAU0AJDAxMTI3MGY5LWNlMjAtNDJlMS05YmI2LWM1OWQ1MjQ1NTRkOQAAAAABoZ61CXibNS2-gPk0eLIVCy13H6mv2kYCDYXtWnE3aN60Pedd4Q&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "golden_signal_key",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fd80d9e02-41f7-4b14-8221-0e8bf7389ce8/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAAmKCOTMKZra1ADtb0W-ScFtd-GNz0HwXb9h89kjdIpv&exp=1793664849&osig=AAAAAAAAAAAAAAAAAAAAACTSg7d9SDZHGRrM6FTJ2VSCh7LDCcq1hhc2genzBuyc&signer=media-rpc&token=AAIAAU0AJGQ4MGQ5ZTAyLTQxZjctNGIxNC04MjIxLTBlOGJmNzM4OWNlOAAAAAABoZ7BlGhmO3mES6NN5gSoeecHrRI01lClW61uKlltGSQ7bwn_Zg&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "star_cargo_crate",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fcaa6a2ee-d167-4a85-b790-4de013067a22/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAADFbN0-WSH_cDonpmScJgi6DuaWT8_ss1wPlHoWIIvjd&exp=1793663772&osig=AAAAAAAAAAAAAAAAAAAAAHt7JO4JrJc2_C3gepm1Wil9De4IJG-bbM85a62t8i_V&signer=media-rpc&token=AAIAAU0AJGNhYTZhMmVlLWQxNjctNGE4NS1iNzkwLTRkZTAxMzA2N2EyMgAAAAABoZ6xJWC69l0GDNsHHJGBcJqDRGDFwn0WFOKpH4PxNftaVowbUg&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "ice_wall_four_blocks",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fa7b9ca40-0774-4d05-99f0-a90cbeb4401a/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAIRJb0JlUVU2csHhVjpwDH8tfbMSweOfz72YIyIgFP2m&exp=1793664385&osig=AAAAAAAAAAAAAAAAAAAAAO5eRYteVRDJVBWSAbzxA-9L6Jf-eodD9IUd6YMclklA&signer=media-rpc&token=AAIAAU0AJGE3YjljYTQwLTA3NzQtNGQwNS05OWYwLWE5MGNiZWI0NDAxYQAAAAABoZ66f-jgNlRDkwwSE2a1iy9U8uM6cdVViOU3YA30ZtjyqTS_kQ&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "crystal_cluster",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F96185a5d-509c-4713-bb87-5326b6976ae6/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAKbtufuImbuWjcin7gXmUr2Hmor6j_fR8Vhf-gAfY5IB&exp=1793663936&osig=AAAAAAAAAAAAAAAAAAAAAAdgLALLcUEjVflwyw6gzySicqJuUor0zt_q4O3s-4Cr&signer=media-rpc&token=AAIAAU0AJDk2MTg1YTVkLTUwOWMtNDcxMy1iYjg3LTUzMjZiNjk3NmFlNgAAAAABoZ6zpgDkmT2qHX0gbWhNSlOoeXdoqkfF_qv_1OUOPSYlSjr6aw&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "frozen_habitat",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fbcdf7fa3-98f4-4600-9e63-e3e9820dfad0/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAC438Kiebxp1RjicZakJfRX8UxsBh15tqUnEj6mB_pUv&exp=1793663686&osig=AAAAAAAAAAAAAAAAAAAAAHaRtaC5N5Gu350CU81n_LlliGkjil2scDYLa7TJpTnJ&signer=media-rpc&token=AAIAAU0AJGJjZGY3ZmEzLTk4ZjQtNDYwMC05ZTYzLWUzZTk4MjBkZmFkMAAAAAABoZ6v1XCB0oCyA1EIrz-1RnJTS4USsIA7uG7HP393j_YqHTynUw&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "lightning_energy_cell",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F2dca0703-8388-4ba7-8b7b-31fec3daf498/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAALI-s8rTJxUJSuagOuGI3mQYlsjCUGkHobkNVYWA4i_7&exp=1793662774&osig=AAAAAAAAAAAAAAAAAAAAAJv1vfQbN8AfElCl10Cp-FsjqmIEUZovTlGL5ROOD4oE&signer=media-rpc&token=AAIAAU0AJDJkY2EwNzAzLTgzODgtNGJhNy04YjdiLTMxZmVjM2RhZjQ5OAAAAAABoZ6h6vAQWuan70M7SinWRKevupTaQ2pI-HvBxFKputE3hApmzQ&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "satellite_dish",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F52ec0812-1436-49d2-b550-897e17868161/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAJIQeRtu1x69oQ36scYFJlpP0EaTtqkg7sTMN4PQvEG1&exp=1793662296&osig=AAAAAAAAAAAAAAAAAAAAAN_IzRDVMdzXjiYYRLFZzxmAjvGnyNblVgOHjizstTFS&signer=media-rpc&token=AAIAAU0AJDUyZWMwODEyLTE0MzYtNDlkMi1iNTUwLTg5N2UxNzg2ODE2MQAAAAABoZ6an8CF8DSF9pSOQZ-NqM-Mg2cM-saLepTjY4nBpq2qadRvXA&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "moon_rover",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F7a5f85c3-0058-47e2-a399-4a7a16483703/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAABk1ooAyq0s_jXZkzvolluaO2kJl4EzAKpwTzu7JC9Xs&exp=1793662200&osig=AAAAAAAAAAAAAAAAAAAAAJHi9ynX3oj4ezmuKmmF_yICEuaI3cdbAp95HlRZSF1H&signer=media-rpc&token=AAIAAU0AJDdhNWY4NWMzLTAwNTgtNDdlMi1hMzk5LTRhN2ExNjQ4MzcwMwAAAAABoZ6ZKMD1Tzq-4tM8n3rTT5lSq2XuyyipD7ZCPk_tkF0VWsJScQ&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "green_docking_dock",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F57313da2-aa10-4815-a089-69b38ff08220/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAANB8KLU-JfCqyYK39SLhD60fW87UrFch1KqMqL6VmUsj&exp=1793664957&osig=AAAAAAAAAAAAAAAAAAAAAEzvIyjYOZve_8Rv4UVui0eSbn_ej1QntUQpQ7Pzvnf7&signer=media-rpc&token=AAIAAU0AJDU3MzEzZGEyLWFhMTAtNDgxNS1hMDg5LTY5YjM4ZmYwODIyMAAAAAABoZ7DOki_UVMj4pkinNwyWLW_uGpB2llDp73wswxhQEps2vWLhA&x-canva-quality=thumbnail"
+    },
+    {
+      "name": "blue_ice_key",
+      "url": "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fe2068312-81f9-49d8-920e-412b2e76ad6c/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAHE-VUxqd_F8D-OjwnfvZ8HJv6gUBsmeuSO13OIHUn8_&exp=1793663969&osig=AAAAAAAAAAAAAAAAAAAAAMPfE3CJduFf_RuzWzBxXeP8rZbjhRaI0CcHlH_r9-WB&signer=media-rpc&token=AAIAAU0AJGUyMDY4MzEyLTgxZjktNDlkOC05MjBlLTQxMmIyZTc2YWQ2YwAAAAABoZ60Jug9nYuSrMl2vFTLV4KAL5E5IfZaILNlofiUFohw9TMMjg&x-canva-quality=thumbnail"
+    }
+  ]
+}
