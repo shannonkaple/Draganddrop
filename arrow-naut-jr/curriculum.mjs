@@ -102,8 +102,8 @@ export function createMission(world,stage){
    ...(world>=4?[beacon('fuel-c',9,5,'Fuel Crystal C',moveFind('crystal_cluster'))]:[])]};
  if(stage===3)return {...base,kind:'delivery',name:NAMES[3],
   directions:'SHAPE-SHIFT CARGO! Click the L cargo and T cargo. Visit each scan star, then FIT each picture into its matching outline. Use arrows to turn!',
-  pieces:[pc('laptop','L-Shaped Cargo',1,0,{x:9,y:0},cargoL,2,2,'L'),
-   pc('keyboard','T-Shaped Cargo',1,4,{x:8,y:4},cargoT,3,2,'T')],
+  pieces:[pc('laptop','L-Shaped Cargo',1,0,{x:9,y:0},cargoL,2,3,'L'),
+   pc('keyboard','T-Shaped Cargo',1,4,{x:8,y:4},cargoT,3,3,'T')],
   pickups:[beacon('scan-laptop',4+offset,2,'L Cargo Scan',gold,'laptop'),
    beacon('scan-keyboard',4+offset,3,'T Cargo Scan',gold,'keyboard')]};
  if(stage===4)return {...base,kind:'precision',name:NAMES[4],target:'target',
@@ -124,9 +124,9 @@ export function createMission(world,stage){
   pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',moveFind(world===3?'blue_ice_key':'golden_signal_key'),'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
  if(stage===6)return {...base,kind:'relay',name:NAMES[6],
   directions:'MATCH THE SPACE DOCKS! Click the glowing piece FIRST. Move it around obstacles and FIT it in the outline with the SAME PICTURE AND SIZE. Then choose the next!',
-  pieces:[pc('trackpad','Little Robot Probe',1,3,{x:9,y:2},art[0]),
-   pc('arrows','L-Shaped Cargo',1,0,{x:8,y:2},cargoL,2,2,'L'),
-   pc('laptop','T-Shaped Cargo',1,5,{x:7,y:4},cargoT,3,2,'T')],
+  pieces:[pc('trackpad','Little Robot Probe',1,3,{x:10,y:2},art[0]),
+   pc('arrows','L-Shaped Cargo',1,0,{x:9,y:1},cargoL,2,3,'L'),
+   pc('laptop','T-Shaped Cargo',1,4,{x:6,y:3},cargoT,3,3,'T')],
   deliveryOrder:world%3===0?['trackpad','arrows','laptop']:world%3===1?['arrows','laptop','trackpad']:['laptop','trackpad','arrows'],
   rocks:[[5,0],[5,6],...(world>=4?[[7,0],[7,6]]:[])]};
  const maze=makeFinalMaze(world);
