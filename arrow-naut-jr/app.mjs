@@ -233,9 +233,22 @@ function nav(action){
  }
 }
 let lastPointer='mouse';
-root.addEventListener('pointerdown',e=>{lastPointer=e.pointerType},true);
+root.addEventListener('pointerdown',e=>{
+ // Trackpads report 'mouse'. Touch taps can generate a synthetic click too,
+ // so remember where that click came from instead of trusting click alone.
+ lastPointer=e.pointerType||lastPointer;
+ if(e.target.closest('.game-board')&&(e.pointerType==='touch'||e.pointerType==='pen')){
+  e.preventDefault();
+ }
+},true);
 root.addEventListener('click',e=>{
- if(e.pointerType==='touch'||lastPointer==='touch'){notice('Use the Chromebook TRACKPAD, not the touchscreen.',true);return}
+ // First-grade puzzle selection MUST use a trackpad/mouse. Do not block
+ // touchscreen navigation on the teacher, student, map, or shop screens.
+ if(e.target.closest('.game-board')&&touchGeneratedClick(e,lastPointer)){
+  e.preventDefault();
+  notice('Use the Chromebook TRACKPAD to select pictures, not the touchscreen.',true);
+  return;
+ }
  const target=e.target.closest('button');
  if(target){
   const d=target.dataset;
@@ -277,7 +290,12 @@ root.addEventListener('click',e=>{
  }
 });
 root.addEventListener('dragstart',e=>e.preventDefault());
-root.addEventListener('touchstart',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+root.addEventListener('touchstart',e=>{
+ if(!e.target.closest('.game-board'))return;
+ lastPointer='touch';
+ if(e.cancelable)e.preventDefault(); // Suppresses compatibility mouse/click events.
+ notice('Use the Chromebook TRACKPAD to select pictures, not the touchscreen.',true);
+},{passive:false,capture:true});
 window.addEventListener('keydown',e=>{
  if(state.view!=='game'||state.modal||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;
  if(e.target.closest('input,textarea,select'))return;
