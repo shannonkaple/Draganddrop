@@ -49,3 +49,17 @@
 .piece.selected .handle-w{left:-12px!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translateY(-50%);cursor:ew-resize}
 .space-board.resizing-with-trackpad{cursor:grabbing}
 .space-board.resizing-with-trackpad .piece.selected{outline:3px dotted #ffe574;outline-offset:3px}
+
+/* Planet finale: the photograph-sized world JPEG is always contain-fit.
+   These cells are collision/maze boundaries, not generated illustration assets.
+   Replace temporary wall styling with approved independent PNG rock artwork. */
+.final-maze-page .finale-board{aspect-ratio:12/7!important;overflow:hidden!important}
+.finale-wall,.finale-enemy,.finale-player,.finale-goal{position:absolute;box-sizing:border-box}
+.finale-wall{z-index:2;background:rgba(18,17,54,.89);border:1px solid rgba(144,213,255,.42);box-shadow:inset 0 0 4px #97ccff66}
+.finale-player{z-index:7;display:flex;justify-content:center;align-items:center;filter:drop-shadow(0 0 5px #ffffff)}
+.finale-enemy{z-index:6;display:flex;justify-content:center;align-items:center;transition:top .18s ease,left .18s ease;filter:drop-shadow(0 0 3px #fb7af1)}
+.finale-player-pic,.finale-enemy-pic{width:88%!important;height:88%!important;aspect-ratio:1/1;background-color:transparent;image-rendering:auto}
+.finale-goal{z-index:3;display:grid;place-items:center;border:3px solid #ddff9e;border-radius:14px;background:rgba(2,83,80,.82);box-shadow:0 0 18px #84ffe4;color:white;font-weight:900;font-size:clamp(8px,1.1vw,16px);text-shadow:0 1px 4px #061c28}
+.final-maze-page .mode-label{font-weight:800;color:#36216e}
+.final-maze-page .directions-bar{background:#f4fcff}
+@media(prefers-reduced-motion:reduce){.finale-enemy{transition:none}}
