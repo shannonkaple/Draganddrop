@@ -27,7 +27,7 @@ export const MISSION_SKILLS=[
   'Click the correct object, not the one overlapping it. Then move it.',
   'Move the satellite with arrows. DRAG the panel handle to resize it.',
   'Click inside to select, use arrows to move, and DRAG handles to stretch the pieces.',
-  'Use arrow keys to escape the maze, dodge four moving space bad guys, and reach the rescue flag! Beat the maze to earn 10 stars and unlock the next planet.'
+  'Use arrow keys to escape the maze! Press SPACE or click FIRE LASER to zap bad guys. Reach EXIT to earn 10 stars and unlock the next planet.'
 ];
 const shape=(id,name,x,y,cells,goal,color)=>({id,name,x,y,w:Math.max(...cells.map(c=>c[0]))+1,h:Math.max(...cells.map(c=>c[1]))+1,cells,goal,color,resize:false});
 const rectangle=(id,name,x,y,w,h,goal,color,resize=false)=>({id,name,x,y,w,h,goal,color,resize});
@@ -75,7 +75,7 @@ export function createMission(planetIndex,stage){
  ]};
  const final=makeFinalMaze(planetIndex);
  return {...base,kind:'final-maze',title:'Planet Maze Finale',directions:MISSION_SKILLS[7],
-  pieces:[],obstacles:[],walls:final.walls,mazeStart:final.start,mazeGoal:final.goal,enemies:final.enemies};
+  pieces:[],obstacles:[],walls:final.walls,safeRoute:final.safeRoute,mazeStart:final.start,mazeGoal:final.goal,enemies:final.enemies};
 
 }
 export function allMissions(){return PLANETS.flatMap((_,pi)=>MISSION_NAMES.map((_,stage)=>createMission(pi,stage)))}
