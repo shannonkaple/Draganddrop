@@ -33,7 +33,9 @@ test('resize requires clicked handle; arrows change width/height but never crop'
  const m=createMission(0,3),s=initialMission(m);
  const move=selectObject(m,s,'rocket','move');
  const moved=arrowAction(m,move.state,'ArrowRight');assert.equal(moved.state.pieces[0].w,2);
- const handle=selectObject(m,s,'rocket','resize');
+  const mustClickInside=selectObject(m,s,'rocket','resize');assert.equal(mustClickInside.ok,false);
+ const firstClick=selectObject(m,s,'rocket','move');
+ const handle=selectObject(m,firstClick.state,'rocket','resize');
  const wider=arrowAction(m,handle.state,'ArrowRight');assert.equal(wider.ok,true);
  assert.equal(wider.state.pieces[0].w,3);assert.equal(wider.state.pieces[0].x,2);
  const taller=arrowAction(m,wider.state,'ArrowDown');assert.equal(taller.state.pieces[0].h,3);
