@@ -23,3 +23,29 @@
 .dialog-scrim{position:fixed;inset:0;background:#121736b8;z-index:20;display:grid;place-items:center;padding:15px}.dialog-panel{background:#fff;border:4px solid #5e50ac;border-radius:25px;max-width:min(92vw,480px);width:max-content;min-width:min(85vw,270px);padding:24px;box-shadow:0 14px 40px #0005;text-align:center}.dialog-panel h2{font-size:clamp(24px,3vw,34px);margin:0 0 12px}.dialog-panel p{font-size:clamp(13px,1.4vw,18px)}.dialog-panel .big-reward{font-size:55px;color:#50348e;margin:12px}.dialog-panel .friend-symbol{font-size:92px;line-height:1.1;margin:7px}.dialog-panel button{min-width:120px}.error-banner{border:3px solid #b72d43;background:#fff0f0;color:#8c1932;border-radius:13px;padding:9px;margin:5px 0}.note{font-size:12px;color:#5b6089}.how-to{font-size:15px;line-height:1.5;max-width:950px}.how-to li{margin-bottom:9px}
 @media(max-width:1050px){.topbar{grid-template-columns:1fr auto;gap:6px}.center-controls{grid-column:1/-1;grid-row:2}.right-controls{grid-column:2;grid-row:1}.planet-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.main.playing{height:calc(100dvh - var(--bar-height,120px))}}
 @media(max-width:650px){.topbar{grid-template-columns:1fr;padding:6px}.right-controls,.center-controls{grid-column:1;justify-content:center}.brand{text-align:center}.brand strong{font-size:18px}.main.playing{height:auto;min-height:calc(100dvh - 150px)}.space-board{aspect-ratio:12/7}.planet-grid,.level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mission-head{flex-wrap:wrap}.mission-head h1{font-size:16px}.directions-bar{font-size:13px}.piece .piece-interior{font-size:10px}}
+
+/* 2026-11-02: eight trackpad-grabbable resize handles. Only selected resizable
+   objects show them. Arrow keys NEVER resize. Native PNG artwork remains
+   contained rather than being stretched as the hitbox changes size. */
+.piece.selected{z-index:5}
+.piece .piece-interior .piece-illustration{object-fit:contain}
+.piece.selected .resize-handle{
+ position:absolute!important;display:block!important;z-index:10!important;
+ width:clamp(21px,2vw,27px)!important;height:clamp(21px,2vw,27px)!important;
+ min-width:0!important;min-height:0!important;padding:0!important;
+ border:3px solid #362975!important;border-radius:7px!important;
+ background:radial-gradient(circle at 34% 28%,#fff,#fff2ae 33%,#ffca38 75%)!important;
+ box-shadow:0 2px 7px #111a57aa,0 0 0 2px white!important;
+ touch-action:none!important;user-select:none!important;
+}
+.piece.selected .resize-handle::after{content:'↗';display:grid;place-items:center;width:100%;height:100%;font:bold 14px Arial,sans-serif;color:#43266a}
+.piece.selected .handle-nw{left:-12px!important;top:-12px!important;right:auto!important;bottom:auto!important;cursor:nwse-resize}
+.piece.selected .handle-n{left:50%!important;top:-12px!important;right:auto!important;bottom:auto!important;transform:translateX(-50%);cursor:ns-resize}
+.piece.selected .handle-ne{right:-12px!important;top:-12px!important;left:auto!important;bottom:auto!important;cursor:nesw-resize}
+.piece.selected .handle-e{right:-12px!important;top:50%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%);cursor:ew-resize}
+.piece.selected .handle-se{right:-12px!important;bottom:-12px!important;left:auto!important;top:auto!important;cursor:nwse-resize}
+.piece.selected .handle-s{left:50%!important;bottom:-12px!important;right:auto!important;top:auto!important;transform:translateX(-50%);cursor:ns-resize}
+.piece.selected .handle-sw{left:-12px!important;bottom:-12px!important;right:auto!important;top:auto!important;cursor:nesw-resize}
+.piece.selected .handle-w{left:-12px!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translateY(-50%);cursor:ew-resize}
+.space-board.resizing-with-trackpad{cursor:grabbing}
+.space-board.resizing-with-trackpad .piece.selected{outline:3px dotted #ffe574;outline-offset:3px}
