@@ -105,7 +105,7 @@ export function createMission(world,stage){
  if(stage===6)return {...base,kind:'relay',name:NAMES[6],
   directions:'MATCH THE SPACE DOCKS! Click the glowing piece FIRST. Move it around obstacles and FIT it in the outline with the SAME PICTURE AND SIZE. Then choose the next!',
   pieces:[pc('trackpad','Little Robot Probe',1,3,{x:9,y:2},art[0]),
-   pc('arrows','L-Shaped Cargo',1,0,{x:8,y:0},cargoL,2,2,'L'),
+   pc('arrows','L-Shaped Cargo',1,0,{x:8,y:2},cargoL,2,2,'L'),
    pc('laptop','T-Shaped Cargo',1,5,{x:7,y:4},cargoT,3,2,'T')],
   deliveryOrder:world%3===0?['trackpad','arrows','laptop']:world%3===1?['arrows','laptop','trackpad']:['laptop','trackpad','arrows'],
   rocks:[[5,0],[5,2],[5,4],[5,6],...(world>=4?[[7,2],[7,4]]:[])]};
