@@ -85,7 +85,9 @@ function missionMeter(m,run){
     m.kind==='trail'?'STAR TRAIL · ':m.kind==='collect'?'CRYSTAL HUNT · ':'SIGNAL SCAN · ')+
    (run.collected||[]).length+' / '+m.pickups.length+' COLLECTED';
  }
- return m.kind==='maze'?'RESCUE YOUR FRIEND · REACH EXIT':'CLICK THE GOLDEN STAR';
+ if(m.kind==='delivery')return 'MATCH THE L + T CARGO · NO SCAN STARS';
+ if(m.kind==='precision')return 'CLICK THE RIGHT PICTURE · FIT IT INTO ITS DOCK';
+ return m.kind==='maze'?'RESCUE YOUR FRIEND · REACH EXIT':'CLICK THEN MOVE WITH THE ARROWS';
 }
 /** Update just the moving elements, preserving every image node between
  * arrow presses. No reloading dozens of PNGs and JPEGs per keyboard repeat.
