@@ -115,8 +115,8 @@ test('signal relay requires clicking each piece in order and remembers progress'
  assert.equal(select(m,r,'laptop').ok,false,'later object cannot go first');
  r=select(m,r,'arrows').run;
  assert.equal(r.selected,'arrows');
- r.pieces.find(p=>p.id==='arrows').x=7;
- r.pieces.find(p=>p.id==='arrows').y=2;
+ r.pieces.find(p=>p.id==='arrows').x=8;
+ r.pieces.find(p=>p.id==='arrows').y=1;
  const dock=move(m,r,'ArrowRight');
  assert.equal(dock.ok,true);
  assert.deepEqual(dock.run.delivered,['arrows']);
