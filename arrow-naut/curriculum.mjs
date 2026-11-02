@@ -4,14 +4,15 @@
  */
 export const GRID={columns:12,rows:7};
 export const PLANETS=[
-  {id:'launch',name:'Launch Pad',symbol:'🚀',friend:'Pip the Star Sprout',hue:270,blurb:'Learn to command your space tools.',enemyIdeas:['Spark Drone','Rocket Gremlin','Fuel Beetle','Orbit Mite']},
-  {id:'moon',name:'Moon Crater',symbol:'🌙',friend:'Momo Moon Mouse',hue:213,blurb:'Steer rovers between craters.',enemyIdeas:['Moon Mite','Crater Crab','Dust Hopper','Drill Droid']},
-  {id:'robot',name:'Robot City',symbol:'🤖',friend:'Beebo Bot',hue:190,blurb:'Fix a city of friendly machines.',enemyIdeas:['Glitch Bug','Gear Gremlin','Circuit Crawler','Battery Bot']},
-  {id:'crystal',name:'Crystal Caves',symbol:'💎',friend:'Glimmer Gecko',hue:302,blurb:'Arrange glowing gems and gears.',enemyIdeas:['Prism Moth','Quartz Crawler','Crystal Crab','Echo Orb']},
-  {id:'slime',name:'Goo Galaxy',symbol:'🛸',friend:'Bloop the Blob',hue:128,blurb:'Solve sticky space puzzles.',enemyIdeas:['Goo Goblin','Bubble Bug','Puddle Imp','Jelly Jumper']},
-  {id:'ice',name:'Ice Rings',symbol:'❄️',friend:'Frosty Ferret',hue:195,blurb:'Fit tools in icy stations.',enemyIdeas:['Ice Mite','Frost Drone','Snow Sprite','Hail Hopper']},
-  {id:'jungle',name:'Meteor Jungle',symbol:'🌿',friend:'Zuzu Comet Cub',hue:105,blurb:'Navigate alien vines and rocks.',enemyIdeas:['Vine Vinegaroon','Leaf Hopper','Meteor Beetle','Pollen Puff']},
-  {id:'core',name:'Galaxy Core',symbol:'✨',friend:'Nova Starling',hue:325,blurb:'Combine everything you learned.',enemyIdeas:['Void Blob','Plasma Pixie','Comet Crawler','Shadow Sphere']},
+  // IMPORTANT: legacy internal IDs stay intact to protect saved progress.
+  {id:'launch',name:'Candy Moon',symbol:'🍬',friend:'Pip the Star Sprout',hue:315,blurb:'Careful space clicking on the candy moon.',enemyIdeas:['Moon Mite','Sprinkle Drone','Gumdrop Hopper','Sugar Sprite']},
+  {id:'moon',name:'Rocket Launch',symbol:'🚀',friend:'Momo Moon Mouse',hue:213,blurb:'Move your rover at the launch base.',enemyIdeas:['Rocket Gremlin','Fuel Beetle','Zap Bot','Spark Drone']},
+  {id:'robot',name:'Neon Ringed Planet',symbol:'🪐',friend:'Beebo Bot',hue:275,blurb:'Fit colorful cargo into space bays.',enemyIdeas:['Orbit Mite','Ring Crawler','Plasma Pixie','Zap Sprite']},
+  {id:'crystal',name:'Crystal Ice',symbol:'❄️',friend:'Glimmer Gecko',hue:195,blurb:'Resize and arrange icy space tools.',enemyIdeas:['Ice Mite','Prism Moth','Snow Sprite','Frost Drone']},
+  {id:'slime',name:'Robot Space Station',symbol:'🤖',friend:'Bloop the Blob',hue:190,blurb:'Repair robots using careful selection.',enemyIdeas:['Glitch Bug','Gear Gremlin','Circuit Crawler','Battery Bot']},
+  {id:'ice',name:'Dino Asteroid',symbol:'🦖',friend:'Frosty Ferret',hue:105,blurb:'Solve prehistoric asteroid puzzles.',enemyIdeas:['Meteor Beetle','Fossil Hopper','Crater Crab','Comet Crawler']},
+  {id:'jungle',name:'Ocean Planet',symbol:'🌊',friend:'Zuzu Comet Cub',hue:185,blurb:'Fit equipment in a watery world.',enemyIdeas:['Wave Mite','Bubble Bot','Coral Crab','Reef Crawler']},
+  {id:'core',name:'Lava Planet',symbol:'🌋',friend:'Nova Starling',hue:14,blurb:'Combine all your skills at the final planet.',enemyIdeas:['Lava Blob','Ember Beetle','Magma Sprite','Fire Drone']},
 ];
 export const MISSION_NAMES=[
   'Target Click','Rover Route','Cargo Bay Fit','Resize the Rocket',

@@ -12,7 +12,7 @@ This is a **NEW second-grade arrow-key game**, separate from the existing first-
 - Combine selection, movement, resizing and problem-solving. **No cropping.**
 
 ## Structure
-Eight planet themes × eight unique activity types = **64 levels** with a repeatable mission engine. The Launch Pad planet is the initial playground; other planets unlock after the previous planet's eight levels are completed. No final art is integrated yet, only temporary CSS/emoji prototype graphics; see `ART_ASSET_PLAN.md` for the art production handoff. Do not mistake prototype graphics for user-approved artwork.
+Eight planet themes × eight unique activity types = **64 levels** with a repeatable mission engine. The Launch Pad planet is the initial playground; other planets unlock after the previous planet's eight levels are completed. Nine original JPEG illustrations are integrated: one eight-planet map and eight game-level scenes; see `ART_ASSET_PLAN.md` for the art production handoff. Do not mistake prototype graphics for user-approved artwork.
 
 ## Student data and safety
 New **isolated** localStorage namespace: `mskaple-arrownaut-v1:<class-id>:<student-number>`. Never read or modify old games' student records. Every completed mission awards **+3 stars, including replays**, while the level-completion list adds a level only once. After each saved move, the JSON is verified by reading it back. An unreadable existing student record must never be overwritten.
@@ -25,3 +25,9 @@ New **isolated** localStorage namespace: `mskaple-arrownaut-v1:<class-id>:<stude
 
 ## Testing
 `node --test mechanics.test.mjs` — 12 foundational tests. Additional browser QA required at 1366×768 and 1280×720 plus fullscreen and progress reload. The first version is a playable prototype, not final original illustrated art. Do not claim final approval or production-quality acceptance before live tests.
+
+## Original galaxy art (2026-11-02)
+
+The illustrated 1672×941 JPEG map and eight original planet backgrounds live under `arrow-naut/assets/` and are used in the full-size home map, per-planet eight-level map, and actual arrow-key puzzle backgrounds. Browser renders them exactly once with `object-fit:contain` (no crop, no stretching). The map pads and level numbers are interactive DOM elements layered on top, not baked into the JPEG.
+
+The **legacy planet IDs and student-save namespace are unchanged**: newly titled worlds keep their original `id` identifiers to protect previously completed missions and stars. Only visible names, icon labels, and imagery are updated. All other games in this repository are unchanged.
