@@ -1,7 +1,7 @@
 import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked} from './curriculum.mjs?v=jr-illustrated-art-20261102';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-quests-nov02c';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
-import {verifiedWrite,writeTabSession,readTabSession,clearTabSession} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
+import {verifiedWrite,writeTabSession,readTabSession,clearTabSession,storageProbe} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
 const root=document.getElementById('app');
 const esc=v=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null,tabSignature:null};
@@ -23,14 +23,16 @@ function persist(progress){
  if(!state.key||state.brokenSave){notice('Student progress cannot be saved. Ask the teacher.',true);return false}
  try{
   verifiedWrite(localStorage,state.key,progress);
-  state.progress=progress;return true;
- }catch(e){notice('NOT SAVED. Do not close this tab. Tell your teacher.',true);return false}
+  state.progress=progress;
+  const label=root.querySelector('#save-state');if(label){label.textContent='Saved';label.classList.remove('save-error')}
+  return true;
+ }catch(e){const label=root.querySelector('#save-state');if(label){label.textContent='NOT SAVED';label.classList.add('save-error')}notice('NOT SAVED. Do not close this tab. Tell your teacher.',true);return false}
 }
 function header(){
  const playing=!!state.progress;
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
  return '<header class="topbar" id="topbar"><div class="branding"><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div>'+
- (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button></nav>':'<span></span>')+
+ (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
  '<nav class="side-nav"><button data-action="help">How to Play</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
 function login(){
@@ -214,10 +216,16 @@ function openStudent(number,restore=null){
  state.number=number;state.key=saveKey(state.teacher,number);state.brokenSave='';
  try{state.progress=readProgress(localStorage.getItem(state.key))}
  catch(e){state.brokenSave=e.message;state.error=e.message;state.view='teachers';render();return}
+ if(!storageProbe(localStorage)){
+  state.brokenSave='Chromebook storage is blocked';state.error='Your Chromebook cannot save progress. Tell your teacher before starting.';
+  state.view='teachers';render();return;
+ }
  state.view='home';state.error='';state.notice='';
  if(restore&&worldUnlocked(state.progress,restore.world)){
   state.world=restore.world;
   if(restore.view==='game'&&restore.stage!==null&&levelUnlocked(state.progress,restore.world,restore.stage)){
+   const missionId=WORLDS[restore.world].id+'-'+(restore.stage+1);
+   if(state.progress.completed.includes(missionId)&&!state.progress.active){state.view='world';render();return}
    openLevel(restore.stage);return;
   }
   if(['world','shop','stuff','help'].includes(restore.view))state.view=restore.view;
