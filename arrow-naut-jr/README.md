@@ -7,7 +7,7 @@ This is a separate first-grade version of the second-grade Arrow-Naut Space Adve
 ## First-grade classroom scope
 
 - 8 illustrated planets and 8 missions per planet (64 total).
-- Missions: Find the Star (precise clicking), Move the Rover, Avoid the Space Rocks, Two Deliveries, Choose Carefully, Space Helpers, Three Star Deliveries, and Rescue Maze.
+- Missions: Find the Star (precise clicking), Move the Explorer, Avoid the Space Rocks, Two Deliveries, Choose Carefully, Space Helpers, Three Star Deliveries, and Rescue Maze.
 - More objects and obstacles are introduced over time; all pieces remain fixed-size throughout.
 - Rescue Maze: select the explorer with one trackpad click, then move with the keyboard arrows. Four moving bad guys patrol safe side branches, so the route cannot be permanently blocked.
 - First-clear awards: regular mission = 1 star; rescue finale = 10 stars; completed replays = 0 additional stars.
