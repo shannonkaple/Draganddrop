@@ -72,20 +72,35 @@ export function createMission(world,stage){
  if(!Number.isInteger(world)||world<0||world>=8||!Number.isInteger(stage)||stage<0||stage>7)
   throw Error('Unknown first-grade mission');
  const id=WORLDS[world].id+'-'+(stage+1),w=WORLDS[world];
- const base={id,world,stage,mechanicVersion:3,kind:'move',name:NAMES[stage],
+ const base={id,world,stage,mechanicVersion:4,kind:'move',name:NAMES[stage],
   pieces:[],rocks:[],pickups:[],target:null,worldData:w};
  const offset=world%3;
  const gold='../arrow-lab/assets/star-icon.png',gem='./assets/new-space-art/crystal_moon.png',starSignal='./assets/new-space-art/star_beacon.png';
  const beacon=(id,x,y,name,img=gold,piece=null)=>({id,x,y,name,img,piece});
- if(stage===0)return {...base,kind:'click',name:NAMES[0],
-  directions:'STAR SEARCH! Click INSIDE the golden space star with your TRACKPAD. Avoid the other pictures.',
-  target:'star',pieces:[
-   pc('star','Golden Space Star',2+offset,2+world%2,null,gold),
-   pc('decoy1','Rocket Ship',8,1,null,art[3]),
-   pc('decoy2','Communications Satellite',7,4,null,world>=4?moveFind('satellite_dish'):art[1]),
-   pc('decoy3','Moon Rover',10,4,null,art[2]),
-   ...(world===3?[pc('decoy4','Frozen Space Habitat',5,5,null,moveFind('frozen_habitat'))]:world>=4?[pc('decoy4','Robot Probe',5,5,null,art[0])]:[])
-  ]};
+ if(stage===0){
+  const firstGear=[
+   {name:'Rocket Ship',img:art[3]},
+   {name:'Moon Rover',img:art[2]},
+   {name:'Communications Satellite',img:art[1]},
+   {name:'Robot Probe',img:art[0]},
+   {name:'Star Cargo Crate',img:art[4]},
+   {name:'Space Station',img:art[5]},
+   {name:'Flying Saucer',img:art[6]},
+   {name:'Moon Rover',img:'./assets/new-space-art/space_rover.png'}
+  ][world];
+  return {...base,kind:'precision',name:'Find & Dock '+firstGear.name,
+   directions:'MISSION 1! CLICK the '+firstGear.name.toUpperCase()+' IN THE MIDDLE with your trackpad. Then use KEYBOARD ARROWS to collect the glowing checkpoint and FIT the picture in its matching dock!',
+   target:'target',pieces:[
+    pc('target',firstGear.name,2,3,{x:9,y:world%2?1:5},firstGear.img),
+    pc('decoy1','Other Space Picture',5,1, null,art[(world+1)%art.length]),
+    pc('decoy2','Other Space Picture',7,6,null,art[(world+2)%art.length]),
+    pc('decoy3','Other Space Picture',10,3,null,art[(world+3)%art.length]),
+    ...(world>=3?[pc('decoy4','Other Space Picture',6,5,null,art[(world+4)%art.length])]:[])
+   ],
+   pickups:[beacon('starter-signal',5,world%2?4:2,'Signal Checkpoint',starSignal,'target')],
+   rocks:world>=5?[[6,3],[8,4]]:world>=2?[[6,3]]:[]
+  };
+ }
  if(stage===1)return {...base,kind:'trail',name:NAMES[1],
   directions:'STARLIGHT TRAIL! CLICK your explorer. Use KEYBOARD ARROWS to touch the glowing stars IN ORDER. Then go to the green finish!',
   pieces:[pc('rover','Your Space Explorer',1,3,{x:10,y:3},art[2])],
@@ -101,11 +116,10 @@ export function createMission(world,stage){
    beacon('fuel-b',8,1,'Fuel Crystal B',moveFind('crystal_cluster')),
    ...(world>=4?[beacon('fuel-c',9,5,'Fuel Crystal C',moveFind('crystal_cluster'))]:[])]};
  if(stage===3)return {...base,kind:'delivery',name:NAMES[3],
-  directions:'CARGO DELIVERY! Click a cargo picture. Use the ARROW KEYS to move it. Touch its scan star, then reach its matching dock. The shapes do NOT turn or resize!',
-  pieces:[pc('laptop','L-Shaped Cargo',1,0,{x:9,y:0},cargoL,2,3,'L'),
-   pc('keyboard','T-Shaped Cargo',1,4,{x:8,y:4},cargoT,3,3,'T')],
-  pickups:[beacon('scan-laptop',4+offset,2,'L Cargo Scan',gold,'laptop'),
-   beacon('scan-keyboard',4+offset,3,'T Cargo Scan',gold,'keyboard')]};
+  directions:'FIT THE SPACE CARGO! CLICK the L or T picture in the middle. Use ARROW KEYS to guide each piece into its SAME-SIZE faded picture. NO scan stars to chase, NO turning, and NO resizing!',
+  pieces:[pc('laptop','L-Shaped Cargo',2,1,{x:7, y:0},cargoL,2,3,'L'),
+   pc('keyboard','T-Shaped Cargo',1,4,{x:7,y:3},cargoT,3,3,'T')],
+  pickups:[]};
  if(stage===4)return {...base,kind:'precision',name:NAMES[4],target:'target',
   directions:'SECRET CARGO! Click the BLUE cargo crate, NOT the decoys. Move it to BOTH signal stars before docking!',
   pieces:[pc('target','Secret Cargo Crate',2,3,{x:9,y:3},art[4]),
