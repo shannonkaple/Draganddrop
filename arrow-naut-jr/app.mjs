@@ -1,18 +1,28 @@
 import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked} from './curriculum.mjs?v=jr-illustrated-art-20261102';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-quests-nov02c';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
+import {verifiedWrite,writeTabSession,readTabSession,clearTabSession} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
 const root=document.getElementById('app');
 const esc=v=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null};
+const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null,tabSignature:null};
 const fileImg=(src,alt,cls='')=>'<img class="'+cls+'" src="'+src+'" alt="'+esc(alt)+'" draggable="false" loading="eager" onerror="this.onerror=null;this.src=\'../game-assets/collectibles/computer/laptop_512.png\'">';
 const chosen=()=>CHARACTERS.find(x=>x.id===state.progress?.character)||CHARACTERS[0];
 const saveKey=(teacher,num)=>'mskaple-arrownaut-junior-v1:'+teacher+':'+num;
+function rememberTab(){
+ if(!state.progress||!state.teacher||!state.number)return;
+ const info={teacher:state.teacher,number:state.number,view:state.view,world:state.world,stage:state.mission?.stage??null};
+ const signature=JSON.stringify(info);
+ if(signature===state.tabSignature)return;
+ try{if(writeTabSession(sessionStorage,info))state.tabSignature=signature}catch{}
+}
+function guardStudentNavigation(){
+ return !state.progress||persist({...state.progress,active:state.view==='game'&&state.run&&!state.run.complete?clone(state.run):state.progress.active});
+}
 function notice(message,error=false){state.notice=message;state.error=error?message:'';const box=document.getElementById('feedback');if(box){box.textContent=message;box.classList.toggle('error',error)}}
 function persist(progress){
  if(!state.key||state.brokenSave){notice('Student progress cannot be saved. Ask the teacher.',true);return false}
  try{
-  const text=JSON.stringify(progress);localStorage.setItem(state.key,text);
-  if(localStorage.getItem(state.key)!==text)throw Error('Save verification failed');
+  verifiedWrite(localStorage,state.key,progress);
   state.progress=progress;return true;
  }catch(e){notice('NOT SAVED. Do not close this tab. Tell your teacher.',true);return false}
 }
@@ -155,13 +165,22 @@ function render(){
  (state.view==='teachers'||state.view==='students'?login():state.view==='home'?home():state.view==='world'?worldMap():
   state.view==='game'?game():state.view==='shop'?shop():state.view==='stuff'?stuff():help())+modal();
  clockSync();
+ rememberTab();
 }
-function openStudent(number){
+function openStudent(number,restore=null){
  if(!Number.isInteger(number)||number<1||number>30)return;
  state.number=number;state.key=saveKey(state.teacher,number);state.brokenSave='';
  try{state.progress=readProgress(localStorage.getItem(state.key))}
  catch(e){state.brokenSave=e.message;state.error=e.message;state.view='teachers';render();return}
- state.view='home';state.error='';state.notice='';render();
+ state.view='home';state.error='';state.notice='';
+ if(restore&&worldUnlocked(state.progress,restore.world)){
+  state.world=restore.world;
+  if(restore.view==='game'&&restore.stage!==null&&levelUnlocked(state.progress,restore.world,restore.stage)){
+   openLevel(restore.stage);return;
+  }
+  if(['world','shop','stuff','help'].includes(restore.view))state.view=restore.view;
+ }else if(restore&&['shop','stuff','help'].includes(restore.view))state.view=restore.view;
+ render();
 }
 function showWorld(i){
  if(!state.progress||!worldUnlocked(state.progress,i))return;
@@ -180,14 +199,13 @@ function openLevel(stage){
  state.mission=m;state.run=run;state.view='game';state.notice='Click inside a picture. Use keyboard arrows to move.';state.error='';render();
 }
 function actRun(next,msg){
- if(!persist({...state.progress,active:clone(next)}))return;
+ const result=next.complete?finish(state.progress,state.mission):null;
+ // Completion + rewards + rescued friend are one verified transaction.
+ const progress=result?result.progress:{...state.progress,active:clone(next)};
+ if(!persist(progress))return;
  state.run=next;state.notice=msg;state.error='';
- if(next.complete){
-  const result=finish(state.progress,state.mission);
-  if(!persist(result.progress))return;
-  state.modal={type:'victory',stars:result.stars,rescue:result.rescue,world:state.mission.world};
- }
- render();
+ if(result)state.modal={type:'victory',stars:result.stars,rescue:result.rescue,world:state.mission.world};
+ if(result)render();else refreshGameDisplay();
 }
 function selectPiece(id){
  if(state.view!=='game'||state.modal)return;
@@ -211,10 +229,11 @@ function clockSync(){
   const t=patrol(state.mission,state.run);
   if(!t.ok)return;
   if(!persist({...state.progress,active:clone(t.run)}))return;
-  state.run=t.run;state.notice=t.reason;render();
+  state.run=t.run;state.notice=t.reason;refreshGameDisplay();
  },Math.max(1050,1650-state.mission.world*70));
 }
 function nav(action){
+ if(['home','teachers','world','shop','stuff','help','logout'].includes(action)&&!guardStudentNavigation())return;
  switch(action){
   case 'home':state.view=state.progress?'home':'teachers';state.modal=null;state.run=null;state.mission=null;render();break;
   case 'teachers':state.view='teachers';state.error='';render();break;
@@ -222,7 +241,7 @@ function nav(action){
   case 'shop':state.view='shop';state.modal=null;render();break;
   case 'stuff':state.view='stuff';state.modal=null;state.pending=null;render();break;
   case 'help':state.view='help';state.modal=null;render();break;
-  case 'logout':state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
+  case 'logout':try{clearTabSession(sessionStorage)}catch{}state.tabSignature=null;state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
   case 'characters':state.modal={type:'character'};render();break;
   case 'character-close':state.modal=null;render();break;
   case 'victory-ok':state.modal=null;showWorld(state.world);break;
@@ -319,7 +338,17 @@ async function init(){
   state.teachers=teachers.filter(x=>x.id?.startsWith('grade1-'));
   if(!state.teachers.length)throw Error('No first-grade teachers in roster');
   state.error='';
+  let previous=null;try{previous=readTabSession(sessionStorage)}catch{}
+  if(previous&&state.teachers.some(t=>t.id===previous.teacher)){
+   state.teacher=previous.teacher;state.tabSignature=null;
+   openStudent(previous.number,previous);return;
+  }
  }catch(e){state.error='The first-grade teacher list did not load. Refresh this page.'}
  render();
 }
+window.addEventListener('pagehide',()=>{
+ if(state.progress&&state.key&&!state.brokenSave){
+  try{verifiedWrite(localStorage,state.key,state.progress)}catch{}
+ }
+});
 init();
