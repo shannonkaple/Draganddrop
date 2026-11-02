@@ -108,7 +108,7 @@ export function createMission(world,stage){
    pc('arrows','L-Shaped Cargo',1,0,{x:8,y:2},cargoL,2,2,'L'),
    pc('laptop','T-Shaped Cargo',1,5,{x:7,y:4},cargoT,3,2,'T')],
   deliveryOrder:world%3===0?['trackpad','arrows','laptop']:world%3===1?['arrows','laptop','trackpad']:['laptop','trackpad','arrows'],
-  rocks:[[5,0],[5,2],[5,4],[5,6],...(world>=4?[[7,2],[7,4]]:[])]};
+  rocks:[[5,0],[5,6],...(world>=4?[[7,0],[7,6]]:[])]};
  const maze=makeFinalMaze(world);
  return {...base,kind:'maze',name:NAMES[7],
   directions:'RESCUE MAZE! CLICK your explorer. Use the ARROW KEYS to find EXIT. Space bad guys move on safe side paths!',
