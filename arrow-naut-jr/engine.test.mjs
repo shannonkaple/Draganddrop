@@ -6,7 +6,7 @@ test('eight worlds, 64 unique grade-one levels, no resizing controls',()=>{
  const all=allMissions();assert.equal(WORLDS.length,8);assert.equal(all.length,64);
  assert.equal(new Set(all.map(x=>x.id)).size,64);
  assert.ok(all.every(m=>m.pieces.every(p=>p.w===1&&p.h===1&&!('resize' in p))));
- assert.ok(all.every(m=>['click','move','precision','maze'].includes(m.kind)));
+ assert.ok(all.every(m=>['click','trail','collect','delivery','precision','key-gate','relay','maze'].includes(m.kind)));
 });
 test('picture must be clicked before an arrow moves it',()=>{
  const m=createMission(0,1),initial=startRun(m);
@@ -56,6 +56,85 @@ test('all boss mazes require selecting the explorer and have safe routes at mult
    assert.equal(current.maze.hits,0);
   }
  }
+});
+test('eight different age-appropriate activities use clicking and keyboard arrow movement only',()=>{
+ for(let world=0;world<8;world++){
+  const missions=Array.from({length:8},(_,i)=>createMission(world,i));
+  assert.deepEqual(missions.map(x=>x.kind),['click','trail','collect','delivery','precision','key-gate','relay','maze']);
+  assert.ok(missions.slice(1,7).every(m=>m.pieces.some(p=>p.goal)));
+  assert.ok(missions.every(m=>m.pieces.every(p=>p.w===1&&p.h===1&&!('resize' in p))));
+  assert.ok(missions.slice(1,6).every(m=>m.pickups.length>0));
+  assert.equal(missions[5].gate.x,5);
+  assert.equal(missions[6].deliveryOrder.length,3);
+ }
+});
+test('star-trail checkpoints must be visited in numbered order before the goal counts',()=>{
+ const m=createMission(0,1);
+ let r=select(m,startRun(m),'rover').run;
+ // Walk from (1,3) to the second star at (6,2), bypassing first.
+ for(let step=0;step<5;step++)r=move(m,r,'ArrowRight').run;
+ r=move(m,r,'ArrowUp').run;
+ assert.deepEqual(r.collected,[],'second star cannot be collected before first');
+ // Correct first star (3,4) and then second (6,2).
+ r=move(m,r,'ArrowLeft').run;r=move(m,r,'ArrowLeft').run;r=move(m,r,'ArrowLeft').run;
+ r=move(m,r,'ArrowDown').run;r=move(m,r,'ArrowDown').run;
+ assert.deepEqual(r.collected,['trail-1']);
+ for(let step=0;step<3;step++)r=move(m,r,'ArrowRight').run;
+ r=move(m,r,'ArrowUp').run;r=move(m,r,'ArrowUp').run;
+ assert.deepEqual(r.collected,['trail-1','trail-2']);
+ assert.equal(r.complete,false,'stars alone do not finish; still reach green dock');
+});
+test('crystals must be collected before docking',()=>{
+ const m=createMission(0,2);
+ const r=startRun(m);
+ assert.equal(m.pickups.length,2);
+ let s=select(m,r,'rover').run;
+ // Force the rover onto its target as a focused completion-condition test.
+ s.pieces[0].x=m.pieces[0].goal.x;
+ s.pieces[0].y=m.pieces[0].goal.y-1;
+ const result=move(m,s,'ArrowDown');
+ assert.equal(result.ok,true);
+ assert.equal(result.run.complete,false,'goal alone is insufficient without fuel');
+});
+test('the magic key opens the otherwise impassable force-field gate',()=>{
+ const m=createMission(0,5),initial=startRun(m),selected=select(m,initial,'keyboard').run;
+ selected.pieces[0].x=4;selected.pieces[0].y=3;
+ assert.equal(move(m,selected,'ArrowRight').ok,false,'locked gate blocks arrow movement');
+ selected.pieces[0].x=2;selected.pieces[0].y=3;
+ const picked=move(m,selected,'ArrowRight');
+ assert.equal(picked.ok,true);
+ assert.equal(picked.run.gateOpen,true);
+ picked.run.pieces[0].x=4;picked.run.pieces[0].y=3;
+ assert.equal(move(m,picked.run,'ArrowRight').ok,true,'open gate allows crossing');
+});
+test('signal relay requires clicking each piece in order and remembers progress',()=>{
+ const m=createMission(1,6);
+ let r=startRun(m);
+ assert.deepEqual(m.deliveryOrder,['arrows','laptop','trackpad']);
+ assert.equal(select(m,r,'laptop').ok,false,'later object cannot go first');
+ r=select(m,r,'arrows').run;
+ assert.equal(r.selected,'arrows');
+ r.pieces.find(p=>p.id==='arrows').x=8;
+ r.pieces.find(p=>p.id==='arrows').y=3;
+ const dock=move(m,r,'ArrowRight');
+ assert.equal(dock.ok,true);
+ assert.deepEqual(dock.run.delivered,['arrows']);
+ assert.equal(dock.run.selected,null);
+ assert.equal(dock.run.complete,false);
+ assert.equal(select(m,dock.run,'laptop').ok,true);
+});
+test('new mission format restarts only unfinished runs; completed stars and inventory stay unchanged',()=>{
+ let p=createProgress();
+ p=finish(p,createMission(0,0)).progress;
+ p.purchases=['trackpad'];p.rescued=['launch'];
+ p.active={id:'launch-3',pieces:[],attempts:5,complete:false};
+ const restored=readProgress(JSON.stringify(p));
+ assert.equal(restored.stars,1);
+ assert.deepEqual(restored.completed,['launch-1']);
+ assert.deepEqual(restored.purchases,['trackpad']);
+ assert.equal(restored.active.id,'launch-3');
+ assert.equal(createMission(0,2).mechanicVersion,2);
+ assert.equal(startRun(createMission(0,2)).mechanicVersion,2);
 });
 test('level unlocks, one star each, boss ten; replays cannot farm stars',()=>{
  let p=createProgress();
