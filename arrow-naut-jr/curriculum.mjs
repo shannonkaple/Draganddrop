@@ -26,13 +26,16 @@ export const LEVEL_STOPS=[
  {x:16,y:32},{x:35,y:22},{x:57,y:26},{x:79,y:35},
  {x:84,y:65},{x:62,y:76},{x:40,y:73},{x:18,y:64}];
 export const CHARACTERS=[
- {id:'astro_ace',name:'Astro Ace',img:'../game-assets/characters/starter/png_512/astro_ace.png'}
+ {id:'astro_ace',name:'Astro Ace',img:'../game-assets/characters/starter/png_512/astro_ace.png'},
+ {id:'space_panda',name:'Nova Panda Astronaut',img:'./assets/explorers/space_panda.png'},
+ {id:'space_kitty',name:'Comet Kitty Astronaut',img:'./assets/explorers/space_kitty.png'},
+ {id:'space_robot',name:'Orbit Space Robot',img:'./assets/explorers/star_bot.png'}
 ];
 export const ENEMIES=[
+ './assets/new-space-art/meteor_slime.png',
+ './assets/new-space-art/space_bat.png',
  '../game-assets/enemies/rock_golem_256.png',
- '../game-assets/enemies/purple_slime_256.png',
- '../game-assets/enemies/storm_cloud_256.png',
- '../game-assets/enemies/cranky_crab_256.png'
+ '../game-assets/enemies/purple_slime_256.png'
 ];
 export const ITEMS=[
  {id:'trackpad',name:'Magic Trackpad',price:3,img:png('trackpad')},
@@ -53,7 +56,12 @@ export const ITEMS=[
  {id:'frozen-home',name:'Frozen Space Habitat',price:8,img:moveFind('frozen_habitat')},
  {id:'power-cell',name:'Lightning Energy Cell',price:6,img:moveFind('lightning_energy_cell')},
  {id:'ice-blocks',name:'Ice Wall Blocks',price:4,img:moveFind('ice_wall_four_blocks')},
- {id:'special-rover',name:'Purple-Wheel Moon Rover',price:7,img:moveFind('moon_rover')}
+ {id:'special-rover',name:'Purple-Wheel Moon Rover',price:7,img:moveFind('moon_rover')},
+ {id:'moon_crystal',name:'Crystal Moon',price:7,img:'./assets/new-space-art/crystal_moon.png'},
+ {id:'treasure_chest',name:'Galaxy Treasure Chest',price:12,img:'./assets/new-space-art/star_chest.png'},
+ {id:'star_beacon',name:'Star Signal Beacon',price:8,img:'./assets/new-space-art/star_beacon.png'},
+ {id:'space_rover',name:'Moon Rover',price:9,img:'./assets/new-space-art/space_rover.png'},
+ {id:'star_wand',name:'Star Wand',price:10,img:'./assets/new-space-art/star_wand.png'}
 ];
 export const NAMES=['Space Star Search','Starlight Trail','Fuel Crystal Hunt','Cargo Scan & Deliver','Find the Secret Cargo','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
 const pc=(id,name,x,y,goal,img,w=1,h=1,shape=null)=>({id,name,x,y,goal,img,w,h,shape});
@@ -67,7 +75,7 @@ export function createMission(world,stage){
  const base={id,world,stage,mechanicVersion:3,kind:'move',name:NAMES[stage],
   pieces:[],rocks:[],pickups:[],target:null,worldData:w};
  const offset=world%3;
- const gold='../arrow-lab/assets/star-icon.png',gem='../arrow-lab/assets/gem-icon.png';
+ const gold='../arrow-lab/assets/star-icon.png',gem='./assets/new-space-art/crystal_moon.png',starSignal='./assets/new-space-art/star_beacon.png';
  const beacon=(id,x,y,name,img=gold,piece=null)=>({id,x,y,name,img,piece});
  if(stage===0)return {...base,kind:'click',name:NAMES[0],
   directions:'STAR SEARCH! Click INSIDE the golden space star with your TRACKPAD. Avoid the other pictures.',
@@ -105,8 +113,8 @@ export function createMission(world,stage){
    pc('decoy2','Rocket Ship',7,5,null,art[3]),
    pc('decoy3','Communications Satellite',5,4,null,art[1]),
    ...(world>=4?[pc('decoy4','Robot Probe',9,5,null,art[0])]:[])],
-  pickups:[beacon('signal-a',4,world%2?2:4,'Signal 1',gold,'target'),
-   beacon('signal-b',7,world%2?4:2,'Signal 2',gold,'target')]};
+  pickups:[beacon('signal-a',4,world%2?2:4,'Signal 1',starSignal,'target'),
+   beacon('signal-b',7,world%2?4:2,'Signal 2',starSignal,'target')]};
  if(stage===5)return {...base,kind:'key-gate',name:NAMES[5],
   directions:'FORCE FIELD! Click the SATELLITE and collect the key to open the gate. Then guide the rover through its scan star before docking BOTH pictures.',
   pieces:[pc('keyboard','Communications Satellite',1,1,{x:9,y:1},art[1]),
