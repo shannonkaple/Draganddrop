@@ -41,13 +41,13 @@ export const SHOP_SPRITES = {
 };
 export const PUZZLE_SPRITES = {
  'box-a':file('pink-window'),'box-b':file('blue-window'),
- 'box-c':file('purple-circle'),'rover':file('moon-buggy'),
+ 'box-c':file('purple-circle'),'box-d':file('green-triangle'),'box-e':file('cosmic-cube'),'rover':file('moon-buggy'),
  'cargo-l':file('cargo-l-blue'),'cargo-t':file('cargo-t-pink'),
  'rocket':file('rocket-boots'),'decoy':file('pink-window'),
- 'module':file('blue-console'),'satellite':file('solar-satellite'),
+ 'module':file('blue-console'),'decoy-2':file('cargo-purple'),'decoy-3':file('solar-panel'),'satellite':file('solar-satellite'),
  'panel':file('solar-panel'),'antenna':file('telescope'),
  'window':file('space-window'),'console':file('blue-console'),
- 'bridge':file('cargo-bar-orange'),'beacon':file('comet-star')
+ 'bridge':file('cargo-bar-orange'),'beacon':file('comet-star'),'signal':file('space-dish')
 };
 export const EARNABLES = [
  {id:'candy-crystal',name:'Candy Moon Crystal',image:file('crystals'),planet:0,level:4},
