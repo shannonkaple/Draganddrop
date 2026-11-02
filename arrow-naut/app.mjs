@@ -138,8 +138,30 @@ function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=
  const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
 function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage))return;
  const m=createMission(state.planet,stage),old=state.progress.active;
- const run=old?.id===m.id&&!old.complete&&(m.kind!=='final-maze'||(old.maze&&Array.isArray(old.maze.enemies)))?clone(old):initialMission(m);
- if(!old||old.id!==m.id||old.complete||(m.kind==='final-maze'&&!old.maze)){const next={...state.progress,active:clone(run)};if(!persist(next))return;}
+ const resume=old?.id===m.id&&!old.complete;
+ // Fix first-world boss runs saved before the safe-corridor patch.
+ // Move any old on-route bad guys into the new side-branch patrols without losing stars.
+ const unsafeFirstBoss=resume&&m.kind==='final-maze'&&m.planetIndex===0&&(
+  !old.maze||!Array.isArray(old.maze.enemies)||old.maze.enemies.length!==m.enemies.length||
+  old.maze.enemies.some((e,i)=>{
+   const patrol=m.enemies[i];
+   return !patrol||e.id!==patrol.id||(
+    !(e.x===patrol.a.x&&e.y===patrol.a.y)&&!(e.x===patrol.b.x&&e.y===patrol.b.y));
+  })
+ );
+ const run=resume&&!unsafeFirstBoss&&(m.kind!=='final-maze'||(old.maze&&Array.isArray(old.maze.enemies)))?clone(old):initialMission(m);
+ if(unsafeFirstBoss){
+  run.attempts=Number.isFinite(old.attempts)?old.attempts:0;
+  run.maze.hits=Number.isFinite(old.maze?.hits)?old.maze.hits:0;
+  const x=old.maze?.x,y=old.maze?.y;
+  if(Number.isInteger(x)&&Number.isInteger(y)&&x>=0&&x<GRID.columns&&y>=0&&y<GRID.rows&&
+    !m.walls.some(([wx,wy])=>wx===x&&wy===y)){
+   run.maze.x=x;run.maze.y=y;
+  }
+ }
+ if(!resume||unsafeFirstBoss||(m.kind==='final-maze'&&!old.maze)){
+  const next={...state.progress,active:clone(run)};if(!persist(next))return;
+ }
  state.mission=m;state.run=run;state.view='mission';state.message=m.kind==='final-maze'?'Use arrow keys to dodge the moving bad guys and reach EXIT!':'Click INSIDE to select. Arrows MOVE; hold and DRAG a resize handle to STRETCH.';state.error='';render();}
 function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
  state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
