@@ -13,7 +13,7 @@ test('picture must be clicked before an arrow moves it',()=>{
  assert.equal(move(m,initial,'ArrowRight').ok,false);
  const selected=select(m,initial,'rover');assert.equal(selected.ok,true);
  const result=move(m,selected.run,'ArrowRight');assert.equal(result.ok,true);
- assert.equal(result.run.pieces[0].x,3);assert.equal(initial.pieces[0].x,2);
+ assert.equal(result.run.pieces[0].x,2);assert.equal(initial.pieces[0].x,1);
  assert.equal(result.run.pieces[0].w,1);
 });
 test('target clicking counts, decoys do not',()=>{
