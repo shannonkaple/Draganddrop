@@ -60,3 +60,22 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .character-grid [aria-pressed="true"]{border-color:#008d83;background:#d4fff3}.character-image{width:77px;height:77px;max-width:100%;object-fit:contain}
 @media(max-width:900px){:root{--nav:90px}.topbar{grid-template-columns:1fr 2fr;gap:3px}.branding{grid-column:1}.center-nav{grid-column:2}.side-nav{grid-column:1 / -1;justify-content:center}.topbar button{min-height:31px;height:31px;padding:3px 7px}.map-stage{max-width:100%}.game-board{width:min(100%,calc((100dvh - 245px)*1.7143))}.student-nums{grid-template-columns:repeat(6,minmax(42px,1fr))}}
 @media(max-height:580px){.game-title h1{font-size:15px}.directions{min-height:35px;padding:3px 7px}.game-page{gap:4px}.game-board{width:min(100%,calc((100dvh - var(--nav) - 105px)*1.7143))}}
+
+/* First-grade mission variety: full PNGs in the puzzle, not cropped sprites. */
+.game-title{flex-wrap:wrap;column-gap:12px;row-gap:3px}
+.game-mini-meter{font:900 clamp(10px,1.02vw,14px) Arial,sans-serif;letter-spacing:.02em;background:#fff4c5;color:#593174;padding:5px 9px;border-radius:12px;border:2px solid #e3b65c;text-align:center}
+.pickup{position:absolute;z-index:3;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:visible;filter:drop-shadow(0 1px 4px #ffee66)}
+.pickup-picture{width:84%;height:84%;object-fit:contain;animation:collectible-bob 1.2s ease-in-out infinite}
+.pickup small{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);min-width:max-content;padding:2px 3px;border-radius:4px;background:#fff9d0e8;color:#42237c;font:900 clamp(8px,.76vw,10px) Arial,sans-serif;white-space:nowrap;text-align:center}
+.force-gate{position:absolute;z-index:4;display:flex;justify-content:center;align-items:center;pointer-events:none;border:3px solid #ffd65a;border-radius:9px;background:#a71fd5b3;box-shadow:0 0 12px 6px #e65dfbbb}
+.gate-picture{width:83%;height:83%;object-fit:contain;opacity:.84}
+.force-gate small{position:absolute;bottom:-5px;color:#fff;background:#563172ed;font:900 clamp(9px,.85vw,12px) Arial,sans-serif;border-radius:4px;padding:2px 4px}
+.goal-dock{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;overflow:visible;background:#c0fff659}
+.goal-picture{width:83%;height:75%;object-fit:contain;opacity:.50;pointer-events:none;filter:grayscale(.10)}
+.goal-dock small{position:absolute;bottom:0;color:#ebfff9;text-shadow:0 2px 3px #042f35;font:900 clamp(9px,.8vw,11px) Arial,sans-serif}
+.piece.next-up button{animation:next-pulse 1.25s ease-in-out infinite;border-color:#ffe458;background:#fff0bd}
+.piece.docked button{background:#c9ffec;border-color:#52c892;opacity:.93}
+@keyframes collectible-bob{0%,100%{transform:translateY(-3px)}50%{transform:translateY(2px)}}
+@keyframes next-pulse{0%,100%{box-shadow:0 0 2px 2px #ffe66988}50%{box-shadow:0 0 12px 7px #fff178ce}}
+@media(prefers-reduced-motion:reduce){.pickup-picture,.piece.next-up button{animation:none}}
+@media(max-height:640px){.game-title{gap:2px}.game-mini-meter{padding:2px 6px;font-size:10px}.directions{padding:3px 6px}}
