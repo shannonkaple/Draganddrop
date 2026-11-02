@@ -6,7 +6,7 @@ import {startRun,select,move,patrol,finish,purchase,readProgress} from './engine
 test('eight worlds, 64 unique grade-one levels, no resizing controls',()=>{
  const all=allMissions();assert.equal(WORLDS.length,8);assert.equal(all.length,64);
  assert.equal(new Set(all.map(x=>x.id)).size,64);
- assert.ok(all.every(m=>m.pieces.every(p=>p.w===1&&p.h===1&&!('resize' in p))));
+ assert.ok(all.every(m=>m.pieces.every(p=>Number.isInteger(p.w)&&Number.isInteger(p.h)&&p.w>0&&p.h>0&&!('resize' in p))));
  assert.ok(all.every(m=>['click','trail','collect','delivery','precision','key-gate','relay','maze'].includes(m.kind)));
 });
 test('picture must be clicked before an arrow moves it',()=>{
@@ -63,7 +63,7 @@ test('eight different age-appropriate activities use clicking and keyboard arrow
   const missions=Array.from({length:8},(_,i)=>createMission(world,i));
   assert.deepEqual(missions.map(x=>x.kind),['click','trail','collect','delivery','precision','key-gate','relay','maze']);
   assert.ok(missions.slice(1,7).every(m=>m.pieces.some(p=>p.goal)));
-  assert.ok(missions.every(m=>m.pieces.every(p=>p.w===1&&p.h===1&&!('resize' in p))));
+  assert.ok(missions.every(m=>m.pieces.every(p=>Number.isInteger(p.w)&&Number.isInteger(p.h)&&p.w>0&&p.h>0&&!('resize' in p))));
   assert.ok(missions.slice(1,6).every(m=>m.pickups.length>0));
   assert.equal(missions[5].gate.x,5);
   assert.equal(missions[6].deliveryOrder.length,3);
@@ -115,8 +115,8 @@ test('signal relay requires clicking each piece in order and remembers progress'
  assert.equal(select(m,r,'laptop').ok,false,'later object cannot go first');
  r=select(m,r,'arrows').run;
  assert.equal(r.selected,'arrows');
- r.pieces.find(p=>p.id==='arrows').x=8;
- r.pieces.find(p=>p.id==='arrows').y=3;
+ r.pieces.find(p=>p.id==='arrows').x=7;
+ r.pieces.find(p=>p.id==='arrows').y=2;
  const dock=move(m,r,'ArrowRight');
  assert.equal(dock.ok,true);
  assert.deepEqual(dock.run.delivered,['arrows']);
@@ -134,8 +134,8 @@ test('new mission format restarts only unfinished runs; completed stars and inve
  assert.deepEqual(restored.completed,['launch-1']);
  assert.deepEqual(restored.purchases,['trackpad']);
  assert.equal(restored.active.id,'launch-3');
- assert.equal(createMission(0,2).mechanicVersion,2);
- assert.equal(startRun(createMission(0,2)).mechanicVersion,2);
+ assert.equal(createMission(0,2).mechanicVersion,3);
+ assert.equal(startRun(createMission(0,2)).mechanicVersion,3);
 });
 test('level unlocks, one star each, boss ten; replays cannot farm stars',()=>{
  let p=createProgress();
@@ -163,6 +163,36 @@ test('shop spend and saved progress are separate',()=>{
  assert.throws(()=>readProgress(JSON.stringify({version:2,completed:[],purchases:[],rescued:[],stars:0})));
 });
 
+test('all first-grade character choices are astronauts or helmeted space explorers',()=>{
+ assert.ok(CHARACTERS.length>0);
+ assert.ok(CHARACTERS.every(c=>/astro|astronaut|space|robot|naut/i.test(c.id+' '+c.name)));
+});
+test('shape-matching cargo retains its real size when moved with the arrow keys',()=>{
+ const m=createMission(0,3),r=startRun(m),l=r.pieces.find(p=>p.id==='laptop'),t=r.pieces.find(p=>p.id==='keyboard');
+ assert.deepEqual([l.w,l.h,l.shape],[2,2,'L']);
+ assert.deepEqual([t.w,t.h,t.shape],[3,2,'T']);
+ assert.equal(l.img.endsWith('l_shaped_cargo.png'),true);
+ assert.equal(t.img.endsWith('t_shaped_cargo.png'),true);
+ let selected=select(m,r,l.id).run;
+ const before=JSON.stringify(selected.pieces.find(p=>p.id==='laptop'));
+ const moved=move(m,selected,'ArrowRight');
+ assert.equal(moved.ok,true);
+ assert.equal(moved.run.pieces.find(p=>p.id==='laptop').w,2);
+ assert.equal(moved.run.pieces.find(p=>p.id==='laptop').h,2);
+ assert.equal(moved.run.pieces.find(p=>p.id==='laptop').x,l.x+1);
+ assert.equal(selected.pieces.find(p=>p.id==='laptop').x,l.x);
+});
+test('each non-click mission requires a turn or directional change to finish',()=>{
+ for(let w=0;w<8;w++)for(let stage=1;stage<=6;stage++){
+  const m=createMission(w,stage);
+  for(const p of m.pieces.filter(p=>p.goal)){
+   const checkpoints=(m.pickups||[]).filter(x=>!x.piece||x.piece===p.id);
+   const requiresVertical=p.goal.y!==p.y||checkpoints.some(x=>x.y!==p.y);
+   const requiresHorizontal=p.goal.x!==p.x||checkpoints.some(x=>x.x!==p.x);
+   assert.equal(requiresVertical&&requiresHorizontal,true,'world '+w+' stage '+stage+' piece '+p.id);
+  }
+ }
+});
 test('first-grade selection rejects touch and stylus clicks, including touch-generated mouse clicks',()=>{
  assert.equal(touchGeneratedClick({pointerType:'touch'},'touch'),true);
  assert.equal(touchGeneratedClick({pointerType:'pen'},'pen'),true);
