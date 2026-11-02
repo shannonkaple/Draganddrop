@@ -44,7 +44,7 @@ export const ITEMS=[
  {id:'desktop',name:'Control Computer',price:9,img:png('desktop')},
  {id:'star',name:'Golden Space Star',price:10,img:'../arrow-lab/assets/star-icon.png'}
 ];
-export const NAMES=['Find the Star','Move the Rover','Avoid the Space Rocks','Two Deliveries','Choose Carefully','Space Helpers','Three Star Deliveries','Rescue Maze'];
+export const NAMES=['Find the Star','Move the Explorer','Avoid the Space Rocks','Two Deliveries','Choose Carefully','Space Helpers','Three Star Deliveries','Rescue Maze'];
 const pc=(id,name,x,y,goal,img)=>({id,name,x,y,goal,img,w:1,h:1});
 const art=[png('trackpad'),png('keyboard'),png('mouse'),png('laptop'),png('desktop'),skill('arrows'),skill('click')];
 export function createMission(world,stage){
@@ -62,10 +62,10 @@ export function createMission(world,stage){
    pc('decoy2','Space Keyboard',7,4,null,art[1]),
    ...(world>=3?[pc('decoy3','Space Mouse',10,4,null,art[2])]:[])
   ]};
- if(stage===1)return {...base,directions:'Click the rover. Use the KEYBOARD ARROWS to move it into the green finish square.',
-  pieces:[pc('rover','Space Rover',2,4,{x:5+offset,y:4},art[2])]};
- if(stage===2)return {...base,directions:'Click the rover. Use ARROW KEYS to drive AROUND the space rocks to the green finish.',
-  pieces:[pc('rover','Space Rover',1,3,{x:10,y:3},art[2])],
+ if(stage===1)return {...base,directions:'Click your explorer. Use the KEYBOARD ARROWS to move to the green finish square.',
+  pieces:[pc('rover','Your Space Explorer',2,4,{x:5+offset,y:4},art[2])]};
+ if(stage===2)return {...base,directions:'Click your explorer. Use ARROW KEYS to move AROUND the space rocks to the green finish.',
+  pieces:[pc('rover','Your Space Explorer',1,3,{x:10,y:3},art[2])],
   rocks:[[4,1],[4,2],[4,3],[4,4],[6,3],[7,3],...(world>=3?[[7,2],[7,4]]:[])]};
  if(stage===3)return {...base,directions:'Click ONE space item at a time. Move each item to its own green finish square.',
   pieces:[pc('laptop','Space Laptop',1,1,{x:8,y:1},art[3]),pc('keyboard','Space Keyboard',1,5,{x:8,y:5},art[1])]};
