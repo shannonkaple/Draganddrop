@@ -27,7 +27,7 @@ The earlier complete standalone `assets/puzzle/` PNGs, including `l_shaped_cargo
 - Only **click with a Chromebook trackpad** to select, then **use arrow keys** to move.
 - No dragging, rotating, resizing, touch movement, or laser weapons.
 - Every moving non-maze puzzle requires **horizontal and vertical movement** by a checkpoint or offset destination.
-- Cargo Scan & Deliver and Space Signal Relay use **fixed-size 2×2 L cargo** and **3×2 T cargo** and ghosted matching PNG silhouettes. They cannot overlap obstacles, other cargo, or leave the board.
+- Cargo Scan & Deliver and Space Signal Relay use **fixed-size 2×3 L cargo** and **3×3 T cargo** and ghosted matching PNG silhouettes. They cannot overlap obstacles, other cargo, or leave the board.
 - Students match the correct picture, dimensions and orientation by moving it into its destination, not manipulating its size.
 - All 64 games are automatically solved in route-regression tests using actual keyboard-move mechanics; 26 current regression tests passed during implementation.
 - Level IDs, completed levels, stars, redeemed items, rescue friends, and My Stuff arrangements remain untouched. An unfinished active game created before the new cargo geometry restarts **only that unfinished puzzle** to avoid invalid old positions.
