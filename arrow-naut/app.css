@@ -63,3 +63,8 @@
 .final-maze-page .mode-label{font-weight:800;color:#36216e}
 .final-maze-page .directions-bar{background:#f4fcff}
 @media(prefers-reduced-motion:reduce){.finale-enemy{transition:none}}
+
+/* World choices in My Stuff are text controls, not emoji art; scene art remains JPG. */
+.space-world-tabs{display:flex;align-items:center;gap:6px;overflow-x:auto;max-width:100%;padding:5px 0}
+.space-world-tabs button{flex:0 0 auto;min-height:34px;padding:5px 9px;font-size:clamp(10px,1vw,13px);border:2px solid #8290c9;background:#fff}
+.space-world-tabs button[aria-pressed="true"]{background:#dcfff8;border-color:#1d9d91;color:#123f55;font-weight:900}
