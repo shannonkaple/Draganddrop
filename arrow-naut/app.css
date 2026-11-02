@@ -82,3 +82,14 @@
 .scene.space-scene>.scene-objects>.scene-object{flex:0 0 clamp(63px,6vw,90px);width:clamp(63px,6vw,90px);min-height:76px;height:auto;padding:3px;border:2px solid #dfe4ff;box-shadow:none;cursor:pointer}
 .scene.space-scene>.scene-objects .scene-object-image{width:clamp(44px,4vw,64px);height:clamp(44px,4vw,64px)}
 .scene.space-scene>.scene-objects>.scene-object[aria-pressed="true"]{border-color:#3ab5a1;background:#dcfff6}
+
+/* Optional SPACE-bar lasers are visual effects, not substitute item artwork. */
+.final-maze-page .directions-bar{gap:6px;flex-wrap:wrap;min-height:47px}
+.final-maze-page .directions-bar p{font-size:clamp(11px,1.1vw,15px);line-height:1.15;flex:1 1 300px}
+.laser-fire-button{min-width:136px;min-height:39px;padding:6px 10px;border:2px solid #234c84;border-radius:11px;background:linear-gradient(145deg,#b5fff2,#6edbee);color:#102d51;font-weight:900;font-size:clamp(11px,1vw,15px);box-shadow:0 2px 0 #284c83}
+.laser-fire-button:hover:not(:disabled){background:#ffe89f}
+.laser-fire-button:disabled{opacity:.55;cursor:not-allowed}
+.finale-laser-beam{position:absolute;z-index:8;transform:translateY(-50%);pointer-events:none;background:#b7ffff;box-shadow:0 0 4px 3px #29ffea,0 0 14px 7px #ff6afb;border-radius:10px;animation:laser-spark .45s ease-out both}
+.laser-hit-word{position:absolute;z-index:9;transform:translate(-50%,-50%);font-weight:1000;font-size:clamp(14px,2vw,24px);color:#fcffbc;text-shadow:0 0 6px #c522be,0 2px 4px #091435;pointer-events:none;animation:laser-spark .6s ease-out both}
+@keyframes laser-spark{0%{opacity:0;filter:brightness(2)}20%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.finale-laser-beam,.laser-hit-word{animation:none;opacity:1}}
