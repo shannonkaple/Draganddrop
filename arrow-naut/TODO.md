@@ -4,11 +4,11 @@
 - [x] Standalone `/arrow-naut/` game; preserve `/arrow-lab/` and `/drag-drop-adventure/` unchanged
 - [x] Second-grade teacher roster loaded read-only; student number selection; independent, versioned save keys
 - [x] Eight new space planet names and eight lesson types per planet (64 configurations)
-- [x] Careful click INSIDE; keyboard arrow move, resize handle + arrow keys; Tetris-like fitting; no drag, touch completion or cropping
+- [x] Careful click INSIDE; keyboard arrows MOVE only, mouse/trackpad hold-and-DRAG handles RESIZE; Tetris-like fitting; no object dragging, touch completion or cropping
 - [x] Browser speech synthesis on a single direction sentence; wide 12×7 puzzle field
 - [x] +3 stars on every level win including replays, without duplicating completion credit; star shop and simple My Stuff inventory
 - [x] One-time world-friend introduction; rescue at eight missions; save verification and corrupted-save protection
-- [x] 12/12 isolated Node tests; local browser smoke at 1366×768 and 1280×720 for teacher/student, intro, click, reward, rover movement, no JS errors
+- [ ] Run updated Node tests for handle resizing and new difficulty ramp; local browser smoke at 1366×768 and 1280×720 for teacher/student, intro, click, reward, rover movement, no JS errors
 - [ ] Verify newest **GitHub Pages deployment** and perform actual hosted-browser QA at 1366×768, 1280×720, fullscreen, trackpad, and reload
 - [ ] Play-test all 64 levels in order with actual second graders, confirm every puzzle is solvable and instructions readable
 
@@ -25,6 +25,15 @@
 
 ## Non-negotiable controls
 - No cropping or double-click-to-crop anywhere.
-- Students select **inside** an object with the trackpad, then use keyboard arrows.
-- Resizing requires selecting an actual resize handle, then arrow keys. Original image aspect must be preserved once final artwork is added.
+- Students select **inside** an object with the trackpad, then use keyboard arrows ONLY TO MOVE.
+- Resizing requires clicking, HOLDING and DRAGGING an actual visible edge/corner handle with the trackpad; arrows must not resize. Original image aspect must be preserved once final artwork is added.
 - Replays earn stars, but older completed levels, purchases, rescued friends, and student records never reset.
+
+## New requirements — November 2, 2026
+- [x] Pure game resize mechanics changed to trackpad handle dragging, arrows only move; IDs and student saves preserved
+- [x] Eight directional handles and pointer drag events committed for selected resizable objects
+- [x] Eight-planet puzzle challenge ramp committed; 64 mission IDs preserved; static route reachability tests: all eight rover routes solvable
+- [x] Produced 54 individual candidate original space PNG illustrations with transparent outer pixels and preview; package exists outside repo (NOT deployed)
+- [ ] Integrate **approved** individual new PNGs into the game, avoiding copyrighted or incorrect substitutes
+- [ ] Verify actual Chromebook pointer-hold-drag/resizing and release at 1366×768 and 1280×720, including accessibility and persistent saves
+- [ ] Run updated Node test suite and play-test all 64 missions in a real browser; do not claim production completion before this
