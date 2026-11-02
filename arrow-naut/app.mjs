@@ -102,6 +102,13 @@ function stuff(){
  const collected=earnedItems(state.progress);
  const owned=state.progress.purchases.map(id=>SPACE_SHOP.find(x=>x.id===id)).filter(Boolean);
  const rescued=state.progress.rescued.map(id=>PLANETS.findIndex(p=>p.id===id)).filter(i=>i>=0);
+ const inventory=[
+  ...owned.map(x=>({id:'shop:'+x.id,name:x.name,image:SHOP_SPRITES[x.id]})),
+  ...rescued.map(i=>({id:'friend:'+PLANETS[i].id,name:PLANETS[i].friend,image:friendPortrait(i)})),
+  ...collected.map(x=>({id:'earned:'+x.id,name:x.name,image:x.image}))
+ ];
+ const arranged=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[])
+  .filter(e=>e.planet===sceneWorld&&inventory.some(i=>i.id===e.id));
  return `<main class="main"><div class="page-head"><div><h1>My Space Station</h1><p>Everything you earned, rescued, or bought is here. Your stars and progress are safe.</p></div><button data-action="shop">Star Shop</button></div><div class="space-world-tabs">${PLANETS.map((w,i)=>`<button type="button" data-scene-world="${i}" aria-pressed="${sceneWorld===i}">${esc(w.name)}</button>`).join("")}</div><section class="scene space-scene"><img class="stuff-scene-background" src="${planetImage(sceneWorld)}" alt="" aria-hidden="true"><h2>My Space World</h2><div class="scene-objects">${owned.map(item=>`<div class="scene-object">${art(SHOP_SPRITES[item.id],item.name,'scene-object-image')}<small>${esc(item.name)}</small></div>`).join('')}${rescued.map(i=>`<div class="scene-object rescued-friend">${art(friendPortrait(i),PLANETS[i].friend,'scene-object-image')}<small>${esc(PLANETS[i].friend)}</small></div>`).join('')}${collected.map(item=>`<div class="scene-object collected-object">${art(item.image,item.name,'scene-object-image')}<small>${esc(item.name)}</small></div>`).join('')||'<p>Complete missions to rescue friends, collect treasures, and shop for decorations.</p>'}</div></section></main>`
 }
 function errorPage(){return `<main class="main"><section class="entry" role="alert"><h1>Saved student record needs help</h1><p>${esc(state.dataError)}</p><p>This record has NOT been overwritten. Ask your teacher before trying again.</p><button data-action="students">↩️ Choose Another Number</button></section></main>`}
