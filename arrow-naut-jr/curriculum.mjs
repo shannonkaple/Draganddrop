@@ -45,7 +45,7 @@ export const ITEMS=[
  {id:'desktop',name:'Control Computer',price:9,img:png('desktop')},
  {id:'star',name:'Golden Space Star',price:10,img:'../arrow-lab/assets/star-icon.png'}
 ];
-export const NAMES=['Space Star Search','Starlight Trail','Fuel Crystal Hunt','Cargo Scan & Deliver','Find the Secret Computer','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
+export const NAMES=['Space Star Search','Starlight Trail','Fuel Crystal Hunt','Cargo Scan & Deliver','Find the Secret Cargo','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
 const pc=(id,name,x,y,goal,img)=>({id,name,x,y,goal,img,w:1,h:1});
 const art=[puzzle('robot_probe'),puzzle('communications_satellite'),puzzle('moon_rover'),puzzle('rocket'),puzzle('cargo_crate'),puzzle('space_station_satellite'),puzzle('flying_saucer')];
 export function createMission(world,stage){
