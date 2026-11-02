@@ -50,9 +50,11 @@ function worldMap(){
 const stylePos=(x,y,w=1,h=1)=>'left:'+(x/COLS*100)+'%;top:'+(y/ROWS*100)+'%;width:'+(w/COLS*100)+'%;height:'+(h/ROWS*100)+'%';
 function piece(p){
  const selected=state.run.selected===p.id;
+ const graphic=p.id==='rover'?chosen().img:p.img;
+ const pictureName=p.id==='rover'?chosen().name:p.name;
  return '<div class="piece'+(selected?' chosen':'')+'" style="'+stylePos(p.x,p.y)+'">'+
  '<button data-select="'+esc(p.id)+'" aria-label="Select '+esc(p.name)+'" title="Click inside '+esc(p.name)+' to select">'+
- fileImg(p.img,p.name,'piece-picture')+'</button></div>';
+ fileImg(graphic,pictureName,'piece-picture')+'</button></div>';
 }
 function game(){
  const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
