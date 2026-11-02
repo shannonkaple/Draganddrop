@@ -1,7 +1,8 @@
+import {mazeInitial,mazeMove,mazeEnemyTick} from './finale-maze.mjs?v=finale-20261102';
 import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=space-difficulty-20261102';
 export const DIRECTIONS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
 export const clone=value=>JSON.parse(JSON.stringify(value));
-export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),attempts:0,complete:false};}
+export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),attempts:0,complete:false,...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
 export function occupiedCells(piece){if(piece.cells)return piece.cells.map(([dx,dy])=>[piece.x+dx,piece.y+dy]);const out=[];for(let y=0;y<piece.h;y++)for(let x=0;x<piece.w;x++)out.push([piece.x+x,piece.y+y]);return out;}
 export function validPosition(mission,pieces,changedId){
  const selected=pieces.find(p=>p.id===changedId);if(!selected)return false;
@@ -15,7 +16,7 @@ export function validPosition(mission,pieces,changedId){
 }
 export function goalMet(piece){const g=piece.goal;return !!g&&piece.x===g.x&&piece.y===g.y&&
   (g.w===undefined||piece.w===g.w)&&(g.h===undefined||piece.h===g.h);}
-export function missionComplete(mission,state){return mission.kind==='click'?state.complete:
+export function missionComplete(mission,state){return mission.kind==='final-maze'?!!state.complete:mission.kind==='click'?state.complete:
  mission.pieces.filter(p=>p.goal).every(p=>goalMet(state.pieces.find(x=>x.id===p.id)));}
 /** A click INSIDE selects an object; arrow keys always MOVE it, never resize it. */
 export function selectObject(mission,state,id,mode='move'){
@@ -30,6 +31,7 @@ export function selectObject(mission,state,id,mode='move'){
  return {ok:true,state:{...state,selected:id,mode:'move',attempts:state.attempts+1},reason:'Selected! Use the arrow keys to MOVE this object.'};
 }
 export function arrowAction(mission,state,key){
+ if(mission.kind==='final-maze')return mazeMove(mission,state,key);
  if(!DIRECTIONS[key])return {ok:false,state,reason:'Use the arrow keys.'};
  if(!state.selected)return {ok:false,state,reason:'First click INSIDE the box you want to move.'};
  const piece=state.pieces.find(p=>p.id===state.selected);
@@ -63,14 +65,21 @@ export function resizeByHandle(mission,state,id,handle,deltaColumns,deltaRows){
  next.selected=id;next.mode='move';next.attempts++;next.complete=missionComplete(mission,next);
  return {ok:true,state:next,reason:next.complete?'Mission complete!':'Good stretching! Now fit the object into its outline.'};
 }
-/** Awards 3 stars on EVERY completed play, including replays, but unlocks once. */
+/** One-time star economy: regular missions 1 star, final maze 10 stars.
+ * Replays remain available for practice but cannot mint more stars.
+ * All legacy balances and purchases remain untouched.
+ */
 export function finishMission(progress,mission){
- const next=clone(progress);if(!next.completed.includes(mission.id))next.completed.push(mission.id);
- next.stars+=3;next.active=null;
- const firstRescue=completedCount(next,mission.planetIndex)===8&&!next.rescued.includes(mission.planet.id);
+ const next=clone(progress),alreadyComplete=next.completed.includes(mission.id);
+ if(!alreadyComplete)next.completed.push(mission.id);
+ const earned=alreadyComplete?0:mission.kind==='final-maze'?10:1;
+ next.stars+=earned;next.active=null;
+ const firstRescue=mission.kind==='final-maze'&&completedCount(next,mission.planetIndex)===8&&
+  !next.rescued.includes(mission.planet.id);
  if(firstRescue)next.rescued.push(mission.planet.id);
- return {progress:next,stars:3,friend:firstRescue?PLANETS[mission.planetIndex].friend:null};
+ return {progress:next,stars:earned,friend:firstRescue?PLANETS[mission.planetIndex].friend:null};
 }
+export {mazeEnemyTick};
 export function purchase(progress,item){
  if(progress.purchases.includes(item.id))return {ok:false,reason:'Already owned!',progress};
  if(progress.stars<item.price)return {ok:false,reason:'Earn more stars first!',progress};
