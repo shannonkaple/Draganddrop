@@ -125,7 +125,8 @@ function help(){return `<main class="main"><section class="entry how-to"><h1>�
  <li><strong>Press keyboard arrows</strong> ↑ ↓ ← → to move the selected object one square at a time.</li>
  <li><strong>To resize:</strong> click INSIDE the object. Then CLICK AND HOLD a little square on its edge or corner. DRAG the handle using the trackpad, and release to save its new size.</li>
  <li><strong>Fit blocks carefully:</strong> move each object into its dotted outline. Avoid walls and other objects.</li>
- <li><strong>Final maze:</strong> use arrow keys to move, SPACE to fire a laser, and recharge your laser by moving. You can clear bad guys, but you must reach EXIT to unlock the next world.\n <li><strong>Earn stars:</strong> 1 on the first clear of a regular mission, and 10 for beating each final maze. Replays are practice only.</li>
+ <li><strong>Final maze:</strong> use arrow keys to move, SPACE to fire a laser, and recharge your laser by moving. You can clear bad guys, but you must reach EXIT to unlock the next world.</li>
+ <li><strong>Earn stars:</strong> 1 on the first clear of a regular mission, and 10 for beating each final maze. Replays are practice only.</li>
  </ol><p><strong>Drag only resize handles. Use keyboard arrows to move objects. No touch or cropping.</strong> Use the Chromebook trackpad and keyboard.</p><button data-action="home">Back to Planets</button></section></main>`}
 function modalHtml(){const modal=state.modal;if(!modal)return '';
  let content='';
