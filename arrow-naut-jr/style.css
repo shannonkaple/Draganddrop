@@ -89,3 +89,12 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .directions .speaker-icon{font:normal 27px/1 "Apple Color Emoji","Segoe UI Emoji",sans-serif}
 @media(max-width:700px){.directions .listen{min-width:54px;padding:4px 8px}.directions .listen-label{font-size:0}.directions .speaker-icon{font-size:29px}}
 @media(max-height:640px){.directions .listen{min-height:39px;padding:3px 8px}.directions .speaker-icon{font-size:24px}}
+
+/* Compact SPACE-ONLY illustrated header: no teacher or pet portrait.
+   The complete source JPEG is already published in this project. */
+.topbar{background:linear-gradient(90deg,#101344dc 0%,#182d70c9 40%,#29246cc9 100%),url('../arrow-naut/assets/galaxy-map.jpg') center 49% / cover no-repeat;border-bottom:3px solid #ffe474;box-shadow:0 2px 12px #151a5a66}
+.branding strong{color:#fffdf9;text-shadow:0 2px 1px #07143b,0 0 12px #5be0ff;letter-spacing:.02em}
+.branding small{color:#fff4b4;text-shadow:0 1px 3px #07143b}
+.topbar button{background:#fffdf1ee;border-color:#fff4b3}
+.topbar button:hover:not(:disabled){background:#fff3b0}
+.pickup[hidden],.force-gate[hidden]{display:none!important}
