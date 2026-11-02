@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {PLANETS,createMission,createProgress,allMissions,planetUnlocked,stageUnlocked} from './curriculum.mjs';
-import {initialMission,selectObject,arrowAction,finishMission,occupiedCells,validPosition,purchase,validatedSave,goalMet} from './mechanics.mjs';
+import {initialMission,selectObject,arrowAction,resizeByHandle,finishMission,occupiedCells,validPosition,purchase,validatedSave,goalMet} from './mechanics.mjs';
 
 test('eight distinct planets each have eight no-crop missions',()=>{
  const missions=allMissions();assert.equal(PLANETS.length,8);assert.equal(missions.length,64);
@@ -29,18 +29,43 @@ test('maze obstacles prevent moving through a rock',()=>{
  const blocked=arrowAction(m,run,'ArrowRight');assert.equal(blocked.ok,false);
  assert.equal(blocked.state.pieces[0].x,3);
 });
-test('resize requires clicked handle; arrows change width/height but never crop',()=>{
+test('trackpad handle stretching changes size; keyboard arrows ONLY move',()=>{
  const m=createMission(0,3),s=initialMission(m);
- const move=selectObject(m,s,'rocket','move');
- const moved=arrowAction(m,move.state,'ArrowRight');assert.equal(moved.state.pieces[0].w,2);
-  const mustClickInside=selectObject(m,s,'rocket','resize');assert.equal(mustClickInside.ok,false);
- const firstClick=selectObject(m,s,'rocket','move');
- const handle=selectObject(m,firstClick.state,'rocket','resize');
- const wider=arrowAction(m,handle.state,'ArrowRight');assert.equal(wider.ok,true);
- assert.equal(wider.state.pieces[0].w,3);assert.equal(wider.state.pieces[0].x,2);
- const taller=arrowAction(m,wider.state,'ArrowDown');assert.equal(taller.state.pieces[0].h,3);
- const left=arrowAction(m,handle.state,'ArrowLeft');assert.equal(left.state.pieces[0].w,1);
- const tooNarrow=arrowAction(m,left.state,'ArrowLeft');assert.equal(tooNarrow.ok,false);
+ const firstClick=selectObject(m,s,'rocket');
+ assert.equal(firstClick.ok,true);
+ assert.equal(selectObject(m,firstClick.state,'rocket','resize').ok,false);
+ const stretched=resizeByHandle(m,firstClick.state,'rocket','se',1,0);
+ assert.equal(stretched.ok,true);assert.equal(stretched.state.pieces[0].w,3);
+ assert.equal(stretched.state.pieces[0].h,2);
+ const taller=resizeByHandle(m,stretched.state,'rocket','s',0,1);
+ assert.equal(taller.ok,true);assert.equal(taller.state.pieces[0].h,3);
+ const arrow=arrowAction(m,firstClick.state,'ArrowRight');
+ assert.equal(arrow.ok,true);assert.equal(arrow.state.pieces[0].x,3);
+ assert.equal(arrow.state.pieces[0].w,2);assert.equal(arrow.state.pieces[0].h,2);
+ assert.equal(resizeByHandle(m,firstClick.state,'rocket','w',3,0).ok,false,'cannot shrink below one cell');
+ assert.equal(resizeByHandle(m,firstClick.state,'rocket','e',20,0).ok,false,'cannot stretch beyond board');
+ const east=resizeByHandle(m,firstClick.state,'rocket','e',1,0);
+ assert.equal(east.ok,true);assert.equal(east.state.pieces[0].x,2);
+ const west=resizeByHandle(m,firstClick.state,'rocket','w',-1,0);
+ assert.equal(west.ok,true);assert.equal(west.state.pieces[0].x,1);
+ assert.equal(west.state.pieces[0].w,3);
+ assert.equal(s.pieces[0].w,2,'original state is unchanged');
+});
+test('puzzle difficulty grows across planets without changing IDs or starting skills',()=>{
+ const first=Array.from({length:8},(_,p)=>createMission(p,0));
+ assert.equal(first[0].pieces.length,3);
+ assert.ok(first[7].pieces.length>first[0].pieces.length);
+ assert.ok(createMission(7,1).obstacles.length>createMission(0,1).obstacles.length);
+ assert.ok(createMission(7,3).pieces[0].goal.w>createMission(0,3).pieces[0].goal.w);
+ assert.ok(createMission(7,7).pieces.length>createMission(0,7).pieces.length);
+ assert.equal(createMission(0,7).id,'launch-8');
+ assert.equal(createMission(7,7).id,'core-8');
+ for(let p=0;p<8;p++)for(let st=0;st<8;st++){
+  const mission=createMission(p,st),pieces=mission.pieces;
+  assert.ok(pieces.every(x=>x.x>=0&&x.y>=0&&x.x+x.w<=12&&x.y+x.h<=7));
+  assert.ok(pieces.every(x=>!x.goal||x.goal.x>=0&&x.goal.y>=0&&
+   x.goal.x+(x.goal.w??x.w)<=12&&x.goal.y+(x.goal.h??x.h)<=7));
+ }
 });
 test('Tetris-like pieces occupy only actual cells; cannot overlap',()=>{
  const m=createMission(0,2);assert.equal(m.kind,'fit');
