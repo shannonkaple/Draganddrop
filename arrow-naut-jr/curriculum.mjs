@@ -7,6 +7,7 @@ const jpeg=n=>'../arrow-naut/assets/'+n+'.jpg';
 const png=n=>'../game-assets/collectibles/computer/'+n+'_512.png';
 const skill=n=>'../game-assets/collectibles/skills/'+n+'_512.png';
 const puzzle=n=>'./assets/puzzle/'+n+'.png';
+const moveFind=n=>'./assets/move-find/'+n+'.png';
 export const WORLDS=[
  {id:'launch',name:'Candy Moon',jpg:jpeg('candy-moon'),friend:'../arrow-lab/friends/candy-bunny.png'},
  {id:'moon',name:'Rocket Launch',jpg:jpeg('rocket-launch'),friend:'../arrow-lab/friends/pirate-parrot.png'},
@@ -41,13 +42,24 @@ export const ITEMS=[
  {id:'arrows',name:'Arrow Power',price:7,img:skill('arrows')},
  {id:'click',name:'Click Medal',price:8,img:skill('click')},
  {id:'desktop',name:'Control Computer',price:9,img:png('desktop')},
- {id:'star',name:'Golden Space Star',price:10,img:'../arrow-lab/assets/star-icon.png'}
+ {id:'star',name:'Golden Space Star',price:10,img:'../arrow-lab/assets/star-icon.png'},
+ {id:'orbit-satellite',name:'Solar Panel Satellite',price:5,img:moveFind('solar_panel_satellite')},
+ {id:'signal-dish',name:'Satellite Dish',price:5,img:moveFind('satellite_dish')},
+ {id:'star-key',name:'Golden Space Key',price:4,img:moveFind('golden_signal_key')},
+ {id:'ice-key',name:'Ice Planet Key',price:5,img:moveFind('blue_ice_key')},
+ {id:'landing-pad',name:'Space Landing Dock',price:7,img:moveFind('blue_landing_dock')},
+ {id:'star-crate',name:'Star Cargo Crate',price:6,img:moveFind('star_cargo_crate')},
+ {id:'crystal-garden',name:'Space Crystal Cluster',price:5,img:moveFind('crystal_cluster')},
+ {id:'frozen-home',name:'Frozen Space Habitat',price:8,img:moveFind('frozen_habitat')},
+ {id:'power-cell',name:'Lightning Energy Cell',price:6,img:moveFind('lightning_energy_cell')},
+ {id:'ice-blocks',name:'Ice Wall Blocks',price:4,img:moveFind('ice_wall_four_blocks')},
+ {id:'special-rover',name:'Purple-Wheel Moon Rover',price:7,img:moveFind('moon_rover')}
 ];
 export const NAMES=['Space Star Search','Starlight Trail','Fuel Crystal Hunt','Cargo Scan & Deliver','Find the Secret Cargo','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
 const pc=(id,name,x,y,goal,img,w=1,h=1,shape=null)=>({id,name,x,y,goal,img,w,h,shape});
 const cargoL=puzzle('l_shaped_cargo'),cargoT=puzzle('t_shaped_cargo');
 
-const art=[puzzle('robot_probe'),puzzle('communications_satellite'),puzzle('moon_rover'),puzzle('rocket'),puzzle('cargo_crate'),puzzle('space_station_satellite'),puzzle('flying_saucer')];
+const art=[puzzle('robot_probe'),moveFind('solar_panel_satellite'),moveFind('moon_rover'),puzzle('rocket'),moveFind('star_cargo_crate'),puzzle('space_station_satellite'),puzzle('flying_saucer')];
 export function createMission(world,stage){
  if(!Number.isInteger(world)||world<0||world>=8||!Number.isInteger(stage)||stage<0||stage>7)
   throw Error('Unknown first-grade mission');
@@ -62,7 +74,7 @@ export function createMission(world,stage){
   target:'star',pieces:[
    pc('star','Golden Space Star',2+offset,2+world%2,null,gold),
    pc('decoy1','Rocket Ship',8,1,null,art[3]),
-   pc('decoy2','Communications Satellite',7,4,null,art[1]),
+   pc('decoy2','Communications Satellite',7,4,null,world>=4?moveFind('satellite_dish'):art[1]),
    pc('decoy3','Moon Rover',10,4,null,art[2]),
    ...(world>=4?[pc('decoy4','Robot Probe',5,5,null,art[0])]:[])
   ]};
@@ -77,9 +89,9 @@ export function createMission(world,stage){
   directions:'FUEL CRYSTAL HUNT! Click your explorer, steer AROUND the space rocks, collect ALL crystals, then go to the finish!',
   pieces:[pc('rover','Your Space Explorer',1,3,{x:10,y:3},art[2])],
   rocks:[[4,1],[4,2],[4,3],[4,4],[6,3],[7,3],...(world>=3?[[7,2],[7,4]]:[])],
-  pickups:[beacon('fuel-a',2,5,'Fuel Crystal A',gem),
-   beacon('fuel-b',8,1,'Fuel Crystal B',gem),
-   ...(world>=4?[beacon('fuel-c',9,5,'Fuel Crystal C',gem)]:[])]};
+  pickups:[beacon('fuel-a',2,5,'Fuel Crystal A',moveFind('crystal_cluster')),
+   beacon('fuel-b',8,1,'Fuel Crystal B',moveFind('crystal_cluster')),
+   ...(world>=4?[beacon('fuel-c',9,5,'Fuel Crystal C',moveFind('crystal_cluster'))]:[])]};
  if(stage===3)return {...base,kind:'delivery',name:NAMES[3],
   directions:'SHAPE-SHIFT CARGO! Click the L cargo and T cargo. Visit each scan star, then FIT each picture into its matching outline. Use arrows to turn!',
   pieces:[pc('laptop','L-Shaped Cargo',1,0,{x:9,y:0},cargoL,2,2,'L'),
@@ -100,8 +112,8 @@ export function createMission(world,stage){
   pieces:[pc('keyboard','Communications Satellite',1,1,{x:9,y:1},art[1]),
    pc('mouse','Moon Rover',1,5,{x:9,y:5},art[2])],
   rocks:Array.from({length:7},(_,y)=>[5,y]).filter(v=>v[1]!==3),
-  gate:{x:5,y:3,img:art[4]},
-  pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',gem,'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
+  gate:{x:5,y:3,img:moveFind('lightning_energy_cell')},
+  pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',moveFind(world===3?'blue_ice_key':'golden_signal_key'),'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
  if(stage===6)return {...base,kind:'relay',name:NAMES[6],
   directions:'MATCH THE SPACE DOCKS! Click the glowing piece FIRST. Move it around obstacles and FIT it in the outline with the SAME PICTURE AND SIZE. Then choose the next!',
   pieces:[pc('trackpad','Little Robot Probe',1,3,{x:9,y:2},art[0]),
