@@ -84,7 +84,7 @@ export function createMission(world,stage){
    pc('decoy1','Rocket Ship',8,1,null,art[3]),
    pc('decoy2','Communications Satellite',7,4,null,world>=4?moveFind('satellite_dish'):art[1]),
    pc('decoy3','Moon Rover',10,4,null,art[2]),
-   ...(world>=4?[pc('decoy4','Robot Probe',5,5,null,art[0])]:[])
+   ...(world===3?[pc('decoy4','Frozen Space Habitat',5,5,null,moveFind('frozen_habitat'))]:world>=4?[pc('decoy4','Robot Probe',5,5,null,art[0])]:[])
   ]};
  if(stage===1)return {...base,kind:'trail',name:NAMES[1],
   directions:'STARLIGHT TRAIL! CLICK your explorer. Use KEYBOARD ARROWS to touch the glowing stars IN ORDER. Then go to the green finish!',
@@ -101,7 +101,7 @@ export function createMission(world,stage){
    beacon('fuel-b',8,1,'Fuel Crystal B',moveFind('crystal_cluster')),
    ...(world>=4?[beacon('fuel-c',9,5,'Fuel Crystal C',moveFind('crystal_cluster'))]:[])]};
  if(stage===3)return {...base,kind:'delivery',name:NAMES[3],
-  directions:'SHAPE-SHIFT CARGO! Click the L cargo and T cargo. Visit each scan star, then FIT each picture into its matching outline. Use arrows to turn!',
+  directions:'CARGO DELIVERY! Click a cargo picture. Use the ARROW KEYS to move it. Touch its scan star, then reach its matching dock. The shapes do NOT turn or resize!',
   pieces:[pc('laptop','L-Shaped Cargo',1,0,{x:9,y:0},cargoL,2,3,'L'),
    pc('keyboard','T-Shaped Cargo',1,4,{x:8,y:4},cargoT,3,3,'T')],
   pickups:[beacon('scan-laptop',4+offset,2,'L Cargo Scan',gold,'laptop'),
@@ -123,7 +123,7 @@ export function createMission(world,stage){
   gate:{x:5,y:3,img:moveFind('lightning_energy_cell')},
   pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',moveFind(world===3?'blue_ice_key':'golden_signal_key'),'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
  if(stage===6)return {...base,kind:'relay',name:NAMES[6],
-  directions:'MATCH THE SPACE DOCKS! Click the highlighted piece FIRST. Steer each cargo around other pictures. FIT it into the matching outline and size. Then choose the next!',
+  directions:'SPACE DOCKS! Click the glowing picture FIRST. Use ARROW KEYS to move it into its matching dock. Then click the next picture. No turning or resizing!',
   pieces:[pc('trackpad','Little Robot Probe',4,3,{x:10,y:2},art[0]),
    pc('arrows','L-Shaped Cargo',1,0,{x:9,y:1},cargoL,2,3,'L'),
    pc('laptop','T-Shaped Cargo',1,3,{x:6,y:4},cargoT,3,3,'T')],
