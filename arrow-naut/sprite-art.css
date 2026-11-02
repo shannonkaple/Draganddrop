@@ -40,3 +40,9 @@
 .piece:not(.poly-piece) .piece-interior .piece-illustration{width:min(84%,105px);max-height:77%;min-height:0;aspect-ratio:1/1;border-radius:8px;flex-shrink:1}
 .piece .piece-interior .piece-name{color:#fff;text-shadow:0 2px 4px #000,0 0 5px #15113c;font-weight:800;font-size:clamp(8px,.88vw,12px)}
 .piece.selected:not(.poly-piece){border-color:#fff0a9;outline:2px dotted #fbe57a;outline-offset:2px}
+
+/* New independent, un-cropped transparent PNG mission objects. */
+.piece .piece-interior .standalone-art-shell{display:block;position:relative;flex:0 1 auto;width:min(84%,105px);height:auto;max-height:77%;aspect-ratio:1/1;pointer-events:none;overflow:visible}
+.standalone-art-shell .original-piece-art{display:block;width:100%;height:100%;aspect-ratio:1/1;pointer-events:none}
+.standalone-art-shell>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.poly-piece .poly-full-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:5}

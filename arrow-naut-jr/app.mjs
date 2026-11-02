@@ -3,7 +3,7 @@ import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './
 const root=document.getElementById('app');
 const esc=v=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null};
-const fileImg=(src,alt,cls='')=>'<img class="'+cls+'" src="'+src+'" alt="'+esc(alt)+'" draggable="false" loading="eager">';
+const fileImg=(src,alt,cls='')=>'<img class="'+cls+'" src="'+src+'" alt="'+esc(alt)+'" draggable="false" loading="eager" onerror="this.onerror=null;this.src=\'../game-assets/collectibles/computer/laptop_512.png\'">';
 const chosen=()=>CHARACTERS.find(x=>x.id===state.progress?.character)||CHARACTERS[0];
 const saveKey=(teacher,num)=>'mskaple-arrownaut-junior-v1:'+teacher+':'+num;
 function notice(message,error=false){state.notice=message;state.error=error?message:'';const box=document.getElementById('feedback');if(box){box.textContent=message;box.classList.toggle('error',error)}}

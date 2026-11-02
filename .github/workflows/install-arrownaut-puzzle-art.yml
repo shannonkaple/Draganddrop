@@ -1,0 +1,40 @@
+name: Install original standalone Arrow-Naut PNG art
+on:
+  push:
+    paths:
+      - '.github/workflows/install-arrownaut-puzzle-art.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install-art:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PNG pieces into both games
+        env:
+          IMAGE_URLS: '{"t_shaped_cargo":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fa05a14d9-18b3-41d0-b68c-cbfa87b15b57/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAK09xc7zg1ysZWgeqx2IrA2DVruYy7_p3246ekCUCqZY&exp=1793659619&osig=AAAAAAAAAAAAAAAAAAAAAHQG4JRDBmfeWqxLdw7zdcPSmFDKOoeLt5N964d8b8rU&signer=media-rpc&token=AAIAAU0AJGEwNWExNGQ5LTE4YjMtNDFkMC1iNjhjLWNiZmE4N2IxNWI1NwAAAAABoZ5xxrjTjBZC60hgBy0ipEgoOZ9hG45AOOqDOlxL5yPxAnAGWQ&x-canva-quality=thumbnail","space_station_satellite":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fef55b228-e60e-40ce-8890-fb1d2453b736/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAEIYMvV1_OqphiPK35tztPVv7W_H8wup4SVEF8QnhE1o&exp=1793659548&osig=AAAAAAAAAAAAAAAAAAAAABEPqHkjpG-DybuHR4KwZnQK6chS3ufbwTeH15jZQBvi&signer=media-rpc&token=AAIAAU0AJGVmNTViMjI4LWU2MGUtNDBjZS04ODkwLWZiMWQyNDUzYjczNgAAAAABoZ5wsWDwE4lKZeitvhkGTxmCGRCZ04M2MVJnAFJhFObMinuE9g&x-canva-quality=thumbnail","space_greenhouse":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F2272c378-d37a-483a-b60d-f0f1f7977de3/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAH1DWSsepdQsqKOCw5kf6N4BccG0ezHeBN7utu0912el&exp=1793658777&osig=AAAAAAAAAAAAAAAAAAAAAGHi1gF8LxS_VIGyC3CJWb2dJudBljknnD7t2iATqPqf&signer=media-rpc&token=AAIAAU0AJDIyNzJjMzc4LWQzN2EtNDgzYS1iNjBkLWYwZjFmNzk3N2RlMwAAAAABoZ5k7aha93JoM7Wk4Fo2W44FMujorFgWMURki8nSc-NdNuNWqw&x-canva-quality=thumbnail","rocket":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F4539c676-7baa-439f-8e72-9650beae5d00/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAPepe2CZaRrigPNpznjw_XpOqUopqscsdiIUR6Ds0A2X&exp=1793661026&osig=AAAAAAAAAAAAAAAAAAAAACaRHbCPjUnoAQcD_klW4X8fWQJB4cWUcNrINw430s_E&signer=media-rpc&token=AAIAAU0AJDQ1MzljNjc2LTdiYWEtNDM5Zi04ZTcyLTk2NTBiZWFlNWQwMAAAAAABoZ6HPtAz6ChcsbdGFFNWvnbhGthK-KDELMjtuVOWxdnAqdszKw&x-canva-quality=thumbnail","robotic_rover":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F1c5ad4df-e8c8-4f7a-9945-b98ff5c7377c/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAO8bmfh5I0BwZf6xAeKv3opCgDl_r-cduYnTberCPumP&exp=1793660980&osig=AAAAAAAAAAAAAAAAAAAAADYJzAIDnoADu-Sr-BGRRgya6g4SJvioabbCqa3nyEoa&signer=media-rpc&token=AAIAAU0AJDFjNWFkNGRmLWU4YzgtNGY3YS05OTQ1LWI5OGZmNWM3Mzc3YwAAAAABoZ6GiyDKmVy7Zi8EDatlbemc85mwQdhdC8HwBA2rLAXD2-8vxA&x-canva-quality=thumbnail","robot_probe":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fc64d857c-db42-4e21-946c-a52a07abffcc/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAADZ-tfPyejsZKjIRlrcAMH5EMylnulQKCIrVWLNvl44Q&exp=1793660545&osig=AAAAAAAAAAAAAAAAAAAAAPk4PPsMQ0-gWM65N12SPwL7sFOLbzn2jEahQji9V3WR&signer=media-rpc&token=AAIAAU0AJGM2NGQ4NTdjLWRiNDItNGUyMS05NDZjLWE1MmEwN2FiZmZjYwAAAAABoZ5_5-g8atu0vJ4E5qoBP6NHawj0BJ4N8-nDxD2H6LFg37ewXQ&x-canva-quality=thumbnail","moon_rover":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F92511291-5408-4cd6-9a8b-d18de72dbd46/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAAeZOzYugBvgzKksXe-6G63x43sqfXBLWLKnRfyG5G9e&exp=1793659794&osig=AAAAAAAAAAAAAAAAAAAAAEwz004eAB6479DIWZx_URoqFSl64pxSCPbAYw7nB9RP&signer=media-rpc&token=AAIAAU0AJDkyNTExMjkxLTU0MDgtNGNkNi05YThiLWQxOGRlNzJkYmQ0NgAAAAABoZ50clDYckq1dtQ3TAKcqzQRPfpXXLcMkPTfUGZnhfAMuMYkAQ&x-canva-quality=thumbnail","l_shaped_cargo":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F9bc15b32-5471-42b2-a6b2-5dcb5c8dae69/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAABbt4l9OFrpiCtcsSjDBCo_4-fDphfc_hNiXnFH6Ky2d&exp=1793660248&osig=AAAAAAAAAAAAAAAAAAAAAPBMlU6Zu5DYrIYEly1WWKTqp9isdUgEASC_rfSHSIg2&signer=media-rpc&token=AAIAAU0AJDliYzE1YjMyLTU0NzEtNDJiMi1hNmIyLTVkY2I1YzhkYWU2OQAAAAABoZ57X8BmS4kt5pHfjrEaXAvHyXXgCK0AO2tY5I6sboz9GsSnHg&x-canva-quality=thumbnail","flying_saucer":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F80e6cac2-3bcb-44b5-945a-ab5e68520017/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAMnwZJAvCuTmzsLdYuLnluiCvbN4oXbCtbJCkRkOAK6R&exp=1793660003&osig=AAAAAAAAAAAAAAAAAAAAACk7TwY1ztdqtYFb_2q8D-kHu45UbEJmtRXbzFqhixrJ&signer=media-rpc&token=AAIAAU0AJDgwZTZjYWMyLTNiY2ItNDRiNS05NDVhLWFiNWU2ODUyMDAxNwAAAAABoZ53orhOcW8JSrUn2yGjaAmoNI4Uc4wUv2ripaxHGZedPaYsrw&x-canva-quality=thumbnail","communications_satellite":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F8c965bd4-2e75-4277-a4cf-f089194e4c60/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAMusN9jC1CH8s3kgF9BvX42_nWUHMtvSXz2eqqBdg0_9&exp=1793661758&osig=AAAAAAAAAAAAAAAAAAAAAFBG7MUg35nOQKlb9kDcg9F4E38NpAqCQ83isDcWlnsm&signer=media-rpc&token=AAIAAU0AJDhjOTY1YmQ0LTJlNzUtNDI3Ny1hNGNmLWYwODkxOTRlNGM2MAAAAAABoZ6SajAM2m7jgkvRz_sAiy1tacKmHIRINuBSmFbS7bmksX-v2A&x-canva-quality=thumbnail","cargo_crate":"https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F3cf3f44c-f5aa-4308-86c8-e59394a44acb/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAIRcNOAnfN2VRfY7CtqNN3NfZfCCkYeyXKBH8DYENjIs&exp=1793660208&osig=AAAAAAAAAAAAAAAAAAAAAPEzkp2btBs19OsfwJC5fAyFn7O8qng0vcgkq6KOHhAr&signer=media-rpc&token=AAIAAU0AJDNjZjNmNDRjLWY1YWEtNDMwOC04NmM4LWU1OTM5NGE0NGFjYgAAAAABoZ56w4AhekRlrgtlTnqPmYZ3yoJXzrZvmYsx9Y3YK28u507IsA&x-canva-quality=thumbnail"}'
+        run: |
+          python3 - <<'PY'
+          import os, json, urllib.request, pathlib
+          urls=json.loads(os.environ['IMAGE_URLS'])
+          assert len(urls)==11
+          for name,url in urls.items():
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+              with urllib.request.urlopen(req,timeout=45) as response: data=response.read()
+              if not data.startswith(b'\x89PNG\r\n\x1a\n') or len(data)<500: raise RuntimeError(name+' is not a PNG')
+              for game in ('arrow-naut-jr','arrow-naut'):
+                  folder=pathlib.Path(game)/'assets'/'puzzle'
+                  folder.mkdir(parents=True,exist_ok=True)
+                  (folder/(name+'.png')).write_bytes(data)
+              print('Installed',name,len(data),'bytes')
+          PY
+      - name: Commit puzzle PNGs
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add arrow-naut-jr/assets/puzzle arrow-naut/assets/puzzle
+          if ! git diff --cached --quiet; then
+            git commit -m 'Add original complete PNG puzzle graphics to Arrow-Naut Junior and Arrow-Naut'
+            git push
+          fi

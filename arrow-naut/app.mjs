@@ -66,11 +66,18 @@ function goalShape(piece){const g=piece.goal;if(!g)return '';
  if(piece.cells)return `<div class="goal" style="${positionStyle(bbox)}" aria-hidden="true">${piece.cells.map(([dx,dy])=>`<i class="goal-shape-cell" style="left:${dx/bbox.w*100}%;top:${dy/bbox.h*100}%;width:${100/bbox.w}%;height:${100/bbox.h}%"></i>`).join('')}</div>`;
  return `<div class="goal" style="${positionStyle(bbox)}" aria-hidden="true"><span class="goal-label">FIT HERE</span></div>`;
 }
+const STANDALONE_PUZZLE_ART={"box-a":"cargo_crate","box-b":"communications_satellite","box-c":"flying_saucer","box-d":"space_greenhouse","box-e":"cargo_crate","rover":"moon_rover","cargo-l":"l_shaped_cargo","cargo-t":"t_shaped_cargo","rocket":"rocket","decoy":"cargo_crate","module":"robot_probe","decoy-2":"flying_saucer","decoy-3":"space_greenhouse","satellite":"space_station_satellite","panel":"communications_satellite","antenna":"robot_probe","window":"space_greenhouse","console":"robotic_rover","bridge":"t_shaped_cargo","beacon":"flying_saucer","signal":"communications_satellite"};
+function gamePieceArt(piece){
+ const original=art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['blue-window'],piece.name,'original-piece-art');
+ const file=STANDALONE_PUZZLE_ART[piece.id];
+ if(!file)return original;
+ return `<span class="piece-illustration standalone-art-shell">${original}<img src="./assets/puzzle/${file}.png" alt="${esc(piece.name)}" draggable="false" onload="this.previousElementSibling.style.display='none'" onerror="this.remove()"></span>`;
+}
 function pieceHtml(piece){
  const selected=state.run.selected===piece.id,cls=`piece ${piece.cells?'poly-piece ':''}${piece.color||'blue'}${selected?' selected':''}`;
  let inner='';
- if(piece.cells)inner=piece.cells.map(([x,y],i)=>`<button type="button" class="piece-cell" data-select="${esc(piece.id)}" aria-label="Select ${esc(piece.name)}" style="left:${x/piece.w*100}%;top:${y/piece.h*100}%;width:${100/piece.w}%;height:${100/piece.h}%">${i===0?art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['cargo-l'],piece.name,'piece-block-icon'):''}</button>`).join('');
- else inner=`<button class="piece-interior" type="button" data-select="${esc(piece.id)}" aria-label="Click inside ${esc(piece.name)} to select and move">${art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['blue-window'],piece.name,'piece-illustration')}<span class="piece-name">${esc(piece.name)}</span></button>`;
+ if(piece.cells)inner=piece.cells.map(([x,y],i)=>`<button type="button" class="piece-cell" data-select="${esc(piece.id)}" aria-label="Select ${esc(piece.name)}" style="left:${x/piece.w*100}%;top:${y/piece.h*100}%;width:${100/piece.w}%;height:${100/piece.h}%">${i===0?art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['cargo-l'],piece.name,'piece-block-icon'):''}</button>`).join('')+(STANDALONE_PUZZLE_ART[piece.id]?`<img class="poly-full-art" src="./assets/puzzle/${STANDALONE_PUZZLE_ART[piece.id]}.png" alt="" draggable="false" onload="let old=this.parentElement.querySelector('.piece-block-icon');if(old)old.style.visibility='hidden'" onerror="this.remove()">`:'');
+ else inner=`<button class="piece-interior" type="button" data-select="${esc(piece.id)}" aria-label="Click inside ${esc(piece.name)} to select and move">${gamePieceArt(piece)}<span class="piece-name">${esc(piece.name)}</span></button>`;
  return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize&&selected?['nw','n','ne','e','se','s','sw','w'].map(handle=>`<button type="button" class="resize-handle handle-${handle}" data-resize="${esc(piece.id)}" data-handle="${handle}" title="Click, hold and drag to stretch" aria-label="Hold and drag ${handle.toUpperCase()} resize handle of ${esc(piece.name)}"></button>`).join(''):''}</div>`;
 }
 
