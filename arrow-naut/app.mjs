@@ -1,5 +1,5 @@
 import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,planetUnlocked,stageUnlocked,SPACE_SHOP} from './curriculum.mjs';
-import {clone,initialMission,selectObject,arrowAction,finishMission,purchase,validatedSave,occupiedCells} from './mechanics.mjs';
+import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells} from './mechanics.mjs';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs';
 import {ATLAS_URL,ATLAS_COLS,ATLAS_ROWS,ATLAS_POSITIONS} from './sprite-atlas.mjs';
@@ -67,19 +67,19 @@ function goalShape(piece){const g=piece.goal;if(!g)return '';
  return `<div class="goal" style="${positionStyle(bbox)}" aria-hidden="true"><span class="goal-label">FIT HERE</span></div>`;
 }
 function pieceHtml(piece){
- const selected=state.run.selected===piece.id,cls=`piece ${piece.cells?'poly-piece ':''}${piece.color||'blue'}${selected?' selected':''}${selected&&state.run.mode==='resize'?' resize-selected':''}`;
+ const selected=state.run.selected===piece.id,cls=`piece ${piece.cells?'poly-piece ':''}${piece.color||'blue'}${selected?' selected':''}`;
  let inner='';
  if(piece.cells)inner=piece.cells.map(([x,y],i)=>`<button type="button" class="piece-cell" data-select="${esc(piece.id)}" aria-label="Select ${esc(piece.name)}" style="left:${x/piece.w*100}%;top:${y/piece.h*100}%;width:${100/piece.w}%;height:${100/piece.h}%">${i===0?art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['cargo-l'],piece.name,'piece-block-icon'):''}</button>`).join('');
  else inner=`<button class="piece-interior" type="button" data-select="${esc(piece.id)}" aria-label="Click inside ${esc(piece.name)} to select and move">${art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['blue-window'],piece.name,'piece-illustration')}<span class="piece-name">${esc(piece.name)}</span></button>`;
- return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize?`<button type="button" class="resize-handle" data-resize="${esc(piece.id)}" title="Select resize handle" aria-label="Resize ${esc(piece.name)} using arrow keys">↘</button>`:''}</div>`;
+ return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize&&selected?['nw','n','ne','e','se','s','sw','w'].map(handle=>`<button type="button" class="resize-handle handle-${handle}" data-resize="${esc(piece.id)}" data-handle="${handle}" title="Click, hold and drag to stretch" aria-label="Hold and drag ${handle.toUpperCase()} resize handle of ${esc(piece.name)}"></button>`).join(''):''}</div>`;
 }
 function missionPage(){
  const m=state.mission,run=state.run;
  const boardTargets=m.pieces.filter(p=>p.goal).map(p=>goalShape(p)).join('');
  const obstacles=(m.obstacles||[]).map(([x,y],i)=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%">${i%2===0?art(enemyPortrait(m.planetIndex),'','obstacle-enemy'):art('./assets/sprites/supply-crate.png','','obstacle-enemy')}</div>`).join('');
- return `<main class="main playing"><div class="mission-head"><h1>${m.planet.symbol} ${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${run.selected?`${run.mode==='resize'?'↘ Resizing':'↔ Moving'}: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'👆 Click INSIDE to select'}</span><button class="back" data-action="planet">↩️ Back to ${m.planet.symbol} ${esc(m.planet.name)} Map</button></div>
+ return `<main class="main playing"><div class="mission-head"><h1>${m.planet.symbol} ${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${run.selected?`↔ Move / ↗ Drag handles: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'👆 Click INSIDE to select'}</span><button class="back" data-action="planet">↩️ Back to ${m.planet.symbol} ${esc(m.planet.name)} Map</button></div>
  <section class="mission-frame" aria-label="Arrow-key computer skills game"><div class="directions-bar"><p>${esc(m.directions)}</p><button class="speak" data-action="listen" aria-label="Read directions aloud" title="Read directions aloud">🔊</button></div>
- <div class="board-frame"><div class="space-board" id="space-board" style="--world-hue:${m.planet.hue}" tabindex="0" role="group" aria-label="Space puzzle. Click inside a box to select, then use arrow keys."><img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" aria-hidden="true" draggable="false"><div class="grid-lines"></div>${boardTargets}${obstacles}${run.pieces.map(pieceHtml).join('')}</div></div></section>
+ <div class="board-frame"><div class="space-board" id="space-board" style="--world-hue:${m.planet.hue}" tabindex="0" role="group" aria-label="Space puzzle. Click inside to select, arrows move, and dragging handles with the trackpad changes size."><img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" aria-hidden="true" draggable="false"><div class="grid-lines"></div>${boardTargets}${obstacles}${run.pieces.map(pieceHtml).join('')}</div></div></section>
  <div class="feedback${state.error?' error':''}" role="status" id="live-status">${esc(state.message||'Click an object inside its border, then use your arrow keys.')}</div></main>`;
 }
 function shop(){return `<main class="main"><div class="page-head"><div><h1>⭐ Space Star Shop</h1><p>Stars: ${progressText()} · Earn 3 every time you complete a mission—even a replay!</p></div><button data-action="home">🏠 Home</button></div><div class="shop-grid">${SPACE_SHOP.map(item=>{const bought=state.progress.purchases.includes(item.id);return `<div class="shop-item card">${art(SHOP_SPRITES[item.id]||'./assets/sprites/comet-star.png',item.name,'shop-art')}<strong>${esc(item.name)}</strong><p>Decorate your own space station.</p><button data-buy="${esc(item.id)}" ${bought||state.progress.stars<item.price?'disabled':''}>${bought?'✓ Owned':`⭐ Buy for ${item.price}`}</button></div>`}).join('')}</div></main>`}
@@ -93,10 +93,10 @@ function errorPage(){return `<main class="main"><section class="entry" role="ale
 function help(){return `<main class="main"><section class="entry how-to"><h1>🚀 How to Control Your Arrow-Naut</h1><ol>
  <li><strong>Click INSIDE</strong> a space object. Clicking its border is not the same as clicking inside.</li>
  <li><strong>Press keyboard arrows</strong> ↑ ↓ ← → to move the selected object one square at a time.</li>
- <li><strong>To resize:</strong> click the small ↘ corner handle. Then press → to widen, ← to narrow, ↓ to make taller, or ↑ to make shorter.</li>
+ <li><strong>To resize:</strong> click INSIDE the object. Then CLICK AND HOLD a little square on its edge or corner. DRAG the handle using the trackpad, and release to save its new size.</li>
  <li><strong>Fit blocks carefully:</strong> move each object into its dotted outline. Avoid walls and other objects.</li>
  <li><strong>Earn 3 stars</strong> every time you finish any mission, including replays.</li>
- </ol><p><strong>No dragging, no touchscreen shortcuts, and no cropping.</strong> Use the Chromebook trackpad and keyboard arrows.</p><button data-action="home">🏠 Back to Planets</button></section></main>`}
+ </ol><p><strong>Drag only resize handles. Use keyboard arrows to move objects. No touch or cropping.</strong> Use the Chromebook trackpad and keyboard.</p><button data-action="home">🏠 Back to Planets</button></section></main>`}
 function modalHtml(){const modal=state.modal;if(!modal)return '';
  let content='';
  if(modal.kind==='intro'){
@@ -118,7 +118,7 @@ function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage
  const m=createMission(state.planet,stage),old=state.progress.active;
  const run=old?.id===m.id&&!old.complete?clone(old):initialMission(m);
  if(!old||old.id!==m.id||old.complete){const next={...state.progress,active:clone(run)};if(!persist(next))return;}
- state.mission=m;state.run=run;state.view='mission';state.message='Click INSIDE an object to select it. No dragging!';state.error='';render();}
+ state.mission=m;state.run=run;state.view='mission';state.message='Click INSIDE to select. Arrows MOVE; hold and DRAG a resize handle to STRETCH.';state.error='';render();}
 function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
  state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
 function award(){const result=finishMission(state.progress,state.mission);if(!persist(result.progress))return;
@@ -165,10 +165,62 @@ root.addEventListener('click',event=>{
  if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
  if(el.dataset.buy){applyPurchase(el.dataset.buy);return}
  if(el.dataset.player){if(state.progress&&PLAYERS.some(p=>p.id===el.dataset.player)){if(persist({...state.progress,playerId:el.dataset.player})){state.error='';state.modal=null;render()}}return}
- if(el.dataset.resize){chooseObject(el.dataset.resize,'resize');return}
+ if(el.dataset.resize){return}
  if(el.dataset.select){chooseObject(el.dataset.select,'move');return}
  if(el.dataset.boundary){notify('Click INSIDE the box, or click its corner handle to resize.',true);return}
 });
+
+ // Real-world Chromebook resize skill: hold and drag a handle, release to save.
+ let resizeDrag=null;
+ function resizeDelta(event,d){
+  return {dx:Math.round((event.clientX-d.x)/d.board.width*GRID.columns),
+          dy:Math.round((event.clientY-d.y)/d.board.height*GRID.rows)};
+ }
+ function previewResize(event){
+  const d=resizeDrag;if(!d||d.pointerId!==event.pointerId)return;
+  const {dx,dy}=resizeDelta(event,d);
+  if(dx===d.dx&&dy===d.dy)return;
+  d.dx=dx;d.dy=dy;
+  const result=resizeByHandle(state.mission,d.base,d.id,d.handle,dx,dy);
+  if(!result.ok){d.next=null;$('#live-status').textContent=result.reason;return}
+  d.next=result;
+  const p=result.state.pieces.find(p=>p.id===d.id),el=$('[data-boundary="'+d.id+'"]');
+  if(!p||!el)return;
+  el.style.left=(p.x/GRID.columns*100)+'%';el.style.top=(p.y/GRID.rows*100)+'%';
+  el.style.width=(p.w/GRID.columns*100)+'%';el.style.height=(p.h/GRID.rows*100)+'%';
+  $('#live-status').textContent='Keep holding and stretching. Release to save!';
+ }
+ root.addEventListener('pointerdown',event=>{
+  const handle=event.target.closest('[data-resize][data-handle]');
+  if(!handle||state.view!=='mission'||state.modal)return;
+  if(event.pointerType!=='mouse'||event.button!==0){notify('Use the trackpad to drag a resize handle.',true);return}
+  if(state.run.selected!==handle.dataset.resize){notify('Click INSIDE the object first, then grab a handle.',true);return}
+  const board=$('#space-board');if(!board)return;
+  event.preventDefault();event.stopPropagation();
+  resizeDrag={pointerId:event.pointerId,id:handle.dataset.resize,handle:handle.dataset.handle,
+   x:event.clientX,y:event.clientY,dx:0,dy:0,board:board.getBoundingClientRect(),base:clone(state.run),next:null};
+  handle.setPointerCapture(event.pointerId);
+  board.classList.add('resizing-with-trackpad');
+  $('#live-status').textContent='Hold and drag the handle, then let go.';
+ });
+ root.addEventListener('pointermove',event=>{
+  if(!resizeDrag||resizeDrag.pointerId!==event.pointerId)return;
+  event.preventDefault();previewResize(event);
+ });
+ root.addEventListener('pointerup',event=>{
+  if(!resizeDrag||resizeDrag.pointerId!==event.pointerId)return;
+  event.preventDefault();previewResize(event);
+  const d=resizeDrag;resizeDrag=null;
+  $('#space-board')?.classList.remove('resizing-with-trackpad');
+  if(d.next){saveMissionAction(d.next.state,d.next.reason);return}
+  state.message='Hold a square handle and drag at least one puzzle square.';render();
+ });
+ function cancelResize(event){
+  if(!resizeDrag||(event&&event.pointerId!==undefined&&resizeDrag.pointerId!==event.pointerId))return;
+  resizeDrag=null;if(state.view==='mission')render();
+ }
+ root.addEventListener('pointercancel',cancelResize);
+ window.addEventListener('blur',()=>cancelResize());
 root.addEventListener('dragstart',event=>event.preventDefault());
 window.addEventListener('keydown',event=>{
  if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)||state.view!=='mission'||state.modal)return;
