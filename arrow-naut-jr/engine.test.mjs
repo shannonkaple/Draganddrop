@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {touchGeneratedClick} from './input-policy.mjs';
 import assert from 'node:assert/strict';
 import {COLS,ROWS,WORLDS,CHARACTERS,ITEMS,createMission,createProgress,allMissions,worldUnlocked,levelUnlocked} from './curriculum.mjs';
 import {startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs';
@@ -160,4 +161,13 @@ test('shop spend and saved progress are separate',()=>{
  assert.deepEqual(readProgress(null),createProgress());
  assert.throws(()=>readProgress('{'));
  assert.throws(()=>readProgress(JSON.stringify({version:2,completed:[],purchases:[],rescued:[],stars:0})));
+});
+
+test('first-grade selection rejects touch and stylus clicks, including touch-generated mouse clicks',()=>{
+ assert.equal(touchGeneratedClick({pointerType:'touch'},'touch'),true);
+ assert.equal(touchGeneratedClick({pointerType:'pen'},'pen'),true);
+ assert.equal(touchGeneratedClick({pointerType:'mouse',sourceCapabilities:{firesTouchEvents:true}},'mouse'),true);
+ assert.equal(touchGeneratedClick({pointerType:'mouse'},'touch'),true);
+ assert.equal(touchGeneratedClick({pointerType:'mouse'},'mouse'),false);
+ assert.equal(touchGeneratedClick({pointerType:'mouse',sourceCapabilities:{firesTouchEvents:false}},'mouse'),false);
 });
