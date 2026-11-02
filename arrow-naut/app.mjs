@@ -1,5 +1,5 @@
 import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,planetUnlocked,stageUnlocked,SPACE_SHOP} from './curriculum.mjs?v=boss-route-firstplanet-fix';
-import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick} from './mechanics.mjs?v=boss-route-firstplanet-fix';
+import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=boss-route-firstplanet-fix';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs';
 import {ATLAS_URL,ATLAS_COLS,ATLAS_ROWS,ATLAS_POSITIONS} from './sprite-atlas.mjs';
@@ -80,10 +80,18 @@ function finalePage(){
  const creatures=run.maze.enemies.map((e,i)=>`<div class="finale-enemy" aria-label="Moving space bad guy ${i+1}" role="img" style="left:${e.x*z}%;top:${e.y*h}%;width:${z}%;height:${h}%">${art('./assets/sprites/'+['meteor-mite','zap-bot','crater-crab','violet-blob','shadow-ufo','asteroid-spike','glitch-rover','cosmic-cube'][(m.planetIndex*3+i)%8]+'.png','Bad guy '+(i+1),'finale-enemy-pic')}</div>`).join('');
  const player=`<div class="finale-player" aria-label="Your space explorer" style="left:${run.maze.x*z}%;top:${run.maze.y*h}%;width:${z}%;height:${h}%">${art(playerPortrait(state.progress.playerId),'Your character','finale-player-pic')}</div>`;
  const goal=`<div class="finale-goal" role="img" aria-label="Rescue finish" style="left:${m.mazeGoal.x*z}%;top:${m.mazeGoal.y*h}%;width:${z}%;height:${h}%"><span>EXIT</span></div>`;
- return `<main class="main playing final-maze-page"><div class="mission-head"><h1>${esc(m.planet.name)} · FINAL SPACE MAZE</h1><span class="mode-label">10 stars · 4 moving enemies · Hits: ${run.maze.hits}</span><button class="back" data-action="planet">Back to World Map</button></div>
- <section class="mission-frame"><div class="directions-bar"><p>Use keyboard arrows to escape! Dodge 4 moving bad guys and reach EXIT to unlock the next planet. Earn 10 stars on your first win!</p><button class="speak" data-action="listen" aria-label="Hear directions">Listen</button></div>
+ const shot=run.maze.shot;
+ const beam=shot?(()=>{
+  const a=shot.from,b=shot.to,horizontal=a.y===b.y;
+  const x=Math.min(a.x,b.x),y=Math.min(a.y,b.y);
+  const style=horizontal?`left:${(x+.5)*z}%;top:${(a.y+.5)*h}%;width:${Math.max(1,Math.abs(b.x-a.x)*z)}%;height:5px`:
+   `left:${(a.x+.5)*z}%;top:${(y+.5)*h}%;width:5px;height:${Math.max(1,Math.abs(b.y-a.y)*h)}%`;
+  return `<div class="finale-laser-beam" aria-hidden="true" style="${style}"></div>${shot.hit?`<div class="laser-hit-word" style="left:${(b.x+.5)*z}%;top:${(b.y+.5)*h}%">ZAP!</div>`:''}`;
+ })():'';
+ return `<main class="main playing final-maze-page"><div class="mission-head"><h1>${esc(m.planet.name)} · FINAL SPACE MAZE</h1><span class="mode-label">10 stars · Hits: ${run.maze.hits} · Zapped: ${run.maze.zapped||0}</span><button class="back" data-action="planet">Back to World Map</button></div>
+ <section class="mission-frame"><div class="directions-bar"><p>Move with arrow keys. Press SPACE or use FIRE LASER to zap bad guys. Gain 1 charge every 4 moves. Reach EXIT for 10 stars!</p><button class="speak" data-action="listen" aria-label="Hear directions">Listen</button><button type="button" class="laser-fire-button" data-action="laser" ${(run.maze.energy??3)<=0?"disabled":""}>FIRE LASER · SPACE (${run.maze.energy??3}/3)</button></div>
  <div class="board-frame"><div class="space-board finale-board" id="space-board" style="--world-hue:${m.planet.hue}" role="group" aria-label="Maze: arrow keys move the explorer; avoid four moving enemies; walls block movement.">
- <img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" draggable="false"><div class="grid-lines"></div>${walls}${goal}${creatures}${player}</div></div></section>
+ <img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" draggable="false"><div class="grid-lines"></div>${walls}${goal}${creatures}${player}${beam}</div></div></section>
  <div class="feedback${state.error?' error':''}" id="live-status" role="status">${esc(state.message||'Find your way to EXIT. Bad guys send you back to START, but your stars are safe.')}</div></main>`;
 }
 function missionPage(){
@@ -117,7 +125,7 @@ function help(){return `<main class="main"><section class="entry how-to"><h1>�
  <li><strong>Press keyboard arrows</strong> ↑ ↓ ← → to move the selected object one square at a time.</li>
  <li><strong>To resize:</strong> click INSIDE the object. Then CLICK AND HOLD a little square on its edge or corner. DRAG the handle using the trackpad, and release to save its new size.</li>
  <li><strong>Fit blocks carefully:</strong> move each object into its dotted outline. Avoid walls and other objects.</li>
- <li><strong>Earn stars:</strong> 1 on the first clear of a regular mission, and 10 for beating each final maze. Replays are practice only.</li>
+ <li><strong>Final maze:</strong> use arrow keys to move, SPACE to fire a laser, and recharge your laser by moving. You can clear bad guys, but you must reach EXIT to unlock the next world.\n <li><strong>Earn stars:</strong> 1 on the first clear of a regular mission, and 10 for beating each final maze. Replays are practice only.</li>
  </ol><p><strong>Drag only resize handles. Use keyboard arrows to move objects. No touch or cropping.</strong> Use the Chromebook trackpad and keyboard.</p><button data-action="home">Back to Planets</button></section></main>`}
 function modalHtml(){const modal=state.modal;if(!modal)return '';
  let content='';
@@ -139,29 +147,20 @@ function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=
 function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage))return;
  const m=createMission(state.planet,stage),old=state.progress.active;
  const resume=old?.id===m.id&&!old.complete;
- // Fix first-world boss runs saved before the safe-corridor patch.
- // Move any old on-route bad guys into the new side-branch patrols without losing stars.
- const unsafeFirstBoss=resume&&m.kind==='final-maze'&&m.planetIndex===0&&(
-  !old.maze||!Array.isArray(old.maze.enemies)||old.maze.enemies.length!==m.enemies.length||
-  old.maze.enemies.some((e,i)=>{
-   const patrol=m.enemies[i];
-   return !patrol||e.id!==patrol.id||(
-    !(e.x===patrol.a.x&&e.y===patrol.a.y)&&!(e.x===patrol.b.x&&e.y===patrol.b.y));
-  })
- );
- const run=resume&&!unsafeFirstBoss&&(m.kind!=='final-maze'||(old.maze&&Array.isArray(old.maze.enemies)))?clone(old):initialMission(m);
- if(unsafeFirstBoss){
+ // Migrate ALL old boss saves to safe-branch patrols without changing stars or level IDs.
+ const migrate=resume&&m.kind==='final-maze'&&(!old.maze||old.maze.version!==2||
+  !Array.isArray(old.maze.enemies));
+ const run=resume&&!migrate?clone(old):initialMission(m);
+ if(migrate){
   run.attempts=Number.isFinite(old.attempts)?old.attempts:0;
   run.maze.hits=Number.isFinite(old.maze?.hits)?old.maze.hits:0;
   const x=old.maze?.x,y=old.maze?.y;
   if(Number.isInteger(x)&&Number.isInteger(y)&&x>=0&&x<GRID.columns&&y>=0&&y<GRID.rows&&
-    !m.walls.some(([wx,wy])=>wx===x&&wy===y)){
+     !m.walls.some(([wx,wy])=>wx===x&&wy===y)){
    run.maze.x=x;run.maze.y=y;
   }
  }
- if(!resume||unsafeFirstBoss||(m.kind==='final-maze'&&!old.maze)){
-  const next={...state.progress,active:clone(run)};if(!persist(next))return;
- }
+ if(!resume||migrate){if(!persist({...state.progress,active:clone(run)}))return;}
  state.mission=m;state.run=run;state.view='mission';state.message=m.kind==='final-maze'?'Use arrow keys to dodge the moving bad guys and reach EXIT!':'Click INSIDE to select. Arrows MOVE; hold and DRAG a resize handle to STRETCH.';state.error='';render();}
 function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
  state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
@@ -171,6 +170,12 @@ function award(){const result=finishMission(state.progress,state.mission);if(!pe
 function chooseObject(id,mode){if(state.view!=='mission'||state.modal)return;
  const result=selectObject(state.mission,state.run,id,mode);if(!result.ok){notify(result.reason,true);return}
  saveMissionAction(result.state,result.reason);
+}
+function onLaser(){
+ if(state.view!=='mission'||state.mission?.kind!=='final-maze'||state.modal)return;
+ const outcome=fireLaser(state.mission,state.run);
+ if(!outcome.ok){notify(outcome.reason,true);return}
+ saveMissionAction(outcome.state,outcome.reason);
 }
 function onArrow(key){if(state.view!=='mission'||state.modal)return;const result=arrowAction(state.mission,state.run,key);
  if(!result.ok){notify(result.reason,true);return}
@@ -209,6 +214,7 @@ function onAction(action){
  case 'stuff':if(state.progress){state.view='stuff';state.modal=null;render()}break;
  case 'help':state.view='help';state.modal=null;render();break;
  case 'listen':if(state.mission)speak(state.mission.directions);break;
+  case 'laser':onLaser();break;
  case 'intro-ok':{const next={...state.progress,seenIntros:[...state.progress.seenIntros,PLANETS[state.modal.planet].id]};if(persist(next)){state.modal=null;state.error='';render()};break}
  case 'reward-ok':state.modal=null;showPlanet(state.planet);break;
  case 'reload-teachers':loadTeachers();break;
@@ -301,7 +307,11 @@ root.addEventListener('click',event=>{
  window.addEventListener('blur',()=>cancelResize());
 root.addEventListener('dragstart',event=>event.preventDefault());
 window.addEventListener('keydown',event=>{
- if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)||state.view!=='mission'||state.modal)return;
+ if((event.code==='Space'||event.key===' ')&&state.view==='mission'&&state.mission?.kind==='final-maze'&&!state.modal){
+  if(!event.target.closest('input,textarea,select,button')){event.preventDefault();onLaser()}
+  return;
+ }
+  if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)||state.view!=='mission'||state.modal)return;
  if(event.target.closest('input,select,textarea'))return;
  event.preventDefault();onArrow(event.key);
 });
