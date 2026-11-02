@@ -194,6 +194,7 @@ root.addEventListener('click',event=>{
  if(el.dataset.student){openStudent(Number(el.dataset.student));return}
  if(el.dataset.planet){showPlanet(Number(el.dataset.planet));return}
  if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
+ if(el.dataset.sceneWorld!==undefined){const i=Number(el.dataset.sceneWorld);if(Number.isInteger(i)&&i>=0&&i<PLANETS.length&&persist({...state.progress,scenePlanet:i})){state.error='';render()}return}
  if(el.dataset.buy){applyPurchase(el.dataset.buy);return}
  if(el.dataset.player){if(state.progress&&PLAYERS.some(p=>p.id===el.dataset.player)){if(persist({...state.progress,playerId:el.dataset.player})){state.error='';state.modal=null;render()}}return}
  if(el.dataset.resize){return}
