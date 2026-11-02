@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {PLANETS,createMission,createProgress,allMissions,planetUnlocked,stageUnlocked} from './curriculum.mjs';
-import {initialMission,selectObject,arrowAction,resizeByHandle,finishMission,occupiedCells,validPosition,purchase,validatedSave,goalMet,mazeEnemyTick} from './mechanics.mjs';
+import {initialMission,selectObject,arrowAction,resizeByHandle,finishMission,occupiedCells,validPosition,purchase,validatedSave,goalMet,mazeEnemyTick,fireLaser} from './mechanics.mjs';
 
 test('eight distinct planets each have eight no-crop missions',()=>{
  const missions=allMissions();assert.equal(PLANETS.length,8);assert.equal(missions.length,64);
@@ -57,7 +57,8 @@ test('puzzle difficulty grows across planets without changing IDs or starting sk
  assert.ok(first[7].pieces.length>first[0].pieces.length);
  assert.ok(createMission(7,1).obstacles.length>createMission(0,1).obstacles.length);
  assert.ok(createMission(7,3).pieces[0].goal.w>createMission(0,3).pieces[0].goal.w);
- assert.ok(createMission(7,7).pieces.length>createMission(0,7).pieces.length);
+ assert.equal(createMission(7,7).enemies.length,4);
+ assert.equal(createMission(0,7).kind,'final-maze');
  assert.equal(createMission(0,7).id,'launch-8');
  assert.equal(createMission(7,7).id,'core-8');
  for(let p=0;p<8;p++)for(let st=0;st<8;st++){
@@ -112,6 +113,46 @@ test('eight unique finale mazes have four active moving enemies and solvable rou
   const run=initialMission(m);assert.equal(run.maze.enemies.length,4);
   const tick=mazeEnemyTick(m,run);assert.equal(tick.ok,true);
   assert.ok(tick.state.maze.enemies.some((e,i)=>e.x!==run.maze.enemies[i].x||e.y!==run.maze.enemies[i].y));
+ }
+});
+test('laser uses Space/Fire action, removes one enemy, and safely recharges',()=>{
+ const m=createMission(2,7),s=initialMission(m);
+ assert.equal(s.maze.energy,3);
+ const target=m.enemies[0];
+ s.maze.x=target.b.x;s.maze.y=target.b.y;
+ s.maze.facing=target.a.x>target.b.x?'ArrowRight':target.a.x<target.b.x?'ArrowLeft':target.a.y>target.b.y?'ArrowDown':'ArrowUp';
+ const hit=fireLaser(m,s);
+ assert.equal(hit.ok,true);
+ assert.equal(hit.state.maze.zapped,1);
+ assert.equal(hit.state.maze.enemies.length,3);
+ assert.equal(hit.state.maze.energy,2);
+ assert.equal(s.maze.enemies.length,4);
+ let noCharge={...s,maze:{...s.maze,energy:0}};
+ assert.equal(fireLaser(m,noCharge).ok,false);
+});
+test('safe escape remains clear at different enemy timings for every planet',()=>{
+ for(let planet=0;planet<8;planet++){
+  const m=createMission(planet,7);
+  assert.equal(m.enemies.length,4);
+  const route=new Set(m.safeRoute);
+  assert.ok(route.has(m.mazeStart.x+','+m.mazeStart.y));
+  assert.ok(route.has(m.mazeGoal.x+','+m.mazeGoal.y));
+  assert.ok(m.enemies.every(e=>!route.has(e.a.x+','+e.a.y)&&!route.has(e.b.x+','+e.b.y)));
+  const path=[...m.safeRoute].reverse().map(cell=>cell.split(',').map(Number));
+  for(let phase=0;phase<8;phase++){
+   let run=initialMission(m);
+   for(let t=0;t<phase;t++)run=mazeEnemyTick(m,run).state;
+   for(let i=1;i<path.length;i++){
+    const [a,b]=path[i-1], [x,y]=path[i];
+    const key=x>a?'ArrowRight':x<a?'ArrowLeft':y>b?'ArrowDown':'ArrowUp';
+    const move=arrowAction(m,run,key);
+    assert.equal(move.ok,true,`planet ${planet}, step ${i}`);
+    run=move.state;
+    if(!run.complete)run=mazeEnemyTick(m,run).state;
+   }
+   assert.equal(run.complete,true,`planet ${planet}, enemy phase ${phase}`);
+   assert.equal(run.maze.hits,0,`planet ${planet}, enemy phase ${phase}`);
+  }
  }
 });
 test('other seven planets stay locked until eight stages finished',()=>{
