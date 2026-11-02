@@ -25,10 +25,8 @@ export const LEVEL_STOPS=[
  {x:16,y:32},{x:35,y:22},{x:57,y:26},{x:79,y:35},
  {x:84,y:65},{x:62,y:76},{x:40,y:73},{x:18,y:64}];
 export const CHARACTERS=[
- ['astro_ace','Astro Ace'],['beep_bop_robot','Beep-Bop'],['penny_penguin','Penny Penguin'],
- ['poppy_pup','Poppy Pup'],['sunny_kitten','Sunny Kitten'],['dizzy_dino','Dizzy Dino'],
- ['twinkle_fairy','Twinkle Fairy'],['rainbow_rocket_unicorn','Rainbow Rocket']
-].map(([id,name])=>({id,name,img:'../game-assets/characters/starter/png_512/'+id+'.png'}));
+ {id:'astro_ace',name:'Astro Ace',img:'../game-assets/characters/starter/png_512/astro_ace.png'}
+];
 export const ENEMIES=[
  '../game-assets/enemies/rock_golem_256.png',
  '../game-assets/enemies/purple_slime_256.png',
@@ -46,13 +44,15 @@ export const ITEMS=[
  {id:'star',name:'Golden Space Star',price:10,img:'../arrow-lab/assets/star-icon.png'}
 ];
 export const NAMES=['Space Star Search','Starlight Trail','Fuel Crystal Hunt','Cargo Scan & Deliver','Find the Secret Cargo','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
-const pc=(id,name,x,y,goal,img)=>({id,name,x,y,goal,img,w:1,h:1});
+const pc=(id,name,x,y,goal,img,w=1,h=1,shape=null)=>({id,name,x,y,goal,img,w,h,shape});
+const cargoL=puzzle('l_shaped_cargo'),cargoT=puzzle('t_shaped_cargo');
+
 const art=[puzzle('robot_probe'),puzzle('communications_satellite'),puzzle('moon_rover'),puzzle('rocket'),puzzle('cargo_crate'),puzzle('space_station_satellite'),puzzle('flying_saucer')];
 export function createMission(world,stage){
  if(!Number.isInteger(world)||world<0||world>=8||!Number.isInteger(stage)||stage<0||stage>7)
   throw Error('Unknown first-grade mission');
  const id=WORLDS[world].id+'-'+(stage+1),w=WORLDS[world];
- const base={id,world,stage,mechanicVersion:2,kind:'move',name:NAMES[stage],
+ const base={id,world,stage,mechanicVersion:3,kind:'move',name:NAMES[stage],
   pieces:[],rocks:[],pickups:[],target:null,worldData:w};
  const offset=world%3;
  const gold='../arrow-lab/assets/star-icon.png',gem='../arrow-lab/assets/gem-icon.png';
@@ -81,11 +81,11 @@ export function createMission(world,stage){
    beacon('fuel-b',8,1,'Fuel Crystal B',gem),
    ...(world>=4?[beacon('fuel-c',9,5,'Fuel Crystal C',gem)]:[])]};
  if(stage===3)return {...base,kind:'delivery',name:NAMES[3],
-  directions:'CARGO SCAN! CLICK each space tool. Move it to its glowing scan star FIRST, then take it to the matching green dock. Do BOTH!',
-  pieces:[pc('laptop','Rocket Ship',1,1,{x:9,y:1},art[3]),
-   pc('keyboard','Communications Satellite',1,5,{x:9,y:5},art[1])],
-  pickups:[beacon('scan-laptop',4+offset,1,'Rocket Scan',gold,'laptop'),
-   beacon('scan-keyboard',4+offset,5,'Satellite Scan',gold,'keyboard')]};
+  directions:'SHAPE-SHIFT CARGO! Click the L cargo and T cargo. Visit each scan star, then FIT each picture into its matching outline. Use arrows to turn!',
+  pieces:[pc('laptop','L-Shaped Cargo',1,0,{x:9,y:0},cargoL,2,2,'L'),
+   pc('keyboard','T-Shaped Cargo',1,4,{x:8,y:4},cargoT,3,2,'T')],
+  pickups:[beacon('scan-laptop',4+offset,2,'L Cargo Scan',gold,'laptop'),
+   beacon('scan-keyboard',4+offset,3,'T Cargo Scan',gold,'keyboard')]};
  if(stage===4)return {...base,kind:'precision',name:NAMES[4],target:'target',
   directions:'SECRET CARGO! Click the BLUE cargo crate, NOT the decoys. Move it to BOTH signal stars before docking!',
   pieces:[pc('target','Secret Cargo Crate',2,3,{x:9,y:3},art[4]),
@@ -103,10 +103,10 @@ export function createMission(world,stage){
   gate:{x:5,y:3,img:art[4]},
   pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',gem,'keyboard')]};
  if(stage===6)return {...base,kind:'relay',name:NAMES[6],
-  directions:'SPACE SIGNAL RELAY! Click the highlighted tool FIRST. Use arrows to dock it. Then click the NEXT highlighted tool. Connect all THREE!',
-  pieces:[pc('trackpad','Robot Probe',1,1,{x:9,y:1},art[0]),
-   pc('arrows','Space Station',1,3,{x:9,y:3},art[5]),
-   pc('laptop','Rocket Ship',1,5,{x:9,y:5},art[3])],
+  directions:'MATCH THE SPACE DOCKS! Click the glowing piece FIRST. Move it around obstacles and FIT it in the outline with the SAME PICTURE AND SIZE. Then choose the next!',
+  pieces:[pc('trackpad','Little Robot Probe',1,3,{x:9,y:2},art[0]),
+   pc('arrows','L-Shaped Cargo',1,0,{x:8,y:0},cargoL,2,2,'L'),
+   pc('laptop','T-Shaped Cargo',1,5,{x:7,y:4},cargoT,3,2,'T')],
   deliveryOrder:world%3===0?['trackpad','arrows','laptop']:world%3===1?['arrows','laptop','trackpad']:['laptop','trackpad','arrows'],
   rocks:[[5,0],[5,2],[5,4],[5,6],...(world>=4?[[7,2],[7,4]]:[])]};
  const maze=makeFinalMaze(world);
