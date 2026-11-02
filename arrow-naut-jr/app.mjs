@@ -50,15 +50,33 @@ function worldMap(){
 const stylePos=(x,y,w=1,h=1)=>'left:'+(x/COLS*100)+'%;top:'+(y/ROWS*100)+'%;width:'+(w/COLS*100)+'%;height:'+(h/ROWS*100)+'%';
 function piece(p){
  const selected=state.run.selected===p.id;
+ const isNext=state.mission.kind==='relay'&&state.mission.deliveryOrder[(state.run.delivered||[]).length]===p.id;
+ const delivered=state.mission.kind==='relay'&&(state.run.delivered||[]).includes(p.id);
  const graphic=p.id==='rover'?chosen().img:p.img;
  const pictureName=p.id==='rover'?chosen().name:p.name;
- return '<div class="piece'+(selected?' chosen':'')+'" style="'+stylePos(p.x,p.y)+'">'+
+ return '<div class="piece'+(selected?' chosen':'')+(isNext?' next-up':'')+(delivered?' docked':'')+'" style="'+stylePos(p.x,p.y)+'">'+
  '<button data-select="'+esc(p.id)+'" aria-label="Select '+esc(p.name)+'" title="Click inside '+esc(p.name)+' to select">'+
  fileImg(graphic,pictureName,'piece-picture')+'</button></div>';
 }
 function game(){
  const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
- const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal" style="'+stylePos(p.goal.x,p.goal.y)+'" title="Finish for '+esc(p.name)+'">GOAL</div>').join('');
+ const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock" style="'+stylePos(p.goal.x,p.goal.y)+'" title="Dock for '+esc(p.name)+'">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small>DOCK</small></div>').join('');
+ const pickups=(m.pickups||[]).filter(p=>!(run.collected||[]).includes(p.id)).map(p=>
+  '<div class="pickup" style="'+stylePos(p.x,p.y)+'" role="img" aria-label="'+esc(p.name)+'">'+
+   fileImg(p.img,p.name,'pickup-picture')+'<small>'+esc(p.name)+'</small></div>').join('');
+ const gate=m.gate&&!run.gateOpen?'<div class="force-gate" style="'+stylePos(m.gate.x,m.gate.y)+'">'+
+  fileImg(m.gate.img,'Locked force field','gate-picture')+'<small>LOCKED</small></div>':'';
+ let meter='';
+ if(m.kind==='relay'){
+  const n=(run.delivered||[]).length,active=m.pieces.find(p=>p.id===m.deliveryOrder[n]);
+  meter='SIGNALS: '+n+' / 3 · CLICK '+(active?.name||'NEXT')+' NEXT';
+ }else if((m.pickups||[]).length){
+  meter=(m.kind==='key-gate'?(run.gateOpen?'FIELD OPEN · ':'FIND THE KEY · '):
+    m.kind==='trail'?'STAR TRAIL · ':m.kind==='collect'?'CRYSTAL HUNT · ':'SIGNAL SCAN · ')+
+   (run.collected||[]).length+' / '+m.pickups.length+' COLLECTED';
+ }else if(m.kind==='maze')meter='RESCUE YOUR FRIEND · REACH EXIT';
+ else meter='CLICK THE GOLDEN STAR';
+ 
  const walls=m.rocks.map(([x,y])=>'<div class="rock" style="'+stylePos(x,y)+'">'+
  fileImg('../game-assets/enemies/rock_golem_256.png','Space rock','rock-picture')+'</div>').join('');
  let mazePieces='';
@@ -69,11 +87,11 @@ function game(){
    '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button></div>';
  }
  return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(m.name)+'</h1>'+
- '<button data-action="world">Back to World Map</button></div>'+
+ '<span class="game-mini-meter" aria-live="polite">'+esc(meter)+'</span><button data-action="world">Back to World Map</button></div>'+
  '<div class="directions"><strong>'+esc(m.directions)+'</strong><button class="listen" data-action="listen" aria-label="Read directions aloud">Listen</button></div>'+
  '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
  '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
- '<div class="grid"></div>'+targets+walls+(isMaze?mazePieces:run.pieces.map(piece).join(''))+
+ '<div class="grid"></div>'+targets+walls+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+
  '</div></div><p id="feedback" class="feedback'+(state.error?' error':'')+'" role="status">'+esc(state.notice||'Click a picture with your trackpad. Move with keyboard arrows.')+'</p></main>';
 }
 function shop(){
@@ -107,8 +125,9 @@ function help(){
  return '<main class="content-page"><h1>How to Play · First Grade</h1><div class="howto">'+
  '<p><strong>1. TRACKPAD:</strong> Move the pointer to the MIDDLE of a picture and CLICK once.</p>'+
  '<p><strong>2. KEYBOARD:</strong> Press the LEFT, RIGHT, UP, or DOWN arrow key to MOVE the selected picture.</p>'+
- '<p><strong>3. GREEN GOALS:</strong> Move pictures to their matching finish spaces.</p>'+
- '<p><strong>4. RESCUE MAZE:</strong> CLICK your explorer first, then use KEYBOARD ARROWS to reach EXIT. Bad guys move on side paths.</p>'+
+ '<p><strong>3. STARS AND CRYSTALS:</strong> Some missions ask you to TOUCH glowing pictures before docking. Watch the mission counter!</p>'+ 
+ '<p><strong>4. GREEN DOCKS:</strong> Move the matching picture to its goal. In some missions you must scan cargo or unlock a gate first.</p>'+
+ '<p><strong>5. RESCUE MAZE:</strong> CLICK your explorer first, then use KEYBOARD ARROWS to reach EXIT. Bad guys move on side paths.</p>'+
  '<p>Finish levels to earn stars. No dragging and no touchscreen play. Move just one square with each arrow press.</p></div>'+
  '<button data-action="home">Back to My Worlds</button></main>';
 }
@@ -150,8 +169,11 @@ function showWorld(i){
 function openLevel(stage){
  if(!levelUnlocked(state.progress,state.world,stage))return;
  const m=createMission(state.world,stage),old=state.progress.active;
- let resume=old&&old.id===m.id&&!old.complete&&Array.isArray(old.pieces);
+ let resume=old&&old.id===m.id&&!old.complete&&Array.isArray(old.pieces)&&
+  old.mechanicVersion===m.mechanicVersion;
  if(m.kind==='maze')resume=resume&&old.maze?.version===2&&Array.isArray(old.maze.enemies);
+ // Unfinished pre-update puzzles restart in the new layout; completed levels, stars,
+ // purchases and rescued friends remain exactly as previously saved.
  const run=resume?clone(old):startRun(m);
  if(!resume&&!persist({...state.progress,active:clone(run)}))return;
  state.mission=m;state.run=run;state.view='game';state.notice='Click inside a picture. Use keyboard arrows to move.';state.error='';render();
