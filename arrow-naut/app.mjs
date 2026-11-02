@@ -195,6 +195,17 @@ function onAction(action){
 function mouseEligible(event){return !event.pointerType||event.pointerType==='mouse'||event.detail===0}
 root.addEventListener('click',event=>{
  if(!mouseEligible(event)){notify('Use the trackpad and keyboard—not the touchscreen.',true);return}
+ const scene=event.target.closest('[data-scene-board]');
+ if(scene&&state.scenePending&&!event.target.closest('[data-put-away]')){
+  const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+  const rect=scene.getBoundingClientRect();
+  const x=Math.max(7,Math.min(93,Math.round(100*(event.clientX-rect.left)/rect.width)));
+  const y=Math.max(10,Math.min(90,Math.round(100*(event.clientY-rect.top)/rect.height)));
+  const previous=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
+  const next={...state.progress,worldScene:[...previous.filter(v=>!(v.id===state.scenePending&&v.planet===planet)),{id:state.scenePending,planet,x,y}]};
+  if(persist(next)){state.scenePending=null;state.error='';render()}
+  return;
+ }
  const el=event.target.closest('button,[data-boundary]');if(!el)return;
  if(el.dataset.action){onAction(el.dataset.action);return}
  if(el.dataset.teacher){state.teacher=el.dataset.teacher;state.view='students';state.error='';render();return}
@@ -202,6 +213,12 @@ root.addEventListener('click',event=>{
  if(el.dataset.planet){showPlanet(Number(el.dataset.planet));return}
  if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
  if(el.dataset.sceneWorld!==undefined){const i=Number(el.dataset.sceneWorld);if(Number.isInteger(i)&&i>=0&&i<PLANETS.length&&persist({...state.progress,scenePlanet:i})){state.error='';render()}return}
+ if(el.dataset.placeItem){state.scenePending=el.dataset.placeItem;state.error='';render();return}
+ if(el.dataset.putAway){
+  const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+  const current=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
+  if(persist({...state.progress,worldScene:current.filter(x=>!(x.id===el.dataset.putAway&&x.planet===planet))})){state.error='';render()}return;
+ }
  if(el.dataset.buy){applyPurchase(el.dataset.buy);return}
  if(el.dataset.player){if(state.progress&&PLAYERS.some(p=>p.id===el.dataset.player)){if(persist({...state.progress,playerId:el.dataset.player})){state.error='';state.modal=null;render()}}return}
  if(el.dataset.resize){return}
