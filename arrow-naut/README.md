@@ -31,3 +31,11 @@ New **isolated** localStorage namespace: `mskaple-arrownaut-v1:<class-id>:<stude
 The illustrated 1672×941 JPEG map and eight original planet backgrounds live under `arrow-naut/assets/` and are used in the full-size home map, per-planet eight-level map, and actual arrow-key puzzle backgrounds. Browser renders them exactly once with `object-fit:contain` (no crop, no stretching). The map pads and level numbers are interactive DOM elements layered on top, not baked into the JPEG.
 
 The **legacy planet IDs and student-save namespace are unchanged**: newly titled worlds keep their original `id` identifiers to protect previously completed missions and stars. Only visible names, icon labels, and imagery are updated. All other games in this repository are unchanged.
+
+## 2026-11-02 usable sprite kit
+
+The game now uses an original illustrated **63-sprite space-game atlas** for a saved 9-character chooser, eight illustrated rescued friends, eight space obstacles, 13 star-shop items, earned trophies, and selection/movement/resize objects. The independent PNG images and source-art previews are included in the companion asset ZIP; atlas manifest and sprite UI wiring live in `/arrow-naut/sprite-atlas.mjs`, `/arrow-naut/sprite-assets.mjs`, `/arrow-naut/sprite-art.css`.
+
+No cropping lesson/tool, no gameplay dragging, and no touchscreen completion. New optional `playerId` on the v1 student record is backwards-compatible; finished mission IDs, stars, purchases, and rescue flags remain unchanged.
+
+**Art quality:** Portraits are compact, transparent-corner picture badges extracted from original generated artwork for *prototype game use*. They are not approved individually generated transparent full-body assets; the 24 remaining enemy designs, full art production, real Pages/Chromebook QA, and final character approval remain open.

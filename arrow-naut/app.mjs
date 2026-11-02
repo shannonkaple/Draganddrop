@@ -1,6 +1,8 @@
 import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,planetUnlocked,stageUnlocked,SPACE_SHOP} from './curriculum.mjs';
 import {clone,initialMission,selectObject,arrowAction,finishMission,purchase,validatedSave,occupiedCells} from './mechanics.mjs';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
+import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs';
+import {ATLAS_URL,ATLAS_COLS,ATLAS_ROWS,ATLAS_POSITIONS} from './sprite-atlas.mjs';
 const root=document.getElementById('app');
 const $=selector=>root.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -20,12 +22,19 @@ function persist(next){
  }catch(error){notify('NOT SAVED. Your previous work is safe. Tell your teacher and try again.',true);return false}
 }
 const progressText=()=>state.progress?`${state.progress.stars} ⭐`:'0 ⭐';
+const art=(src,alt,cls='asset-image')=>{
+ const id=String(src||'').split('/').pop().replace(/\.png$/,'');
+ const at=ATLAS_POSITIONS[id];
+ if(!at)return `<span class="asset-missing" role="img" aria-label="${esc(alt)}">${esc(alt)}</span>`;
+ return `<span class="art-sprite ${cls}" role="img" aria-label="${esc(alt)}" style="--art-x:${at.x/(ATLAS_COLS-1)*100}%;--art-y:${at.y/(ATLAS_ROWS-1)*100}%"></span>`;
+};
+const playerImg=()=>art(playerPortrait(state.progress?.playerId),'Your chosen Arrow-Naut','header-player-img');
 function header(){
  const hasStudent=!!state.progress;
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
  return `<header class="topbar" id="main-header"><div class="brand"><strong>🚀 Ms. Kaple's ARROW-NAUT Space Adventure</strong><small>${hasStudent?esc(studentText):'SECOND GRADE · CLICK · MOVE · RESIZE · FIT'}</small></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
-  `<button data-action="home">🏠 Home</button><button data-action="shop">⭐ Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button>`:''}</nav>
+  `<button data-action="home">🏠 Home</button><button data-action="shop">⭐ Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button data-action="help">🔊 How to Play</button>${hasStudent?'<button data-action="logout">👤 Change Student</button>':''}</nav></header>`;
 }
 function entry(){
@@ -60,21 +69,26 @@ function goalShape(piece){const g=piece.goal;if(!g)return '';
 function pieceHtml(piece){
  const selected=state.run.selected===piece.id,cls=`piece ${piece.cells?'poly-piece ':''}${piece.color||'blue'}${selected?' selected':''}${selected&&state.run.mode==='resize'?' resize-selected':''}`;
  let inner='';
- if(piece.cells)inner=piece.cells.map(([x,y],i)=>`<button type="button" class="piece-cell" data-select="${esc(piece.id)}" aria-label="Select ${esc(piece.name)}" style="left:${x/piece.w*100}%;top:${y/piece.h*100}%;width:${100/piece.w}%;height:${100/piece.h}%">${i===0?'✦':''}</button>`).join('');
- else inner=`<button class="piece-interior" type="button" data-select="${esc(piece.id)}" aria-label="Click inside ${esc(piece.name)} to select and move">${esc(piece.name)}</button>`;
+ if(piece.cells)inner=piece.cells.map(([x,y],i)=>`<button type="button" class="piece-cell" data-select="${esc(piece.id)}" aria-label="Select ${esc(piece.name)}" style="left:${x/piece.w*100}%;top:${y/piece.h*100}%;width:${100/piece.w}%;height:${100/piece.h}%">${i===0?art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['cargo-l'],piece.name,'piece-block-icon'):''}</button>`).join('');
+ else inner=`<button class="piece-interior" type="button" data-select="${esc(piece.id)}" aria-label="Click inside ${esc(piece.name)} to select and move">${art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['blue-window'],piece.name,'piece-illustration')}<span class="piece-name">${esc(piece.name)}</span></button>`;
  return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize?`<button type="button" class="resize-handle" data-resize="${esc(piece.id)}" title="Select resize handle" aria-label="Resize ${esc(piece.name)} using arrow keys">↘</button>`:''}</div>`;
 }
 function missionPage(){
  const m=state.mission,run=state.run;
  const boardTargets=m.pieces.filter(p=>p.goal).map(p=>goalShape(p)).join('');
- const obstacles=(m.obstacles||[]).map(([x,y])=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%"></div>`).join('');
+ const obstacles=(m.obstacles||[]).map(([x,y],i)=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%">${i%2===0?art(enemyPortrait(m.planetIndex),'','obstacle-enemy'):art('./assets/sprites/supply-crate.png','','obstacle-enemy')}</div>`).join('');
  return `<main class="main playing"><div class="mission-head"><h1>${m.planet.symbol} ${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${run.selected?`${run.mode==='resize'?'↘ Resizing':'↔ Moving'}: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'👆 Click INSIDE to select'}</span><button class="back" data-action="planet">↩️ Back to ${m.planet.symbol} ${esc(m.planet.name)} Map</button></div>
  <section class="mission-frame" aria-label="Arrow-key computer skills game"><div class="directions-bar"><p>${esc(m.directions)}</p><button class="speak" data-action="listen" aria-label="Read directions aloud" title="Read directions aloud">🔊</button></div>
  <div class="board-frame"><div class="space-board" id="space-board" style="--world-hue:${m.planet.hue}" tabindex="0" role="group" aria-label="Space puzzle. Click inside a box to select, then use arrow keys."><img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" aria-hidden="true" draggable="false"><div class="grid-lines"></div>${boardTargets}${obstacles}${run.pieces.map(pieceHtml).join('')}</div></div></section>
  <div class="feedback${state.error?' error':''}" role="status" id="live-status">${esc(state.message||'Click an object inside its border, then use your arrow keys.')}</div></main>`;
 }
-function shop(){return `<main class="main"><div class="page-head"><div><h1>⭐ Space Star Shop</h1><p>Stars: ${progressText()} · Earn 3 every time you complete a mission—even a replay!</p></div><button data-action="home">🏠 Home</button></div><div class="shop-grid">${SPACE_SHOP.map(item=>{const bought=state.progress.purchases.includes(item.id);return `<div class="shop-item card"><span class="symbol">${item.symbol}</span><strong>${esc(item.name)}</strong><p>Decorate your own space station.</p><button data-buy="${esc(item.id)}" ${bought||state.progress.stars<item.price?'disabled':''}>${bought?'✓ Owned':`⭐ Buy for ${item.price}`}</button></div>`}).join('')}</div></main>`}
-function stuff(){return `<main class="main"><div class="page-head"><div><h1>🎒 My Space Station</h1><p>Your rescued friends and the things you've bought are saved here.</p></div><button data-action="shop">⭐ Store</button></div><section class="scene space-scene"><img class="stuff-scene-background" src="${planetImage(4)}" alt="" aria-hidden="true"><h2>My Space World</h2><div class="scene-objects">${state.progress.purchases.map(id=>{let item=SPACE_SHOP.find(x=>x.id===id);return item?`<div class="scene-object">${item.symbol}<small>${esc(item.name)}</small></div>`:''}).join('')}${state.progress.rescued.map(id=>{let p=PLANETS.find(x=>x.id===id);return p?`<div class="scene-object">🧑‍🚀<small>${esc(p.friend)}</small></div>`:''}).join('')||'<p>Finish missions to rescue friends and earn stars to decorate here.</p>'}</div></section></main>`}
+function shop(){return `<main class="main"><div class="page-head"><div><h1>⭐ Space Star Shop</h1><p>Stars: ${progressText()} · Earn 3 every time you complete a mission—even a replay!</p></div><button data-action="home">🏠 Home</button></div><div class="shop-grid">${SPACE_SHOP.map(item=>{const bought=state.progress.purchases.includes(item.id);return `<div class="shop-item card">${art(SHOP_SPRITES[item.id]||'./assets/sprites/comet-star.png',item.name,'shop-art')}<strong>${esc(item.name)}</strong><p>Decorate your own space station.</p><button data-buy="${esc(item.id)}" ${bought||state.progress.stars<item.price?'disabled':''}>${bought?'✓ Owned':`⭐ Buy for ${item.price}`}</button></div>`}).join('')}</div></main>`}
+function stuff(){
+ const collected=earnedItems(state.progress);
+ const owned=state.progress.purchases.map(id=>SPACE_SHOP.find(x=>x.id===id)).filter(Boolean);
+ const rescued=state.progress.rescued.map(id=>PLANETS.findIndex(p=>p.id===id)).filter(i=>i>=0);
+ return `<main class="main"><div class="page-head"><div><h1>🎒 My Space Station</h1><p>Everything you earned, rescued, or bought is here. Your stars and progress are safe.</p></div><button data-action="shop">⭐ Store</button></div><section class="scene space-scene"><img class="stuff-scene-background" src="${planetImage(4)}" alt="" aria-hidden="true"><h2>My Space World</h2><div class="scene-objects">${owned.map(item=>`<div class="scene-object">${art(SHOP_SPRITES[item.id],item.name,'scene-object-image')}<small>${esc(item.name)}</small></div>`).join('')}${rescued.map(i=>`<div class="scene-object rescued-friend">${art(friendPortrait(i),PLANETS[i].friend,'scene-object-image')}<small>${esc(PLANETS[i].friend)}</small></div>`).join('')}${collected.map(item=>`<div class="scene-object collected-object">${art(item.image,item.name,'scene-object-image')}<small>${esc(item.name)}</small></div>`).join('')||'<p>Complete missions to rescue friends, collect treasures, and shop for decorations.</p>'}</div></section></main>`
+}
 function errorPage(){return `<main class="main"><section class="entry" role="alert"><h1>Saved student record needs help</h1><p>${esc(state.dataError)}</p><p>This record has NOT been overwritten. Ask your teacher before trying again.</p><button data-action="students">↩️ Choose Another Number</button></section></main>`}
 function help(){return `<main class="main"><section class="entry how-to"><h1>🚀 How to Control Your Arrow-Naut</h1><ol>
  <li><strong>Click INSIDE</strong> a space object. Clicking its border is not the same as clicking inside.</li>
@@ -84,9 +98,17 @@ function help(){return `<main class="main"><section class="entry how-to"><h1>�
  <li><strong>Earn 3 stars</strong> every time you finish any mission, including replays.</li>
  </ol><p><strong>No dragging, no touchscreen shortcuts, and no cropping.</strong> Use the Chromebook trackpad and keyboard arrows.</p><button data-action="home">🏠 Back to Planets</button></section></main>`}
 function modalHtml(){const modal=state.modal;if(!modal)return '';
- let content='';if(modal.kind==='intro'){const p=PLANETS[modal.planet];content=`<h2>Meet ${esc(p.friend)}!</h2><div class="friend-symbol">${p.symbol}</div><p>Complete eight ${esc(p.name)} missions to rescue your new space friend.</p><button data-action="intro-ok">OK</button>`}
- else if(modal.kind==='reward'){content=`<h2>${modal.friend?'YOU DID IT!':'Mission Complete!'}</h2>${modal.friend?`<div class="friend-symbol">🧑‍🚀</div><p>You've rescued <strong>${esc(modal.friend)}</strong>!</p>`:''}<div class="big-reward">+3 ⭐</div><button data-action="reward-ok">OK</button>`}
- return `<div class="dialog-scrim"><section class="dialog-panel" role="dialog" aria-modal="true" aria-label="${modal.kind==='intro'?'Meet your rescue friend':'Mission complete'}">${content}${state.error?`<p class="error-banner" role="alert">${esc(state.error)}</p>`:''}</section></div>`;
+ let content='';
+ if(modal.kind==='intro'){
+  const p=PLANETS[modal.planet];
+  content=`<h2>Meet ${esc(p.friend)}!</h2>${art(friendPortrait(modal.planet),p.friend,'friend-portrait')}<p>Complete eight ${esc(p.name)} missions to rescue your new space friend.</p><button data-action="intro-ok">OK</button>`;
+ }else if(modal.kind==='reward'){
+  const planetIndex=PLANETS.findIndex(p=>p.friend===modal.friend);
+  content=`<h2>${modal.friend?'YOU DID IT!':'Mission Complete!'}</h2>${modal.friend?`${art(friendPortrait(planetIndex),modal.friend,'friend-portrait')}<p>You've rescued <strong>${esc(modal.friend)}</strong>!</p>`:''}<div class="big-reward">+3 ⭐</div><button data-action="reward-ok">OK</button>`;
+ }else if(modal.kind==='player'){
+  content=`<h2>Choose Your Arrow-Naut</h2><p>Click your space explorer!</p><div class="player-pick-grid">${PLAYERS.map(player=>`<button type="button" data-player="${esc(player.id)}" ${state.progress?.playerId===player.id?'aria-pressed="true"':''}>${art(player.image,player.name,'player-choice-art')}<strong>${esc(player.name)}</strong></button>`).join('')}</div><button data-action="player-close">OK</button>`;
+ }
+ return `<div class="dialog-scrim"><section class="dialog-panel ${modal.kind==='player'?'player-selection-dialog':''}" role="dialog" aria-modal="true" aria-label="${modal.kind==='intro'?'Meet your rescue friend':modal.kind==='player'?'Choose your Arrow-Naut':'Mission complete'}">${content}${state.error?`<p class="error-banner" role="alert">${esc(state.error)}</p>`:''}</section></div>`;
 }
 function render(){root.innerHTML=header()+(state.view==='teachers'||state.view==='students'?entry():state.view==='home'?home():state.view==='planet'?planetMap():state.view==='mission'?missionPage():state.view==='shop'?shop():state.view==='stuff'?stuff():state.view==='error'?errorPage():help())+modalHtml();scheduleFit()}
 function scheduleFit(){requestAnimationFrame(()=>{const header=$('#main-header');const board=$('#space-board');if(!header)return;const height=Math.round(header.getBoundingClientRect().height);root.style.setProperty('--bar-height',height+'px');if(!board)return;const frame=$('.board-frame');if(!frame)return;const rect=frame.getBoundingClientRect();const w=Math.max(100,Math.min(rect.width-6,(rect.height-6)*1672/941));root.style.setProperty('--board-width',Math.floor(w)+'px')})}
@@ -122,6 +144,8 @@ function onAction(action){
  case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
  case 'planet':showPlanet(state.planet);break;
  case 'shop':if(state.progress){state.view='shop';state.modal=null;render()}break;
+ case 'player':if(state.progress){state.modal={kind:'player'};render()}break;
+ case 'player-close':state.modal=null;render();break;
  case 'stuff':if(state.progress){state.view='stuff';state.modal=null;render()}break;
  case 'help':state.view='help';state.modal=null;render();break;
  case 'listen':if(state.mission)speak(state.mission.directions);break;
@@ -140,6 +164,7 @@ root.addEventListener('click',event=>{
  if(el.dataset.planet){showPlanet(Number(el.dataset.planet));return}
  if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
  if(el.dataset.buy){applyPurchase(el.dataset.buy);return}
+ if(el.dataset.player){if(state.progress&&PLAYERS.some(p=>p.id===el.dataset.player)){if(persist({...state.progress,playerId:el.dataset.player})){state.error='';state.modal=null;render()}}return}
  if(el.dataset.resize){chooseObject(el.dataset.resize,'resize');return}
  if(el.dataset.select){chooseObject(el.dataset.select,'move');return}
  if(el.dataset.boundary){notify('Click INSIDE the box, or click its corner handle to resize.',true);return}

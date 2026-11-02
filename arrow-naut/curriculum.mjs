@@ -64,7 +64,7 @@ export function createMission(planetIndex,stage){
  ]};
 }
 export function allMissions(){return PLANETS.flatMap((_,pi)=>MISSION_NAMES.map((_,stage)=>createMission(pi,stage)))}
-export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null}}
+export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
 export function completedCount(progress,planetIndex){const prefix=PLANETS[planetIndex].id+'-';return (progress.completed||[]).filter(id=>id.startsWith(prefix)).length}
 export function planetUnlocked(progress,index){return index===0||PLANETS.slice(0,index).every((_,i)=>completedCount(progress,i)===8)}
 export function stageUnlocked(progress,pi,stage){return planetUnlocked(progress,pi)&&(stage===0||((progress.completed||[]).includes(`${PLANETS[pi].id}-${stage}`)))}
@@ -75,4 +75,11 @@ export const SPACE_SHOP=[
  {id:'crystals',name:'Crystal Garden',price:15,symbol:'💎'},
  {id:'rocket-lamp',name:'Rocket Lamp',price:18,symbol:'🚀'},
  {id:'alien-plant',name:'Alien Plant',price:21,symbol:'🌱'},
+ {id:'space-helmet',name:'Astronaut Helmet',price:9,symbol:'🪐'},
+ {id:'rocket-boots',name:'Rocket Boots',price:12,symbol:'🚀'},
+ {id:'star-cape',name:'Starlight Cape',price:15,symbol:'⭐'},
+ {id:'astro-goggles',name:'Astro Goggles',price:12,symbol:'✨'},
+ {id:'mini-ufo',name:'Mini UFO',price:18,symbol:'🛸'},
+ {id:'solar-satellite',name:'Solar Satellite',price:18,symbol:'🛰️'},
+ {id:'cosmic-snowglobe',name:'Space Snow Globe',price:21,symbol:'🌌'},
 ];
