@@ -1,4 +1,4 @@
-import {mazeInitial,mazeMove,mazeEnemyTick} from './finale-maze.mjs?v=boss-route-fix-20261102';
+import {mazeInitial,mazeMove,mazeEnemyTick,fireLaser} from './finale-maze.mjs?v=boss-route-fix-20261102';
 import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=space-difficulty-20261102';
 export const DIRECTIONS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
 export const clone=value=>JSON.parse(JSON.stringify(value));
@@ -79,7 +79,7 @@ export function finishMission(progress,mission){
  if(firstRescue)next.rescued.push(mission.planet.id);
  return {progress:next,stars:earned,friend:firstRescue?PLANETS[mission.planetIndex].friend:null};
 }
-export {mazeEnemyTick};
+export {mazeEnemyTick,fireLaser};
 export function purchase(progress,item){
  if(progress.purchases.includes(item.id))return {ok:false,reason:'Already owned!',progress};
  if(progress.stars<item.price)return {ok:false,reason:'Earn more stars first!',progress};
