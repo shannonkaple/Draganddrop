@@ -191,7 +191,7 @@ function clockSync(){
 }
 function nav(action){
  switch(action){
-  case 'home':if(state.progress){state.view='home';state.modal=null;state.run=null;state.mission=null;render()}break;
+  case 'home':state.view=state.progress?'home':'teachers';state.modal=null;state.run=null;state.mission=null;render();break;
   case 'teachers':state.view='teachers';state.error='';render();break;
   case 'world':showWorld(state.world);break;
   case 'shop':state.view='shop';state.modal=null;render();break;
