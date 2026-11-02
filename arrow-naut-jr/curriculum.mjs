@@ -96,12 +96,12 @@ export function createMission(world,stage){
   pickups:[beacon('signal-a',4,world%2?2:4,'Signal 1',gold,'target'),
    beacon('signal-b',7,world%2?4:2,'Signal 2',gold,'target')]};
  if(stage===5)return {...base,kind:'key-gate',name:NAMES[5],
-  directions:'FORCE FIELD! Click the SATELLITE and collect the magic key. The gate opens! Then deliver BOTH tools to their green docks.',
+  directions:'FORCE FIELD! Click the SATELLITE and collect the key to open the gate. Then guide the rover through its scan star before docking BOTH pictures.',
   pieces:[pc('keyboard','Communications Satellite',1,1,{x:9,y:1},art[1]),
    pc('mouse','Moon Rover',1,5,{x:9,y:5},art[2])],
   rocks:Array.from({length:7},(_,y)=>[5,y]).filter(v=>v[1]!==3),
   gate:{x:5,y:3,img:art[4]},
-  pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',gem,'keyboard')]};
+  pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',gem,'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
  if(stage===6)return {...base,kind:'relay',name:NAMES[6],
   directions:'MATCH THE SPACE DOCKS! Click the glowing piece FIRST. Move it around obstacles and FIT it in the outline with the SAME PICTURE AND SIZE. Then choose the next!',
   pieces:[pc('trackpad','Little Robot Probe',1,3,{x:9,y:2},art[0]),
