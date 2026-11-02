@@ -33,7 +33,7 @@ test('arrows cannot move objects through rocks, other objects, or outside board'
  assert.equal(move(mission,unsafe,'ArrowRight').ok,false);
  const border={...selected,pieces:selected.pieces.map(p=>({...p,x:0,y:0}))};
  assert.equal(move(mission,border,'ArrowLeft').ok,false);
- const pairs=createMission(0,3),p=startRun(pairs);p.selected='laptop';p.pieces[0].x=1;p.pieces[0].y=4;
+ const pairs=createMission(0,3),p=startRun(pairs);p.selected='laptop';p.pieces[0].x=1;p.pieces[0].y=2;
  assert.equal(move(pairs,p,'ArrowDown').ok,false);
 });
 test('all boss mazes require selecting the explorer and have safe routes at multiple enemy timings',()=>{
