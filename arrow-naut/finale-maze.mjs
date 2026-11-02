@@ -129,8 +129,37 @@ function boardOpenFromWalls(walls){
  return cells;
 }
 export function mazeInitial(mission){
- return {x:mission.mazeStart.x,y:mission.mazeStart.y,hits:0,
+ return {version:2,x:mission.mazeStart.x,y:mission.mazeStart.y,hits:0,
+  facing:'ArrowRight',energy:3,stepsSinceCharge:0,zapped:0,shot:null,
   enemies:mission.enemies.map(e=>({id:e.id,x:e.a.x,y:e.a.y,phase:0}))};
+}
+function guaranteedRoute(mission){
+ return new Set(mission.safeRoute||firstWorldSafeRoute(boardOpenFromWalls(mission.walls)));
+}
+/** Optional friendly arcade laser: 3 charges, +1 every 4 successful moves.
+ * A shot travels down a straight row/column and stops at walls or the first enemy.
+ * Zapped enemies stay out of THIS attempt, and student stars are unchanged.
+ */
+export function fireLaser(mission,state){
+ if(mission.kind!=='final-maze'||state.complete)return {ok:false,state,reason:'Lasers are for active boss mazes.'};
+ const energy=Number.isInteger(state.maze.energy)?state.maze.energy:3;
+ if(energy<=0)return {ok:false,state,reason:'Laser needs power! Move four steps to recharge one shot.'};
+ const aim=state.maze.facing||'ArrowRight';
+ const delta={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[aim];
+ const next=JSON.parse(JSON.stringify(state));
+ next.maze.energy=energy-1;next.maze.shot=null;
+ const walls=new Set(mission.walls.map(([x,y])=>key(x,y)));
+ let {x,y}=next.maze,last={x,y},hit=null;
+ for(;;){
+  x+=delta[0];y+=delta[1];
+  if(x<0||x>=MAZE_WIDTH||y<0||y>=MAZE_HEIGHT||walls.has(key(x,y)))break;
+  last={x,y};
+  const enemy=next.maze.enemies.find(e=>e.x===x&&e.y===y);
+  if(enemy){hit=enemy;next.maze.enemies=next.maze.enemies.filter(e=>e.id!==enemy.id);break}
+ }
+ next.maze.shot={from:{x:next.maze.x,y:next.maze.y},to:last,aim,hit:!!hit};
+ if(hit)next.maze.zapped=(next.maze.zapped||0)+1;
+ return {ok:true,state:next,reason:hit?'Laser zap! A space bad guy is gone from this maze!':'Laser fired! Aim toward a bad guy and try again.'};
 }
 export function mazeMove(mission,state,direction){
  if(mission.kind!=='final-maze')throw Error('Not a final maze');
@@ -141,7 +170,13 @@ export function mazeMove(mission,state,direction){
     mission.walls.some(w=>w[0]===x&&w[1]===y))
   return {ok:false,state,reason:'A space-rock wall is blocking you. Try another direction.'};
  const next=JSON.parse(JSON.stringify(state));next.maze.x=x;next.maze.y=y;next.attempts++;
- if(next.maze.enemies.some(e=>e.x===x&&e.y===y)&&!(mission.planetIndex===0&&firstWorldSafeRoute(boardOpenFromWalls(mission.walls)).has(key(x,y)))){
+ next.maze.facing=direction;next.maze.shot=null;
+ next.maze.stepsSinceCharge=(next.maze.stepsSinceCharge||0)+1;
+ if(next.maze.stepsSinceCharge>=4){
+  next.maze.stepsSinceCharge=0;
+  next.maze.energy=Math.min(3,(Number.isInteger(next.maze.energy)?next.maze.energy:3)+1);
+ }
+ if(next.maze.enemies.some(e=>e.x===x&&e.y===y)&&!guaranteedRoute(mission).has(key(x,y))){
   next.maze.x=mission.mazeStart.x;next.maze.y=mission.mazeStart.y;
   next.maze.hits++;return {ok:true,state:next,reason:'A bad guy caught you! Back to the start. Try again.'};
  }
@@ -151,13 +186,14 @@ export function mazeMove(mission,state,direction){
 export function mazeEnemyTick(mission,state){
  if(mission.kind!=='final-maze'||state.complete)return {ok:false,state};
  const next=JSON.parse(JSON.stringify(state));
+ next.maze.shot=null;
  next.maze.enemies.forEach(enemy=>{
   const def=mission.enemies.find(e=>e.id===enemy.id);
   enemy.phase=enemy.phase===0?1:0;
   const target=enemy.phase?def.b:def.a;
   enemy.x=target.x;enemy.y=target.y;
  });
- const caught=next.maze.enemies.some(e=>e.x===next.maze.x&&e.y===next.maze.y)&&!(mission.planetIndex===0&&firstWorldSafeRoute(boardOpenFromWalls(mission.walls)).has(key(next.maze.x,next.maze.y)));
+ const caught=next.maze.enemies.some(e=>e.x===next.maze.x&&e.y===next.maze.y)&&!guaranteedRoute(mission).has(key(next.maze.x,next.maze.y));
  if(caught){next.maze.x=mission.mazeStart.x;next.maze.y=mission.mazeStart.y;next.maze.hits++}
  return {ok:true,state:next,reason:caught?'A moving bad guy caught you! Back to the start.':'Watch the moving bad guys!'};
 }
