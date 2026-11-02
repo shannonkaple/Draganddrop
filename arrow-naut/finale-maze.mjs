@@ -6,6 +6,26 @@ export const MAZE_WIDTH=12,MAZE_HEIGHT=7;
 const key=(x,y)=>x+','+y;
 const directions=[[1,0],[-1,0],[0,1],[0,-1]];
 const randomFor=seed=>{let v=(seed+1)>>>0;return ()=>{v=(Math.imul(v,1664525)+1013904223)>>>0;return v/4294967296}};
+/** Guaranteed safe solution corridor for the first world.
+ * Enemy paths are off this corridor, including collisions from older saved runs.
+ */
+export function firstWorldSafeRoute(openCells){
+ const open=new Set(openCells);
+ const previous=new Map([[key(1,1),null]]),queue=[[1,1]];
+ for(let i=0;i<queue.length;i++){
+  const [x,y]=queue[i];
+  if(x===10&&y===5)break;
+  for(const [dx,dy] of directions){
+   const nx=x+dx,ny=y+dy,k=key(nx,ny);
+   if(!open.has(k)||previous.has(k))continue;
+   previous.set(k,key(x,y));queue.push([nx,ny]);
+  }
+ }
+ const route=new Set();let current=key(10,5);
+ if(!previous.has(current))throw Error('First-world rescue route missing');
+ while(current){route.add(current);current=previous.get(current)}
+ return route;
+}
 export function makeFinalMaze(planetIndex){
  if(!Number.isInteger(planetIndex)||planetIndex<0||planetIndex>7)throw Error('Unknown finale planet');
  const random=randomFor(20261102+planetIndex*173);
@@ -25,6 +45,36 @@ export function makeFinalMaze(planetIndex){
  const distance=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
  const cells=[...open].map(v=>{const [x,y]=v.split(',').map(Number);return {x,y}})
   .filter(v=>distance(v,start)>3&&distance(v,goal)>2);
+ // First planet: all four enemies patrol side corridors, NEVER the guaranteed rescue path.
+ // This is a hard progression gate, so it must be genuinely beatable by students.
+ if(planetIndex===0){
+  const safe=firstWorldSafeRoute([...open]);
+  const branches=[...open].filter(cell=>!safe.has(cell)).map(cell=>{
+   const [x,y]=cell.split(',').map(Number);return {x,y};
+  });
+  const patrols=[];
+  for(const a of branches){
+   const neighbors=directions.map(([dx,dy])=>({x:a.x+dx,y:a.y+dy}))
+    .filter(b=>open.has(key(b.x,b.y))&&!safe.has(key(b.x,b.y)));
+   for(const b of neighbors){
+    if(patrols.some(v=>v.a.x===b.x&&v.a.y===b.y&&v.b.x===a.x&&v.b.y===a.y))continue;
+    patrols.push({a,b});
+   }
+  }
+  const used=new Set(),enemies=[];
+  for(const pair of patrols){
+   if(enemies.length===4)break;
+   const aa=key(pair.a.x,pair.a.y),bb=key(pair.b.x,pair.b.y);
+   if(used.has(aa)||used.has(bb))continue;
+   used.add(aa);used.add(bb);
+   enemies.push({id:'hazard-'+(enemies.length+1),type:enemies.length,a:pair.a,b:pair.b});
+  }
+  if(enemies.length!==4)throw Error('First-world maze needs four safe side-branch patrols');
+  const walls=[];
+  for(let y=0;y<MAZE_HEIGHT;y++)for(let x=0;x<MAZE_WIDTH;x++)
+   if(!open.has(key(x,y)))walls.push([x,y]);
+  return {start,goal,walls,enemies,open:[...open]};
+ }
  const enemies=[];
  for(let i=0;i<4;i++){
   const options=cells.filter(v=>!enemies.some(e=>key(e.a.x,e.a.y)===key(v.x,v.y)||key(e.b.x,e.b.y)===key(v.x,v.y)))
@@ -44,6 +94,12 @@ export function makeFinalMaze(planetIndex){
  for(let y=0;y<MAZE_HEIGHT;y++)for(let x=0;x<MAZE_WIDTH;x++)if(!open.has(key(x,y)))walls.push([x,y]);
  return {start,goal,walls,enemies,open:[...open]};
 }
+function boardOpenFromWalls(walls){
+ const blocked=new Set(walls.map(([x,y])=>key(x,y))),cells=[];
+ for(let y=0;y<MAZE_HEIGHT;y++)for(let x=0;x<MAZE_WIDTH;x++)
+  if(!blocked.has(key(x,y)))cells.push(key(x,y));
+ return cells;
+}
 export function mazeInitial(mission){
  return {x:mission.mazeStart.x,y:mission.mazeStart.y,hits:0,
   enemies:mission.enemies.map(e=>({id:e.id,x:e.a.x,y:e.a.y,phase:0}))};
@@ -57,7 +113,7 @@ export function mazeMove(mission,state,direction){
     mission.walls.some(w=>w[0]===x&&w[1]===y))
   return {ok:false,state,reason:'A space-rock wall is blocking you. Try another direction.'};
  const next=JSON.parse(JSON.stringify(state));next.maze.x=x;next.maze.y=y;next.attempts++;
- if(next.maze.enemies.some(e=>e.x===x&&e.y===y)){
+ if(next.maze.enemies.some(e=>e.x===x&&e.y===y)&&!(mission.planetIndex===0&&firstWorldSafeRoute(mission.walls.length?boardOpenFromWalls(mission.walls):[]).has(key(x,y)))){
   next.maze.x=mission.mazeStart.x;next.maze.y=mission.mazeStart.y;
   next.maze.hits++;return {ok:true,state:next,reason:'A bad guy caught you! Back to the start. Try again.'};
  }
@@ -73,7 +129,7 @@ export function mazeEnemyTick(mission,state){
   const target=enemy.phase?def.b:def.a;
   enemy.x=target.x;enemy.y=target.y;
  });
- const caught=next.maze.enemies.some(e=>e.x===next.maze.x&&e.y===next.maze.y);
+ const caught=next.maze.enemies.some(e=>e.x===next.maze.x&&e.y===next.maze.y)&&!(mission.planetIndex===0&&firstWorldSafeRoute(boardOpenFromWalls(mission.walls)).has(key(next.maze.x,next.maze.y)));
  if(caught){next.maze.x=mission.mazeStart.x;next.maze.y=mission.mazeStart.y;next.maze.hits++}
  return {ok:true,state:next,reason:caught?'A moving bad guy caught you! Back to the start.':'Watch the moving bad guys!'};
 }
