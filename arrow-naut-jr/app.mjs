@@ -65,37 +65,79 @@ function piece(p){
  const delivered=state.mission.kind==='relay'&&(state.run.delivered||[]).includes(p.id);
  const graphic=p.id==='rover'?chosen().img:p.img;
  const pictureName=p.id==='rover'?chosen().name:p.name;
- return '<div class="piece'+(selected?' chosen':'')+(isNext?' next-up':'')+(delivered?' docked':'')+'" style="'+stylePos(p.x,p.y)+'">'+
+ return '<div class="piece'+(selected?' chosen':'')+(isNext?' next-up':'')+(delivered?' docked':'')+'" data-piece="'+esc(p.id)+'" style="'+stylePos(p.x,p.y)+'">'+
  '<button data-select="'+esc(p.id)+'" aria-label="Select '+esc(p.name)+'" title="Click inside '+esc(p.name)+' to select">'+
  fileImg(graphic,pictureName,'piece-picture')+'</button></div>';
+}
+function missionMeter(m,run){
+ if(m.kind==='relay'){
+  const n=(run.delivered||[]).length,active=m.pieces.find(p=>p.id===m.deliveryOrder[n]);
+  return 'SIGNALS: '+n+' / 3 · CLICK '+(active?.name||'NEXT')+' NEXT';
+ }
+ if((m.pickups||[]).length){
+  return (m.kind==='key-gate'?(run.gateOpen?'FIELD OPEN · ':'FIND THE KEY · '):
+    m.kind==='trail'?'STAR TRAIL · ':m.kind==='collect'?'CRYSTAL HUNT · ':'SIGNAL SCAN · ')+
+   (run.collected||[]).length+' / '+m.pickups.length+' COLLECTED';
+ }
+ return m.kind==='maze'?'RESCUE YOUR FRIEND · REACH EXIT':'CLICK THE GOLDEN STAR';
+}
+/** Update just the moving elements, preserving every image node between
+ * arrow presses. No reloading dozens of PNGs and JPEGs per keyboard repeat.
+ */
+function refreshGameDisplay(){
+ if(state.view!=='game'||!state.mission||!state.run)return;
+ const board=root.querySelector('.game-board');
+ if(!board){render();return}
+ const run=state.run,m=state.mission;
+ const selected=run.selected;
+ for(const piece of run.pieces){
+  const el=Array.from(board.querySelectorAll('[data-piece]')).find(x=>x.dataset.piece===piece.id);
+  if(!el)continue;
+  el.style.left=piece.x/COLS*100+'%';
+  el.style.top=piece.y/ROWS*100+'%';
+  el.classList.toggle('chosen',selected===piece.id);
+  if(m.kind==='relay'){
+   el.classList.toggle('next-up',m.deliveryOrder[(run.delivered||[]).length]===piece.id);
+   el.classList.toggle('docked',(run.delivered||[]).includes(piece.id));
+  }
+ }
+ const explorer=board.querySelector('[data-explorer]');
+ if(explorer&&run.maze){
+  explorer.style.left=run.maze.x/COLS*100+'%';
+  explorer.style.top=run.maze.y/ROWS*100+'%';
+  explorer.classList.toggle('chosen',selected==='explorer');
+  for(const e of run.maze.enemies){
+   const el=Array.from(board.querySelectorAll('[data-enemy]')).find(x=>x.dataset.enemy===e.id);
+   if(el){el.style.left=e.x/COLS*100+'%';el.style.top=e.y/ROWS*100+'%'}
+  }
+ }
+ for(const el of board.querySelectorAll('[data-pickup]'))
+  el.hidden=(run.collected||[]).includes(el.dataset.pickup);
+ const gate=board.querySelector('.force-gate');
+ if(gate)gate.hidden=!!run.gateOpen;
+ const meter=root.querySelector('.game-mini-meter');
+ if(meter)meter.textContent=missionMeter(m,run);
+ const feedback=root.querySelector('#feedback');
+ if(feedback){feedback.textContent=state.notice;feedback.classList.toggle('error',!!state.error)}
 }
 function game(){
  const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
  const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock" style="'+stylePos(p.goal.x,p.goal.y)+'" title="Dock for '+esc(p.name)+'">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small>DOCK</small></div>').join('');
  const pickups=(m.pickups||[]).filter(p=>!(run.collected||[]).includes(p.id)).map(p=>
-  '<div class="pickup" style="'+stylePos(p.x,p.y)+'" role="img" aria-label="'+esc(p.name)+'">'+
+  '<div class="pickup" data-pickup="'+esc(p.id)+'" style="'+stylePos(p.x,p.y)+'" role="img" aria-label="'+esc(p.name)+'">'+
    fileImg(p.img,p.name,'pickup-picture')+'<small>'+esc(p.name)+'</small></div>').join('');
  const gate=m.gate&&!run.gateOpen?'<div class="force-gate" style="'+stylePos(m.gate.x,m.gate.y)+'">'+
   fileImg(m.gate.img,'Locked force field','gate-picture')+'<small>LOCKED</small></div>':'';
- let meter='';
- if(m.kind==='relay'){
-  const n=(run.delivered||[]).length,active=m.pieces.find(p=>p.id===m.deliveryOrder[n]);
-  meter='SIGNALS: '+n+' / 3 · CLICK '+(active?.name||'NEXT')+' NEXT';
- }else if((m.pickups||[]).length){
-  meter=(m.kind==='key-gate'?(run.gateOpen?'FIELD OPEN · ':'FIND THE KEY · '):
-    m.kind==='trail'?'STAR TRAIL · ':m.kind==='collect'?'CRYSTAL HUNT · ':'SIGNAL SCAN · ')+
-   (run.collected||[]).length+' / '+m.pickups.length+' COLLECTED';
- }else if(m.kind==='maze')meter='RESCUE YOUR FRIEND · REACH EXIT';
- else meter='CLICK THE GOLDEN STAR';
+ const meter=missionMeter(m,run);
  
  const walls=m.rocks.map(([x,y])=>'<div class="rock" style="'+stylePos(x,y)+'">'+
  fileImg('../game-assets/enemies/rock_golem_256.png','Space rock','rock-picture')+'</div>').join('');
  let mazePieces='';
  if(isMaze){
   const current=chosen();
-  const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'</div>').join('');
+  const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" data-enemy="'+esc(e.id)+'" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'</div>').join('');
   mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">EXIT</div>'+enemies+
-   '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button></div>';
+   '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" data-explorer="yes" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button></div>';
  }
  return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(m.name)+'</h1>'+
  '<span class="game-mini-meter" aria-live="polite">'+esc(meter)+'</span><button data-action="world">Back to World Map</button></div>'+
