@@ -37,3 +37,18 @@
 - [ ] Integrate **approved** individual new PNGs into the game, avoiding copyrighted or incorrect substitutes
 - [ ] Verify actual Chromebook pointer-hold-drag/resizing and release at 1366×768 and 1280×720, including accessibility and persistent saves
 - [ ] Run updated Node test suite and play-test all 64 missions in a real browser; do not claim production completion before this
+
+
+## November 2 user updates — finale, rewards, artwork integrity
+- [x] Replace level 8 of each planet with a deterministic traversable 12×7 maze, four moving bad guys, arrow-only movement and a rescue exit.
+- [x] Final maze completion gates planet progression; first win awards 10 stars and rescues that planet's friend. Collisions reset only the current maze attempt.
+- [x] Regular level first clear awards 1 star. Replays award 0 new stars, so the star shop cannot be farmed by replaying a level. Keep earlier balances/purchases as-is.
+- [x] Preserve older student saves when an unfinished former level 8 is opened as a new maze, verifying the migrated active run.
+- [x] Allow choosing among eight JPEG planet backgrounds in My Stuff, placing owned gear and friends by trackpad clicks, and putting items away without losing ownership.
+- [x] Remove decorative emoji labels from the planet selection and toolbar; retain semantic text labels.
+- [ ] **User requirement: all actual game graphics must be independently generated, complete PNG/JPEG art; NEVER cut objects from contact sheets or sprite atlases.** Existing atlas art is not approved for final publication.
+- [ ] Replace all clipped or sheet-derived character, equipment, enemy, trophy and shop sprites with full independent original transparent PNGs. Test each file at native ratio and on 1280×720 Chromebook.
+- [ ] Integrate original Arrow-Naut JPEG hero banner at /arrow-naut/assets/arrownaut-space-header.jpg. Candidate file ARROW_NAUT_Space_Adventure_Header.jpg is generated and available as chat artifact, but **not yet uploaded to GitHub**.
+- [ ] Replace temporary CSS maze wall boundaries with approved illustrated **independent** PNG collision-wall art. Keep the actual path and visual cells aligned.
+- [ ] Live GitHub Pages browser QA: header, all eight mazes, four moving enemy collisions, playthrough, 1/10-star rewards, replay, shop buys, inventory placement/reload, normal/fullscreen.
+- [ ] Playtest difficulty with second graders. Do not mark final art or gameplay QA complete on source-code checks alone.
