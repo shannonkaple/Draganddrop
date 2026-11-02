@@ -35,7 +35,7 @@ function persist(progress){
 function header(){
  const playing=!!state.progress;
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
- return '<header class="topbar" id="topbar"><div class="branding"><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div>'+
+ return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="../game-assets/characters/starter/png_512/astro_ace.png" alt="Astronaut logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
  (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
  '<nav class="side-nav"><button data-action="help">How to Play</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
