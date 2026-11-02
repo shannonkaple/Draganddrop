@@ -47,3 +47,18 @@ export function clearTabSession(storage){
 export function canLeaveStudentScreen(storage,key){
  return verifiedExisting(storage,key);
 }
+
+/** Test write permissions without touching or resetting any student's record. */
+export function storageProbe(storage){
+ const key=PROGRESS_PREFIX+'storage-probe:'+Date.now()+':'+Math.random().toString(36).slice(2);
+ if(!storage)return false;
+ try{
+  storage.setItem(key,key);
+  const verified=storage.getItem(key)===key;
+  storage.removeItem(key);
+  return verified;
+ }catch{
+  try{storage.removeItem(key)}catch{}
+  return false;
+ }
+}
