@@ -255,3 +255,46 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .game-board .finish,.game-board .force-gate{overflow:visible}
 .game-board .piece button,.game-board .explorer button{overflow:visible}
 @media(max-width:700px){.game-board .junior-board-label{font-size:8px;padding:1px 3px;max-width:110px}.game-board .junior-block-label{font-size:7px;padding:1px 2px}}
+
+/* Full-size Chromebook classroom canvases: same 1672:941 available size
+   for home, individual world maps and mission boards. */
+:root{--map-ratio:1.77683316}
+.map-page:not(.junior-map-two-page){padding:3px 5px!important;height:calc(100dvh - var(--nav));max-width:100%;min-height:0;overflow:hidden;display:grid;place-items:center}
+.map-page:not(.junior-map-two-page) .map-stage{
+ width:min(100%,calc((100dvh - var(--nav) - 10px)*1672/941))!important;
+ height:auto!important;aspect-ratio:1672/941!important;
+ max-width:100%!important;max-height:100%!important;
+}
+.map-stage .world-pin,.map-stage .level-pin{max-width:14%;box-sizing:border-box;overflow:hidden;white-space:normal}
+.map-stage .level-pin small,.map-stage .world-pin strong{overflow-wrap:anywhere;max-width:100%;line-height:1.03}
+.map-stage .map-heading{left:19%;right:19%;top:1%;padding:4px 8px;font-size:clamp(12px,1.35vw,20px);pointer-events:none}
+.map-stage .map-back{left:1%;bottom:1%;min-height:30px;padding:3px 7px}
+.game-page{padding:4px 6px 6px!important;gap:5px!important;height:calc(100dvh - var(--nav));max-width:100%;min-height:0;overflow:hidden}
+.game-title{flex:0 0 auto;min-height:0;max-width:100%;display:flex;gap:5px 9px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.game-title h1{flex:1 1 320px;min-width:0;font-size:clamp(14px,1.45vw,21px)}
+.game-title .game-mini-meter{flex:0 1 auto;max-width:100%;white-space:normal}
+.game-title button{flex:0 0 auto;white-space:nowrap}
+.directions{flex:0 0 auto;box-sizing:border-box;width:min(100%,calc((100dvh - var(--nav) - 130px)*1672/941));max-width:100%;min-height:0;padding:4px 7px;font-size:clamp(12px,1.15vw,17px);gap:6px}
+.directions strong{min-width:0;overflow-wrap:break-word;line-height:1.17}
+.directions .listen{flex:0 0 auto}
+.board-area{flex:1 1 auto;min-height:0;max-width:100%;width:100%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.board-area .game-board{
+ width:min(100%,calc((100dvh - var(--nav) - 118px)*1672/941))!important;
+ aspect-ratio:1672/941!important;max-width:100%;max-height:100%;
+ height:auto;border-radius:16px;
+}
+/* Fixed-size text doesn't spill from picture hitboxes into nearby targets. */
+.game-board .junior-board-label{left:50%;bottom:0;transform:translateX(-50%);max-width:100%;width:max-content;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere;line-height:1.02;font-size:clamp(7px,.68vw,10px);padding:1px 2px}
+.game-board .junior-piece-label,.game-board .junior-danger-label,.game-board .junior-block-label,.game-board .junior-finish-label,
+.game-board .pickup .junior-board-label,.game-board .goal-dock .junior-board-label,.game-board .force-gate .junior-board-label{bottom:0;max-width:100%;white-space:normal}
+.game-board .piece,.game-board .explorer,.game-board .pickup,.game-board .goal-dock,
+.game-board .rock,.game-board .enemy,.game-board .junior-moving-hazard,
+.game-board .finish,.game-board .force-gate{box-sizing:border-box}
+.game-page #feedback{flex:0 0 auto;max-width:100%;overflow-wrap:anywhere}
+@media(max-height:650px){
+ .game-page{gap:3px!important;padding:2px 5px 4px!important}
+ .game-title h1{font-size:clamp(13px,1.2vw,18px)}
+ .directions{padding:3px 6px;font-size:clamp(11px,1vw,14px)}
+ .directions button{min-height:29px;padding:2px 6px}
+ .board-area .game-board{width:min(100%,calc((100dvh - var(--nav) - 105px)*1672/941))!important}
+}
