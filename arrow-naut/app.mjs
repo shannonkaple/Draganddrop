@@ -2,7 +2,9 @@ import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,p
 import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=naut-shop-unlock-20261105c';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=naut-shop-unlock-20261105c';
+import {mountMapTwo} from './map-two.mjs?v=lost-worlds-20261105a';
 const root=document.getElementById('app');
+let disposeMapTwo=null;
 const $=selector=>root.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const state={teacher:null,student:null,teachers:[],progress:null,view:'teachers',planet:0,mission:null,run:null,modal:null,message:'',error:'',dataError:'',key:null,scenePending:null};
@@ -29,7 +31,7 @@ function header(){
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
  return `<header class="topbar" id="main-header"><div class="brand"><strong>Ms. Kaple's ARROW-NAUT Space Adventure</strong><small>${hasStudent?esc(studentText):'SECOND GRADE · CLICK · MOVE · RESIZE · FIT'}</small></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
-  `<button data-action="home">Home</button><button data-action="shop">Star Shop · ${state.progress.stars}</button><button data-action="stuff">My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
+  `<button data-action="home">Home</button><button data-action="map-two" class="map-two-entry">Map Two · Lost Worlds</button><button data-action="shop">Star Shop · ${state.progress.stars}</button><button data-action="stuff">My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">How to Play</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
 function entry(){
@@ -143,7 +145,19 @@ function modalHtml(){const modal=state.modal;if(!modal)return '';
  }
  return `<div class="dialog-scrim"><section class="dialog-panel ${modal.kind==='player'?'player-selection-dialog':''}" role="dialog" aria-modal="true" aria-label="${modal.kind==='intro'?'Meet your rescue friend':modal.kind==='player'?'Choose your Arrow-Naut':'Mission complete'}">${content}${state.error?`<p class="error-banner" role="alert">${esc(state.error)}</p>`:''}</section></div>`;
 }
-function render(){root.innerHTML=header()+(state.view==='teachers'||state.view==='students'?entry():state.view==='home'?home():state.view==='planet'?planetMap():state.view==='mission'?missionPage():state.view==='shop'?shop():state.view==='stuff'?stuff():state.view==='error'?errorPage():help())+modalHtml();scheduleFit();syncFinaleClock()}
+function render(){
+ if(disposeMapTwo){disposeMapTwo();disposeMapTwo=null}
+ root.innerHTML=header()+(state.view==='map-two'?'<div id="map-two-root" class="map-two-mount"></div>':
+ (state.view==='teachers'||state.view==='students'?entry():state.view==='home'?home():state.view==='planet'?planetMap():state.view==='mission'?missionPage():state.view==='shop'?shop():state.view==='stuff'?stuff():state.view==='error'?errorPage():help()))+modalHtml();
+ if(state.view==='map-two'){
+  disposeMapTwo=mountMapTwo($('#map-two-root'),{
+   read:()=>state.progress,
+   save:next=>persist(next),
+   exit:()=>{state.view='home';state.modal=null;render()}
+  });
+ }
+ scheduleFit();syncFinaleClock()
+}
 function scheduleFit(){requestAnimationFrame(()=>{const header=$('#main-header');const board=$('#space-board');if(!header)return;const height=Math.round(header.getBoundingClientRect().height);root.style.setProperty('--bar-height',height+'px');if(!board)return;const frame=$('.board-frame');if(!frame)return;const rect=frame.getBoundingClientRect();const w=Math.max(100,Math.min(rect.width-6,(rect.height-6)*1672/941));root.style.setProperty('--board-width',Math.floor(w)+'px')})}
 function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=i;state.view='planet';state.mission=null;state.run=null;state.message='';state.error='';render();
  const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
@@ -210,6 +224,7 @@ function onAction(action){
  case 'students':state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
  case 'logout':logOut();break;
  case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
+  case 'map-two':if(state.progress){state.view='map-two';state.modal=null;state.mission=null;state.run=null;render()}break;
  case 'planet':showPlanet(state.planet);break;
  case 'shop':if(state.progress){state.view='shop';state.modal=null;render()}break;
  case 'player':if(state.progress){state.modal={kind:'player'};render()}break;
