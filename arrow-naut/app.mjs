@@ -45,7 +45,7 @@ function home(){
  return `<main class="main galaxy-home"><section class="galaxy-map-wrap" aria-label="Choose one of eight space planets">
  <div class="galaxy-map-stage"><img class="galaxy-map-art" src="${GALAXY_MAP}" alt="Eight bright cartoon planet islands joined by a rainbow space trail" draggable="false">
  ${PLANETS.map((p,i)=>{const unlocked=planetUnlocked(state.progress,i),done=completedCount(state.progress,i),pad=GALAXY_STOPS[i];return `<button class="galaxy-stop${unlocked?'':' is-locked'}" style="left:${pad.x}%;top:${pad.y}%" data-planet="${i}" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} Planet, ${done} of 8 levels complete${unlocked?'':' locked'}"><span class="stop-icon">${unlocked?'GO':'LOCK'}</span><span class="stop-name">${esc(p.name)}</span><span class="stop-count">${unlocked?`${done}/8 complete`:'Locked'}</span></button>`}).join('')}
- <div class="galaxy-progress" aria-live="polite">${state.progress.stars} stars · ${state.progress.completed.length}/64 Missions · Beat the final maze to unlock each new planet</div>
+ <div class="galaxy-progress" aria-live="polite">${state.progress.stars} stars · ${PLANETS.reduce((n,_,i)=>n+completedCount(state.progress,i),0)}/64 original missions · ${state.progress.completed.filter(id=>id.includes('-bonus-')).length} extra labs · Beat the final maze to unlock each new planet</div>
  </div></section></main>`;
 }
 function planetMap(){
