@@ -31,9 +31,9 @@ export function movePatrollingEnemies(mission,state){
  }
  const playerCells=new Set(player?occupiedCells(player).map(p=>p.join(',')):[]);
  const occupied=new Set();
- let collision=false;
+ let collision=next.hazards.some(enemy=>playerCells.has(enemy.x+','+enemy.y));
  for(const enemy of next.hazards){
-  const candidates=[[0,0],[0,1],[0,-1],[1,0],[-1,0],[2,0],[-2,0]]
+  const candidates=[[0,0],[0,1],[0,-1],[1,0],[-1,0]]
    .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
    .filter(p=>p.x>=0&&p.x<GRID.columns&&p.y>=0&&p.y<GRID.rows&&!fixed.has(p.x+','+p.y)&&!occupied.has(p.x+','+p.y));
   const dest=candidates[Math.floor(Math.random()*candidates.length)]||enemy;
