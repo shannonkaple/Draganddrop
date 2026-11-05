@@ -191,3 +191,37 @@
 .scene-scale-buttons{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);display:flex;gap:4px;align-items:center;justify-content:center;z-index:30;white-space:nowrap;pointer-events:auto}
 .scene-scale-buttons button{position:static!important;inset:auto!important;display:grid!important;place-items:center!important;box-sizing:border-box!important;min-width:27px!important;width:27px!important;min-height:27px!important;height:27px!important;padding:0!important;border:2px solid #4a397d!important;border-radius:9px!important;background:#fff4bf!important;color:#24154a!important;font:bold 21px/1 Arial,sans-serif!important;box-shadow:0 2px 3px #24203a55!important;cursor:pointer}
 .scene-scale-buttons button:focus-visible{outline:3px solid #21ccdb;outline-offset:2px}
+
+/* Match Arrow-Naut Junior's compact illustrated space header. */
+.topbar{
+ background:linear-gradient(90deg,#101344dc 0%,#182d70c9 40%,#29246cc9 100%),url('./assets/galaxy-map.jpg') center 49% / cover no-repeat;
+ border-bottom:3px solid #ffe474;
+ box-shadow:0 2px 12px #151a5a66;
+ min-height:68px;
+ padding:7px 10px;
+ grid-template-columns:minmax(190px,1fr) auto minmax(190px,1fr);
+ gap:6px 9px;
+}
+.brand{display:flex;flex-direction:row;align-items:center;gap:8px;min-width:0}
+.brand .brand-title{display:flex;flex-direction:column;gap:3px;min-width:0}
+.brand .astronaut-corner{display:block;flex:none;width:48px;height:54px;object-fit:contain;filter:drop-shadow(0 0 5px #9efaff)}
+.brand strong{color:#fffdf9!important;text-shadow:0 2px 1px #07143b,0 0 12px #5be0ff;letter-spacing:.02em;font-size:clamp(15px,1.5vw,24px);line-height:1.1}
+.brand small{font-family:Arial,sans-serif;color:#fff4b4!important;font-weight:700;text-shadow:0 1px 3px #07143b;font-size:clamp(10px,.83vw,12px)}
+.center-controls,.right-controls{gap:5px}
+.topbar button{min-height:39px;height:39px;padding:5px 8px;background:#fffdf1ee;border-color:#fff4b3;font-size:clamp(11px,1vw,14px)}
+.topbar button:hover:not(:disabled){background:#fff3b0}
+@media(max-width:1050px){
+ .topbar{grid-template-columns:minmax(175px,1fr) auto;gap:4px}
+ .brand{grid-column:1;grid-row:1;text-align:left}
+ .right-controls{grid-column:2;grid-row:1;justify-content:flex-end}
+ .center-controls{grid-column:1/-1;grid-row:2;justify-content:center}
+ .brand .astronaut-corner{width:36px;height:41px}
+ .brand strong{font-size:clamp(13px,1.3vw,20px)}
+ .topbar button{min-height:34px;height:34px;padding:3px 7px}
+}
+@media(max-width:650px){
+ .topbar{grid-template-columns:1fr;gap:3px}
+ .brand{grid-column:1;grid-row:1;justify-content:center}
+ .right-controls{grid-column:1;grid-row:3;justify-content:center}
+ .center-controls{grid-column:1;grid-row:2;justify-content:center}
+}
