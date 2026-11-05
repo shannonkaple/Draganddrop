@@ -58,7 +58,8 @@ function worldMap(){
  const w=WORLDS[state.world],done=completedCount(state.progress,state.world);
  return '<main class="map-page"><div class="map-stage"><img src="'+w.jpg+'" class="map-art" alt="'+esc(w.name)+' illustrated world" draggable="false">'+
  '<div class="map-heading">'+esc(w.name)+' · '+done+'/8 complete</div>'+
- NAMES.map((name,i)=>{
+ NAMES.map((_,i)=>{
+ const name=createMission(state.world,i).name;
  const available=levelUnlocked(state.progress,state.world,i),completed=state.progress.completed.includes(w.id+'-'+(i+1)),at=LEVEL_STOPS[i];
  return '<button class="level-pin" data-level="'+i+'" style="left:'+at.x+'%;top:'+at.y+'%" '+(available?'':'disabled')+
  ' aria-label="Level '+(i+1)+' '+esc(name)+'"><strong>'+(available?i+1:'LOCK')+'</strong><small>'+esc(name)+(completed?' · DONE':'')+'</small></button>';
@@ -130,7 +131,7 @@ function refreshGameDisplay(){
 }
 function game(){
  const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
- const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock'+(p.shape?' shape-match '+p.shape:(m.world%2===0?' dock-green':' dock-blue'))+'" style="'+stylePos(p.goal.x,p.goal.y,p.w,p.h)+'" title="Fit the '+esc(p.name)+' here">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small>'+(p.shape?'MATCH '+p.shape:'DOCK')+'</small></div>').join('');
+ const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock'+(p.shape?' shape-match '+p.shape:(m.world%2===0?' dock-green':' dock-blue'))+'" style="'+stylePos(p.goal.x,p.goal.y,p.w,p.h)+'" title="Fit the '+esc(p.name)+' here">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small>'+(p.shape?'MATCH '+p.shape+' · '+esc(p.name):'DOCK · '+esc(p.name))+'</small></div>').join('');
  const pickups=(m.pickups||[]).filter(p=>!(run.collected||[]).includes(p.id)).map(p=>
   '<div class="pickup" data-pickup="'+esc(p.id)+'" style="'+stylePos(p.x,p.y)+'" role="img" aria-label="'+esc(p.name)+'">'+
    fileImg(p.img,p.name,'pickup-picture')+'<small>'+esc(p.name)+'</small></div>').join('');
@@ -139,7 +140,7 @@ function game(){
  const meter=missionMeter(m,run);
  
  const walls=m.rocks.map(([x,y])=>'<div class="rock" style="'+stylePos(x,y)+'">'+
- fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':'../game-assets/enemies/rock_golem_256.png',m.world===3?'Ice wall':'Space rock','rock-picture')+'</div>').join('');
+ fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+'</div>').join('');
  let mazePieces='';
  if(isMaze){
   const current=chosen();
@@ -152,7 +153,7 @@ function game(){
  '<div class="directions"><strong>'+esc(m.directions)+'</strong><button type="button" class="listen" data-action="listen" aria-label="Read the level directions aloud" title="Click to hear the instructions again"><span class="speaker-icon" aria-hidden="true">🔊</span><span class="listen-label">HEAR DIRECTIONS</span></button></div>'+
  '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
  '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
- '<div class="grid"></div>'+targets+walls+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+
+ '<div class="grid"></div>'+targets+walls+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div>')+
  '</div></div><p id="feedback" class="feedback'+(state.error?' error':'')+'" role="status">'+esc(state.notice||'Click a picture with your trackpad. Move with keyboard arrows.')+'</p></main>';
 }
 function shop(){
