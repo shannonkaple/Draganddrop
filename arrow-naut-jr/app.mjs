@@ -87,7 +87,7 @@ function piece(p){
  const pictureName=p.id==='rover'?chosen().name:p.name;
  return '<div class="piece'+(selected?' chosen':'')+(isNext?' next-up':'')+(delivered?' docked':'')+'" data-piece="'+esc(p.id)+'" style="'+stylePos(p.x,p.y,p.w,p.h)+'">'+
  '<button data-select="'+esc(p.id)+'" aria-label="Select '+esc(p.name)+'" title="Click inside '+esc(p.name)+' to select">'+
- fileImg(graphic,pictureName,'piece-picture')+'</button></div>';
+ fileImg(graphic,pictureName,'piece-picture')+'</button><span class="junior-board-label junior-piece-label">'+esc(pictureName)+'</span></div>';
 }
 function missionMeter(m,run){
  if(m.kind==='relay'){
@@ -148,31 +148,31 @@ function refreshGameDisplay(){
 }
 function game(){
  const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
- const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock'+(p.shape?' shape-match '+p.shape:(m.world%2===0?' dock-green':' dock-blue'))+'" style="'+stylePos(p.goal.x,p.goal.y,p.w,p.h)+'" title="Fit the '+esc(p.name)+' here">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small>'+(p.shape?'MATCH '+p.shape+' · '+esc(p.name):'DOCK · '+esc(p.name))+'</small></div>').join('');
+ const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock'+(p.shape?' shape-match '+p.shape:(m.world%2===0?' dock-green':' dock-blue'))+'" style="'+stylePos(p.goal.x,p.goal.y,p.w,p.h)+'" title="Fit the '+esc(p.name)+' here">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small class="junior-board-label">'+(p.shape?'MATCH '+p.shape+' · '+esc(p.name):'DOCK · '+esc(p.name))+'</small></div>').join('');
  const pickups=(m.pickups||[]).filter(p=>!(run.collected||[]).includes(p.id)).map(p=>
   '<div class="pickup" data-pickup="'+esc(p.id)+'" style="'+stylePos(p.x,p.y)+'" role="img" aria-label="'+esc(p.name)+'">'+
-   fileImg(p.img,p.name,'pickup-picture')+'<small>'+esc(p.name)+'</small></div>').join('');
+   fileImg(p.img,p.name,'pickup-picture')+'<small class="junior-board-label">'+esc(p.name)+'</small></div>').join('');
  const gate=m.gate&&!run.gateOpen?'<div class="force-gate" style="'+stylePos(m.gate.x,m.gate.y)+'">'+
-  fileImg(m.gate.img,'Locked force field','gate-picture')+'<small>LOCKED</small></div>':'';
+  fileImg(m.gate.img,'Locked force field','gate-picture')+'<small class="junior-board-label">LOCKED</small></div>':'';
  const meter=missionMeter(m,run);
  const movingEnemies=(run.movingHazards||[]).map((enemy,i)=>'<div class="junior-moving-hazard" data-moving-hazard="'+esc(enemy.id)+'" style="'+stylePos(enemy.x,enemy.y)+'">'+
- fileImg(ENEMIES[(m.world+i+2)%ENEMIES.length],'Moving space bad guy','moving-enemy-picture')+'</div>').join('');
+ fileImg(ENEMIES[(m.world+i+2)%ENEMIES.length],'Moving space bad guy','moving-enemy-picture')+'<small class="junior-board-label junior-danger-label">BAD GUY</small></div>').join('');
  
  const walls=m.rocks.map(([x,y],i)=>'<div class="rock" style="'+stylePos(x,y)+'">'+
- fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+'</div>').join('');
+ fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+'<small class="junior-board-label junior-block-label">BLOCK</small></div>').join('');
  let mazePieces='';
  if(isMaze){
   const current=chosen();
-  const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" data-enemy="'+esc(e.id)+'" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'</div>').join('');
-  mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">'+fileImg(w.friend,'Rescue friend','finish-friend')+'<small>EXIT</small></div>'+enemies+
-   '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" data-explorer="yes" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button></div>';
+  const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" data-enemy="'+esc(e.id)+'" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'<small class="junior-board-label junior-danger-label">BAD GUY</small></div>').join('');
+  mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">'+fileImg(w.friend,'Rescue friend','finish-friend')+'<small class="junior-board-label junior-finish-label">RESCUE · EXIT</small></div>'+enemies+
+   '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" data-explorer="yes" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button><span class="junior-board-label junior-piece-label">YOU</span></div>';
  }
  return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(m.name)+'</h1>'+
  '<span class="game-mini-meter" aria-live="polite">'+esc(meter)+'</span><button data-action="world">Back to World Map</button></div>'+
  '<div class="directions"><strong>'+esc(m.directions)+'</strong><button type="button" class="listen" data-action="listen" aria-label="Read the level directions aloud" title="Click to hear the instructions again"><span class="speaker-icon" aria-hidden="true">🔊</span><span class="listen-label">HEAR DIRECTIONS</span></button></div>'+
  '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
  '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
- '<div class="grid"></div>'+targets+walls+movingEnemies+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div><div class="junior-friend-preview" aria-label="Friend to rescue">'+fileImg(w.friend,'Rescue friend','junior-friend-preview-pic')+'<small>RESCUE</small></div>')+
+ '<div class="grid"></div>'+targets+walls+movingEnemies+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div><div class="junior-friend-preview" aria-label="Friend to rescue">'+fileImg(w.friend,'Rescue friend','junior-friend-preview-pic')+'<small class="junior-board-label">RESCUE FRIEND</small></div>')+
  '</div></div><p id="feedback" class="feedback'+(state.error?' error':'')+'" role="status">'+esc(state.notice||'Click a picture with your trackpad. Move with keyboard arrows.')+'</p></main>';
 }
 function shop(){
