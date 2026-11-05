@@ -195,3 +195,9 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .teacher-tools-note{background:#fff4dd;padding:9px;border-radius:8px}
 #teacher-tools-message{font-weight:bold;min-height:20px}
 @media(max-width:500px){.teacher-tool-actions{grid-template-columns:1fr}}
+
+
+/* Real full transparent enemy pictures in moving-hazard first-grade challenges. */
+.junior-moving-hazard{position:absolute;z-index:6;display:grid;place-items:center;pointer-events:none;filter:drop-shadow(0 1px 3px #15133c)}
+.junior-moving-hazard .moving-enemy-picture{width:100%;height:100%;object-fit:contain;object-position:center;animation:junior-bad-guy-bob 1.1s ease-in-out infinite}
+@keyframes junior-bad-guy-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7%)}}
