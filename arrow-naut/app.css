@@ -127,3 +127,11 @@
 .space-scene>.scene-objects>.scene-object{flex-shrink:0;min-width:80px;max-width:90px;padding:3px}
 .space-scene>.scene-objects .scene-object-image{height:47px;width:47px;object-fit:contain}
 @media(prefers-reduced-motion:reduce){.mission-pickup-art,.obstacle .obstacle-enemy{animation:none}}
+
+
+/* Every independent rescue PNG stays fully visible at the end of each world. */
+.rescue-preview{position:absolute;bottom:.2%;right:.2%;width:8%;height:17%;z-index:4;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;filter:drop-shadow(0 1px 4px white)}
+.rescue-preview-art{width:100%;height:83%;object-fit:contain}
+.rescue-preview small{font:900 clamp(8px,.72vw,11px) Arial,sans-serif;color:#07284b;background:#fff7b9d9;padding:1px 3px;border-radius:5px}
+.finale-goal .finale-rescue-art{width:94%;height:78%;object-fit:contain;position:absolute;left:3%;top:0}
+.finale-goal span{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:clamp(8px,.75vw,12px);color:white;background:#073d46d9;border-radius:0 0 9px 9px}
