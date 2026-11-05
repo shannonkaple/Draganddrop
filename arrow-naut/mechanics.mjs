@@ -2,7 +2,7 @@ import {mazeInitial,mazeMove,mazeEnemyTick,fireLaser} from './finale-maze.mjs?v=
 import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=naut-varied-games-20261105j';
 export const DIRECTIONS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
 export const clone=value=>JSON.parse(JSON.stringify(value));
-export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),layoutVersion:mission.layoutVersion??1,collected:[],attempts:0,complete:false,hazards:clone(mission.hazards||[]),...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
+export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),layoutVersion:mission.layoutVersion??1,collected:[],delivered:[],patternIndex:0,attempts:0,complete:false,hazards:clone(mission.hazards||[]),...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
 export function occupiedCells(piece){if(piece.cells)return piece.cells.map(([dx,dy])=>[piece.x+dx,piece.y+dy]);const out=[];for(let y=0;y<piece.h;y++)for(let x=0;x<piece.w;x++)out.push([piece.x+x,piece.y+y]);return out;}
 export function validPosition(mission,pieces,changedId){
  const selected=pieces.find(p=>p.id===changedId);if(!selected)return false;
@@ -43,9 +43,20 @@ export function movePatrollingEnemies(mission,state){
  }
  return {state:next,collision};
 }
+function markRelayDelivery(mission,run){
+ if(mission.kind!=='picture-relay')return null;
+ const expected=mission.deliveryOrder[(run.delivered||[]).length];
+ const p=run.pieces.find(x=>x.id===expected);
+ if(run.selected===expected&&p&&goalMet(p)){
+  run.delivered=[...(run.delivered||[]),expected];run.selected=null;
+  return 'Picture '+run.delivered.length+' of '+mission.deliveryOrder.length+' delivered! Select the NEXT highlighted picture.';
+ }
+ return null;
+}
 export function goalMet(piece){const g=piece.goal;return !!g&&piece.x===g.x&&piece.y===g.y&&
   (g.w===undefined||piece.w===g.w)&&(g.h===undefined||piece.h===g.h);}
-export function missionComplete(mission,state){return mission.kind==='final-maze'?!!state.complete:mission.kind==='click'?state.complete:
+export function missionComplete(mission,state){return mission.kind==='final-maze'||mission.kind==='arrow-sequence'?!!state.complete:mission.kind==='click'?state.complete:
+ mission.kind==='picture-relay'?(state.delivered||[]).length===mission.deliveryOrder.length&&mission.pieces.filter(p=>p.goal).every(p=>goalMet(state.pieces.find(x=>x.id===p.id))):
  mission.pieces.filter(p=>p.goal).every(p=>goalMet(state.pieces.find(x=>x.id===p.id)))&&
  (mission.pickups||[]).every(p=>state.collected?.includes(p.id));}
 /** A click INSIDE selects an object; arrow keys always MOVE it, never resize it. */
@@ -57,11 +68,24 @@ export function selectObject(mission,state,id,mode='move'){
   if(id!==mission.clickTarget)return {ok:false,state,reason:'Look for the requested color. Carefully click INSIDE that box.'};
   return {ok:true,state:{...state,selected:id,mode:'move',complete:true,attempts:state.attempts+1},reason:'Perfect click!'};
  }
+ if(mission.kind==='picture-relay'){
+  const expected=mission.deliveryOrder[(state.delivered||[]).length];
+  if(id!==expected)return {ok:false,state,reason:'Deliver pictures IN ORDER. First click '+(mission.pieces.find(p=>p.id===expected)?.name||'the highlighted object')+'.'};
+ }
  if(mission.kind==='precision'&&id!==mission.clickTarget)return {ok:false,state,reason:'That is the wrong module. Click INSIDE the blue one.'};
  return {ok:true,state:{...state,selected:id,mode:'move',attempts:state.attempts+1},reason:'Selected! Use the arrow keys to MOVE this object.'};
 }
 export function arrowAction(mission,state,key){
  if(mission.kind==='final-maze')return mazeMove(mission,state,key);
+ if(mission.kind==='arrow-sequence'){
+  if(!DIRECTIONS[key])return {ok:false,state,reason:'Use the keyboard arrow keys.'};
+  const next=clone(state),correct=mission.pattern[next.patternIndex||0];
+  next.attempts++;
+  if(key!==correct){next.patternIndex=0;return {ok:true,state:next,reason:'Try that code again from the first arrow.'}}
+  next.patternIndex=(next.patternIndex||0)+1;
+  next.complete=next.patternIndex>=mission.pattern.length;
+  return {ok:true,state:next,reason:next.complete?'Signal code complete!':'Correct! Look at your next arrow.'};
+ }
  if(!DIRECTIONS[key])return {ok:false,state,reason:'Use the arrow keys.'};
  if(!state.selected)return {ok:false,state,reason:'First click INSIDE the box you want to move.'};
  const piece=state.pieces.find(p=>p.id===state.selected);
@@ -76,13 +100,14 @@ export function arrowAction(mission,state,key){
   if(next.collected.includes(item.id))continue;
   if(p.x===item.x&&p.y===item.y){next.collected.push(item.id);collected=true}
  }
+ const deliveryMessage=markRelayDelivery(mission,next);
  const hazard=movePatrollingEnemies(mission,next);
  if(hazard.collision){
   const reset=initialMission(mission);reset.attempts=next.attempts;
   return {ok:true,state:reset,reason:'A moving bad guy bumped your picture! Start this challenge again.'};
  }
  hazard.state.complete=missionComplete(mission,hazard.state);
- return {ok:true,state:hazard.state,reason:hazard.state.complete?'Mission complete!':collected?'Star collected! Now reach your matching dock.':'Watch the moving bad guys! Keep going.'};
+ return {ok:true,state:hazard.state,reason:hazard.state.complete?'Mission complete!':deliveryMessage|| (collected?'Star collected! Now reach your matching dock.':'Watch the moving bad guys! Keep going.')};
 }
 /** Grid-snapped handle dragging, with the opposite edge/corner held in place.
  * deltaColumns/deltaRows are pointer movement rounded to whole puzzle squares.
@@ -103,8 +128,10 @@ export function resizeByHandle(mission,state,id,handle,deltaColumns,deltaRows){
  if(handle.includes('s'))p.h+=y;
  if(p.w<1||p.h<1)return {ok:false,state,reason:'Keep at least one square in each direction.'};
  if(!validPosition(mission,next.pieces,id))return {ok:false,state,reason:'That stretch would hit another object, a wall, or the edge.'};
- next.selected=id;next.mode='move';next.attempts++;next.complete=missionComplete(mission,next);
- return {ok:true,state:next,reason:next.complete?'Mission complete!':'Good stretching! Now fit the object into its outline.'};
+ next.selected=id;next.mode='move';next.attempts++;
+ const deliveryMessage=markRelayDelivery(mission,next);
+ next.complete=missionComplete(mission,next);
+ return {ok:true,state:next,reason:next.complete?'Mission complete!':deliveryMessage||'Good stretching! Now fit the object into its outline.'};
 }
 /** One-time star economy: regular missions 1 star, final maze 10 stars.
  * Replays remain available for practice but cannot mint more stars.
