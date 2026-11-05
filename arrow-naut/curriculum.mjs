@@ -48,7 +48,7 @@ export const MISSION_SKILLS=[
 const shape=(id,name,x,y,cells,goal,color)=>({id,name,x,y,w:Math.max(...cells.map(c=>c[0]))+1,h:Math.max(...cells.map(c=>c[1]))+1,cells,goal,color,resize:false});
 const rectangle=(id,name,x,y,w,h,goal,color,resize=false)=>({id,name,x,y,w,h,goal,color,resize});
 /** Original, fixed-grid, no-drag puzzles; different planet offsets vary layouts without changing controls. */
-export function createMission(planetIndex,stage){
+function buildBaseMission(planetIndex,stage){
  if(!Number.isInteger(planetIndex)||planetIndex<0||planetIndex>=PLANETS.length||!Number.isInteger(stage)||stage<0||stage>7)throw Error('Unknown mission');
  const planet=PLANETS[planetIndex];
  const templateStage=stage===7?7:WORLD_ORDERS[planetIndex][stage];
@@ -115,6 +115,51 @@ export function createMission(planetIndex,stage){
   pieces:[],obstacles:[],walls:final.walls,safeRoute:final.safeRoute,mazeStart:final.start,mazeGoal:final.goal,enemies:final.enemies};
 
 }
+/** Progressive second-grade workshop tasks.
+ * Later non-boss missions add 1–3 separate trackpad-handle resize challenges.
+ * Reservation checks keep every starter and final dock clear of every other
+ * starter, obstacle, collectible, and goal. Junior never imports this.
+ */
+function addProgressiveResizes(mission){
+ if(mission.kind==='click'||mission.kind==='final-maze')return mission;
+ const {planetIndex,stage}=mission;
+ const desired=Math.min(3,Math.max(0,Math.floor((planetIndex*7+stage)/11)));
+ if(!desired)return mission;
+ const blocked=new Set();
+ const mark=(x,y,w,h)=>{for(let yy=y;yy<y+h;yy++)for(let xx=x;xx<x+w;xx++)blocked.add(xx+','+yy)};
+ for(const p of mission.pieces){
+  mark(p.x,p.y,p.w,p.h);
+  if(p.goal)mark(p.goal.x,p.goal.y,p.goal.w??p.w,p.goal.h??p.h);
+ }
+ for(const [x,y]of mission.obstacles||[])mark(x,y,1,1);
+ for(const p of mission.pickups||[])mark(p.x,p.y,1,1);
+ const types=[
+  {name:'Solar Tile',w:2,h:1,color:'blue'},
+  {name:'Signal Tile',w:1,h:2,color:'mint'},
+  {name:'Star Tile',w:2,h:2,color:'pink'}
+ ];
+ const added=[];
+ // Spread optional stations vertically and horizontally where there is room.
+ for(let n=0;n<desired;n++){
+  const type=types[n],candidates=[];
+  for(let y=0;y<=GRID.rows-type.h;y++)for(let x=0;x<=GRID.columns-type.w;x++){
+   let free=true;
+   for(let yy=y;yy<y+type.h;yy++)for(let xx=x;xx<x+type.w;xx++)
+    if(blocked.has(xx+','+yy))free=false;
+   if(free)candidates.push({x,y,score:Math.abs(x-(n===1?2:9))*2+Math.abs(y-(n===0?0:n===1?5:3))});
+  }
+  candidates.sort((a,b)=>a.score-b.score);
+  if(!candidates.length)continue;
+  const {x,y}=candidates[0];
+  const id='resize-tile-'+(n+1);
+  added.push(rectangle(id,type.name+' '+(n+1),x,y,1,1,{x,y,w:type.w,h:type.h},type.color,true));
+  mark(x,y,type.w,type.h);
+ }
+ if(!added.length)return mission;
+ return {...mission,layoutVersion:4,pieces:[...mission.pieces,...added],
+  directions:mission.directions+' BONUS: Click the matching space tiles, hold and drag their resize handles, and fit EACH one into its own labeled dock.'};
+}
+export function createMission(planetIndex,stage){return addProgressiveResizes(buildBaseMission(planetIndex,stage));}
 export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:8},(_,stage)=>createMission(pi,stage)))}
 export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
 export function completedCount(progress,planetIndex){const prefix=PLANETS[planetIndex].id+'-';return (progress.completed||[]).filter(id=>id.startsWith(prefix)).length}
