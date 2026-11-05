@@ -276,8 +276,13 @@ function onAction(action){
  case 'intro-ok':{const next={...state.progress,seenIntros:[...state.progress.seenIntros,PLANETS[state.modal.planet].id]};if(persist(next)){state.modal=null;state.error='';render()};break}
  case 'reward-ok':{
   const goToMapTwo=!!state.modal?.launchMapTwo&&mapTwoUnlocked();
-  state.modal=null;
-  if(goToMapTwo){state.view='map-two';state.mission=null;state.run=null;render()}
+  // Finish an ordinary level -> its own world map.
+  // Finish all eight levels of a world -> main eight-world home map.
+  // The very first completion of all 64 -> new Map Two galaxy.
+  const finishedWorld=state.mission?.stage===7&&completedCount(state.progress,state.planet)===8;
+  state.modal=null;state.mission=null;state.run=null;
+  if(goToMapTwo){state.view='map-two';render()}
+  else if(finishedWorld){state.view='home';state.message='';state.error='';render()}
   else showPlanet(state.planet);
   break;
  }
