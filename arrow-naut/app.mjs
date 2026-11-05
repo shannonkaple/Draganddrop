@@ -102,6 +102,12 @@ function finalePage(){
 function missionPage(){
  const m=state.mission,run=state.run;
  if(m.kind==='final-maze')return finalePage();
+ if(m.kind==='arrow-sequence'){
+  const i=run.patternIndex||0;
+  const arrows={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
+  return `<main class="main playing"><h1>${esc(m.title)}</h1><div class="directions-bar"><p>${esc(m.directions)}</p></div><div class="signal-code-stage"><img src="${planetImage(m.planetIndex)}" alt="" draggable="false"><strong>${arrows[m.pattern[i]||'ArrowUp']}</strong><p>PRESS THE MATCHING KEYBOARD ARROW · ${i} / ${m.pattern.length}</p></div><button data-action="planet">Back to Map</button><p id="live-status" class="feedback" role="status">${esc(state.message)}</p></main>`;
+ }
+
  const boardTargets=m.pieces.filter(p=>p.goal).map(p=>goalShape(p)).join('');
  const pickups=(m.pickups||[]).filter(p=>!run.collected?.includes(p.id)).map(p=>`<div class="mission-pickup" style="left:${p.x/GRID.columns*100}%;top:${p.y/GRID.rows*100}%;width:${100/GRID.columns}%;height:${100/GRID.rows}%" role="img" aria-label="${esc(p.name)}">${art(p.image||'./assets/standalone/pickup_star.png',p.name,'mission-pickup-art')}<span>COLLECT</span></div>`).join('');
  const obstacles=(m.obstacles||[]).map(([x,y],i)=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%">${art(enemyPortrait(m.planetIndex+i),'Space bad guy','obstacle-enemy')}</div>`).join('');
