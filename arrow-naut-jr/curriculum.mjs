@@ -181,14 +181,22 @@ function buildMission(world,stage){
 // Post-rescue practice: extra first-grade click + keyboard movement only.
 export const BONUS_STAGES=8;
 const BONUS_ORDER=[0,2,1,4,5,6,3,2];
+function addMovingSpaceBadGuys(mission){
+ // Moving hazard pictures are used in selected single-picture arrow challenges.
+ // No touchscreen control, resizing, or changes to original rescue maze paths.
+ if(!['trail','collect'].includes(mission.kind)||!(mission.stage>=8||mission.world>=3))return mission;
+ return {...mission,mechanicVersion:7,
+  movingHazards:[{id:'junior-hazard-a',x:5,y:0},{id:'junior-hazard-b',x:10,y:6}],
+  directions:mission.directions+' WATCH OUT! Space bad guys move to different squares after each arrow press. If they bump your explorer, start again.'};
+}
 export function createMission(world,stage){
  if(Number.isInteger(stage)&&stage>=8&&stage<8+BONUS_STAGES){
   const base=buildMission(world,BONUS_ORDER[stage-8]);
-  return {...base,id:WORLDS[world].id+'-bonus-'+(stage-7),stage,
+  return addMovingSpaceBadGuys({...base,id:WORLDS[world].id+'-bonus-'+(stage-7),stage,
    mechanicVersion:6,name:'Bonus '+(stage-7)+': '+base.name,
-   directions:base.directions+' EXTRA SPACE PRACTICE! Click with the trackpad and move with keyboard arrows.'};
+   directions:base.directions+' EXTRA SPACE PRACTICE! Click with the trackpad and move with keyboard arrows.'});
  }
- return buildMission(world,stage);
+ return addMovingSpaceBadGuys(buildMission(world,stage));
 }
 export function createProgress(){return {version:1,completed:[],stars:0,purchases:[],rescued:[],character:CHARACTERS[0].id,worldScene:[],sceneWorld:0,active:null}}
 export function completedCount(progress,w){return (progress.completed||[]).filter(id=>Array.from({length:8},(_,n)=>WORLDS[w].id+'-'+(n+1)).includes(id)).length}
