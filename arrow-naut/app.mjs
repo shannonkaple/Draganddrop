@@ -3,7 +3,7 @@ import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,b
 import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=neon-resize-select-r3';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=map-two-locked-r2';
-import {mountMapTwo} from './map-two.mjs?v=lost-worlds-8themes-r2';
+import {mountMapTwo} from './map-two.mjs?v=map-two-return-after-rescue-20261105';
 const root=document.getElementById('app');
 let disposeMapTwo=null;
 const $=selector=>root.querySelector(selector);
