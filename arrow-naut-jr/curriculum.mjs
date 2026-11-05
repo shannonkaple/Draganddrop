@@ -68,16 +68,30 @@ const pc=(id,name,x,y,goal,img,w=1,h=1,shape=null)=>({id,name,x,y,goal,img,w,h,s
 const cargoL=puzzle('l_shaped_cargo'),cargoT=puzzle('t_shaped_cargo');
 
 const art=[puzzle('robot_probe'),moveFind('solar_panel_satellite'),moveFind('moon_rover'),puzzle('rocket'),moveFind('star_cargo_crate'),puzzle('space_station_satellite'),puzzle('flying_saucer')];
+/** First-grade worlds have distinct activity orders while keeping level 8 as rescue.
+ * Existing save IDs (worldId-levelNumber) are unchanged.
+ */
+export const WORLD_ORDERS=[
+ [0,1,2,3,4,5,6],
+ [1,4,3,2,0,6,5],
+ [2,0,5,1,6,4,3],
+ [4,3,0,6,1,5,2],
+ [5,1,3,0,2,4,6],
+ [3,6,2,4,0,1,5],
+ [6,2,4,5,1,3,0],
+ [1,5,6,2,3,0,4]
+];
 export function createMission(world,stage){
  if(!Number.isInteger(world)||world<0||world>=8||!Number.isInteger(stage)||stage<0||stage>7)
   throw Error('Unknown first-grade mission');
  const id=WORLDS[world].id+'-'+(stage+1),w=WORLDS[world];
- const base={id,world,stage,mechanicVersion:(stage===0||stage===3)?4:3,kind:'move',name:NAMES[stage],
+ const activity=stage===7?7:WORLD_ORDERS[world][stage];
+ const base={id,world,stage,activity,mechanicVersion:activity===0||activity===3?4:(activity!==stage?5:3),kind:'move',name:NAMES[activity],
   pieces:[],rocks:[],pickups:[],target:null,worldData:w};
  const offset=world%3;
  const gold='../arrow-lab/assets/star-icon.png',gem='./assets/new-space-art/crystal_moon.png',starSignal='./assets/new-space-art/star_beacon.png';
  const beacon=(id,x,y,name,img=gold,piece=null)=>({id,x,y,name,img,piece});
- if(stage===0){
+ if(activity===0){
   const firstGear=[
    {name:'Rocket Ship',img:art[3]},
    {name:'Moon Rover',img:art[2]},
@@ -101,26 +115,26 @@ export function createMission(world,stage){
    rocks:world>=5?[[6,3],[8,4]]:world>=2?[[6,3]]:[]
   };
  }
- if(stage===1)return {...base,kind:'trail',name:NAMES[1],
+ if(activity===1)return {...base,kind:'trail',name:NAMES[1],
   directions:'STARLIGHT TRAIL! CLICK your explorer. Use KEYBOARD ARROWS to touch the glowing stars IN ORDER. Then go to the green finish!',
   pieces:[pc('rover','Your Space Explorer',1,3,{x:10,y:3},art[2])],
   pickups:[beacon('trail-1',3,world%2?2:4,'Star 1'),
    beacon('trail-2',6,world%2?4:2,'Star 2'),
    ...(world>=3?[beacon('trail-3',8,world%2?2:4,'Star 3')]:[])],
   pickupOrder:'ordered'};
- if(stage===2)return {...base,kind:'collect',name:NAMES[2],
+ if(activity===2)return {...base,kind:'collect',name:NAMES[2],
   directions:'FUEL CRYSTAL HUNT! Click your explorer, steer AROUND the space rocks, collect ALL crystals, then go to the finish!',
   pieces:[pc('rover','Your Space Explorer',1,3,{x:10,y:3},art[2])],
   rocks:[[4,1],[4,2],[4,3],[4,4],[6,3],[7,3],...(world>=3?[[7,2],[7,4]]:[])],
   pickups:[beacon('fuel-a',2,5,'Fuel Crystal A',moveFind('crystal_cluster')),
    beacon('fuel-b',8,1,'Fuel Crystal B',moveFind('crystal_cluster')),
    ...(world>=4?[beacon('fuel-c',9,5,'Fuel Crystal C',moveFind('crystal_cluster'))]:[])]};
- if(stage===3)return {...base,kind:'delivery',name:NAMES[3],
+ if(activity===3)return {...base,kind:'delivery',name:NAMES[3],
   directions:'FIT THE SPACE CARGO! CLICK the L or T picture in the middle. Use ARROW KEYS to guide each piece into its SAME-SIZE faded picture. NO scan stars to chase, NO turning, and NO resizing!',
   pieces:[pc('laptop','L-Shaped Cargo',2,1,{x:7, y:0},cargoL,2,3,'L'),
    pc('keyboard','T-Shaped Cargo',1,4,{x:7,y:3},cargoT,3,3,'T')],
   pickups:[]};
- if(stage===4)return {...base,kind:'precision',name:NAMES[4],target:'target',
+ if(activity===4)return {...base,kind:'precision',name:NAMES[4],target:'target',
   directions:'SECRET CARGO! Click the BLUE cargo crate, NOT the decoys. Move it to BOTH signal stars before docking!',
   pieces:[pc('target','Secret Cargo Crate',2,3,{x:9,y:3},art[4]),
    pc('decoy1','Moon Rover',6,1,null,art[2]),
@@ -129,14 +143,14 @@ export function createMission(world,stage){
    ...(world>=4?[pc('decoy4','Robot Probe',9,5,null,art[0])]:[])],
   pickups:[beacon('signal-a',4,world%2?2:4,'Signal 1',starSignal,'target'),
    beacon('signal-b',7,world%2?4:2,'Signal 2',starSignal,'target')]};
- if(stage===5)return {...base,kind:'key-gate',name:NAMES[5],
+ if(activity===5)return {...base,kind:'key-gate',name:NAMES[5],
   directions:'FORCE FIELD! Click the SATELLITE and collect the key to open the gate. Then guide the rover through its scan star before docking BOTH pictures.',
   pieces:[pc('keyboard','Communications Satellite',1,1,{x:9,y:1},art[1]),
    pc('mouse','Moon Rover',1,5,{x:9,y:5},art[2])],
   rocks:Array.from({length:7},(_,y)=>[5,y]).filter(v=>v[1]!==3),
   gate:{x:5,y:3,img:moveFind('lightning_energy_cell')},
   pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',moveFind(world===3?'blue_ice_key':'golden_signal_key'),'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
- if(stage===6)return {...base,kind:'relay',name:NAMES[6],
+ if(activity===6)return {...base,kind:'relay',name:NAMES[6],
   directions:'SPACE DOCKS! Click the glowing picture FIRST. Use ARROW KEYS to move it into its matching dock. Then click the next picture. No turning or resizing!',
   pieces:[pc('trackpad','Little Robot Probe',4,3,{x:10,y:2},art[0]),
    pc('arrows','L-Shaped Cargo',1,0,{x:9,y:1},cargoL,2,3,'L'),
