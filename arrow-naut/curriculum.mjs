@@ -48,10 +48,10 @@ export const MISSION_SKILLS=[
 const shape=(id,name,x,y,cells,goal,color)=>({id,name,x,y,w:Math.max(...cells.map(c=>c[0]))+1,h:Math.max(...cells.map(c=>c[1]))+1,cells,goal,color,resize:false});
 const rectangle=(id,name,x,y,w,h,goal,color,resize=false)=>({id,name,x,y,w,h,goal,color,resize});
 /** Original, fixed-grid, no-drag puzzles; different planet offsets vary layouts without changing controls. */
-function buildBaseMission(planetIndex,stage){
+function buildBaseMission(planetIndex,stage,forcedTemplate=null){
  if(!Number.isInteger(planetIndex)||planetIndex<0||planetIndex>=PLANETS.length||!Number.isInteger(stage)||stage<0||stage>7)throw Error('Unknown mission');
  const planet=PLANETS[planetIndex];
- const templateStage=stage===7?7:WORLD_ORDERS[planetIndex][stage];
+ const templateStage=forcedTemplate===null?(stage===7?7:WORLD_ORDERS[planetIndex][stage]):forcedTemplate;
  const base={id:`${planet.id}-${stage+1}`,planetIndex,stage,planet,number:planetIndex*8+stage+1,
   title:MISSION_NAMES[templateStage],directions:MISSION_SKILLS[templateStage],pieces:[],obstacles:[],pickups:[],kind:'place',templateStage,layoutVersion:3};
  // Planet difficulty 1-8: more choices, longer routes, larger stretch targets
@@ -191,7 +191,7 @@ export function createMission(planetIndex,stage){
     pattern,pieces:[],obstacles:[],pickups:[]};
   }
   if(stage===10){
-   const relay=buildBaseMission(planetIndex,WORLD_ORDERS[planetIndex].indexOf(6));
+   const relay=buildBaseMission(planetIndex,6,6);
    return {...relay,id:PLANETS[planetIndex].id+'-bonus-3',stage,
     number:64+planetIndex*BONUS_STAGES+3,layoutVersion:8,kind:'picture-relay',
     title:'Three-Picture Space Relay',
