@@ -32,6 +32,7 @@ export const PUZZLE_SPRITES={
  'box-a':a('crate_pink'),'box-b':a('crate_blue'),
  'box-c':a('crate_purple'),'box-d':a('crate_mint'),'box-e':a('crate_purple'),
  'rover':a('space_rover'),
+ 'resize-tile-1':a('crate_blue'),'resize-tile-2':a('crate_mint'),'resize-tile-3':a('crate_pink'),
  'cargo-l':'../arrow-naut-jr/assets/puzzle/l_shaped_cargo.png',
  'cargo-t':'../arrow-naut-jr/assets/puzzle/t_shaped_cargo.png',
  'rocket':'../arrow-naut-jr/assets/puzzle/rocket.png',
