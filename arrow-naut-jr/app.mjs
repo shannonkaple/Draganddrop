@@ -90,18 +90,12 @@ function piece(p){
  fileImg(graphic,pictureName,'piece-picture')+'</button><span class="junior-board-label junior-piece-label">'+esc(pictureName)+'</span></div>';
 }
 function missionMeter(m,run){
- if(m.kind==='relay'){
-  const n=(run.delivered||[]).length;
-  return 'DOCKED: '+n+' / '+m.pieces.filter(p=>p.goal).length+' · CHOOSE ANY PICTURE';
- }
- if((m.pickups||[]).length){
-  return (m.kind==='key-gate'?(run.gateOpen?'FIELD OPEN · ':'FIND THE KEY · '):
-    m.kind==='trail'?'STAR TRAIL · ':m.kind==='collect'?'CRYSTAL HUNT · ':'SIGNAL SCAN · ')+
-   (run.collected||[]).length+' / '+m.pickups.length+' COLLECTED';
- }
- if(m.kind==='delivery')return 'MATCH THE L + T CARGO · NO SCAN STARS';
- if(m.kind==='precision')return 'CLICK THE RIGHT PICTURE · FIT IT INTO ITS DOCK';
- return m.kind==='maze'?'RESCUE YOUR FRIEND · REACH EXIT':'CLICK THEN MOVE WITH THE ARROWS';
+ const got=(run.collected||[]).length,all=(m.pickups||[]).length;
+ if(m.kind==='relay')return 'PICTURES: '+(run.delivered||[]).length+' / '+m.pieces.filter(p=>p.goal).length;
+ if(m.kind==='maze')return 'FIND EXIT';
+ if(m.kind==='key-gate')return (run.gateOpen?'GATE OPEN':'FIND THE KEY')+' · STARS: '+got+'/'+all;
+ if(all)return 'GET STARS: '+got+' / '+all;
+ return 'MATCH THE PICTURES';
 }
 /** Update just the moving elements, preserving every image node between
  * arrow presses. No reloading dozens of PNGs and JPEGs per keyboard repeat.
@@ -146,12 +140,29 @@ function refreshGameDisplay(){
  const feedback=root.querySelector('#feedback');
  if(feedback){feedback.textContent=state.notice;feedback.classList.toggle('error',!!state.error)}
 }
+/** Plain-language directions describe the picture, star, key, and faded dock. */
+function kidDirections(m){
+ const stars=(m.pickups||[]).length;
+ if(m.kind==='maze')return '1. Click your space friend. 2. Use arrow keys. 3. Find EXIT. Stay away from bad guys!';
+ if(m.kind==='trail')return '1. Click your picture. 2. Use arrow keys. 3. Get the stars in order. Then go to the green box!';
+ if(m.kind==='collect')return '1. Click your picture. 2. Use arrow keys. 3. Get ALL the crystals. Then go to the green box!';
+ if(m.kind==='delivery')return '1. Click a shape. 2. Use arrow keys. 3. Move it to the SAME faded shape. Do both!';
+ if(m.kind==='key-gate')return '1. Click a picture. 2. Use arrows to get the KEY. 3. Get the star. 4. Put BOTH pictures on their faded matches.';
+ if(m.kind==='relay')return '1. Click any picture. 2. Use arrows to move it to the SAME faded picture. 3. Do all THREE pictures!';
+ if(m.kind==='precision')return '1. Find the picture that looks like the faded picture. 2. Click it. 3. Use arrows.'+(stars?' Get '+(stars===1?'the star':'both stars')+'.':'')+' 4. Move it to the faded picture.';
+ return '1. Click your picture. 2. Use arrow keys. 3. Move to the SAME faded picture.';
+}
+const kidLevelName=m=>({
+ trail:'Follow the Stars',collect:'Get the Crystals',delivery:'Match the Shapes',
+ 'key-gate':'Get the Key',relay:'Match Three Pictures',maze:'Rescue Your Friend',
+ precision:'Find the Picture'
+})[m.kind]||'Move the Picture';
 function game(){
  const m=state.mission,run=state.run,w=WORLDS[m.world],isMaze=m.kind==='maze';
- const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock'+(p.shape?' shape-match '+p.shape:(m.world%2===0?' dock-green':' dock-blue'))+'" style="'+stylePos(p.goal.x,p.goal.y,p.w,p.h)+'" title="Fit the '+esc(p.name)+' here">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small class="junior-board-label">'+(p.shape?'MATCH '+p.shape+' · '+esc(p.name):'DOCK · '+esc(p.name))+'</small></div>').join('');
+ const targets=m.pieces.filter(p=>p.goal).map(p=>'<div class="goal goal-dock'+(p.shape?' shape-match '+p.shape:(m.world%2===0?' dock-green':' dock-blue'))+'" style="'+stylePos(p.goal.x,p.goal.y,p.w,p.h)+'" title="Fit the '+esc(p.name)+' here">'+fileImg(p.id==='rover'?chosen().img:p.img,'','goal-picture')+'<small class="junior-board-label">'+(p.shape?'SAME SHAPE':'SAME PICTURE')+'</small></div>').join('');
  const pickups=(m.pickups||[]).filter(p=>!(run.collected||[]).includes(p.id)).map(p=>
   '<div class="pickup" data-pickup="'+esc(p.id)+'" style="'+stylePos(p.x,p.y)+'" role="img" aria-label="'+esc(p.name)+'">'+
-   fileImg(p.img,p.name,'pickup-picture')+'<small class="junior-board-label">'+esc(p.name)+'</small></div>').join('');
+   fileImg(p.img,p.name,'pickup-picture')+'<small class="junior-board-label">'+(p.id==='gate-key'?'KEY':p.id.startsWith('trail-')?p.id.slice(-1):'GET IT')+'</small></div>').join('');
  const gate=m.gate&&!run.gateOpen?'<div class="force-gate" style="'+stylePos(m.gate.x,m.gate.y)+'">'+
   fileImg(m.gate.img,'Locked force field','gate-picture')+'<small class="junior-board-label">LOCKED</small></div>':'';
  const meter=missionMeter(m,run);
@@ -167,9 +178,9 @@ function game(){
   mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">'+fileImg(w.friend,'Rescue friend','finish-friend')+'<small class="junior-board-label junior-finish-label">RESCUE · EXIT</small></div>'+enemies+
    '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" data-explorer="yes" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button><span class="junior-board-label junior-piece-label">YOU</span></div>';
  }
- return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(m.name)+'</h1>'+
+ return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(kidLevelName(m))+'</h1>'+
  '<span class="game-mini-meter" aria-live="polite">'+esc(meter)+'</span><button data-action="world">Back to World Map</button></div>'+
- '<div class="directions"><strong>'+esc(m.directions)+'</strong><button type="button" class="listen" data-action="listen" aria-label="Read the level directions aloud" title="Click to hear the instructions again"><span class="speaker-icon" aria-hidden="true">🔊</span><span class="listen-label">HEAR DIRECTIONS</span></button></div>'+
+ '<div class="directions"><strong>'+esc(kidDirections(m))+'</strong><button type="button" class="listen" data-action="listen" aria-label="Read the level directions aloud" title="Click to hear the instructions again"><span class="speaker-icon" aria-hidden="true">🔊</span><span class="listen-label">HEAR DIRECTIONS</span></button></div>'+
  '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
  '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
  '<div class="grid"></div>'+targets+walls+movingEnemies+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div><div class="junior-friend-preview" aria-label="Friend to rescue">'+fileImg(w.friend,'Rescue friend','junior-friend-preview-pic')+'<small class="junior-board-label">RESCUE FRIEND</small></div>')+
@@ -353,7 +364,7 @@ function nav(action){
     break;
    }
    window.speechSynthesis.cancel();
-   const utterance=new SpeechSynthesisUtterance(state.mission.directions.replace(/!\s*/g,'. ').replace(/\bCLICK\b/g,'click').replace(/\bTRACKPAD\b/g,'trackpad'));
+   const utterance=new SpeechSynthesisUtterance(kidDirections(state.mission));
    utterance.lang='en-US';utterance.rate=.84;utterance.pitch=1;
    window.speechSynthesis.speak(utterance);
    break;
