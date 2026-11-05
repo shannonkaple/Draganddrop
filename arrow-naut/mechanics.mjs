@@ -72,7 +72,7 @@ export function selectObject(mission,state,id,mode='move'){
   const expected=mission.deliveryOrder[(state.delivered||[]).length];
   if(id!==expected)return {ok:false,state,reason:'Deliver pictures IN ORDER. First click '+(mission.pieces.find(p=>p.id===expected)?.name||'the highlighted object')+'.'};
  }
- if(mission.kind==='precision'&&id!==mission.clickTarget){const correct=mission.pieces.find(p=>p.id===mission.clickTarget);return {ok:false,state,reason:'Not that picture. Click INSIDE the '+(correct?.color||'correct').toUpperCase()+' '+(correct?.name||'picture')+' instead.'};}
+ if(mission.kind==='precision'&&id!==mission.clickTarget&&!piece.resize){const correct=mission.pieces.find(p=>p.id===mission.clickTarget);return {ok:false,state,reason:'Not that picture. Click INSIDE the '+(correct?.color||'correct').toUpperCase()+' '+(correct?.name||'picture')+' instead.'};}
  return {ok:true,state:{...state,selected:id,mode:'move',attempts:state.attempts+1},reason:'Selected! Use the arrow keys to MOVE this object.'};
 }
 export function arrowAction(mission,state,key){
