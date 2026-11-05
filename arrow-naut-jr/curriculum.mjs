@@ -9,14 +9,14 @@ const skill=n=>'../game-assets/collectibles/skills/'+n+'_512.png';
 const puzzle=n=>'./assets/puzzle/'+n+'.png';
 const moveFind=n=>'./assets/move-find/'+n+'.png';
 export const WORLDS=[
- {id:'launch',name:'Candy Moon',jpg:jpeg('candy-moon'),friend:'../arrow-lab/friends/candy-bunny.png'},
- {id:'moon',name:'Rocket Launch',jpg:jpeg('rocket-launch'),friend:'../arrow-lab/friends/pirate-parrot.png'},
- {id:'robot',name:'Neon Ringed Planet',jpg:jpeg('neon-rings'),friend:'../arrow-lab/friends/space-alien.png'},
- {id:'crystal',name:'Crystal Ice',jpg:jpeg('crystal-ice'),friend:'../arrow-lab/friends/arctic-penguin.png'},
- {id:'slime',name:'Robot Space Station',jpg:jpeg('robot-station'),friend:'../arrow-lab/friends/royal-dragon.png'},
- {id:'ice',name:'Dino Asteroid',jpg:jpeg('dino-asteroid'),friend:'../arrow-lab/friends/explorer-dino.png'},
- {id:'jungle',name:'Ocean Planet',jpg:jpeg('ocean-planet'),friend:'../arrow-lab/friends/ocean-dolphin.png'},
- {id:'core',name:'Lava Planet',jpg:jpeg('lava-planet'),friend:'../arrow-lab/friends/lava-dragon.png'}
+ {id:'launch',name:'Candy Moon',jpg:jpeg('candy-moon'),friend:'../arrow-naut/assets/standalone/rescue_bunny.png'},
+ {id:'moon',name:'Rocket Launch',jpg:jpeg('rocket-launch'),friend:'../arrow-naut/assets/standalone/rescue_turtle.png'},
+ {id:'robot',name:'Neon Ringed Planet',jpg:jpeg('neon-rings'),friend:'../arrow-naut/assets/standalone/rescue_otter.png'},
+ {id:'crystal',name:'Crystal Ice',jpg:jpeg('crystal-ice'),friend:'../arrow-naut/assets/standalone/rescue_koala.png'},
+ {id:'slime',name:'Robot Space Station',jpg:jpeg('robot-station'),friend:'../arrow-naut/assets/standalone/rescue_puppy.png'},
+ {id:'ice',name:'Dino Asteroid',jpg:jpeg('dino-asteroid'),friend:'./assets/explorers/space_panda.png'},
+ {id:'jungle',name:'Ocean Planet',jpg:jpeg('ocean-planet'),friend:'./assets/explorers/space_kitty.png'},
+ {id:'core',name:'Lava Planet',jpg:jpeg('lava-planet'),friend:'./assets/explorers/star_bot.png'}
 ];
 export const GALAXY='../arrow-naut/assets/galaxy-map.jpg';
 export const WORLD_STOPS=[
@@ -29,7 +29,11 @@ export const CHARACTERS=[
  {id:'astro_ace',name:'Astro Ace',img:'../game-assets/characters/starter/png_512/astro_ace.png'},
  {id:'space_panda',name:'Nova Panda Astronaut',img:'./assets/explorers/space_panda.png'},
  {id:'space_kitty',name:'Comet Kitty Astronaut',img:'./assets/explorers/space_kitty.png'},
- {id:'space_robot',name:'Orbit Space Robot',img:'./assets/explorers/star_bot.png'}
+ {id:'space_robot',name:'Orbit Space Robot',img:'./assets/explorers/star_bot.png'},
+ {id:'astro_fox',name:'Cosmo Fox Astronaut',img:'../arrow-naut/assets/standalone/astro_fox.png'},
+ {id:'astro_panda_new',name:'Space Panda Explorer',img:'../arrow-naut/assets/standalone/astro_panda.png'},
+ {id:'astro_kitten_new',name:'Kitty Space Explorer',img:'../arrow-naut/assets/standalone/astro_kitten.png'},
+ {id:'astro_robot_new',name:'Rocket Astronaut Bot',img:'../arrow-naut/assets/standalone/astro_robot.png'}
 ];
 export const ENEMIES=[
  './assets/new-space-art/meteor_slime.png',
@@ -133,7 +137,7 @@ export function createMission(world,stage){
   directions:'FIT THE SPACE CARGO! CLICK the L or T picture in the middle. Use ARROW KEYS to guide each piece into its SAME-SIZE faded picture. NO scan stars to chase, NO turning, and NO resizing!',
   pieces:[pc('laptop','L-Shaped Cargo',2,1,{x:7, y:0},cargoL,2,3,'L'),
    pc('keyboard','T-Shaped Cargo',1,4,{x:7,y:3},cargoT,3,3,'T')],
-  pickups:[]};
+  pickups:[],rocks:[[0,0],[11,6]]};
  if(activity===4)return {...base,kind:'precision',name:NAMES[4],target:'target',
   directions:'SECRET CARGO! Click the BLUE cargo crate, NOT the decoys. Move it to BOTH signal stars before docking!',
   pieces:[pc('target','Secret Cargo Crate',2,3,{x:9,y:3},art[4]),
@@ -141,7 +145,7 @@ export function createMission(world,stage){
    pc('decoy2','Rocket Ship',7,5,null,art[3]),
    pc('decoy3','Communications Satellite',5,4,null,art[1]),
    ...(world>=4?[pc('decoy4','Robot Probe',9,5,null,art[0])]:[])],
-  pickups:[beacon('signal-a',4,world%2?2:4,'Signal 1',starSignal,'target'),
+  rocks:[[11,0],[0,6]],pickups:[beacon('signal-a',4,world%2?2:4,'Signal 1',starSignal,'target'),
    beacon('signal-b',7,world%2?4:2,'Signal 2',starSignal,'target')]};
  if(activity===5)return {...base,kind:'key-gate',name:NAMES[5],
   directions:'FORCE FIELD! Click the SATELLITE and collect the key to open the gate. Then guide the rover through its scan star before docking BOTH pictures.',
@@ -156,7 +160,7 @@ export function createMission(world,stage){
    pc('arrows','L-Shaped Cargo',1,0,{x:9,y:1},cargoL,2,3,'L'),
    pc('laptop','T-Shaped Cargo',1,3,{x:6,y:4},cargoT,3,3,'T')],
   deliveryOrder:world%3===0?['trackpad','arrows','laptop']:world%3===1?['arrows','laptop','trackpad']:['laptop','trackpad','arrows'],
-  rocks:[]};
+  rocks:[[11,0],[0,6]]};
  const maze=makeFinalMaze(world);
  return {...base,kind:'maze',name:NAMES[7],
   directions:'RESCUE MAZE! CLICK your explorer. Use the ARROW KEYS to find EXIT. Space bad guys move on safe side paths!',
