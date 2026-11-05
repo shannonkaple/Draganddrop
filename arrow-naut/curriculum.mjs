@@ -181,6 +181,23 @@ function withPatrollingEnemies(mission){
 }
 export function createMission(planetIndex,stage){
  if(Number.isInteger(stage)&&stage>=8&&stage<8+BONUS_STAGES){
+  // These two bonus games introduce genuinely different rules, not just new colors.
+  if(stage===12){
+   const arrows=['ArrowUp','ArrowRight','ArrowDown','ArrowLeft'];
+   const pattern=Array.from({length:7+planetIndex},(_,i)=>arrows[(planetIndex*3+i*i+i*3+Math.floor(i/2))%4]);
+   return {id:PLANETS[planetIndex].id+'-bonus-5',planetIndex,stage,planet:PLANETS[planetIndex],
+    number:64+planetIndex*BONUS_STAGES+5,layoutVersion:8,kind:'arrow-sequence',
+    title:'Space Signal Code',directions:'Read the LARGE flashing arrow. Press that KEYBOARD arrow in the correct order. Wrong keys start your code again. Finish the full sequence to earn your star.',
+    pattern,pieces:[],obstacles:[],pickups:[]};
+  }
+  if(stage===10){
+   const relay=buildBaseMission(planetIndex,6);
+   return {...relay,id:PLANETS[planetIndex].id+'-bonus-3',stage,
+    number:64+planetIndex*BONUS_STAGES+3,layoutVersion:8,kind:'picture-relay',
+    title:'Three-Picture Space Relay',
+    deliveryOrder:['antenna','window','console'],
+    directions:'Deliver THREE different pictured objects IN ORDER: first the antenna, then the window (DRAG its handles to resize), then the console. Click the highlighted next object, move with ARROWS and fit each into its own picture dock.'};
+  }
   const base=buildBaseMission(planetIndex,BONUS_ORDER[stage-8]);
   // New stable IDs never collide with original 64 levels or saved student runs.
   return withPatrollingEnemies(addProgressiveResizes({...base,id:PLANETS[planetIndex].id+'-bonus-'+(stage-7),
