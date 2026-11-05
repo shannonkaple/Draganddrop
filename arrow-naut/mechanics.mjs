@@ -2,7 +2,7 @@ import {mazeInitial,mazeMove,mazeEnemyTick,fireLaser} from './finale-maze.mjs?v=
 import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=all-boss-safe-lasers-20261102';
 export const DIRECTIONS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
 export const clone=value=>JSON.parse(JSON.stringify(value));
-export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),attempts:0,complete:false,...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
+export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),layoutVersion:mission.layoutVersion??1,collected:[],attempts:0,complete:false,...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
 export function occupiedCells(piece){if(piece.cells)return piece.cells.map(([dx,dy])=>[piece.x+dx,piece.y+dy]);const out=[];for(let y=0;y<piece.h;y++)for(let x=0;x<piece.w;x++)out.push([piece.x+x,piece.y+y]);return out;}
 export function validPosition(mission,pieces,changedId){
  const selected=pieces.find(p=>p.id===changedId);if(!selected)return false;
@@ -17,7 +17,8 @@ export function validPosition(mission,pieces,changedId){
 export function goalMet(piece){const g=piece.goal;return !!g&&piece.x===g.x&&piece.y===g.y&&
   (g.w===undefined||piece.w===g.w)&&(g.h===undefined||piece.h===g.h);}
 export function missionComplete(mission,state){return mission.kind==='final-maze'?!!state.complete:mission.kind==='click'?state.complete:
- mission.pieces.filter(p=>p.goal).every(p=>goalMet(state.pieces.find(x=>x.id===p.id)));}
+ mission.pieces.filter(p=>p.goal).every(p=>goalMet(state.pieces.find(x=>x.id===p.id)))&&
+ (mission.pickups||[]).every(p=>state.collected?.includes(p.id));}
 /** A click INSIDE selects an object; arrow keys always MOVE it, never resize it. */
 export function selectObject(mission,state,id,mode='move'){
  const piece=state.pieces.find(p=>p.id===id);
@@ -40,8 +41,14 @@ export function arrowAction(mission,state,key){
  p.x+=dx;p.y+=dy;
  if(!validPosition(mission,next.pieces,p.id))return {ok:false,state,reason:'That would hit a wall, another object, or the edge. Try a different arrow.'};
  next.mode='move';next.attempts++;
+ let collected=false;
+ if(!Array.isArray(next.collected))next.collected=[];
+ for(const item of mission.pickups||[]){
+  if(next.collected.includes(item.id))continue;
+  if(p.x===item.x&&p.y===item.y){next.collected.push(item.id);collected=true}
+ }
  next.complete=missionComplete(mission,next);
- return {ok:true,state:next,reason:next.complete?'Mission complete!':'Great! Keep going.'};
+ return {ok:true,state:next,reason:next.complete?'Mission complete!':collected?'Star collected! Now reach your matching dock.':'Great! Keep going.'};
 }
 /** Grid-snapped handle dragging, with the opposite edge/corner held in place.
  * deltaColumns/deltaRows are pointer movement rounded to whole puzzle squares.
