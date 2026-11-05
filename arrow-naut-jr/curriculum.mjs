@@ -65,7 +65,19 @@ export const ITEMS=[
  {id:'treasure_chest',name:'Galaxy Treasure Chest',price:12,img:'./assets/new-space-art/star_chest.png'},
  {id:'star_beacon',name:'Star Signal Beacon',price:8,img:'./assets/new-space-art/star_beacon.png'},
  {id:'space_rover',name:'Moon Rover',price:9,img:'./assets/new-space-art/space_rover.png'},
- {id:'star_wand',name:'Star Wand',price:10,img:'./assets/new-space-art/star_wand.png'}
+ {id:'star_wand',name:'Star Wand',price:10,img:'./assets/new-space-art/star_wand.png'},
+ {id:'legacy-lollipop',name:'Candy Planet Lollipop',price:5,img:'../arrow-lab/collectibles/candy/lollipop.png'},
+ {id:'legacy-cupcake',name:'Galaxy Cupcake',price:6,img:'../arrow-lab/collectibles/candy/cupcake.png'},
+ {id:'legacy-pirate-chest',name:'Space Pirate Treasure Chest',price:9,img:'../arrow-lab/collectibles/pirate/treasure_chest.png'},
+ {id:'legacy-gold-coins',name:'Golden Space Coins',price:7,img:'../arrow-lab/collectibles/pirate/gold_coins.png'},
+ {id:'legacy-compass',name:'Explorer Compass',price:6,img:'../arrow-lab/collectibles/pirate/compass.png'},
+ {id:'legacy-ice-gem',name:'Frozen Crystal Gem',price:6,img:'../arrow-lab/collectibles/arctic/icicle_gem.png'},
+ {id:'legacy-snowglobe',name:'Arctic Snow Globe',price:8,img:'../arrow-lab/collectibles/arctic/snow_globe.png'},
+ {id:'legacy-pearl-shell',name:'Ocean Pearl Shell',price:7,img:'../arrow-lab/collectibles/ocean/pearl_shell.png'},
+ {id:'legacy-sea-turtle',name:'Ocean Turtle Friend',price:10,img:'../arrow-lab/collectibles/ocean/sea_turtle.png'},
+ {id:'legacy-starfish',name:'Starfish Treasure',price:5,img:'../arrow-lab/collectibles/ocean/starfish.png'},
+ {id:'legacy-golden-key',name:'Golden Castle Key',price:9,img:'../arrow-lab/collectibles/castle/golden_key.png'},
+ {id:'legacy-hot-cocoa',name:'Explorer Hot Cocoa',price:5,img:'../arrow-lab/collectibles/arctic/hot_cocoa.png'}
 ];
 export const NAMES=['Find & Dock','Starlight Trail','Fuel Crystal Hunt','Match the Space Cargo','Find the Secret Cargo','Unlock the Force Field','Space Signal Relay','Rescue Maze'];
 const pc=(id,name,x,y,goal,img,w=1,h=1,shape=null)=>({id,name,x,y,goal,img,w,h,shape});
