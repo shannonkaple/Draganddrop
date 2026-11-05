@@ -66,7 +66,7 @@ function goalShape(piece){
  const g=piece.goal;if(!g)return '';
  const bbox={...piece,x:g.x,y:g.y,w:g.w??piece.w,h:g.h??piece.h};
  const label=piece.name.toUpperCase();
- return `<div class="goal matching-dock" style="${positionStyle(bbox)}" role="img" aria-label="Destination for ${esc(piece.name)}">
+ return `<div class="goal matching-dock ${piece.color||''}" data-goal-for="${esc(piece.id)}" style="${positionStyle(bbox)}" role="img" aria-label="Destination for ${esc(piece.name)}">
    ${art(PUZZLE_SPRITES[piece.id], '', 'goal-ghost')}
    <span class="goal-label">${esc(label)}</span></div>`;
 }
@@ -75,7 +75,7 @@ function pieceHtml(piece){
  const selected=state.run.selected===piece.id,cls=`piece ${piece.cells?'poly-piece ':''}${piece.color||'blue'}${selected?' selected':''}`;
  const inner=`<button class="${piece.cells?'poly-art-button':'piece-interior'}" type="button" data-select="${esc(piece.id)}" aria-label="Click the middle of ${esc(piece.name)} to select">
  ${gamePieceArt(piece)}<span class="piece-name">${esc(piece.name)}</span></button>`;
- return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize&&selected?['nw','n','ne','e','se','s','sw','w'].map(handle=>`<button type="button" class="resize-handle handle-${handle}" data-resize="${esc(piece.id)}" data-handle="${handle}" title="Hold and drag to resize" aria-label="Drag ${handle} handle"></button>`).join(''):''}</div>`;
+ return `<div class="${cls}" data-boundary="${esc(piece.id)}" data-piece-color="${esc(piece.color||'blue')}" style="${positionStyle(piece)}">${inner}${piece.resize&&selected?['nw','n','ne','e','se','s','sw','w'].map(handle=>`<button type="button" class="resize-handle handle-${handle}" data-resize="${esc(piece.id)}" data-handle="${handle}" title="Hold and drag to resize" aria-label="Drag ${handle} handle"></button>`).join(''):''}</div>`;
 }
 
 function finalePage(){
