@@ -57,12 +57,20 @@ function buildBaseMission(planetIndex,stage){
  // Planet difficulty 1-8: more choices, longer routes, larger stretch targets
  // and extra rescue equipment. All coordinates stay inside the 12x7 board.
  if(templateStage===0){
-  const extra=planetIndex>=3?[rectangle('box-d','Mint box',5,5,2,1,null,'mint')]:[];
-  const more=planetIndex>=6?[rectangle('box-e','Purple box',4,0,1,1,null,'purple')]:[];
-  const target=planetIndex%2?'box-b':'box-a';
-  return {...base,kind:'click',directions:'Carefully click INSIDE the glowing '+(planetIndex%2?'blue':'pink')+' space box.',
-   pieces:[rectangle('box-a','Pink box',2,2,2,2,null,'pink'),rectangle('box-b','Blue box',7,1,2,2,null,'blue'),
-    rectangle('box-c','Purple box',7,4,1,1,null,'purple'),...extra,...more],clickTarget:target};
+  // Selecting the correct picture is step ONE, not a one-click win.
+  // Each planet changes the chosen picture, route, checkpoint and destination.
+  const odd=planetIndex%2===1,target=odd?'box-b':'box-a';
+  const goal=odd?{x:1,y:4,w:2,h:2}:{x:9,y:4,w:2,h:2};
+  const checkpoint=odd?{x:5,y:1}:{x:4,y:2};
+  return {...base,kind:'precision',layoutVersion:5,
+   title:odd?'Blue Signal Search & Delivery':'Pink Signal Search & Delivery',
+   directions:'Find and CLICK the '+(odd?'BLUE':'PINK')+' picture (not the decoys). Use ARROW KEYS to collect its glowing star, dodge obstacles, and deliver it into the matching dock. One click does NOT finish the level.',
+   pieces:[
+    rectangle('box-a','Pink signal picture',2,2,2,2,odd?null:goal,'pink'),
+    rectangle('box-b','Blue signal picture',7,1,2,2,odd?goal:null,'blue'),
+    rectangle('box-c','Purple decoy',7,5,1,1,null,'purple')],
+   pickups:[{id:'select-signal',x:checkpoint.x,y:checkpoint.y,name:'Signal star',image:'./assets/standalone/pickup_star.png'}],
+   clickTarget:target};
  }
  if(templateStage===1){
   const obstacles=[[4,2],[4,3],[4,4],[6,0],[6,1],[8,4],[8,5],[8,6]];
