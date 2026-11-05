@@ -171,3 +171,12 @@
 .moving-hazard{position:absolute;z-index:7;pointer-events:none;display:grid;place-items:center;filter:drop-shadow(0 1px 3px #1b174d)}
 .moving-hazard .moving-hazard-image{display:block;width:100%;height:100%;object-fit:contain;object-position:center;animation:hazard-bob 1s ease-in-out infinite}
 @keyframes hazard-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8%)}}
+
+/* Show the original illustrated level map AND the extra missions; never clip the bonus section. */
+.planet-map-page.with-bonus{height:auto;min-height:calc(100dvh - var(--bar-height,70px));overflow-y:auto;overflow-x:hidden;align-items:center;gap:7px}
+.planet-map-page.with-bonus .planet-map-wrap{flex:0 0 auto;height:min(50svh,410px);min-height:240px;overflow:visible}
+.planet-map-page.with-bonus .planet-map-stage{width:min(100%,calc(min(50svh,410px)*1672/941));max-height:100%;flex:none}
+.planet-map-page.with-bonus .bonus-labs{flex:none;margin:2px auto 14px;padding:9px 13px}
+.planet-map-page.with-bonus .bonus-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.planet-map-page.with-bonus .bonus-grid button{min-height:58px;padding:4px 6px;gap:0}
+@media (max-width:700px){.planet-map-page.with-bonus .bonus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
