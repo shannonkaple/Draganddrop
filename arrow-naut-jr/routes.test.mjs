@@ -102,3 +102,56 @@ test('large cargo must occupy its exact shape, cannot resize or pass other shape
   }
  }
 });
+
+
+function anyOrderPermutations(items){
+ if(!items.length)return [[]];
+ return items.flatMap((item,i)=>anyOrderPermutations(items.filter((_,j)=>j!==i))
+  .map(rest=>[item,...rest]));
+}
+test('all eight space relay missions work in every one of the six object orders',()=>{
+ for(let world=0;world<8;world++){
+  const mission=Array.from({length:7},(_,i)=>createMission(world,i)).find(m=>m.kind==='relay');
+  for(const order of anyOrderPermutations(mission.pieces.map(p=>p.id))){
+   let run=startRun(mission);
+   for(const id of order){
+    const selected=select(mission,run,id);
+    assert.equal(selected.ok,true,mission.id+' must allow selecting '+id);
+    run=selected.run;
+    const destination=run.pieces.find(p=>p.id===id).goal;
+    const route=plan(mission,run,id,destination);
+    assert.notEqual(route,null,mission.id+' order '+order.join(',')+' blocked '+id);
+    for(const key of route){const step=move(mission,run,key);
+     assert.equal(step.ok,true,mission.id+' order '+order.join(',')+' move '+key);
+     run=step.run}
+    assert.ok(run.delivered.includes(id),mission.id+' failed to save docked '+id);
+   }
+   assert.equal(run.complete,true,mission.id+' could not finish order '+order.join(','));
+  }
+ }
+});
+test('all eight force-field missions allow satellite first OR rover first',()=>{
+ for(let world=0;world<8;world++){
+  const mission=Array.from({length:7},(_,i)=>createMission(world,i)).find(m=>m.kind==='key-gate');
+  for(const order of [['keyboard','mouse'],['mouse','keyboard']]){
+   let run=startRun(mission);
+   for(const id of order){
+    const picked=select(mission,run,id);
+    assert.equal(picked.ok,true,mission.id+' must allow '+id+' first');
+    run=picked.run;
+    const piece=run.pieces.find(p=>p.id===id);
+    const checkpoints=[...mission.pickups.filter(p=>
+      (!p.piece||p.piece===id)&&!run.collected.includes(p.id)),piece.goal];
+    for(const point of checkpoints){
+     const route=plan(mission,run,id,point);
+     assert.notEqual(route,null,mission.id+' '+id+' cannot reach '+(point.id||'dock'));
+     for(const key of route){const result=move(mission,run,key);
+      assert.equal(result.ok,true,mission.id+' '+id+' blocked on '+key);
+      run=result.run}
+    }
+   }
+   assert.equal(run.gateOpen,true,mission.id+' key did not open gate');
+   assert.equal(run.complete,true,mission.id+' cannot finish in order '+order.join(','));
+  }
+ }
+});
