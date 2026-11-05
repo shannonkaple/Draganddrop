@@ -5,7 +5,7 @@ const directions={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,
 export function startRun(mission){
  return {id:mission.id,mechanicVersion:mission.mechanicVersion??1,
   selected:null,pieces:clone(mission.pieces),attempts:0,complete:false,
-  collected:[],delivered:[],gateOpen:false,
+  collected:[],delivered:[],gateOpen:false,movingHazards:clone(mission.movingHazards||[]),
   ...(mission.kind==='maze'?{maze:mazeInitial({mazeStart:mission.mazeStart,enemies:mission.enemies})}:{})};
 }
 export function select(mission,run,id){
@@ -30,6 +30,33 @@ export function select(mission,run,id){
  }
  return {ok:true,run:{...run,selected:id,attempts:run.attempts+1},
   reason:'Selected! Now use the keyboard arrow keys.'};
+}
+/** Randomized patrols on selected first-grade click-and-arrow challenges.
+ * Hazards never take permanent goal/pickup spaces; an encounter resets only
+ * this active level through the existing verified student-save transaction.
+ */
+export function juniorHazardTick(mission,run){
+ if(!mission.movingHazards?.length)return {run,collision:false};
+ const next=clone(run),hero=next.pieces.find(p=>p.id===next.selected);
+ if(!Array.isArray(next.movingHazards))next.movingHazards=clone(mission.movingHazards);
+ const fixed=new Set((mission.rocks||[]).map(p=>p.join(',')));
+ for(const pickup of mission.pickups||[])fixed.add(pickup.x+','+pickup.y);
+ for(const p of next.pieces){
+  if(p.goal)fixed.add(p.goal.x+','+p.goal.y);
+  if(p.id!==next.selected)fixed.add(p.x+','+p.y);
+ }
+ const at=p=>p.x+','+p.y;
+ const taken=new Set();
+ let collision=hero&&next.movingHazards.some(h=>at(h)===at(hero));
+ for(const enemy of next.movingHazards){
+  const choices=[[0,0],[1,0],[-1,0],[0,1],[0,-1]]
+   .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
+   .filter(p=>p.x>=0&&p.x<COLS&&p.y>=0&&p.y<ROWS&&!fixed.has(at(p))&&!taken.has(at(p)));
+  const moved=choices[Math.floor(Math.random()*choices.length)]||enemy;
+  enemy.x=moved.x;enemy.y=moved.y;taken.add(at(enemy));
+  if(hero&&at(enemy)===at(hero))collision=true;
+ }
+ return {run:next,collision};
 }
 export function move(mission,run,key){
  if(!directions[key])return {ok:false,run,reason:'Use the keyboard arrow keys.'};
@@ -94,7 +121,12 @@ export function move(mission,run,key){
   if(!next.complete&&allDelivered&&!allCollected)
    reason='Almost! Collect the glowing stars or crystals before finishing!';
  }
- return {ok:true,run:next,reason:next.complete?'Mission complete!':reason};
+ const hazard=juniorHazardTick(mission,next);
+ if(hazard.collision){
+  const reset=startRun(mission);reset.attempts=next.attempts;
+  return {ok:true,run:reset,reason:'A moving space bad guy bumped you! Try this level again.'};
+ }
+ return {ok:true,run:hazard.run,reason:hazard.run.complete?'Mission complete!':reason};
 }
 export function patrol(mission,run){
  if(mission.kind!=='maze'||run.complete)return {ok:false,run};
