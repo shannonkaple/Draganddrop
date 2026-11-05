@@ -185,3 +185,15 @@
 .mission-pickup .pickup-visible-star{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(23px,3vw,43px);line-height:1;filter:drop-shadow(0 0 5px #fff);z-index:1}
 .mission-pickup .mission-pickup-art{position:relative;z-index:2;max-width:70%;max-height:70%;object-fit:contain}
 .mission-pickup>span:last-child{position:relative;z-index:3}
+
+/* Level 3 pink/blue cargo: large reliable trackpad targets and obvious docks. */
+.poly-piece[data-boundary="cargo-l"] .poly-art-button,
+.poly-piece[data-boundary="cargo-t"] .poly-art-button{inset:0;width:100%;height:100%;min-width:0;min-height:0;padding:4px;border:3px solid #fff;border-radius:12px;touch-action:manipulation}
+.poly-piece[data-boundary="cargo-l"] .poly-art-button{background:rgba(255,130,194,.32);border-color:#ff9ec9}
+.poly-piece[data-boundary="cargo-t"] .poly-art-button{background:rgba(111,193,255,.25);border-color:#82d6ff}
+.poly-piece[data-boundary="cargo-l"].selected .poly-art-button,
+.poly-piece[data-boundary="cargo-t"].selected .poly-art-button{outline:4px solid #ffe65d;outline-offset:2px}
+.goal.matching-dock[data-goal-for="cargo-l"]{border:4px dashed #ff7cb8;background:rgba(255,109,182,.25);box-shadow:0 0 13px #ff7cb8}
+.goal.matching-dock[data-goal-for="cargo-t"]{border:4px dashed #6ddaff;background:rgba(91,194,255,.24);box-shadow:0 0 13px #66d5ff}
+.goal.matching-dock[data-goal-for="cargo-l"] .goal-label{background:#96356f}
+.goal.matching-dock[data-goal-for="cargo-t"] .goal-label{background:#215b95}
