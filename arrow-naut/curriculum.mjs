@@ -62,13 +62,14 @@ function buildBaseMission(planetIndex,stage,forcedTemplate=null){
   const odd=planetIndex%2===1,target=odd?'box-b':'box-a';
   const goal=odd?{x:1,y:4,w:2,h:2}:{x:9,y:4,w:2,h:2};
   const checkpoint=odd?{x:5,y:1}:{x:4,y:2};
-  return {...base,kind:'precision',layoutVersion:9,
+  return {...base,kind:'precision',layoutVersion:planetIndex===2&&stage===1?10:9,
    title:odd?'Blue Signal Search & Delivery':'Pink Signal Search & Delivery',
-   directions:'Find and CLICK the '+(odd?'BLUE':'PINK')+' picture (not the decoys). Use ARROW KEYS to collect its glowing star, dodge obstacles, and deliver it into the matching dock. One click does NOT finish the level.',
+   directions:'Find and CLICK the '+(odd?'BLUE':'PINK')+' picture (not the decoys). Use ARROW KEYS to collect its glowing star and deliver it into the matching dock.'+(planetIndex===2&&stage===1?' Then click the Solar Tile at the BOTTOM, drag its yellow resize handle ONE square right to fit its outline.':'')+' One click does NOT finish the level.',
    pieces:[
     rectangle('box-a','Pink signal picture',2,2,2,2,odd?null:goal,'pink'),
     rectangle('box-b','Blue signal picture',7,1,2,2,odd?goal:null,'blue'),
-    rectangle('box-c','Purple decoy',7,5,1,1,null,'purple')],
+    rectangle('box-c','Purple decoy',7,5,1,1,null,'purple'),
+    ...(planetIndex===2&&stage===1?[rectangle('resize-tile-1','Solar Tile',5,5,1,1,{x:5,y:5,w:2,h:1},'blue',true)]:[])],
    pickups:[{id:'select-signal',x:checkpoint.x,y:checkpoint.y,name:'Signal star',image:'./assets/standalone/pickup_star.png'}],
    clickTarget:target};
  }
