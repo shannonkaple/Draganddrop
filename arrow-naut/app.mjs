@@ -22,12 +22,8 @@ function persist(next){
  }catch(error){notify('NOT SAVED. Your previous work is safe. Tell your teacher and try again.',true);return false}
 }
 const progressText=()=>state.progress?`${state.progress.stars} stars`:'0 stars';
-const art=(src,alt,cls='asset-image')=>{
- const id=String(src||'').split('/').pop().replace(/\.png$/,'');
- const at=ATLAS_POSITIONS[id];
- if(!at)return `<span class="asset-missing" role="img" aria-label="${esc(alt)}">${esc(alt)}</span>`;
- return `<span class="art-sprite ${cls}" role="img" aria-label="${esc(alt)}" style="--art-x:${at.x/(ATLAS_COLS-1)*100}%;--art-y:${at.y/(ATLAS_ROWS-1)*100}%"></span>`;
-};
+/** Render the ENTIRE transparent PNG. Never use atlas background-position cropping. */
+const art=(src,alt,cls='asset-image')=>`<img class="asset-image ${cls}" src="${esc(src||'./assets/standalone/pickup_star.png')}" alt="${esc(alt)}" draggable="false" loading="eager">`;
 const playerImg=()=>art(playerPortrait(state.progress?.playerId),'Your chosen Arrow-Naut','header-player-img');
 function header(){
  const hasStudent=!!state.progress;
@@ -35,7 +31,7 @@ function header(){
  return `<header class="topbar" id="main-header"><div class="brand"><strong>Ms. Kaple's ARROW-NAUT Space Adventure</strong><small>${hasStudent?esc(studentText):'SECOND GRADE · CLICK · MOVE · RESIZE · FIT'}</small></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
   `<button data-action="home">Home</button><button data-action="shop">Star Shop · ${state.progress.stars}</button><button data-action="stuff">My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
- <nav class="right-controls" aria-label="Help and student controls"><button data-action="help">How to Play</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
+ <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">How to Play</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
 function entry(){
  if(state.view==='teachers')return `<main class="main"><section class="hero"><span class="tag">WELCOME, SPACE EXPLORER</span><h1>Choose Your Teacher</h1><p>Click carefully. Get ready to use your trackpad and arrow keys on an out-of-this-world mission!</p></section>
@@ -47,7 +43,7 @@ function entry(){
 function home(){
  return `<main class="main galaxy-home"><section class="galaxy-map-wrap" aria-label="Choose one of eight space planets">
  <div class="galaxy-map-stage"><img class="galaxy-map-art" src="${GALAXY_MAP}" alt="Eight bright cartoon planet islands joined by a rainbow space trail" draggable="false">
- ${PLANETS.map((p,i)=>{const unlocked=planetUnlocked(state.progress,i),done=completedCount(state.progress,i),pad=GALAXY_STOPS[i];return `<button class="galaxy-stop${unlocked?'':' is-locked'}" style="left:${pad.x}%;top:${pad.y}%" data-planet="${i}" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} Planet, ${done} of 8 levels complete${unlocked?'':' locked'}"><span class="stop-icon">${unlocked?p.symbol:'LOCK'}</span><span class="stop-name">${esc(p.name)}</span><span class="stop-count">${unlocked?`${done}/8 complete`:'Locked'}</span></button>`}).join('')}
+ ${PLANETS.map((p,i)=>{const unlocked=planetUnlocked(state.progress,i),done=completedCount(state.progress,i),pad=GALAXY_STOPS[i];return `<button class="galaxy-stop${unlocked?'':' is-locked'}" style="left:${pad.x}%;top:${pad.y}%" data-planet="${i}" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} Planet, ${done} of 8 levels complete${unlocked?'':' locked'}"><span class="stop-icon">${unlocked?'GO':'LOCK'}</span><span class="stop-name">${esc(p.name)}</span><span class="stop-count">${unlocked?`${done}/8 complete`:'Locked'}</span></button>`}).join('')}
  <div class="galaxy-progress" aria-live="polite">${state.progress.stars} stars · ${state.progress.completed.length}/64 Missions · Beat the final maze to unlock each new planet</div>
  </div></section></main>`;
 }
@@ -55,36 +51,32 @@ function planetMap(){
  const p=PLANETS[state.planet],done=completedCount(state.progress,state.planet);
  return `<main class="main planet-map-page"><section class="planet-map-wrap" aria-label="${esc(p.name)} planet level map">
  <div class="planet-map-stage"><img class="planet-map-art" src="${planetImage(state.planet)}" alt="Illustrated scenery for ${esc(p.name)}" draggable="false">
- <div class="planet-map-heading"><strong>${p.symbol} ${esc(p.name)} World</strong><span>${done}/8 Missions · Rescue ${esc(p.friend)}</span></div>
- ${MISSION_NAMES.map((title,i)=>{const completed=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=stageUnlocked(state.progress,state.planet,i),pin=LEVEL_STOPS[i];return `<button class="planet-level-pin${completed?' is-complete':''}" data-level="${i}" style="left:${pin.x}%;top:${pin.y}%" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} level ${i+1}: ${esc(i===7?'FINAL MAZE - 10 STARS':title)}${completed?', completed':''}${unlocked?'':', locked'}"><strong>${unlocked?i+1:'LOCK'}</strong><span>${esc(title)}</span>${completed?'<small>DONE</small>':''}</button>`}).join('')}
+ <div class="planet-map-heading"><strong>${esc(p.name)} World</strong><span>${done}/8 Missions · Rescue ${esc(p.friend)}</span></div>
+ ${MISSION_NAMES.map((_,i)=>{const title=createMission(state.planet,i).title,completed=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=stageUnlocked(state.progress,state.planet,i),pin=LEVEL_STOPS[i];return `<button class="planet-level-pin${completed?' is-complete':''}" data-level="${i}" style="left:${pin.x}%;top:${pin.y}%" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} level ${i+1}: ${esc(i===7?'FINAL MAZE - 10 STARS':title)}${completed?', completed':''}${unlocked?'':', locked'}"><strong>${unlocked?i+1:'LOCK'}</strong><span>${esc(title)}</span>${completed?'<small>DONE</small>':''}</button>`}).join('')}
  <button class="map-home-button" data-action="home">All Planets</button>
  </div></section></main>`;
 }
 function positionStyle(piece){return `left:${piece.x/GRID.columns*100}%;top:${piece.y/GRID.rows*100}%;width:${piece.w/GRID.columns*100}%;height:${piece.h/GRID.rows*100}%;`}
-function goalShape(piece){const g=piece.goal;if(!g)return '';
+function goalShape(piece){
+ const g=piece.goal;if(!g)return '';
  const bbox={...piece,x:g.x,y:g.y,w:g.w??piece.w,h:g.h??piece.h};
- if(piece.cells)return `<div class="goal" style="${positionStyle(bbox)}" aria-hidden="true">${piece.cells.map(([dx,dy])=>`<i class="goal-shape-cell" style="left:${dx/bbox.w*100}%;top:${dy/bbox.h*100}%;width:${100/bbox.w}%;height:${100/bbox.h}%"></i>`).join('')}</div>`;
- return `<div class="goal" style="${positionStyle(bbox)}" aria-hidden="true"><span class="goal-label">FIT HERE</span></div>`;
+ const label=piece.name.toUpperCase();
+ return `<div class="goal matching-dock" style="${positionStyle(bbox)}" role="img" aria-label="Destination for ${esc(piece.name)}">
+   ${art(PUZZLE_SPRITES[piece.id], '', 'goal-ghost')}
+   <span class="goal-label">${esc(label)}</span></div>`;
 }
-const STANDALONE_PUZZLE_ART={"box-a":"cargo_crate","box-b":"communications_satellite","box-c":"flying_saucer","box-d":"space_greenhouse","box-e":"cargo_crate","rover":"moon_rover","cargo-l":"l_shaped_cargo","cargo-t":"t_shaped_cargo","rocket":"rocket","decoy":"cargo_crate","module":"robot_probe","decoy-2":"flying_saucer","decoy-3":"space_greenhouse","satellite":"space_station_satellite","panel":"communications_satellite","antenna":"robot_probe","window":"space_greenhouse","console":"robotic_rover","bridge":"t_shaped_cargo","beacon":"flying_saucer","signal":"communications_satellite"};
-function gamePieceArt(piece){
- const original=art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['blue-window'],piece.name,'original-piece-art');
- const file=STANDALONE_PUZZLE_ART[piece.id];
- if(!file)return original;
- return `<span class="piece-illustration standalone-art-shell">${original}<img src="./assets/puzzle/${file}.png" alt="${esc(piece.name)}" draggable="false" onload="this.previousElementSibling.style.display='none'" onerror="this.remove()"></span>`;
-}
+function gamePieceArt(piece){return art(PUZZLE_SPRITES[piece.id]||'./assets/standalone/crate_blue.png',piece.name,'whole-piece-art');}
 function pieceHtml(piece){
  const selected=state.run.selected===piece.id,cls=`piece ${piece.cells?'poly-piece ':''}${piece.color||'blue'}${selected?' selected':''}`;
- let inner='';
- if(piece.cells)inner=piece.cells.map(([x,y],i)=>`<button type="button" class="piece-cell" data-select="${esc(piece.id)}" aria-label="Select ${esc(piece.name)}" style="left:${x/piece.w*100}%;top:${y/piece.h*100}%;width:${100/piece.w}%;height:${100/piece.h}%">${i===0?art(PUZZLE_SPRITES[piece.id]||PUZZLE_SPRITES['cargo-l'],piece.name,'piece-block-icon'):''}</button>`).join('')+(STANDALONE_PUZZLE_ART[piece.id]?`<img class="poly-full-art" src="./assets/puzzle/${STANDALONE_PUZZLE_ART[piece.id]}.png" alt="" draggable="false" onload="let old=this.parentElement.querySelector('.piece-block-icon');if(old)old.style.visibility='hidden'" onerror="this.remove()">`:'');
- else inner=`<button class="piece-interior" type="button" data-select="${esc(piece.id)}" aria-label="Click inside ${esc(piece.name)} to select and move">${gamePieceArt(piece)}<span class="piece-name">${esc(piece.name)}</span></button>`;
- return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize&&selected?['nw','n','ne','e','se','s','sw','w'].map(handle=>`<button type="button" class="resize-handle handle-${handle}" data-resize="${esc(piece.id)}" data-handle="${handle}" title="Click, hold and drag to stretch" aria-label="Hold and drag ${handle.toUpperCase()} resize handle of ${esc(piece.name)}"></button>`).join(''):''}</div>`;
+ const inner=`<button class="${piece.cells?'poly-art-button':'piece-interior'}" type="button" data-select="${esc(piece.id)}" aria-label="Click the middle of ${esc(piece.name)} to select">
+ ${gamePieceArt(piece)}<span class="piece-name">${esc(piece.name)}</span></button>`;
+ return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize&&selected?['nw','n','ne','e','se','s','sw','w'].map(handle=>`<button type="button" class="resize-handle handle-${handle}" data-resize="${esc(piece.id)}" data-handle="${handle}" title="Hold and drag to resize" aria-label="Drag ${handle} handle"></button>`).join(''):''}</div>`;
 }
 
 function finalePage(){
  const m=state.mission,run=state.run,z=100/GRID.columns,h=100/GRID.rows;
  const walls=m.walls.map(([x,y])=>`<div class="finale-wall" aria-hidden="true" style="left:${x*z}%;top:${y*h}%;width:${z}%;height:${h}%"></div>`).join('');
- const creatures=run.maze.enemies.map((e,i)=>`<div class="finale-enemy" aria-label="Moving space bad guy ${i+1}" role="img" style="left:${e.x*z}%;top:${e.y*h}%;width:${z}%;height:${h}%">${art('./assets/sprites/'+['meteor-mite','zap-bot','crater-crab','violet-blob','shadow-ufo','asteroid-spike','glitch-rover','cosmic-cube'][(m.planetIndex*3+i)%8]+'.png','Bad guy '+(i+1),'finale-enemy-pic')}</div>`).join('');
+ const creatures=run.maze.enemies.map((e,i)=>`<div class="finale-enemy" aria-label="Moving space bad guy ${i+1}" role="img" style="left:${e.x*z}%;top:${e.y*h}%;width:${z}%;height:${h}%">${art(enemyPortrait(m.planetIndex*3+i),'Bad guy '+(i+1),'finale-enemy-pic')}</div>`).join('');
  const player=`<div class="finale-player" aria-label="Your space explorer" style="left:${run.maze.x*z}%;top:${run.maze.y*h}%;width:${z}%;height:${h}%">${art(playerPortrait(state.progress.playerId),'Your character','finale-player-pic')}</div>`;
  const goal=`<div class="finale-goal" role="img" aria-label="Rescue finish" style="left:${m.mazeGoal.x*z}%;top:${m.mazeGoal.y*h}%;width:${z}%;height:${h}%"><span>EXIT</span></div>`;
  const shot=run.maze.shot;
@@ -105,10 +97,10 @@ function missionPage(){
  const m=state.mission,run=state.run;
  if(m.kind==='final-maze')return finalePage();
  const boardTargets=m.pieces.filter(p=>p.goal).map(p=>goalShape(p)).join('');
- const obstacles=(m.obstacles||[]).map(([x,y],i)=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%">${i%2===0?art(enemyPortrait(m.planetIndex),'','obstacle-enemy'):art('./assets/sprites/supply-crate.png','','obstacle-enemy')}</div>`).join('');
- return `<main class="main playing"><div class="mission-head"><h1>${m.planet.symbol} ${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${run.selected?`Move / Drag handles: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'Click INSIDE to select'}</span><button class="back" data-action="planet">Back to ${m.planet.symbol} ${esc(m.planet.name)} Map</button></div>
+ const obstacles=(m.obstacles||[]).map(([x,y],i)=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%">${art(enemyPortrait(m.planetIndex+i),'Space bad guy','obstacle-enemy')}</div>`).join('');
+ return `<main class="main playing"><div class="mission-head"><h1>${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${run.selected?`Move / Drag handles: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'Click INSIDE to select'}</span><button class="back" data-action="planet">Back to ${esc(m.planet.name)} Map</button></div>
  <section class="mission-frame" aria-label="Arrow-key computer skills game"><div class="directions-bar"><p>${esc(m.directions)}</p><button class="speak" data-action="listen" aria-label="Read directions aloud" title="Read directions aloud">🔊</button></div>
- <div class="board-frame"><div class="space-board" id="space-board" style="--world-hue:${m.planet.hue}" tabindex="0" role="group" aria-label="Space puzzle. Click inside to select, arrows move, and dragging handles with the trackpad changes size."><img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" aria-hidden="true" draggable="false"><div class="grid-lines"></div>${boardTargets}${obstacles}${run.pieces.map(pieceHtml).join('')}</div></div></section>
+ <div class="board-frame"><div class="space-board" id="space-board" style="--world-hue:${m.planet.hue}" tabindex="0" role="group" aria-label="Space puzzle. Click inside to select, arrows move, and dragging handles with the trackpad changes size."><img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" aria-hidden="true" draggable="false"><div class="grid-lines"></div>${boardTargets}${obstacles}${run.pieces.map(pieceHtml).join('')}<div class="space-helper" aria-hidden="true">${art(playerPortrait(state.progress.playerId),'','space-helper-art')}</div></div></div></section>
  <div class="feedback${state.error?' error':''}" role="status" id="live-status">${esc(state.message||'Click an object inside its border, then use your arrow keys.')}</div></main>`;
 }
 function shop(){return `<main class="main"><div class="page-head"><div><h1>Space Star Shop</h1><p>Stars: ${progressText()} · Earn 1 star per new regular level and 10 stars for a final maze. Replays are practice only!</p></div><button data-action="home">Home</button></div><div class="shop-grid">${SPACE_SHOP.map(item=>{const bought=state.progress.purchases.includes(item.id);return `<div class="shop-item card">${art(SHOP_SPRITES[item.id]||'./assets/sprites/comet-star.png',item.name,'shop-art')}<strong>${esc(item.name)}</strong><p>Decorate your own space station.</p><button data-buy="${esc(item.id)}" ${bought||state.progress.stars<item.price?'disabled':''}>${bought?'Owned':`Buy for ${item.price}`}</button></div>`}).join('')}</div></main>`}
@@ -154,7 +146,7 @@ function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=
  const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
 function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage))return;
  const m=createMission(state.planet,stage),old=state.progress.active;
- const resume=old?.id===m.id&&!old.complete;
+ const resume=old?.id===m.id&&!old.complete&&old.layoutVersion===m.layoutVersion;
  // Migrate ALL old boss saves to safe-branch patrols without changing stars or level IDs.
  const migrate=resume&&m.kind==='final-maze'&&(!old.maze||old.maze.version!==2||
   !Array.isArray(old.maze.enemies));
@@ -221,6 +213,7 @@ function onAction(action){
  case 'player-close':state.modal=null;render();break;
  case 'stuff':if(state.progress){state.view='stuff';state.modal=null;render()}break;
  case 'help':state.view='help';state.modal=null;render();break;
+ case 'fullscreen':{const target=document.documentElement;if(document.fullscreenElement){document.exitFullscreen?.().catch?.(()=>notify('Full screen could not close.',true));}else{target.requestFullscreen?.().catch?.(()=>notify('Full screen is unavailable in this browser.',true));}break;}
  case 'listen':if(state.mission)speak(state.mission.directions);break;
   case 'laser':onLaser();break;
  case 'intro-ok':{const next={...state.progress,seenIntros:[...state.progress.seenIntros,PLANETS[state.modal.planet].id]};if(persist(next)){state.modal=null;state.error='';render()};break}
