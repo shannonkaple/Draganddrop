@@ -1,6 +1,6 @@
 import {openTeacherTools} from './teacher-tools.mjs?v=teacher-tools-20261105b';
 import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,bonusCompletedCount,BONUS_STAGES,planetUnlocked,stageUnlocked,sceneUnlocked,SPACE_SHOP} from './curriculum.mjs?v=candy-level2-resize-star-r1';
-import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=map-two-locked-r2';
+import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=candy-level2-resize-star-r2';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=map-two-locked-r2';
 import {mountMapTwo} from './map-two.mjs?v=lost-worlds-8themes-r2';
@@ -108,7 +108,7 @@ function missionPage(){
  }
 
  const boardTargets=m.pieces.filter(p=>p.goal).map(p=>goalShape(p)).join('');
- const pickups=(m.pickups||[]).filter(p=>!run.collected?.includes(p.id)).map(p=>`<div class="mission-pickup" style="left:${p.x/GRID.columns*100}%;top:${p.y/GRID.rows*100}%;width:${100/GRID.columns}%;height:${100/GRID.rows}%" role="img" aria-label="${esc(p.name)}">${art(p.image||'./assets/standalone/pickup_star.png',p.name,'mission-pickup-art')}<span>COLLECT</span></div>`).join('');
+ const pickups=(m.pickups||[]).filter(p=>!run.collected?.includes(p.id)).map(p=>`<div class="mission-pickup" style="left:${p.x/GRID.columns*100}%;top:${p.y/GRID.rows*100}%;width:${100/GRID.columns}%;height:${100/GRID.rows}%" role="img" aria-label="${esc(p.name)}"><span class="pickup-visible-star" aria-hidden="true">⭐</span>${art(p.image||'./assets/standalone/pickup_star.png',p.name,'mission-pickup-art')}<span>COLLECT</span></div>`).join('');
  const obstacles=(m.obstacles||[]).map(([x,y],i)=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%">${art(enemyPortrait(m.planetIndex+i),'Space bad guy','obstacle-enemy')}</div>`).join('');
  const patrols=(run.hazards||[]).map((enemy,i)=>`<div aria-hidden="true" class="moving-hazard" style="left:${enemy.x/GRID.columns*100}%;top:${enemy.y/GRID.rows*100}%;width:${100/GRID.columns}%;height:${100/GRID.rows}%">${art(enemyPortrait(m.planetIndex+i+2),'Moving space bad guy','moving-hazard-image')}</div>`).join('');
  return `<main class="main playing"><div class="mission-head"><h1>${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${(m.pickups||[]).length?`Stars: ${run.collected?.length||0}/${m.pickups.length} · `:''}${run.selected?`Selected: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'Click the MIDDLE to select'}</span><button class="back" data-action="planet">Back to ${esc(m.planet.name)} Map</button></div>
