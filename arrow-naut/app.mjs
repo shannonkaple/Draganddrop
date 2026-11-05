@@ -23,6 +23,8 @@ function persist(next){
   state.progress=next;state.dataError='';return true;
  }catch(error){notify('NOT SAVED. Your previous work is safe. Tell your teacher and try again.',true);return false}
 }
+// All 64 original Map One missions, not eight levels from one planet.
+const mapTwoUnlocked=()=>!!state.progress&&PLANETS.every((_,i)=>completedCount(state.progress,i)===8);
 const progressText=()=>state.progress?`${state.progress.stars} stars`:'0 stars';
 /** Render the ENTIRE transparent PNG. Never use atlas background-position cropping. */
 const art=(src,alt,cls='asset-image')=>`<img class="asset-image ${cls}" src="${esc(src||'./assets/standalone/pickup_star.png')}" alt="${esc(alt)}" draggable="false" loading="eager">`;
@@ -32,7 +34,7 @@ function header(){
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
  return `<header class="topbar" id="main-header"><div class="brand"><strong>Ms. Kaple's ARROW-NAUT Space Adventure</strong><small>${hasStudent?esc(studentText):'SECOND GRADE · CLICK · MOVE · RESIZE · FIT'}</small></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
-  `<button data-action="home">Home</button><button data-action="map-two" class="map-two-entry">Map Two · Lost Worlds</button><button data-action="shop">Star Shop · ${state.progress.stars}</button><button data-action="stuff">My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
+  `<button data-action="home">Home</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">MAP TWO · THE LOST WORLDS</button>`:''}<button data-action="shop">Star Shop · ${state.progress.stars}</button><button data-action="stuff">My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">How to Play</button><button data-action="teacher">Teacher</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
 function entry(){
@@ -51,16 +53,13 @@ function home(){
 }
 function planetMap(){
  const p=PLANETS[state.planet],done=completedCount(state.progress,state.planet);
- return `<main class="main planet-map-page with-bonus"><section class="planet-map-wrap" aria-label="${esc(p.name)} planet level map">
+ return `<main class="main planet-map-page"><section class="planet-map-wrap" aria-label="${esc(p.name)} planet level map">
  <div class="planet-map-stage"><img class="planet-map-art" src="${planetImage(state.planet)}" alt="Illustrated scenery for ${esc(p.name)}" draggable="false">
  <div class="planet-map-heading"><strong>${esc(p.name)} World</strong><span>${done}/8 Missions · Rescue ${esc(p.friend)}</span></div>
  ${Array.from({length:8},(_,i)=>{const title=createMission(state.planet,i).title,completed=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=stageUnlocked(state.progress,state.planet,i),pin=LEVEL_STOPS[i];return `<button class="planet-level-pin${completed?' is-complete':''}" data-level="${i}" style="left:${pin.x}%;top:${pin.y}%" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} level ${i+1}: ${esc(i===7?'FINAL MAZE - 10 STARS':title)}${completed?', completed':''}${unlocked?'':', locked'}"><strong>${unlocked?i+1:'LOCK'}</strong><span>${esc(title)}</span>${completed?'<small>DONE</small>':''}</button>`}).join('')}
  <button class="map-home-button" data-action="home">All Planets</button>
  </div></section>
- <section class="bonus-labs" aria-label="Map Two extra practice missions"><h2>MAP TWO · Extra Space Challenges</h2>
- <p>Finish this planet's rescue maze to unlock eight more click, move, drag, and resize missions. Your original stars and progress stay saved.</p>
- <div class="bonus-grid">${Array.from({length:BONUS_STAGES},(_,i)=>{const stage=8+i,mission=createMission(state.planet,stage),unlocked=stageUnlocked(state.progress,state.planet,stage),complete=state.progress.completed.includes(mission.id);return `<button data-level="${stage}" ${unlocked?'':'disabled'} aria-label="${esc(mission.title)}${complete?', completed':''}"><strong>${complete?'✓':i+9}</strong><span>${esc(mission.title)}</span><small>${complete?'DONE':unlocked?'PLAY':'LOCKED'}</small></button>`}).join('')}</div>
- </section></main>`;
+ </main>`;
 }
 function positionStyle(piece){return `left:${piece.x/GRID.columns*100}%;top:${piece.y/GRID.rows*100}%;width:${piece.w/GRID.columns*100}%;height:${piece.h/GRID.rows*100}%;`}
 function goalShape(piece){
@@ -161,7 +160,7 @@ function render(){
  if(disposeMapTwo){disposeMapTwo();disposeMapTwo=null}
  root.innerHTML=header()+(state.view==='map-two'?'<div id="map-two-root" class="map-two-mount"></div>':
  (state.view==='teachers'||state.view==='students'?entry():state.view==='home'?home():state.view==='planet'?planetMap():state.view==='mission'?missionPage():state.view==='shop'?shop():state.view==='stuff'?stuff():state.view==='error'?errorPage():help()))+modalHtml();
- if(state.view==='map-two'){
+ if(state.view==='map-two'&&mapTwoUnlocked()){
   disposeMapTwo=mountMapTwo($('#map-two-root'),{
    read:()=>state.progress,
    save:next=>persist(next),
@@ -173,7 +172,7 @@ function render(){
 function scheduleFit(){requestAnimationFrame(()=>{const header=$('#main-header');const board=$('#space-board');if(!header)return;const height=Math.round(header.getBoundingClientRect().height);root.style.setProperty('--bar-height',height+'px');if(!board)return;const frame=$('.board-frame');if(!frame)return;const rect=frame.getBoundingClientRect();const w=Math.max(100,Math.min(rect.width-6,(rect.height-6)*1672/941));root.style.setProperty('--board-width',Math.floor(w)+'px')})}
 function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=i;state.view='planet';state.mission=null;state.run=null;state.message='';state.error='';render();
  const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
-function startMission(stage){if(!stageUnlocked(state.progress,state.planet,stage))return;
+function startMission(stage){if(!Number.isInteger(stage)||stage<0||stage>7||!stageUnlocked(state.progress,state.planet,stage))return;
  const m=createMission(state.planet,stage),old=state.progress.active;
  const resume=old?.id===m.id&&!old.complete&&old.layoutVersion===m.layoutVersion;
  // Migrate ALL old boss saves to safe-branch patrols without changing stars or level IDs.
@@ -237,7 +236,7 @@ function onAction(action){
  case 'students':state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
  case 'logout':logOut();break;
  case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
-  case 'map-two':if(state.progress){state.view='map-two';state.modal=null;state.mission=null;state.run=null;render()}break;
+  case 'map-two':if(mapTwoUnlocked()){state.view='map-two';state.modal=null;state.mission=null;state.run=null;render()}break;
  case 'planet':showPlanet(state.planet);break;
  case 'shop':if(state.progress){state.view='shop';state.modal=null;render()}break;
  case 'player':if(state.progress){state.modal={kind:'player'};render()}break;
