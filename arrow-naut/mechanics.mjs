@@ -63,16 +63,16 @@ export function missionComplete(mission,state){return mission.kind==='final-maze
 export function selectObject(mission,state,id,mode='move'){
  const piece=state.pieces.find(p=>p.id===id);
  if(!piece)return {ok:false,state,reason:'Click INSIDE an object.'};
- if(mode!=='move')return {ok:false,state,reason:'Hold and DRAG a resize handle with your trackpad to stretch the object.'};
+ if(mode!=='move')return {ok:false,state,reason:'Drag a small yellow square to make it fit.'};
  if(mission.kind==='click'){
-  if(id!==mission.clickTarget)return {ok:false,state,reason:'Look for the requested color. Carefully click INSIDE that box.'};
+  if(id!==mission.clickTarget)return {ok:false,state,reason:'Try again. Look for the SAME color.'};
   return {ok:true,state:{...state,selected:id,mode:'move',complete:true,attempts:state.attempts+1},reason:'Perfect click!'};
  }
  if(mission.kind==='picture-relay'){
   const expected=mission.deliveryOrder[(state.delivered||[]).length];
   if(id!==expected)return {ok:false,state,reason:'Deliver pictures IN ORDER. First click '+(mission.pieces.find(p=>p.id===expected)?.name||'the highlighted object')+'.'};
  }
- if(mission.kind==='precision'&&id!==mission.clickTarget&&!piece.resize){const correct=mission.pieces.find(p=>p.id===mission.clickTarget);return {ok:false,state,reason:'Not that picture. Click INSIDE the '+(correct?.color||'correct').toUpperCase()+' '+(correct?.name||'picture')+' instead.'};}
+ if(mission.kind==='precision'&&id!==mission.clickTarget&&!piece.resize){const correct=mission.pieces.find(p=>p.id===mission.clickTarget);return {ok:false,state,reason:'Not this one. Click the '+(correct?.color==='mint'?'GREEN':(correct?.color||'correct').toUpperCase())+' picture.'};}
  return {ok:true,state:{...state,selected:id,mode:'move',attempts:state.attempts+1},reason:'Selected! Use the arrow keys to MOVE this object.'};
 }
 export function arrowAction(mission,state,key){
