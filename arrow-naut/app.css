@@ -135,3 +135,12 @@
 .rescue-preview small{font:900 clamp(8px,.72vw,11px) Arial,sans-serif;color:#07284b;background:#fff7b9d9;padding:1px 3px;border-radius:5px}
 .finale-goal .finale-rescue-art{width:94%;height:78%;object-fit:contain;position:absolute;left:3%;top:0}
 .finale-goal span{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:clamp(8px,.75vw,12px);color:white;background:#073d46d9;border-radius:0 0 9px 9px}
+
+/* Map Two: bonus missions stay reachable without covering original illustrated stops. */
+.bonus-labs{width:min(1100px,calc(100% - 20px));margin:12px auto 28px;padding:15px;background:#fff;border:3px solid #7667bd;border-radius:20px;box-shadow:0 4px 0 #d9cbfa}
+.bonus-labs h2{font-size:clamp(19px,2.5vw,27px);margin:0 0 6px}.bonus-labs p{font-size:clamp(12px,1.2vw,16px);margin:3px 0 12px}
+.bonus-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.bonus-grid button{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:88px;font-size:clamp(11px,1.1vw,15px);padding:8px}
+.bonus-grid strong{font-size:21px;color:#6547a6}.bonus-grid small{font-size:11px}
+.space-placed[data-move-scene]{cursor:grab;touch-action:none;user-select:none}
+@media(max-width:700px){.bonus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
