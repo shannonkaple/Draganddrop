@@ -1,5 +1,5 @@
 import {mazeInitial,mazeMove,mazeEnemyTick,fireLaser} from './finale-maze.mjs?v=all-boss-safe-lasers-20261102';
-import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=all-boss-safe-lasers-20261102';
+import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=naut-raster-world-20261105';
 export const DIRECTIONS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
 export const clone=value=>JSON.parse(JSON.stringify(value));
 export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),layoutVersion:mission.layoutVersion??1,collected:[],attempts:0,complete:false,...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
