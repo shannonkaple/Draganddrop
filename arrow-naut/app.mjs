@@ -132,7 +132,7 @@ function stuff(){
  ];
  const arranged=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[])
   .filter(e=>e.planet===sceneWorld&&inventory.some(i=>i.id===e.id));
- return `<main class="main"><div class="page-head"><div><h1>My Space Station</h1><p>Everything you earned, rescued, or bought is here. Your stars and progress are safe.</p></div><button data-action="shop">Star Shop</button></div><div class="space-world-tabs">${PLANETS.map((w,i)=>`<button type="button" data-scene-world="${i}" ${sceneUnlocked(state.progress,i)?'':'disabled title="Beat all eight levels of this world first"'} aria-pressed="${sceneWorld===i}">${esc(w.name)} ${sceneUnlocked(state.progress,i)?'':'· LOCKED'}</button>`).join("")}</div><section class="scene space-scene"><div class="space-arrange-surface" data-scene-board="true" aria-label="Your decorated space world"><img class="space-arrange-background" src="${planetImage(sceneWorld)}" alt="${esc(PLANETS[sceneWorld].name)}" draggable="false">${arranged.map(e=>{const item=inventory.find(i=>i.id===e.id);return `<div class="space-placed" data-move-scene="${esc(e.id)}" style="left:${Math.max(7,Math.min(93,e.x))}%;top:${Math.max(10,Math.min(90,e.y))}%">${art(item.image,item.name,'space-placed-image')}<button type="button" data-put-away="${esc(e.id)}" title="Put away ${esc(item.name)}">×</button></div>`}).join('')}</div><p class="arrange-instructions" role="status">${state.scenePending?'Click an empty place in the picture to put down your selected item.':'Click an owned item below to place it, then hold and drag objects anywhere in the picture to rearrange them.'}</p><div class="scene-objects">${owned.map(item=>`<button type="button" class="scene-object" data-place-item="shop:${esc(item.id)}">${art(SHOP_SPRITES[item.id],item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')}${rescued.map(i=>`<button type="button" class="scene-object rescued-friend" data-place-item="friend:${esc(PLANETS[i].id)}">${art(friendPortrait(i),PLANETS[i].friend,'scene-object-image')}<small>${esc(PLANETS[i].friend)}</small></button>`).join('')}${collected.map(item=>`<button type="button" class="scene-object collected-object" data-place-item="earned:${esc(item.id)}">${art(item.image,item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')||'<p>Complete missions to rescue friends, collect treasures, and shop for decorations.</p>'}</div></section></main>`
+ return `<main class="main"><div class="page-head"><div><h1>My Space Station</h1><p>Everything you earned, rescued, or bought is here. Your stars and progress are safe.</p></div><button data-action="shop">Star Shop</button></div><div class="space-world-tabs">${PLANETS.map((w,i)=>`<button type="button" data-scene-world="${i}" ${sceneUnlocked(state.progress,i)?'':'disabled title="Beat all eight levels of this world first"'} aria-pressed="${sceneWorld===i}">${esc(w.name)} ${sceneUnlocked(state.progress,i)?'':'· LOCKED'}</button>`).join("")}</div><section class="scene space-scene"><div class="space-arrange-surface" data-scene-board="true" aria-label="Your decorated space world"><img class="space-arrange-background" src="${planetImage(sceneWorld)}" alt="${esc(PLANETS[sceneWorld].name)}" draggable="false">${arranged.map(e=>{const item=inventory.find(i=>i.id===e.id);return `<div class="space-placed" data-move-scene="${esc(e.id)}" style="left:${Math.max(7,Math.min(93,e.x))}%;top:${Math.max(10,Math.min(90,e.y))}%;--scene-scale:${Math.max(.6,Math.min(2.2,Number(e.scale)||1))}">${art(item.image,item.name,'space-placed-image')}<button type="button" data-put-away="${esc(e.id)}" title="Put away ${esc(item.name)}">×</button><div class="scene-scale-buttons" aria-label="Resize ${esc(item.name)}"><button type="button" data-scene-scale="smaller" data-scene-id="${esc(e.id)}" aria-label="Make ${esc(item.name)} smaller">−</button><button type="button" data-scene-scale="bigger" data-scene-id="${esc(e.id)}" aria-label="Make ${esc(item.name)} bigger">+</button></div></div>`}).join('')}</div><p class="arrange-instructions" role="status">${state.scenePending?'Click an empty place in the picture to put down your selected item.':'Click an item to place it. Drag to move it. Use its + and − buttons to change its size.'}</p><div class="scene-objects">${owned.map(item=>`<button type="button" class="scene-object" data-place-item="shop:${esc(item.id)}">${art(SHOP_SPRITES[item.id],item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')}${rescued.map(i=>`<button type="button" class="scene-object rescued-friend" data-place-item="friend:${esc(PLANETS[i].id)}">${art(friendPortrait(i),PLANETS[i].friend,'scene-object-image')}<small>${esc(PLANETS[i].friend)}</small></button>`).join('')}${collected.map(item=>`<button type="button" class="scene-object collected-object" data-place-item="earned:${esc(item.id)}">${art(item.image,item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')||'<p>Complete missions to rescue friends, collect treasures, and shop for decorations.</p>'}</div></section></main>`
 }
 function errorPage(){return `<main class="main"><section class="entry" role="alert"><h1>Saved student record needs help</h1><p>${esc(state.dataError)}</p><p>This record has NOT been overwritten. Ask your teacher before trying again.</p><button data-action="students">↩️ Choose Another Number</button></section></main>`}
 function help(){return `<main class="main"><section class="entry how-to"><h1>🚀 How to Control Your Arrow-Naut</h1><ol>
@@ -293,7 +293,7 @@ function mouseEligible(event){return !event.pointerType||event.pointerType==='mo
 root.addEventListener('click',event=>{
  if(!mouseEligible(event)){notify('Use the trackpad and keyboard—not the touchscreen.',true);return}
  const scene=event.target.closest('[data-scene-board]');
- if(scene&&state.scenePending&&!event.target.closest('[data-put-away]')){
+ if(scene&&state.scenePending&&!event.target.closest('[data-put-away],[data-scene-scale]')){
   const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
   const rect=scene.getBoundingClientRect();
   const x=Math.max(7,Math.min(93,Math.round(100*(event.clientX-rect.left)/rect.width)));
@@ -311,6 +311,15 @@ root.addEventListener('click',event=>{
  if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
  if(el.dataset.sceneWorld!==undefined){const i=Number(el.dataset.sceneWorld);if(sceneUnlocked(state.progress,i)&&persist({...state.progress,scenePlanet:i})){state.error='';render()}return}
  if(el.dataset.placeItem){state.scenePending=el.dataset.placeItem;state.error='';render();return}
+ if(el.dataset.sceneScale&&el.dataset.sceneId){
+  const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+  const current=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
+  const target=current.find(e=>e.planet===planet&&e.id===el.dataset.sceneId);
+  if(!target)return;
+  const size=Math.max(.6,Math.min(2.2,Math.round(((Number(target.scale)||1)+(el.dataset.sceneScale==='bigger'?.2:-.2))*10)/10));
+  if(persist({...state.progress,worldScene:current.map(e=>e===target?{...e,scale:size}:e)})){state.error='';render()}
+  return;
+ }
  if(el.dataset.putAway){
   const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
   const current=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
@@ -380,7 +389,7 @@ root.addEventListener('click',event=>{
 let sceneDrag=null;
 root.addEventListener('pointerdown',event=>{
  const piece=event.target.closest('[data-move-scene]');
- if(!piece||event.target.closest('[data-put-away],[data-remove]')||event.pointerType!=='mouse'||event.button!==0||!state.progress)return;
+ if(!piece||event.target.closest('[data-put-away],[data-remove],[data-scene-scale]')||event.pointerType!=='mouse'||event.button!==0||!state.progress)return;
  const board=piece.closest('[data-scene-board]');if(!board)return;
  const world=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
  const original=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[]).find(x=>x.planet===world&&x.id===piece.dataset.moveScene);
