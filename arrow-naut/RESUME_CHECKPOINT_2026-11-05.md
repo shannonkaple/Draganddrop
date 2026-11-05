@@ -23,3 +23,10 @@ This is a durable handoff, **not** an assertion that pending browser QA or artwo
 - Do not mark a task complete based on a commit or a successful build alone; perform interactive browser and Pages deployment checks.
 - Preserve existing saved students, stars, purchased items, rescued friends, unlocked worlds and in-progress challenges.
 - No unapproved artwork replacements and no changes to unrelated games.
+
+## November 5 classroom release — implementation checkpoint
+- **Committed today**: Trackpad dragging of placed MY STUFF objects in both Arrow-Naut and Arrow-Naut Junior. Position saved as world-specific normalized percentages; saves must verify before being accepted. See commits `88ca50d` and `f1ec27d`; updated cache files later.
+- **Committed today**: 64 optional post-rescue extra practice missions per grade (eight extra in each of eight worlds). Original 64 mission IDs, boss rescue gates, and existing student progress remain unchanged; first grade has click+arrow movement only, while second grade includes resize practice. This is a first playable bonus-lab expansion, **NOT yet the fully art-finished new-themed Map Two**. Both use known existing level templates and world illustrations until Art supplies approved originals.
+- **Checked**: static JavaScript syntax for both modified curricula and apps; each has exactly 64 bonus mission definitions and its original 64-level enumeration; boss gating checks passed for the first world. Both published pages load with their teacher selection lists on GitHub Pages via browser-rendered fetch. **Live gameplay, mission solvability, scene dragging, normal/fullscreen Chromebook layout, and deployment SHA confirmation remain unverified.**
+- **Current entry points**: `https://shannonkaple.github.io/Draganddrop/arrow-naut/` and `https://shannonkaple.github.io/Draganddrop/arrow-naut-jr/`.
+- Continue artwork handoff, enemy PNG integration and actual browser QA without overwriting assets another Art agent is working on. Keep publishing small, tested commits.
