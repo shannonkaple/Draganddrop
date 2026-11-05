@@ -178,8 +178,11 @@ function withPatrollingEnemies(mission){
  // multi-piece docking, or fixed boss-maze corridors.
  if(!['move','precision'].includes(mission.kind)||mission.stage===7||
     !(mission.stage>=8||mission.planetIndex>=3))return mission;
- return {...mission,layoutVersion:Math.max(6,mission.layoutVersion||1),
-  hazards:[{id:'patrol-a',x:5,y:0},{id:'patrol-b',x:10,y:6}],
+ return {...mission,layoutVersion:Math.max(10,mission.layoutVersion||1),
+  // Safe side-edge spawn positions: never overlap a decoy, pickup, dock, or wall.
+  // Earlier spawn (5,0) overlapped the pink decoy in the 2-crystal search and
+  // forced a bad guy into the student's path at the first arrow press.
+  hazards:[{id:'patrol-a',x:11,y:2},{id:'patrol-b',x:11,y:6}],
   directions:mission.directions+' WATCH OUT: two space bad guys MOVE after every arrow press! If one touches your picture, you restart this puzzle.'};
 }
 export function createMission(planetIndex,stage){
