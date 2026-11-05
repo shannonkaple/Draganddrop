@@ -75,7 +75,7 @@ function worldMap(){
  const name=createMission(state.world,i).name;
  const available=levelUnlocked(state.progress,state.world,i),completed=state.progress.completed.includes(w.id+'-'+(i+1)),at=LEVEL_STOPS[i];
  return '<button class="level-pin" data-level="'+i+'" style="left:'+at.x+'%;top:'+at.y+'%" '+(available?'':'disabled')+
- ' aria-label="Level '+(i+1)+' '+esc(name)+'"><strong>'+(available?i+1:'LOCK')+'</strong><small>'+esc(name)+(completed?' · DONE':'')+'</small></button>';
+ ' aria-label="Level '+(i+1)+' '+esc(kidLevelName(createMission(state.world,i)))+'"><strong>'+(available?i+1:'LOCK')+'</strong><small>'+esc(kidLevelName(createMission(state.world,i)))+(completed?' · DONE':'')+'</small></button>';
  }).join('')+'<button class="map-back" data-action="home">All Planets</button></div></main>';
 }
 const stylePos=(x,y,w=1,h=1)=>'left:'+(x/COLS*100)+'%;top:'+(y/ROWS*100)+'%;width:'+(w/COLS*100)+'%;height:'+(h/ROWS*100)+'%';
@@ -87,7 +87,7 @@ function piece(p){
  const pictureName=p.id==='rover'?chosen().name:p.name;
  return '<div class="piece'+(selected?' chosen':'')+(isNext?' next-up':'')+(delivered?' docked':'')+'" data-piece="'+esc(p.id)+'" style="'+stylePos(p.x,p.y,p.w,p.h)+'">'+
  '<button data-select="'+esc(p.id)+'" aria-label="Select '+esc(p.name)+'" title="Click inside '+esc(p.name)+' to select">'+
- fileImg(graphic,pictureName,'piece-picture')+'</button><span class="junior-board-label junior-piece-label">'+esc(pictureName)+'</span></div>';
+ fileImg(graphic,pictureName,'piece-picture')+'</button>'+(p.goal?'<span class="junior-board-label junior-piece-label">MOVE ME</span>':'')+'</div>';
 }
 function missionMeter(m,run){
  const got=(run.collected||[]).length,all=(m.pickups||[]).length;
