@@ -174,6 +174,25 @@ function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=
  const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
 function startMission(stage){if(!Number.isInteger(stage)||stage<0||stage>7||!stageUnlocked(state.progress,state.planet,stage))return;
  const m=createMission(state.planet,stage),old=state.progress.active;
+ // Preserve a student's already-correct pink picture and collected star when
+ // removing the accidental Solar Tile requirement from this specific level.
+ if(m.planetIndex===2&&m.stage===1&&old?.id===m.id&&!old.complete&&
+    Array.isArray(old.pieces)&&Array.isArray(old.collected)){
+  const target=m.pieces.find(p=>p.id===m.clickTarget);
+  const placed=old.pieces.find(p=>p.id===target.id);
+  const atGoal=placed&&placed.x===target.goal.x&&placed.y===target.goal.y&&
+    placed.w===target.w&&placed.h===target.h;
+  const hasStars=(m.pickups||[]).every(p=>old.collected.includes(p.id));
+  if(atGoal&&hasStars){
+   const result=finishMission(state.progress,m);
+   if(!persist(result.progress))return;
+   state.mission=m;state.run={...initialMission(m),complete:true,
+    pieces:m.pieces.map(p=>p.id===target.id?{...p,x:placed.x,y:placed.y}:p),
+    collected:[...old.collected],selected:target.id};
+   state.view='mission';state.modal={kind:'reward',friend:result.friend,stars:result.stars};
+   state.message='Pink picture delivered! Mission complete!';state.error='';render();return;
+  }
+ }
  const resume=old?.id===m.id&&!old.complete&&old.layoutVersion===m.layoutVersion;
  // Migrate ALL old boss saves to safe-branch patrols without changing stars or level IDs.
  const migrate=resume&&m.kind==='final-maze'&&(!old.maze||old.maze.version!==2||
