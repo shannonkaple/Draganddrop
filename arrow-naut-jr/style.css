@@ -132,3 +132,18 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .goal-dock.dock-green small,.goal-dock.dock-blue small{
  bottom:-1px;z-index:1;padding:1px 3px;border-radius:4px;background:#073f52c9;
 }
+
+
+/* Compact Chromebook and full-screen game surfaces. */
+.game-board{aspect-ratio:1672/941;max-height:100%}
+.board-backdrop{object-fit:contain}
+.stuff-page{height:calc(100dvh - var(--nav));min-height:0;overflow:hidden;gap:3px;padding:5px 9px}
+.stuff-page h1{font-size:clamp(17px,1.8vw,24px)}
+.stuff-page>p{font-size:clamp(10px,.95vw,13px)}
+.world-tabs{min-height:28px;gap:4px}
+.world-tabs button{min-height:28px;padding:3px 7px;font-size:clamp(9px,.9vw,12px)}
+.decor-scene{flex:1 1 auto;max-height:calc(100dvh - var(--nav) - 205px);width:min(100%,calc((100dvh - var(--nav) - 205px)*1672/941));min-height:0;aspect-ratio:1672/941}
+.inventory{height:100px;flex:0 0 100px;min-height:0;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;justify-content:flex-start;padding:2px}
+.inventory button{flex:0 0 83px;width:83px;min-height:90px;padding:3px}
+.inventory-image{width:50px;height:50px;object-fit:contain}
+@media(max-height:650px){.stuff-page{gap:2px}.decor-scene{max-height:calc(100dvh - var(--nav) - 178px);width:min(100%,calc((100dvh - var(--nav) - 178px)*1672/941))}.inventory{height:79px;flex-basis:79px}.inventory button{min-height:72px}.inventory-image{height:39px;width:39px}}
