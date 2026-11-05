@@ -93,3 +93,37 @@
 .laser-hit-word{position:absolute;z-index:9;transform:translate(-50%,-50%);font-weight:1000;font-size:clamp(14px,2vw,24px);color:#fcffbc;text-shadow:0 0 6px #c522be,0 2px 4px #091435;pointer-events:none;animation:laser-spark .6s ease-out both}
 @keyframes laser-spark{0%{opacity:0;filter:brightness(2)}20%{opacity:1}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.finale-laser-beam,.laser-hit-word{animation:none;opacity:1}}
+
+
+/* 2026-11-05 independent raster art: no atlas crop or border stretching. */
+.asset-image{display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;object-position:center;background:transparent;pointer-events:none}
+.original-piece-art,.whole-piece-art{width:100%;height:82%;object-fit:contain;flex:1 1 0;min-height:0}
+.piece .piece-interior,.piece .poly-art-button{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);padding:3px;border:2px solid #ffffffbf;border-radius:10px;background:rgba(255,255,255,.23);cursor:pointer;min-width:0;min-height:0;overflow:hidden;box-shadow:none}
+.piece .piece-interior:hover,.piece .poly-art-button:hover{background:rgba(255,255,255,.38)}
+.piece .piece-name{display:block;max-width:100%;font-size:clamp(9px,.9vw,13px);text-align:center;text-shadow:0 1px 3px white;color:#17265b;line-height:1.04;flex:0 0 auto}
+.poly-piece .poly-art-button{background:rgba(230,243,255,.18)}
+.poly-piece .poly-art-button img{height:85%;object-fit:contain}
+.matching-dock{border:3px dashed #a4ffca;background:rgba(45,110,91,.25);overflow:visible;display:grid;place-items:center}
+.matching-dock .goal-ghost{position:absolute;inset:0;object-fit:contain;opacity:.35;filter:grayscale(.8) brightness(1.35);width:100%;height:100%}
+.matching-dock .goal-label{position:absolute;bottom:0;top:auto;left:0;right:0;background:rgba(9,65,78,.90);color:#fff;font:800 clamp(8px,.78vw,13px)/1.1 Arial,sans-serif;padding:2px 3px;text-align:center;border-radius:4px;white-space:normal;text-shadow:none}
+.space-helper{position:absolute;right:0;top:0;width:7%;height:13%;z-index:3;pointer-events:none;filter:drop-shadow(0 1px 5px #fff)}
+.space-helper-art{width:100%;height:100%;object-fit:contain}
+.mission-pickup{position:absolute;z-index:3;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mission-pickup-art{height:75%;width:90%;object-fit:contain;filter:drop-shadow(0 0 6px #fff084);animation:star-bob 1.2s ease-in-out infinite}
+.mission-pickup span{font:bold clamp(7px,.7vw,11px) Arial,sans-serif;color:#103d45;background:#e6fff3db;border-radius:5px;padding:1px 3px}
+@keyframes star-bob{0%,100%{transform:translateY(-3px)}50%{transform:translateY(2px)}}
+.obstacle .obstacle-enemy{width:100%;height:100%;object-fit:contain;animation:star-bob 1.8s ease-in-out infinite}
+.finale-enemy .asset-image,.finale-player .asset-image{width:98%;height:98%;object-fit:contain}
+.space-board{aspect-ratio:1672/941}
+.space-board .mission-scenery{object-fit:contain}
+.main.playing,.main.final-maze-page{height:calc(100dvh - var(--bar-height,85px));min-height:0;overflow:hidden}
+.main:has(.space-scene){height:calc(100dvh - var(--bar-height,85px));min-height:0;display:flex;flex-direction:column;gap:4px;overflow:hidden;padding:6px 10px}
+.main:has(.space-scene) .page-head h1{font-size:clamp(18px,2vw,27px)}
+.main:has(.space-scene) .page-head p{font-size:clamp(10px,1vw,14px)}
+.main:has(.space-scene) .space-world-tabs{flex:0 0 auto;min-height:31px;padding:1px}
+.space-scene{flex:1 1 auto;min-height:0!important;max-height:none!important;margin:0;padding:3px!important}
+.space-arrange-surface{width:min(100%,calc((100dvh - var(--bar-height,85px) - 200px)*1672/941));max-height:calc(100dvh - var(--bar-height,85px) - 200px);min-height:0;aspect-ratio:1672/941}
+.space-scene>.scene-objects{height:87px!important;max-height:87px!important;min-height:80px;overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;justify-content:flex-start}
+.space-scene>.scene-objects>.scene-object{flex-shrink:0;min-width:80px;max-width:90px;padding:3px}
+.space-scene>.scene-objects .scene-object-image{height:47px;width:47px;object-fit:contain}
+@media(prefers-reduced-motion:reduce){.mission-pickup-art,.obstacle .obstacle-enemy{animation:none}}
