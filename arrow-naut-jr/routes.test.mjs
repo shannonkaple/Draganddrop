@@ -86,8 +86,8 @@ test('every moving game demands horizontal AND vertical arrow control',()=>{
 });
 test('large cargo must occupy its exact shape, cannot resize or pass other shapes',()=>{
  for(let w=0;w<8;w++){
-  for(const stage of [3,6]){
-   const m=createMission(w,stage);
+  for(const activity of [3,6]){
+   const m=Array.from({length:7},(_,i)=>createMission(w,i)).find(m=>m.activity===activity);
    const l=m.pieces.find(p=>p.shape==='L'),t=m.pieces.find(p=>p.shape==='T');
    assert.ok(l&&t,m.id+' needs both silhouette types');
    assert.equal(l.w,2);assert.equal(l.h,3);
