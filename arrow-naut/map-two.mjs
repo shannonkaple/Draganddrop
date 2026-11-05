@@ -224,7 +224,12 @@ export function mountMapTwo(node,{read,save,exit}){
   if(button.dataset.m2Back){screen=button.dataset.m2Back;notice='';draw();return}
   if(button.hasAttribute('data-m2-stage')){enterStage(Number(button.dataset.m2Stage));return}
   if(button.hasAttribute('data-m2-speak')){speak();return}
-  if(button.hasAttribute('data-m2-reward')){modal=null;screen='world';draw();return}
+  if(button.hasAttribute('data-m2-reward')){
+   // Regular new-world mission: its own eight-level map.
+   // Eighth rescue: the new Map Two eight-world galaxy map.
+   const finishedWorld=stage===7&&mapTwoCount(progress(),world)===8;
+   modal=null;run=null;notice='';screen=finishedWorld?'map':'world';draw();return
+  }
   if(button.dataset.m2Piece&&screen==='game'&&!modal){action('select',button.dataset.m2Piece)}
  }
  function onPointerDown(event){const handle=event.target.closest('[data-m2-handle]'),item=event.target.closest('[data-m2-piece]');
