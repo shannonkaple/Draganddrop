@@ -181,5 +181,6 @@ export function createMission(world,stage){
 export function createProgress(){return {version:1,completed:[],stars:0,purchases:[],rescued:[],character:CHARACTERS[0].id,worldScene:[],sceneWorld:0,active:null}}
 export function completedCount(progress,w){return progress.completed.filter(id=>id.startsWith(WORLDS[w].id+'-')).length}
 export function worldUnlocked(progress,w){return w===0||WORLDS.slice(0,w).every((_,i)=>progress.completed.includes(WORLDS[i].id+'-8'))}
+export const sceneUnlocked=(progress,index)=>Number.isInteger(index)&&index>=0&&index<WORLDS.length&&!!progress?.completed?.includes(WORLDS[index].id+'-8');
 export function levelUnlocked(progress,w,stage){return worldUnlocked(progress,w)&&(stage===0||progress.completed.includes(WORLDS[w].id+'-'+stage))}
 export function allMissions(){return WORLDS.flatMap((_,w)=>NAMES.map((_,s)=>createMission(w,s)))}
