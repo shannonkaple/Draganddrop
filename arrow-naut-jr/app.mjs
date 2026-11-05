@@ -57,18 +57,14 @@ function home(){
 }
 function worldMap(){
  const w=WORLDS[state.world],done=completedCount(state.progress,state.world);
- return '<main class="map-page with-bonus"><div class="map-stage"><img src="'+w.jpg+'" class="map-art" alt="'+esc(w.name)+' illustrated world" draggable="false">'+
+ return '<main class="map-page"><div class="map-stage"><img src="'+w.jpg+'" class="map-art" alt="'+esc(w.name)+' illustrated world" draggable="false">'+
  '<div class="map-heading">'+esc(w.name)+' · '+done+'/8 complete</div>'+
  NAMES.map((_,i)=>{
  const name=createMission(state.world,i).name;
  const available=levelUnlocked(state.progress,state.world,i),completed=state.progress.completed.includes(w.id+'-'+(i+1)),at=LEVEL_STOPS[i];
  return '<button class="level-pin" data-level="'+i+'" style="left:'+at.x+'%;top:'+at.y+'%" '+(available?'':'disabled')+
  ' aria-label="Level '+(i+1)+' '+esc(name)+'"><strong>'+(available?i+1:'LOCK')+'</strong><small>'+esc(name)+(completed?' · DONE':'')+'</small></button>';
- }).join('')+'<button class="map-back" data-action="home">All Planets</button></div>'+
- '<section class="bonus-labs"><h2>MAP TWO · Extra Arrow Practice</h2><p>Rescue your friend, then play eight more click-and-move challenges. No resizing!</p>'+
- '<div class="bonus-grid">'+Array.from({length:BONUS_STAGES},(_,i)=>{const stage=i+8,m=createMission(state.world,stage),available=levelUnlocked(state.progress,state.world,stage),completed=state.progress.completed.includes(m.id);
- return '<button data-level="'+stage+'" '+(available?'':'disabled')+'><strong>'+(completed?'✓':stage+1)+'</strong><span>'+esc(m.name)+'</span><small>'+(completed?'DONE':available?'PLAY':'LOCKED')+'</small></button>';
- }).join('')+'</div></section></main>';
+ }).join('')+'<button class="map-back" data-action="home">All Planets</button></div></main>';
 }
 const stylePos=(x,y,w=1,h=1)=>'left:'+(x/COLS*100)+'%;top:'+(y/ROWS*100)+'%;width:'+(w/COLS*100)+'%;height:'+(h/ROWS*100)+'%';
 function piece(p){
@@ -262,6 +258,7 @@ function showWorld(i){
  state.world=i;state.view='world';state.run=null;state.mission=null;state.modal=null;state.error='';render();
 }
 function openLevel(stage){
+ if(!Number.isInteger(stage)||stage<0||stage>7)return;
  if(!levelUnlocked(state.progress,state.world,stage))return;
  const m=createMission(state.world,stage),old=state.progress.active;
  let resume=old&&old.id===m.id&&!old.complete&&Array.isArray(old.pieces)&&
