@@ -173,7 +173,8 @@ export function createMission(planetIndex,stage){
  }
  return addProgressiveResizes(buildBaseMission(planetIndex,stage));
 }
-export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:8+BONUS_STAGES},(_,stage)=>createMission(pi,stage)))}
+export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:8},(_,stage)=>createMission(pi,stage)))}
+export function allBonusMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:BONUS_STAGES},(_,n)=>createMission(pi,8+n)))}
 export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
 export function completedCount(progress,planetIndex){const id=PLANETS[planetIndex].id;return (progress.completed||[]).filter(level=>Array.from({length:8},(_,n)=>id+'-'+(n+1)).includes(level)).length}
 export function bonusCompletedCount(progress,planetIndex){const id=PLANETS[planetIndex].id+'-bonus-';return (progress.completed||[]).filter(level=>Array.from({length:BONUS_STAGES},(_,n)=>id+(n+1)).includes(level)).length}
