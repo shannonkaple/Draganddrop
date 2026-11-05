@@ -19,7 +19,7 @@ test('picture must be clicked before an arrow moves it',()=>{
 });
 test('first mission now teaches real click, checkpoint, arrow movement and picture docking',()=>{
  for(let world=0;world<8;world++){
-  const mission=createMission(world,0),run=startRun(mission);
+  const mission=Array.from({length:7},(_,i)=>createMission(world,i)).find(m=>m.activity===0),run=startRun(mission);
   assert.equal(mission.kind,'precision');
   assert.equal(mission.pieces.filter(p=>p.goal).length,1);
   assert.ok(mission.pickups.length>=1);
@@ -34,7 +34,7 @@ test('first mission now teaches real click, checkpoint, arrow movement and pictu
  }
 });
 test('precision challenges reject wrong selections',()=>{
- const mission=createMission(4,4),run=startRun(mission);
+ const mission=Array.from({length:7},(_,i)=>createMission(4,i)).find(m=>m.activity===4),run=startRun(mission);
  assert.equal(select(mission,run,'decoy1').ok,false);
  assert.equal(select(mission,run,'target').ok,true);
 });
@@ -72,13 +72,14 @@ test('all boss mazes require selecting the explorer and have safe routes at mult
 test('eight different age-appropriate activities use clicking and keyboard arrow movement only',()=>{
  for(let world=0;world<8;world++){
   const missions=Array.from({length:8},(_,i)=>createMission(world,i));
-  assert.deepEqual(missions.map(x=>x.kind),['precision','trail','collect','delivery','precision','key-gate','relay','maze']);
+  assert.deepEqual(missions.map(x=>x.activity).slice(0,7).sort((a,b)=>a-b),[0,1,2,3,4,5,6]);
+  assert.equal(missions[7].kind,'maze');
   assert.ok(missions.slice(1,7).every(m=>m.pieces.some(p=>p.goal)));
   assert.ok(missions.every(m=>m.pieces.every(p=>Number.isInteger(p.w)&&Number.isInteger(p.h)&&p.w>0&&p.h>0&&!('resize' in p))));
-  assert.ok([0,1,2,4,5].every(stage=>missions[stage].pickups.length>0));
-  assert.equal(missions[3].pickups.length,0,'L and T earn their star by shape fit, not scans');
-  assert.equal(missions[5].gate.x,5);
-  assert.equal(missions[6].deliveryOrder.length,3);
+  assert.ok([0,1,2,4,5].every(activity=>missions.find(m=>m.activity===activity).pickups.length>0));
+  assert.equal(missions.find(m=>m.activity===3).pickups.length,0,'L and T earn their star by shape fit, not scans');
+  assert.equal(missions.find(m=>m.activity===5).gate.x,5);
+  assert.equal(missions.find(m=>m.activity===6).deliveryOrder.length,3);
  }
 });
 test('star-trail checkpoints must be visited in numbered order before the goal counts',()=>{
@@ -121,7 +122,7 @@ test('the magic key opens the otherwise impassable force-field gate',()=>{
  assert.equal(move(m,picked.run,'ArrowRight').ok,true,'open gate allows crossing');
 });
 test('signal relay requires clicking each piece in order and remembers progress',()=>{
- const m=createMission(1,6);
+ const m=Array.from({length:7},(_,i)=>createMission(1,i)).find(m=>m.activity===6);
  let r=startRun(m);
  assert.deepEqual(m.deliveryOrder,['arrows','laptop','trackpad']);
  assert.equal(select(m,r,'laptop').ok,false,'later object cannot go first');
@@ -207,7 +208,7 @@ test('each non-click mission requires a turn or directional change to finish',()
 });
 test('L and T cargo fit earns one level star without chasing scan stars',()=>{
  for(let world=0;world<8;world++){
-  const mission=createMission(world,3);
+  const mission=Array.from({length:7},(_,i)=>createMission(world,i)).find(m=>m.activity===3);
   assert.deepEqual(mission.pickups,[]);
   assert.equal(mission.pieces.filter(p=>p.goal).length,2);
   assert.ok(mission.pieces.some(p=>p.shape==='L'));
