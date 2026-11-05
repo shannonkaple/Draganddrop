@@ -322,7 +322,15 @@ function nav(action){
   case 'logout':try{clearTabSession(sessionStorage)}catch{}state.tabSignature=null;state.expectedSavedRaw=null;state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
   case 'characters':state.modal={type:'character'};render();break;
   case 'character-close':state.modal=null;render();break;
-  case 'victory-ok':state.modal=null;showWorld(state.world);break;
+  case 'victory-ok':{
+   // A completed level returns to this planet's map, unless its eighth
+   // rescue level just finished, in which case show the main galaxy map.
+   const finishedWorld=state.mission?.stage===7&&completedCount(state.progress,state.world)===8;
+   state.modal=null;
+   if(finishedWorld){state.mission=null;state.run=null;state.view='home';state.notice='';state.error='';render()}
+   else showWorld(state.world);
+   break;
+  }
   case 'listen':
    // Every mission can be reread on demand; clicking the speaker restarts it.
    if(!state.mission)break;
