@@ -164,6 +164,7 @@ export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:
 export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
 export function completedCount(progress,planetIndex){const prefix=PLANETS[planetIndex].id+'-';return (progress.completed||[]).filter(id=>id.startsWith(prefix)).length}
 export function planetUnlocked(progress,index){return index===0||PLANETS.slice(0,index).every((_,i)=>completedCount(progress,i)===8)}
+export const sceneUnlocked=(progress,index)=>Number.isInteger(index)&&index>=0&&index<PLANETS.length&&!!progress?.completed?.includes(PLANETS[index].id+'-8');
 export function stageUnlocked(progress,pi,stage){return planetUnlocked(progress,pi)&&(stage===0||((progress.completed||[]).includes(`${PLANETS[pi].id}-${stage}`)))}
 export const SPACE_SHOP=[
  {id:'telescope',name:'Starlight Telescope',price:6},
