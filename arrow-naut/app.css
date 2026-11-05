@@ -225,3 +225,45 @@
  .right-controls{grid-column:1;grid-row:3;justify-content:center}
  .center-controls{grid-column:1;grid-row:2;justify-content:center}
 }
+
+/* Classroom-wide 1672:941 canvas: home, level maps and playing boards share the
+   largest available viewport-fit area. Controls and directions never cover art. */
+:root{--world-ratio:1.77683316}
+.main.galaxy-home,.main.planet-map-page{padding:3px 6px!important;height:calc(100dvh - var(--bar-height,74px));min-height:0;overflow:hidden}
+.galaxy-map-wrap,.planet-map-wrap{flex:1 1 0;min-height:0;width:100%;display:flex;justify-content:center;align-items:center}
+.galaxy-map-stage,.planet-map-stage,
+.planet-map-page.with-bonus .planet-map-stage{
+ width:min(100%,calc((100dvh - var(--bar-height,74px) - 12px)*1672/941))!important;
+ max-width:100%!important;max-height:100%!important;height:auto!important;
+ aspect-ratio:1672/941!important;flex:0 1 auto!important;
+}
+/* Level map hotspots occupy their own image areas rather than stretching labels
+   across adjacent islands. */
+.planet-level-pin,.galaxy-stop{box-sizing:border-box;max-width:14%;overflow:hidden}
+.planet-level-pin span,.galaxy-stop .stop-name{display:block;max-width:100%;overflow-wrap:anywhere;line-height:1.08}
+.main.playing,.main.final-maze-page{gap:5px!important;padding:4px 6px 7px!important;max-width:none;width:100%;height:calc(100dvh - var(--bar-height,74px));min-height:0;overflow:hidden}
+.main.playing .mission-head{display:flex;flex-wrap:wrap;row-gap:3px;align-items:center;justify-content:space-between;min-height:0;max-width:100%}
+.main.playing .mission-head h1{flex:1 1 330px;min-width:0;font-size:clamp(14px,1.55vw,21px)}
+.main.playing .mission-head .mode-label{flex:0 1 auto;max-width:100%;white-space:normal;text-align:center}
+.main.playing .mission-head .back{flex:0 0 auto;white-space:nowrap}
+.mission-frame{flex:1 1 auto;min-height:0;max-width:100%;gap:4px!important;justify-content:flex-start}
+.directions-bar{width:min(100%,calc((100dvh - var(--bar-height,74px) - 125px)*1672/941));max-width:100%;min-height:0;padding:5px 9px;font-size:clamp(12px,1.13vw,17px);flex-wrap:nowrap}
+.directions-bar p{min-width:0;overflow-wrap:break-word}
+.board-frame{flex:1 1 auto;min-height:0;max-width:100%;width:100%;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.space-board,.final-maze-page .finale-board{
+ aspect-ratio:1672/941!important;
+ width:min(100%,var(--board-width,1600px))!important;
+ max-width:100%;max-height:100%;height:auto;
+ border-radius:16px;
+}
+/* Keep information inside its own puzzle cell instead of spilling into adjacent
+   students' clickable objects. */
+.space-board .piece-name,.space-board .goal-label{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-sizing:border-box;font-size:clamp(7px,.82vw,12px)}
+.space-board .mission-pickup>span:last-child{max-width:100%;overflow:hidden;white-space:nowrap;font-size:clamp(7px,.8vw,11px)}
+.feedback{flex:0 0 auto;max-width:100%;min-height:20px;line-height:1.2;overflow-wrap:anywhere}
+@media(max-height:650px){
+ .main.playing{gap:3px!important;padding:2px 5px 4px!important}
+ .main.playing .mission-head h1{font-size:clamp(13px,1.24vw,18px)}
+ .directions-bar{padding:3px 7px;font-size:clamp(11px,1vw,14px)}
+ .directions-bar .speak{width:32px;min-width:32px;height:31px;min-height:31px}
+}
