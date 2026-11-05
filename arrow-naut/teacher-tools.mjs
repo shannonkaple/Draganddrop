@@ -67,7 +67,6 @@ export function openTeacherTools({teachers=[],teacherId='',prefix='',onReset=()=
    onReset(id,nums);
   }catch(err){message('Action failed. Existing saved records may need inspection: '+String(err.message||err))}
  });
- });
  overlay.addEventListener('submit',event=>{
   if(event.target.id!=='teacher-pass-form')return;event.preventDefault();
   if(overlay.querySelector('#teacher-pass')?.value==='8714'){authorized=true;draw();}
