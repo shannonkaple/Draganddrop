@@ -217,13 +217,13 @@ function stuff(){
  (owned.length?'':'<p>Play levels to earn stars and rescue friends. Buy decorations at the Star Shop!</p>')+'</div></main>';
 }
 function help(){
- return '<main class="content-page"><h1>How to Play · First Grade</h1><div class="howto">'+
- '<p><strong>1. TRACKPAD:</strong> Move the pointer to the MIDDLE of a picture and CLICK once.</p>'+
- '<p><strong>2. KEYBOARD:</strong> Press the LEFT, RIGHT, UP, or DOWN arrow key to MOVE the selected picture.</p>'+
- '<p><strong>3. STARS AND CRYSTALS:</strong> Some missions ask you to TOUCH glowing pictures before docking. Watch the mission counter!</p>'+ 
- '<p><strong>4. GREEN DOCKS:</strong> Move the matching picture to its goal. In some missions you must scan cargo or unlock a gate first.</p>'+
- '<p><strong>5. RESCUE MAZE:</strong> CLICK your explorer first, then use KEYBOARD ARROWS to reach EXIT. Bad guys move on side paths.</p>'+
- '<p>Finish levels to earn stars. No dragging and no touchscreen play. Move just one square with each arrow press.</p></div>'+
+ return '<main class="content-page"><h1>HOW TO PLAY</h1><div class="howto">'+
+ '<p><strong>1. CLICK</strong> a picture with your trackpad.</p>'+
+ '<p><strong>2. MOVE</strong> with keyboard arrows: ↑ ↓ ← →.</p>'+
+ '<p><strong>3. MATCH</strong> the SAME faded picture.</p>'+
+ '<p><strong>4. GET</strong> stars or keys when you see them.</p>'+
+ '<p><strong>5. RESCUE</strong> your friend. Find EXIT!</p>'+
+ '<p>Click the speaker if you need to HEAR the steps.</p></div>'+
  '<button data-action="home">Back to My Worlds</button></main>';
 }
 function modal(){
