@@ -1,4 +1,4 @@
-import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,planetUnlocked,stageUnlocked,sceneUnlocked,SPACE_SHOP} from './curriculum.mjs?v=naut-shop-unlock-20261105c';
+import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,bonusCompletedCount,BONUS_STAGES,planetUnlocked,stageUnlocked,sceneUnlocked,SPACE_SHOP} from './curriculum.mjs?v=naut-shop-unlock-20261105c';
 import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=naut-shop-unlock-20261105c';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=naut-shop-unlock-20261105c';
@@ -55,7 +55,11 @@ function planetMap(){
  <div class="planet-map-heading"><strong>${esc(p.name)} World</strong><span>${done}/8 Missions · Rescue ${esc(p.friend)}</span></div>
  ${Array.from({length:8},(_,i)=>{const title=createMission(state.planet,i).title,completed=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=stageUnlocked(state.progress,state.planet,i),pin=LEVEL_STOPS[i];return `<button class="planet-level-pin${completed?' is-complete':''}" data-level="${i}" style="left:${pin.x}%;top:${pin.y}%" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} level ${i+1}: ${esc(i===7?'FINAL MAZE - 10 STARS':title)}${completed?', completed':''}${unlocked?'':', locked'}"><strong>${unlocked?i+1:'LOCK'}</strong><span>${esc(title)}</span>${completed?'<small>DONE</small>':''}</button>`}).join('')}
  <button class="map-home-button" data-action="home">All Planets</button>
- </div></section></main>`;
+ </div></section>
+ <section class="bonus-labs" aria-label="Map Two extra practice missions"><h2>MAP TWO · Extra Space Challenges</h2>
+ <p>Finish this planet's rescue maze to unlock eight more click, move, drag, and resize missions. Your original stars and progress stay saved.</p>
+ <div class="bonus-grid">${Array.from({length:BONUS_STAGES},(_,i)=>{const stage=8+i,mission=createMission(state.planet,stage),unlocked=stageUnlocked(state.progress,state.planet,stage),complete=state.progress.completed.includes(mission.id);return `<button data-level="${stage}" ${unlocked?'':'disabled'} aria-label="${esc(mission.title)}${complete?', completed':''}"><strong>${complete?'✓':i+9}</strong><span>${esc(mission.title)}</span><small>${complete?'DONE':unlocked?'PLAY':'LOCKED'}</small></button>`}).join('')}</div>
+ </section></main>`;
 }
 function positionStyle(piece){return `left:${piece.x/GRID.columns*100}%;top:${piece.y/GRID.rows*100}%;width:${piece.w/GRID.columns*100}%;height:${piece.h/GRID.rows*100}%;`}
 function goalShape(piece){
