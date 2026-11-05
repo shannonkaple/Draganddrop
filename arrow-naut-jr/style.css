@@ -174,3 +174,7 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .bonus-grid button{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:88px;padding:8px;font-size:clamp(11px,1.1vw,15px)}
 .bonus-grid strong{font-size:21px}.bonus-grid small{font-size:11px}
 @media(max-width:700px){.bonus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Approved heading typeface: all-caps KAHomebody Club. */
+@font-face{font-family:'KAHomebody Club';src:url('https://shannonkaple.github.io/Taskscreen/KAHomebodyClub.ttf') format('truetype');font-display:swap}
+:where(h1,h2,h3,.branding strong,.map-heading,.bonus-labs h2,.dialog h2,.map-note strong){font-family:'KAHomebody Club',VAG,'Arial Rounded MT Bold',sans-serif!important;text-transform:uppercase;letter-spacing:.035em}
