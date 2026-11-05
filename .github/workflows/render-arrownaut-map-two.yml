@@ -1,0 +1,50 @@
+name: Render the eight-island Map Two master JPEG
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'arrow-naut/assets/map-two/lost-worlds-map.svg'
+      - '.github/workflows/render-arrownaut-map-two.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: arrownaut-map-two-art
+  cancel-in-progress: true
+jobs:
+  render-map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install drawing dependencies
+        run: python -m pip install --disable-pip-version-check cairosvg pillow
+      - name: Rasterize original 1672x941 illustrated map
+        run: |
+          python - <<'PY'
+          import io
+          import cairosvg
+          from PIL import Image
+          from pathlib import Path
+          source=Path('arrow-naut/assets/map-two/lost-worlds-map.svg')
+          target=source.with_suffix('.jpg')
+          png=cairosvg.svg2png(bytestring=source.read_bytes(),output_width=1672,output_height=941)
+          im=Image.open(io.BytesIO(png)).convert('RGB')
+          assert im.size==(1672,941)
+          im.save(target,'JPEG',quality=91,optimize=True,subsampling=0)
+          print('Rendered',target,target.stat().st_size,'bytes')
+          PY
+      - name: Publish the original Map Two JPEG without changing saved student data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add arrow-naut/assets/map-two/lost-worlds-map.jpg
+          if ! git diff --cached --quiet; then
+            git commit -m "art: publish full-resolution eight-island Map Two JPEG"
+            git push origin HEAD:main
+          fi
