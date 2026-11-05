@@ -2,7 +2,7 @@ import {mazeInitial,mazeMove,mazeEnemyTick,fireLaser} from './finale-maze.mjs?v=
 import {GRID,createProgress,PLANETS,completedCount} from './curriculum.mjs?v=naut-shop-unlock-20261105c';
 export const DIRECTIONS={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
 export const clone=value=>JSON.parse(JSON.stringify(value));
-export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),layoutVersion:mission.layoutVersion??1,collected:[],attempts:0,complete:false,...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
+export function initialMission(mission){return {id:mission.id,selected:null,mode:'move',pieces:clone(mission.pieces),layoutVersion:mission.layoutVersion??1,collected:[],attempts:0,complete:false,hazards:clone(mission.hazards||[]),...(mission.kind==='final-maze'?{maze:mazeInitial(mission)}:{})};}
 export function occupiedCells(piece){if(piece.cells)return piece.cells.map(([dx,dy])=>[piece.x+dx,piece.y+dy]);const out=[];for(let y=0;y<piece.h;y++)for(let x=0;x<piece.w;x++)out.push([piece.x+x,piece.y+y]);return out;}
 export function validPosition(mission,pieces,changedId){
  const selected=pieces.find(p=>p.id===changedId);if(!selected)return false;
@@ -13,6 +13,35 @@ export function validPosition(mission,pieces,changedId){
   if(occupiedCells(other).some(([x,y])=>locations.has(x+','+y)))return false;
  }
  return true;
+}
+/** After each successful move, enemies take unpredictable but legal grid steps.
+ * They may collide with the moving picture; the current mission restarts safely.
+ * We never move an enemy onto an objective, fixed obstacle or stationery piece.
+ */
+export function movePatrollingEnemies(mission,state){
+ if(!mission.hazards?.length)return {state,collision:false};
+ const next=clone(state),player=next.pieces.find(p=>p.id===next.selected);
+ if(!Array.isArray(next.hazards))next.hazards=clone(mission.hazards);
+ const fixed=new Set((mission.obstacles||[]).map(v=>v.join(',')));
+ for(const pick of mission.pickups||[])fixed.add(pick.x+','+pick.y);
+ for(const piece of next.pieces){
+  if(piece.goal){for(let y=piece.goal.y;y<piece.goal.y+(piece.goal.h||piece.h);y++)
+    for(let x=piece.goal.x;x<piece.goal.x+(piece.goal.w||piece.w);x++)fixed.add(x+','+y);}
+  if(piece.id!==next.selected)for(const pt of occupiedCells(piece))fixed.add(pt.join(','));
+ }
+ const playerCells=new Set(player?occupiedCells(player).map(p=>p.join(',')):[]);
+ const occupied=new Set();
+ let collision=false;
+ for(const enemy of next.hazards){
+  const candidates=[[0,0],[0,1],[0,-1],[1,0],[-1,0],[2,0],[-2,0]]
+   .map(([dx,dy])=>({x:enemy.x+dx,y:enemy.y+dy}))
+   .filter(p=>p.x>=0&&p.x<GRID.columns&&p.y>=0&&p.y<GRID.rows&&!fixed.has(p.x+','+p.y)&&!occupied.has(p.x+','+p.y));
+  const dest=candidates[Math.floor(Math.random()*candidates.length)]||enemy;
+  enemy.x=dest.x;enemy.y=dest.y;
+  occupied.add(enemy.x+','+enemy.y);
+  if(playerCells.has(enemy.x+','+enemy.y))collision=true;
+ }
+ return {state:next,collision};
 }
 export function goalMet(piece){const g=piece.goal;return !!g&&piece.x===g.x&&piece.y===g.y&&
   (g.w===undefined||piece.w===g.w)&&(g.h===undefined||piece.h===g.h);}
@@ -47,8 +76,13 @@ export function arrowAction(mission,state,key){
   if(next.collected.includes(item.id))continue;
   if(p.x===item.x&&p.y===item.y){next.collected.push(item.id);collected=true}
  }
- next.complete=missionComplete(mission,next);
- return {ok:true,state:next,reason:next.complete?'Mission complete!':collected?'Star collected! Now reach your matching dock.':'Great! Keep going.'};
+ const hazard=movePatrollingEnemies(mission,next);
+ if(hazard.collision){
+  const reset=initialMission(mission);reset.attempts=next.attempts;
+  return {ok:true,state:reset,reason:'A moving bad guy bumped your picture! Start this challenge again.'};
+ }
+ hazard.state.complete=missionComplete(mission,hazard.state);
+ return {ok:true,state:hazard.state,reason:hazard.state.complete?'Mission complete!':collected?'Star collected! Now reach your matching dock.':'Watch the moving bad guys! Keep going.'};
 }
 /** Grid-snapped handle dragging, with the opposite edge/corner held in place.
  * deltaColumns/deltaRows are pointer movement rounded to whole puzzle squares.
