@@ -1,4 +1,4 @@
-import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked} from './curriculum.mjs?v=junior-world-shuffle-20261105';
+import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=junior-world-shuffle-20261105';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-world-shuffle-20261105';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
 import {verifiedWrite,writeTabSession,readTabSession,clearTabSession,storageProbe} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
@@ -166,13 +166,15 @@ function shop(){
  }).join('')+'</div></main>';
 }
 function stuff(){
- const p=state.progress,w=p.sceneWorld??0,owned=[
+ const p=state.progress,unlockedWorlds=WORLDS.map((_,i)=>i).filter(i=>sceneUnlocked(p,i)),w=unlockedWorlds.includes(p.sceneWorld)?p.sceneWorld:(unlockedWorlds[0]??-1);
+ if(w<0)return '<main class="stuff-page"><h1>MY STUFF IS LOCKED</h1><p>Beat all eight levels in Candy Moon, including the rescue maze, to unlock its picture background. Purchased items and stars are saved.</p><button data-action="home">Back to Planets</button></main>';
+ const owned=[
  ...p.purchases.map(id=>ITEMS.find(x=>x.id===id)).filter(Boolean).map(x=>({...x,key:'item:'+x.id})),
  ...p.rescued.map(id=>WORLDS.find(x=>x.id===id)).filter(Boolean).map(x=>({key:'friend:'+x.id,name:x.name+' Friend',img:x.friend}))
  ];
  const placed=(Array.isArray(p.worldScene)?p.worldScene:[]).filter(x=>x.world===w);
  return '<main class="stuff-page"><h1>My Space World</h1><p>Click an item, then click the background to place it. Put away an item whenever you want.</p>'+
- '<div class="world-tabs">'+WORLDS.map((x,i)=>'<button data-stuff-world="'+i+'" '+(i===w?'aria-pressed="true"':'')+'>'+esc(x.name)+'</button>').join('')+'</div>'+
+ '<div class="world-tabs">'+WORLDS.map((x,i)=>'<button data-stuff-world="'+i+'" '+(sceneUnlocked(p,i)?'':'disabled title="Beat all eight levels first"')+' '+(i===w?'aria-pressed="true"':'')+'>'+esc(x.name)+(sceneUnlocked(p,i)?'':' · LOCKED')+'</button>').join('')+'</div>'+
  '<div class="decor-scene" data-scene="yes">'+fileImg(WORLDS[w].jpg,WORLDS[w].name,'scene-backdrop')+
  placed.map(x=>{const item=owned.find(i=>i.key===x.key);if(!item)return '';
  return '<div class="scene-decor" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%">'+
@@ -363,7 +365,7 @@ root.addEventListener('click',e=>{
    return;
   }
   if(d.stuffWorld!==undefined){
-   if(persist({...state.progress,sceneWorld:Number(d.stuffWorld)})){state.pending=null;render()}
+   if(sceneUnlocked(state.progress,Number(d.stuffWorld))&&persist({...state.progress,sceneWorld:Number(d.stuffWorld)})){state.pending=null;render()}
    return;
   }
   if(d.place){state.pending=d.place;render();return}
