@@ -46,5 +46,15 @@ jobs:
           git add arrow-naut/assets/map-two/lost-worlds-map.jpg
           if ! git diff --cached --quiet; then
             git commit -m "art: publish full-resolution eight-island Map Two JPEG"
-            git push origin HEAD:main
+            for attempt in 1 2 3 4 5 6 7 8; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                echo "Published Map Two JPEG on attempt $attempt"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "Could not publish Map Two art after eight safe retries" >&2
+            exit 1
           fi
