@@ -1,4 +1,4 @@
-import {COLS,ROWS,WORLDS,createProgress} from './curriculum.mjs?v=junior-varied-games-20261105j';
+import {COLS,ROWS,WORLDS,createProgress} from './curriculum.mjs?v=map-two-locked-r2';
 import {mazeInitial,mazeMove,mazeEnemyTick} from '../arrow-naut/finale-maze.mjs?v=all-boss-safe-lasers-20261102';
 export const clone=v=>JSON.parse(JSON.stringify(v));
 const directions={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
