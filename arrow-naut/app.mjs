@@ -211,9 +211,17 @@ function startMission(stage){if(!Number.isInteger(stage)||stage<0||stage>7||!sta
  state.mission=m;state.run=run;state.view='mission';state.message=m.kind==='final-maze'?'Use arrow keys to dodge the moving bad guys and reach EXIT!':'Click INSIDE to select. Arrows MOVE; hold and DRAG a resize handle to STRETCH.';state.error='';render();}
 function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
  state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
-function award(){const result=finishMission(state.progress,state.mission);if(!persist(result.progress))return;
- // Keep the just-finished run visible underneath the modal until OK is pressed.
- state.message='';state.error='';state.modal={kind:'reward',friend:result.friend,stars:result.stars};render();}
+function award(){
+ // The 64th ORIGINAL mission is the final Map One rescue. Only the first
+ // transition from 63/64 to 64/64 automatically launches Map Two.
+ const justUnlockedMapTwo=!mapTwoUnlocked();
+ const result=finishMission(state.progress,state.mission);
+ if(!persist(result.progress))return;
+ state.message='';state.error='';
+ state.modal={kind:'reward',friend:result.friend,stars:result.stars,
+  launchMapTwo:justUnlockedMapTwo&&mapTwoUnlocked()};
+ render();
+}
 function chooseObject(id,mode){if(state.view!=='mission'||state.modal)return;
  const result=selectObject(state.mission,state.run,id,mode);if(!result.ok){notify(result.reason,true);return}
  saveMissionAction(result.state,result.reason);
@@ -266,7 +274,13 @@ function onAction(action){
  case 'listen':if(state.mission)speak(state.mission.directions);break;
   case 'laser':onLaser();break;
  case 'intro-ok':{const next={...state.progress,seenIntros:[...state.progress.seenIntros,PLANETS[state.modal.planet].id]};if(persist(next)){state.modal=null;state.error='';render()};break}
- case 'reward-ok':state.modal=null;showPlanet(state.planet);break;
+ case 'reward-ok':{
+  const goToMapTwo=!!state.modal?.launchMapTwo&&mapTwoUnlocked();
+  state.modal=null;
+  if(goToMapTwo){state.view='map-two';state.mission=null;state.run=null;render()}
+  else showPlanet(state.planet);
+  break;
+ }
  case 'reload-teachers':loadTeachers();break;
  }
 }
