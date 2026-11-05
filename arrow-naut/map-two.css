@@ -55,3 +55,12 @@
 @media(prefers-reduced-motion:reduce){.m2-page,.m2-piece{scroll-behavior:auto;transition:none}}
 /* Approved heading typeface: all-caps KAHomebody Club. */
 :where(.m2-page h1,.m2-page h2,.m2-page h3,.m2-world-title,.m2-heading){font-family:'KAHomebody Club',VAG,Arial,sans-serif!important;text-transform:uppercase;letter-spacing:.035em}
+
+/* New eight-theme galaxy: separate 1672 x 941 map, no reused Map One image. */
+.m2-galaxy-stage{position:relative;isolation:isolate;width:min(100%,1100px);aspect-ratio:1672/941;margin:9px auto 6px;overflow:hidden;border:3px solid #b9a1ed;border-radius:22px;background:radial-gradient(ellipse at 32% 25%,#6853ad 0,transparent 45%),radial-gradient(ellipse at 75% 76%,#1c7796 0,transparent 46%),#131c4b;box-shadow:0 5px 14px #18104d77}
+.m2-galaxy-art{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;object-position:center;pointer-events:none}
+.m2-galaxy-stage .m2-world-stop{position:absolute;z-index:2;transform:translate(-50%,-50%);width:clamp(80px,13%,156px);padding:6px 4px;min-height:53px;border-radius:13px;background:#fdf7edec;border:2px solid #493682;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;line-height:1.02}
+.m2-world-stop b{font:clamp(11px,1.2vw,17px)/1.08 'KAHomebody Club',VAG,Arial,sans-serif;text-transform:uppercase}
+.m2-world-stop small{font-size:clamp(9px,.86vw,12px)}
+.m2-map-note{text-align:center;font-size:clamp(11px,1.2vw,15px);max-width:900px;margin:6px auto}
+@media(max-width:690px){.m2-galaxy-stage .m2-world-stop{width:15%;min-height:37px;padding:2px 1px;border-radius:7px}.m2-world-stop b{font-size:clamp(8px,1.8vw,12px)}.m2-world-stop small{font-size:8px}.m2-intro{padding:5px}}
