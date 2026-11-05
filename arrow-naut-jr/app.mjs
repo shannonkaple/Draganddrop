@@ -180,12 +180,13 @@ function stuff(){
  ...p.rescued.map(id=>WORLDS.find(x=>x.id===id)).filter(Boolean).map(x=>({key:'friend:'+x.id,name:x.name+' Friend',img:x.friend}))
  ];
  const placed=(Array.isArray(p.worldScene)?p.worldScene:[]).filter(x=>x.world===w);
- return '<main class="stuff-page"><h1>My Space World</h1><p>Click an item to place it. Hold and drag any object around your world picture to rearrange it. Put it away whenever you want.</p>'+
+ return '<main class="stuff-page"><h1>My Space World</h1><p>Click an item to place it. Drag to move it. Use + and − to make it bigger or smaller.</p>'+
  '<div class="world-tabs">'+WORLDS.map((x,i)=>'<button data-stuff-world="'+i+'" '+(sceneUnlocked(p,i)?'':'disabled title="Beat all eight levels first"')+' '+(i===w?'aria-pressed="true"':'')+'>'+esc(x.name)+(sceneUnlocked(p,i)?'':' · LOCKED')+'</button>').join('')+'</div>'+
  '<div class="decor-scene" data-scene="yes">'+fileImg(WORLDS[w].jpg,WORLDS[w].name,'scene-backdrop')+
  placed.map(x=>{const item=owned.find(i=>i.key===x.key);if(!item)return '';
- return '<div class="scene-decor" data-move-scene="'+esc(x.key)+'" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%">'+
- fileImg(item.img,item.name,'decor-image')+'<button data-remove="'+esc(x.key)+'" aria-label="Put '+esc(item.name)+' away">×</button></div>';
+ return '<div class="scene-decor" data-move-scene="'+esc(x.key)+'" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%;--scene-scale:'+Math.max(.6,Math.min(2.2,Number(x.scale)||1))+'">'+
+ fileImg(item.img,item.name,'decor-image')+'<button data-remove="'+esc(x.key)+'" aria-label="Put '+esc(item.name)+' away">×</button>'+
+ '<div class="scene-scale-buttons" aria-label="Resize '+esc(item.name)+'"><button data-scene-scale="smaller" data-scene-key="'+esc(x.key)+'" aria-label="Make '+esc(item.name)+' smaller">−</button><button data-scene-scale="bigger" data-scene-key="'+esc(x.key)+'" aria-label="Make '+esc(item.name)+' bigger">+</button></div></div>';
  }).join('')+'</div>'+
  '<p class="status-text">'+(state.pending?'Click a place on your world picture.':'Choose an item below to place it.')+'</p>'+
  '<div class="inventory">'+owned.map(x=>'<button data-place="'+esc(x.key)+'" '+(state.pending===x.key?'aria-pressed="true"':'')+'>'+
@@ -386,6 +387,14 @@ root.addEventListener('click',e=>{
    return;
   }
   if(d.place){state.pending=d.place;render();return}
+  if(d.sceneScale&&d.sceneKey){
+   const p=state.progress,world=p.sceneWorld??0,scene=Array.isArray(p.worldScene)?p.worldScene:[];
+   const target=scene.find(x=>x.world===world&&x.key===d.sceneKey);
+   if(!target)return;
+   const scale=Math.max(.6,Math.min(2.2,Math.round(((Number(target.scale)||1)+(d.sceneScale==='bigger'?.2:-.2))*10)/10));
+   if(persist({...p,worldScene:scene.map(x=>x===target?{...x,scale}:x)}))render();
+   return;
+  }
   if(d.remove){
    const p=state.progress,world=p.sceneWorld??0,scene=Array.isArray(p.worldScene)?p.worldScene:[];
    if(persist({...p,worldScene:scene.filter(x=>!(x.world===world&&x.key===d.remove))}))render();
@@ -393,7 +402,7 @@ root.addEventListener('click',e=>{
   }
  }
  const scene=e.target.closest('[data-scene]');
- if(scene&&state.pending){
+ if(scene&&state.pending&&!e.target.closest('[data-scene-scale],[data-remove]')){
   const box=scene.getBoundingClientRect();
   const x=Math.max(6,Math.min(94,Math.round(100*(e.clientX-box.left)/box.width)));
   const y=Math.max(9,Math.min(91,Math.round(100*(e.clientY-box.top)/box.height)));
@@ -408,7 +417,7 @@ root.addEventListener('click',e=>{
 let sceneDrag=null;
 root.addEventListener('pointerdown',event=>{
  const piece=event.target.closest('[data-move-scene]');
- if(!piece||event.target.closest('[data-put-away],[data-remove]')||event.pointerType!=='mouse'||event.button!==0||!state.progress)return;
+ if(!piece||event.target.closest('[data-put-away],[data-remove],[data-scene-scale]')||event.pointerType!=='mouse'||event.button!==0||!state.progress)return;
  const board=piece.closest('[data-scene]');if(!board)return;
  const world=Number.isInteger(state.progress.sceneWorld)?state.progress.sceneWorld:0;
  const original=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[]).find(x=>x.world===world&&x.key===piece.dataset.moveScene);
