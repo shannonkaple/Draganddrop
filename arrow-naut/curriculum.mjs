@@ -179,4 +179,17 @@ export const SPACE_SHOP=[
  {id:'mini-ufo',name:'Mini UFO',price:18},
  {id:'solar-satellite',name:'Solar Satellite',price:18},
  {id:'cosmic-snowglobe',name:'Space Snow Globe',price:21},
+ // Complete original Arrow Adventure PNG decorations (not backgrounds).
+ {id:'legacy-lollipop',name:'Candy Planet Lollipop',price:5},
+ {id:'legacy-cupcake',name:'Galaxy Cupcake',price:6},
+ {id:'legacy-pirate-chest',name:'Space Pirate Treasure Chest',price:9},
+ {id:'legacy-gold-coins',name:'Golden Space Coins',price:7},
+ {id:'legacy-compass',name:'Explorer Compass',price:6},
+ {id:'legacy-ice-gem',name:'Frozen Crystal Gem',price:6},
+ {id:'legacy-snowglobe',name:'Arctic Snow Globe',price:8},
+ {id:'legacy-pearl-shell',name:'Ocean Pearl Shell',price:7},
+ {id:'legacy-sea-turtle',name:'Ocean Turtle Friend',price:10},
+ {id:'legacy-starfish',name:'Starfish Treasure',price:5},
+ {id:'legacy-golden-key',name:'Golden Castle Key',price:9},
+ {id:'legacy-hot-cocoa',name:'Explorer Hot Cocoa',price:5},
 ];
