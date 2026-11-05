@@ -230,3 +230,28 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .junior-map-two-bottom button{min-height:34px;margin-left:8px;padding:4px 9px}
 .junior-map-two-entry{background:#ffe9b1!important}
 @media(max-width:650px){.junior-map-two-page .junior-map-two-stage{width:98vw}.junior-map-two-stop{width:15%;min-height:38px;padding:2px}.junior-map-two-stop b{font-size:clamp(8px,1.7vw,11px)}.junior-map-two-stop small{font-size:7px}.junior-map-two-intro{padding:3px 9px}.junior-map-two-bottom button{display:block;margin:3px auto}}
+
+/* First-grade visual reading support: every game object has a short, high-contrast
+   visible label. Labels never intercept clicking, selecting, or arrow movement. */
+.game-board .junior-board-label{
+ position:absolute;z-index:9;left:50%;bottom:-6px;transform:translateX(-50%);
+ display:block;box-sizing:border-box;width:max-content;max-width:180px;
+ padding:2px 5px;border:1.5px solid #fff;border-radius:5px;
+ background:#161943ee;color:#fff9dc;text-shadow:0 1px 2px #080a1f;
+ font:900 clamp(8px,.78vw,11px)/1.05 Arial,sans-serif;
+ text-align:center;white-space:normal;overflow-wrap:normal;
+ pointer-events:none;user-select:none;box-shadow:0 2px 4px #090e3777;
+}
+.game-board .junior-piece-label{bottom:-7px;background:#312579f0;border-color:#ffeb9a;max-width:150px}
+.game-board .junior-danger-label{bottom:-7px;background:#97263cf2;border-color:#ffe0c6;white-space:nowrap}
+.game-board .junior-block-label{bottom:-5px;background:#2a4072ee;border-color:#c4e6ff;font-size:clamp(7px,.68vw,9px);padding:1px 3px}
+.game-board .junior-finish-label{bottom:-8px;background:#096c51ee;border-color:#d4ffbe;max-width:110px}
+.game-board .pickup .junior-board-label{bottom:-7px;background:#fff9d9f5;color:#402774;text-shadow:none;border-color:#a28f43}
+.game-board .goal-dock .junior-board-label{bottom:-8px;max-width:160px;background:#0a6658f2;color:#fff;border-color:#aeffe5}
+.game-board .force-gate .junior-board-label{bottom:-7px;background:#7235a9f0}
+.game-board .junior-friend-preview .junior-board-label{bottom:-5px;background:#175c89f2}
+.game-board .piece,.game-board .explorer,.game-board .pickup,.game-board .goal-dock,
+.game-board .rock,.game-board .enemy,.game-board .junior-moving-hazard,
+.game-board .finish,.game-board .force-gate{overflow:visible}
+.game-board .piece button,.game-board .explorer button{overflow:visible}
+@media(max-width:700px){.game-board .junior-board-label{font-size:8px;padding:1px 3px;max-width:110px}.game-board .junior-block-label{font-size:7px;padding:1px 2px}}
