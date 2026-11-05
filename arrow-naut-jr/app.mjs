@@ -1,6 +1,6 @@
 import {openTeacherTools} from '../arrow-naut/teacher-tools.mjs?v=teacher-tools-20261105b';
-import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,BONUS_STAGES,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=map-two-locked-r2';
-import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=map-two-locked-r2';
+import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,BONUS_STAGES,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=jr-any-order-20261105';
+import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=jr-any-order-20261105';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
 import {verifiedWrite,writeTabSession,readTabSession,clearTabSession,storageProbe} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
 const root=document.getElementById('app');
