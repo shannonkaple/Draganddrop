@@ -173,11 +173,11 @@ function stuff(){
  ...p.rescued.map(id=>WORLDS.find(x=>x.id===id)).filter(Boolean).map(x=>({key:'friend:'+x.id,name:x.name+' Friend',img:x.friend}))
  ];
  const placed=(Array.isArray(p.worldScene)?p.worldScene:[]).filter(x=>x.world===w);
- return '<main class="stuff-page"><h1>My Space World</h1><p>Click an item, then click the background to place it. Put away an item whenever you want.</p>'+
+ return '<main class="stuff-page"><h1>My Space World</h1><p>Click an item to place it. Hold and drag any object around your world picture to rearrange it. Put it away whenever you want.</p>'+
  '<div class="world-tabs">'+WORLDS.map((x,i)=>'<button data-stuff-world="'+i+'" '+(sceneUnlocked(p,i)?'':'disabled title="Beat all eight levels first"')+' '+(i===w?'aria-pressed="true"':'')+'>'+esc(x.name)+(sceneUnlocked(p,i)?'':' · LOCKED')+'</button>').join('')+'</div>'+
  '<div class="decor-scene" data-scene="yes">'+fileImg(WORLDS[w].jpg,WORLDS[w].name,'scene-backdrop')+
  placed.map(x=>{const item=owned.find(i=>i.key===x.key);if(!item)return '';
- return '<div class="scene-decor" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%">'+
+ return '<div class="scene-decor" data-move-scene="'+esc(x.key)+'" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%">'+
  fileImg(item.img,item.name,'decor-image')+'<button data-remove="'+esc(x.key)+'" aria-label="Put '+esc(item.name)+' away">×</button></div>';
  }).join('')+'</div>'+
  '<p class="status-text">'+(state.pending?'Click a place on your world picture.':'Choose an item below to place it.')+'</p>'+
@@ -385,6 +385,54 @@ root.addEventListener('click',e=>{
   if(persist(next)){state.pending=null;render()}
  }
 });
+
+// MY STUFF: drag placed objects directly with a Chromebook trackpad.
+// Store percentages so placements remain correct when the picture resizes.
+let sceneDrag=null;
+root.addEventListener('pointerdown',event=>{
+ const piece=event.target.closest('[data-move-scene]');
+ if(!piece||event.target.closest('[data-put-away],[data-remove]')||event.pointerType!=='mouse'||event.button!==0||!state.progress)return;
+ const board=piece.closest('[data-scene]');if(!board)return;
+ const world=Number.isInteger(state.progress.sceneWorld)?state.progress.sceneWorld:0;
+ const original=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[]).find(x=>x.world===world&&x.key===piece.dataset.moveScene);
+ if(!original)return;
+ event.preventDefault();
+ const bounds=board.getBoundingClientRect();
+ sceneDrag={pointerId:event.pointerId,piece,board,bounds,world,original,
+  startX:event.clientX,startY:event.clientY,
+  originX:original.x,originY:original.y,moved:false};
+ piece.setPointerCapture?.(event.pointerId);
+ piece.style.cursor='grabbing';
+});
+root.addEventListener('pointermove',event=>{
+ const d=sceneDrag;if(!d||event.pointerId!==d.pointerId)return;
+ event.preventDefault();
+ const deltaX=(event.clientX-d.startX)/d.bounds.width*100;
+ const deltaY=(event.clientY-d.startY)/d.bounds.height*100;
+ const x=Math.max(6,Math.min(94,d.originX+deltaX));
+ const y=Math.max(9,Math.min(91,d.originY+deltaY));
+ d.x=x;d.y=y;
+ if(Math.abs(deltaX)+Math.abs(deltaY)>.5)d.moved=true;
+ d.piece.style.left=x+'%';d.piece.style.top=y+'%';
+});
+root.addEventListener('pointerup',event=>{
+ const d=sceneDrag;if(!d||event.pointerId!==d.pointerId)return;
+ event.preventDefault();sceneDrag=null;
+ d.piece.style.cursor='';
+ if(!d.moved)return;
+ const all=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
+ const x=Math.round((d.x??d.originX)*10)/10,y=Math.round((d.y??d.originY)*10)/10;
+ const next={...state.progress,worldScene:all.map(item=>item.world===d.world&&item.key===d.original.key?{...item,x,y}:item)};
+ if(!persist(next)){
+  d.piece.style.left=d.originX+'%';d.piece.style.top=d.originY+'%';
+ }else{render()}
+});
+root.addEventListener('pointercancel',event=>{
+ if(sceneDrag&&sceneDrag.pointerId===event.pointerId){
+  sceneDrag.piece.style.left=sceneDrag.originX+'%';sceneDrag.piece.style.top=sceneDrag.originY+'%';sceneDrag=null;
+ }
+});
+
 root.addEventListener('dragstart',e=>e.preventDefault());
 root.addEventListener('touchstart',e=>{
  if(!e.target.closest('.game-board'))return;
