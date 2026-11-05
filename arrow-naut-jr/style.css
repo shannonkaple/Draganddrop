@@ -215,3 +215,18 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .scene-scale-buttons{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);display:flex;gap:4px;align-items:center;justify-content:center;z-index:30;white-space:nowrap;pointer-events:auto}
 .scene-scale-buttons button{position:static!important;inset:auto!important;display:grid!important;place-items:center!important;box-sizing:border-box!important;min-width:27px!important;width:27px!important;min-height:27px!important;height:27px!important;padding:0!important;border:2px solid #4a397d!important;border-radius:9px!important;background:#fff4bf!important;color:#24154a!important;font:bold 21px/1 Arial,sans-serif!important;box-shadow:0 2px 3px #24203a55!important;cursor:pointer}
 .scene-scale-buttons button:focus-visible{outline:3px solid #21ccdb;outline-offset:2px}
+
+/* Junior Map Two: its own full 1672x941 illustration and eight accurate art hotspots. */
+.junior-map-two-page{height:auto;min-height:calc(100dvh - var(--nav));overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;padding:6px 6px 16px}
+.junior-map-two-intro{text-align:center;display:flex;flex-direction:column;gap:2px;max-width:98%;background:linear-gradient(100deg,#f9d2ff,#b9f4ff,#dbffdc);border:2px solid #6751ae;border-radius:14px;padding:6px 20px}
+.junior-map-two-intro strong{font-family:'KAHomebody Club',VAG,Arial,sans-serif;font-size:clamp(17px,2vw,27px);line-height:1.15}
+.junior-map-two-intro span{font:700 clamp(11px,1vw,14px)/1.2 Arial,sans-serif}
+.junior-map-two-page .junior-map-two-stage{flex:0 0 auto;width:min(98vw,calc((100dvh - var(--nav) - 122px)*1672/941),1200px);height:auto;max-height:unset;aspect-ratio:1672/941;border:3px solid #b9a1ed;border-radius:18px;background:#131c4b;box-shadow:0 6px 15px #111d6477;overflow:hidden}
+.junior-map-two-stop{position:absolute;z-index:2;transform:translate(-50%,-50%);width:clamp(80px,12.5%,155px);min-height:50px;padding:4px 3px;border:2px solid #473889;border-radius:11px;background:#fffdf1ee;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px;line-height:1.05}
+.junior-map-two-stop b{font-family:'KAHomebody Club',VAG,Arial,sans-serif;font-size:clamp(10px,1.2vw,16px);text-transform:uppercase}
+.junior-map-two-stop small{font:700 clamp(8px,.9vw,12px) Arial,sans-serif;color:#81446a}
+.junior-map-two-stop:focus-visible{outline:4px solid #ffdc78;outline-offset:2px}
+.junior-map-two-bottom{max-width:95vw;text-align:center;font:700 13px/1.2 Arial,sans-serif;background:#fff9e8;border-radius:9px;padding:5px 10px}
+.junior-map-two-bottom button{min-height:34px;margin-left:8px;padding:4px 9px}
+.junior-map-two-entry{background:#ffe9b1!important}
+@media(max-width:650px){.junior-map-two-page .junior-map-two-stage{width:98vw}.junior-map-two-stop{width:15%;min-height:38px;padding:2px}.junior-map-two-stop b{font-size:clamp(8px,1.7vw,11px)}.junior-map-two-stop small{font-size:7px}.junior-map-two-intro{padding:3px 9px}.junior-map-two-bottom button{display:block;margin:3px auto}}
