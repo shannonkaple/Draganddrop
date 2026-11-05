@@ -145,7 +145,7 @@ function game(){
  if(isMaze){
   const current=chosen();
   const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" data-enemy="'+esc(e.id)+'" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'</div>').join('');
-  mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">EXIT</div>'+enemies+
+  mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">'+fileImg(w.friend,'Rescue friend','finish-friend')+'<small>EXIT</small></div>'+enemies+
    '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" data-explorer="yes" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button></div>';
  }
  return '<main class="game-page"><div class="game-title"><h1>'+esc(w.name)+' · Level '+(m.stage+1)+': '+esc(m.name)+'</h1>'+
@@ -153,7 +153,7 @@ function game(){
  '<div class="directions"><strong>'+esc(m.directions)+'</strong><button type="button" class="listen" data-action="listen" aria-label="Read the level directions aloud" title="Click to hear the instructions again"><span class="speaker-icon" aria-hidden="true">🔊</span><span class="listen-label">HEAR DIRECTIONS</span></button></div>'+
  '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
  '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
- '<div class="grid"></div>'+targets+walls+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div>')+
+ '<div class="grid"></div>'+targets+walls+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div><div class="junior-friend-preview" aria-label="Friend to rescue">'+fileImg(w.friend,'Rescue friend','junior-friend-preview-pic')+'<small>RESCUE</small></div>')+
  '</div></div><p id="feedback" class="feedback'+(state.error?' error':'')+'" role="status">'+esc(state.notice||'Click a picture with your trackpad. Move with keyboard arrows.')+'</p></main>';
 }
 function shop(){
