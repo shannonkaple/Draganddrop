@@ -52,7 +52,7 @@ function home(){
  const done=completedCount(state.progress,i),unlocked=worldUnlocked(state.progress,i),pad=WORLD_STOPS[i];
  return '<button class="world-pin" data-world="'+i+'" style="left:'+pad.x+'%;top:'+pad.y+'%" '+(unlocked?'':'disabled')+
  ' aria-label="'+esc(world.name)+(unlocked?'':' locked')+'"><strong>'+esc(world.name)+'</strong><small>'+ (unlocked?done+'/8 levels':'LOCKED')+'</small></button>';
- }).join('')+'<div class="map-note">'+state.progress.completed.length+'/64 levels · '+state.progress.stars+' stars · Click a planet!</div></div></main>';
+ }).join('')+'<div class="map-note">'+WORLDS.reduce((n,_,i)=>n+completedCount(state.progress,i),0)+'/64 original levels · '+state.progress.completed.filter(id=>id.includes('-bonus-')).length+' extra labs · '+state.progress.stars+' stars · Click a planet!</div></div></main>';
 }
 function worldMap(){
  const w=WORLDS[state.world],done=completedCount(state.progress,state.world);
