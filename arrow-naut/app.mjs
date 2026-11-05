@@ -32,7 +32,7 @@ const playerImg=()=>art(playerPortrait(state.progress?.playerId),'Your chosen Ar
 function header(){
  const hasStudent=!!state.progress;
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
- return `<header class="topbar" id="main-header"><div class="brand"><strong>Ms. Kaple's ARROW-NAUT Space Adventure</strong><small>${hasStudent?esc(studentText):'SECOND GRADE · CLICK · MOVE · RESIZE · FIT'}</small></div>
+ return `<header class="topbar" id="main-header"><div class="brand"><img class="astronaut-corner" src="../arrow-naut-jr/assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div class="brand-title"><strong>ARROW-NAUT SPACE ADVENTURE</strong><small>SECOND GRADE · CLICK · MOVE · RESIZE · FIT${hasStudent?' · '+esc(studentText):''}</small></div></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
   `<button data-action="home">Home</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">MAP TWO · THE LOST WORLDS</button>`:''}<button data-action="shop">Star Shop · ${state.progress.stars}</button><button data-action="stuff">My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">How to Play</button><button data-action="teacher">Teacher</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
