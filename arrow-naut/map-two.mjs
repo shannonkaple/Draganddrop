@@ -11,6 +11,22 @@ export const LOST_WORLDS = Object.freeze([
     scene:'./assets/map-two/clockwork-comet.jpg',friendImage:'./assets/map-two/tiko-gear-gecko.png',color:'#efa45d',
     story:'Repair the comet workshop and rescue Tiko!'}
 ]);
+// Map Two uses its OWN eight-theme galaxy map, never the original eight planets.
+// Worlds 3–8 remain visibly unplayable until their new original missions and art exist.
+export const MAP_TWO_THEMES = Object.freeze([
+ {name:'Aurora Garden',scene:'./assets/map-two/aurora-garden.jpg',active:true},
+ {name:'Clockwork Comet',scene:'./assets/map-two/clockwork-comet.jpg',active:true},
+ {name:'Prism Reef',scene:'./assets/map-two/prism-reef.jpg',active:false},
+ {name:'Cloud Carnival',scene:'./assets/map-two/cloud-carnival.jpg',active:false},
+ {name:'Crystal Caverns',scene:'./assets/map-two/crystal-caverns.jpg',active:false},
+ {name:'Nebula Library',scene:'./assets/map-two/nebula-library.jpg',active:false},
+ {name:'Ember Workshop',scene:'./assets/map-two/ember-workshop.jpg',active:false},
+ {name:'Moonlight Jungle',scene:'./assets/map-two/moonlight-jungle.jpg',active:false}
+]);
+export const MAP_TWO_STOPS = Object.freeze([
+ {x:12,y:36},{x:34,y:19},{x:58,y:17},{x:81,y:35},
+ {x:85,y:72},{x:62,y:79},{x:37,y:77},{x:13,y:70}
+]);
 export const LOST_STAGE_TYPES = Object.freeze([
   ['select','move','drag','resize','sort','move-resize','mixed','rescue'],
   ['drag','select','resize','move','sort','mixed','move-resize','rescue']
@@ -164,12 +180,19 @@ export function mountMapTwo(node,{read,save,exit}){
   if(!save(next)){notice='NOT SAVED. Your previous progress is safe. Try again.';draw();return false}
   run=nextRun;notice='';draw();return true;
  }
- const mapPanel=()=>`<div class="m2-intro"><strong>MAP TWO · THE LOST WORLDS</strong><p>Keep your Map One stars and friends! Complete eight NEW missions in each world.</p></div><div class="m2-worlds">${LOST_WORLDS.map((w,i)=>{
-  const active=mapTwoWorldUnlocked(progress(),i),done=mapTwoCount(progress(),i);
-  return `<button type="button" class="m2-world-tile" data-m2-world="${i}" ${active?'':'disabled'}>
-   ${graphic(w.scene,w.name+' original illustrated environment','m2-world-scene')}
-   <span class="m2-world-label"><b>${esc(w.name)}</b><small>${active?done+'/8 missions completed':'Finish Aurora Garden to unlock'}</small><span>${dataset().rescued.includes(w.id)?'Friend rescued!':'Rescue '+esc(w.friend)}</span></span></button>`}).join('')}</div>
-  <button type="button" class="m2-return" data-m2-exit="1">Return to Map One</button>`;
+ const mapPanel=()=>`<section class="m2-intro"><strong>MAP TWO · THE LOST WORLDS</strong><p>A BRAND-NEW SPACE MAP · Eight new worlds · Your Map One stars and rescued friends are still saved.</p></section>
+ <div class="m2-galaxy-stage" role="group" aria-label="New Map Two galaxy with eight different worlds">
+ <img class="m2-galaxy-art" src="./assets/map-two/lost-worlds-map.jpg" alt="Eight original Map Two world islands joined by a star trail" draggable="false" onerror="this.hidden=true">
+ ${MAP_TWO_THEMES.map((theme,i)=>{
+  const ready=i<LOST_WORLDS.length;
+  const unlocked=ready&&mapTwoWorldUnlocked(progress(),i);
+  const done=ready?mapTwoCount(progress(),i):0;
+  const at=MAP_TWO_STOPS[i];
+  return `<button type="button" class="m2-world-stop" style="left:${at.x}%;top:${at.y}%" data-m2-world="${i}" ${unlocked?'':'disabled'} aria-label="${esc(theme.name)} ${unlocked?'open':ready?'locked':'coming soon'}">
+   <b>${i+1}. ${esc(theme.name)}</b><small>${ready?(unlocked?done+'/8 complete':'LOCKED'):'COMING SOON'}</small></button>`;
+ }).join('')}</div>
+ <p class="m2-map-note">Map Two is separate from the original planets. Complete each new world to unlock the next one. Additional original worlds and their full illustrations will be added here.</p>
+ <button type="button" class="m2-return" data-m2-exit="1">Return to Map One</button>`;
  const worldPanel=()=>{const w=LOST_WORLDS[world];return `<div class="m2-page-head"><button data-m2-back="map">← Both Lost Worlds</button><h1>${esc(w.name)}</h1><p>Complete all 8 challenges to rescue ${esc(w.friend)}.</p></div><div class="m2-level-grid">${Array.from({length:8},(_,i)=>{
   const unlock=mapTwoStageUnlocked(progress(),world,i),done=dataset().completed.includes(mapTwoId(world,i));
   return `<button type="button" class="m2-level" data-m2-stage="${i}" ${unlock?'':'disabled'}><span>${unlock?i+1:'LOCK'}</span><b>${esc(LOST_STAGE_TITLES[world][i])}</b><small>${done?'DONE · REPLAY':unlock?'PLAY':'Finish the previous level'}</small></button>`}).join('')}</div><div class="m2-friend-line">${graphic(w.friendImage,w.friend,'m2-friend-art')}<span>${dataset().rescued.includes(w.id)?esc(w.friend)+' rescued!':'Rescue '+esc(w.friend)+' after mission 8'}</span></div>`};
