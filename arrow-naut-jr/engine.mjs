@@ -17,17 +17,17 @@ export function select(mission,run,id){
  const piece=run.pieces.find(x=>x.id===id);
  if(!piece)return {ok:false,run,reason:'Click INSIDE one of the space pictures.'};
  if(mission.kind==='click'){
-  if(mission.target!==id)return {ok:false,run,reason:'Try again! Find and click the golden star.'};
+  if(mission.target!==id)return {ok:false,run,reason:'Try again. Click the star.'};
   return {ok:true,run:{...run,selected:id,complete:true,attempts:run.attempts+1},reason:'You clicked the golden star!'};
  }
  if(mission.kind==='precision'&&mission.target!==id){
   const requested=mission.pieces.find(p=>p.id===mission.target);
-  return {ok:false,run,reason:'Look for '+(requested?.name||'the correct picture')+'! Click its MIDDLE, not the decoys.'};
+  return {ok:false,run,reason:'Try again. Click the SAME picture you see in the faded box.'};
  }
  if(mission.kind==='relay'&&(run.delivered||[]).includes(id))
-  return {ok:false,run,reason:'That picture is already docked! Click any other picture.'};
+  return {ok:false,run,reason:'Done! Click a different picture.'};
  return {ok:true,run:{...run,selected:id,attempts:run.attempts+1},
-  reason:'Selected! Now use the keyboard arrow keys.'};
+  reason:'Great! Now press the arrow keys.'};
 }
 /** Randomized patrols on selected first-grade click-and-arrow challenges.
  * Hazards never take permanent goal/pickup spaces; an encounter resets only
