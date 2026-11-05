@@ -16,8 +16,21 @@ export const PLANETS=[
   {id:'core',name:'Lava Planet',friend:'Nova Starling',hue:14,blurb:'Combine all your skills at the final planet.',enemyIdeas:['Lava Blob','Ember Beetle','Magma Sprite','Fire Drone']},
 ];
 export const MISSION_NAMES=[
-  'Target Click','Rover Route','Cargo Bay Fit','Resize the Rocket',
-  'Careful Selection','Satellite Repair','Space Station Builder','Planet Maze Finale'
+  'Color Signal Click','Star Rover Expedition','Match Cargo Bays','Stretch the Rocket',
+  'Find the Blue Module','Repair the Satellite','Build the Space Station','Planet Maze Finale'
+];
+/** Eight distinct mission orders: final boss stays level 8 to gate rescue and next world.
+ * IDs / levels are never renumbered so saved stars and unlocks are preserved.
+ */
+export const WORLD_ORDERS=[
+ [0,1,2,3,4,5,6],
+ [1,4,0,5,2,6,3],
+ [2,0,5,1,3,4,6],
+ [4,2,6,0,1,3,5],
+ [5,1,3,2,0,6,4],
+ [3,6,1,4,2,0,5],
+ [6,4,2,5,1,3,0],
+ [2,5,4,6,3,1,0]
 ];
 export const MISSION_SKILLS=[
   'Click carefully INSIDE the requested box.',
@@ -35,11 +48,12 @@ const rectangle=(id,name,x,y,w,h,goal,color,resize=false)=>({id,name,x,y,w,h,goa
 export function createMission(planetIndex,stage){
  if(!Number.isInteger(planetIndex)||planetIndex<0||planetIndex>=PLANETS.length||!Number.isInteger(stage)||stage<0||stage>7)throw Error('Unknown mission');
  const planet=PLANETS[planetIndex];
+ const templateStage=stage===7?7:WORLD_ORDERS[planetIndex][stage];
  const base={id:`${planet.id}-${stage+1}`,planetIndex,stage,planet,number:planetIndex*8+stage+1,
-  title:MISSION_NAMES[stage],directions:MISSION_SKILLS[stage],pieces:[],obstacles:[],kind:'place'};
+  title:MISSION_NAMES[templateStage],directions:MISSION_SKILLS[templateStage],pieces:[],obstacles:[],pickups:[],kind:'place',templateStage,layoutVersion:3};
  // Planet difficulty 1-8: more choices, longer routes, larger stretch targets
  // and extra rescue equipment. All coordinates stay inside the 12x7 board.
- if(stage===0){
+ if(templateStage===0){
   const extra=planetIndex>=3?[rectangle('box-d','Mint box',5,5,2,1,null,'mint')]:[];
   const more=planetIndex>=6?[rectangle('box-e','Purple box',4,0,1,1,null,'purple')]:[];
   const target=planetIndex%2?'box-b':'box-a';
@@ -47,28 +61,30 @@ export function createMission(planetIndex,stage){
    pieces:[rectangle('box-a','Pink box',2,2,2,2,null,'pink'),rectangle('box-b','Blue box',7,1,2,2,null,'blue'),
     rectangle('box-c','Purple box',7,4,1,1,null,'purple'),...extra,...more],clickTarget:target};
  }
- if(stage===1){
+ if(templateStage===1){
   const obstacles=[[4,2],[4,3],[4,4],[6,0],[6,1],[8,4],[8,5],[8,6]];
   if(planetIndex>=2)obstacles.push([2,3],[3,3]);
   if(planetIndex>=4)obstacles.push([6,3],[6,4]);
   if(planetIndex>=6)obstacles.push([9,2],[9,3]);
-  return {...base,pieces:[rectangle('rover','Moon rover',1,5,1,1,{x:10,y:planetIndex>=4?0:1,w:1,h:1},'mint')],obstacles,kind:'move'};
+  return {...base,pieces:[rectangle('rover','Moon rover',1,5,1,1,{x:10,y:planetIndex>=4?0:1,w:1,h:1},'mint')],obstacles,kind:'move',
+   pickups:[{id:'rover-star',x:7,y:3,name:'Star signal',image:'./assets/standalone/pickup_star.png'}],
+   directions:'Click the rover. Use keyboard arrows to move around bad guys, COLLECT the star signal, then reach the matching rover dock.'};
  }
- if(stage===2)return {...base,kind:'fit',pieces:[
-  shape('cargo-l','L-shaped cargo',1,1,[[0,0],[0,1],[1,1]],{x:planetIndex>=4?8:7,y:1},'pink'),
-  shape('cargo-t','T-shaped cargo',1,4,[[0,0],[1,0],[2,0],[1,1]],{x:planetIndex>=5?6:7,y:4},'blue'),
+ if(templateStage===2)return {...base,kind:'fit',directions:'Click the full L or T cargo picture. Use arrow keys to turn around space bad guys and FIT each into its matching labeled cargo dock.',obstacles:[[11,6],[0,0]],pieces:[
+  shape('cargo-l','L-shaped cargo',1,1,[[0,0],[0,1],[0,2],[1,2]],{x:planetIndex>=4?8:7,y:0},'pink'),
+  shape('cargo-t','T-shaped cargo',1,4,[[0,0],[1,0],[2,0],[1,1],[1,2]],{x:planetIndex>=5?6:7,y:3},'blue'),
  ]};
- if(stage===3)return {...base,kind:'resize',pieces:[rectangle('rocket','Rocket cabin',2,2,2,2,
+ if(templateStage===3)return {...base,kind:'resize',pieces:[rectangle('rocket','Rocket cabin',2,2,2,2,
   {x:2,y:2,w:3+Math.floor(planetIndex/2),h:2+(planetIndex>=3?1:0)+(planetIndex>=6?1:0)},'pink',true)]};
- if(stage===4)return {...base,kind:'precision',directions:'Carefully click INSIDE the BLUE module. Then use arrows to move it to the glowing target.',
-  pieces:[rectangle('decoy','Pink module',3,2,2,2,null,'pink'),rectangle('module','Blue module',4,2,3,2,{x:8,y:4,w:3,h:2},'blue'),
+ if(templateStage===4)return {...base,kind:'precision',directions:'Click the BLUE module, not a decoy. Collect the crystal on the way, then FIT it inside the BLUE MODULE dock.',
+  obstacles:[[11,0],[0,6]],pickups:[{id:'module-crystal',x:6,y:4,name:'Module crystal',image:'./assets/standalone/pickup_crystals.png'}],pieces:[rectangle('decoy','Pink module',1,0,2,2,null,'pink'),rectangle('module','Blue module',4,2,3,2,{x:8,y:4,w:3,h:2},'blue'),
    ...(planetIndex>=3?[rectangle('decoy-2','Purple module',1,5,2,1,null,'purple')]:[]),
    ...(planetIndex>=6?[rectangle('decoy-3','Mint module',9,0,2,1,null,'mint')]:[])],clickTarget:'module'};
- if(stage===5)return {...base,kind:'mixed',pieces:[
+ if(templateStage===5)return {...base,kind:'mixed',obstacles:[[0,6],[11,0]],pieces:[
   rectangle('satellite','Satellite body',1,4,2,1,{x:8,y:planetIndex>=4?5:4,w:2,h:1},'mint'),
   rectangle('panel','Solar panel',1,1,2,1,{x:6,y:1,w:3+Math.floor(planetIndex/3),h:2+(planetIndex>=5?1:0)},'blue',true),
  ]};
- if(stage===6)return {...base,kind:'mixed',pieces:[
+ if(templateStage===6)return {...base,kind:'mixed',obstacles:[[0,6],[11,0]],pieces:[
   rectangle('antenna','Antenna',1,1,1,2,{x:10,y:1,w:1,h:2},'mint'),
   rectangle('window','Space window',1,4,2,2,{x:6,y:planetIndex>=4?2:3,w:3+(planetIndex>=4?1:0),h:2+(planetIndex>=4?1:0)},'pink',true),
   rectangle('console','Control console',4,5,2,1,{x:7,y:5,w:2,h:1},'blue'),
