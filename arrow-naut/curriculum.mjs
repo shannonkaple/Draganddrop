@@ -191,7 +191,7 @@ export function createMission(planetIndex,stage){
     pattern,pieces:[],obstacles:[],pickups:[]};
   }
   if(stage===10){
-   const relay=buildBaseMission(planetIndex,6);
+   const relay=buildBaseMission(planetIndex,WORLD_ORDERS[planetIndex].indexOf(6));
    return {...relay,id:PLANETS[planetIndex].id+'-bonus-3',stage,
     number:64+planetIndex*BONUS_STAGES+3,layoutVersion:8,kind:'picture-relay',
     title:'Three-Picture Space Relay',
