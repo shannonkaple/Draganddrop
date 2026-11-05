@@ -1,3 +1,4 @@
+import {openTeacherTools} from './teacher-tools.mjs?v=teacher-tools-20261105b';
 import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,bonusCompletedCount,BONUS_STAGES,planetUnlocked,stageUnlocked,sceneUnlocked,SPACE_SHOP} from './curriculum.mjs?v=naut-shop-unlock-20261105c';
 import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=naut-shop-unlock-20261105c';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
@@ -32,7 +33,7 @@ function header(){
  return `<header class="topbar" id="main-header"><div class="brand"><strong>Ms. Kaple's ARROW-NAUT Space Adventure</strong><small>${hasStudent?esc(studentText):'SECOND GRADE · CLICK · MOVE · RESIZE · FIT'}</small></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
   `<button data-action="home">Home</button><button data-action="map-two" class="map-two-entry">Map Two · Lost Worlds</button><button data-action="shop">Star Shop · ${state.progress.stars}</button><button data-action="stuff">My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
- <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">How to Play</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
+ <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">How to Play</button><button data-action="teacher">Teacher</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
 function entry(){
  if(state.view==='teachers')return `<main class="main"><section class="hero"><span class="tag">WELCOME, SPACE EXPLORER</span><h1>Choose Your Teacher</h1><p>Click carefully. Get ready to use your trackpad and arrow keys on an out-of-this-world mission!</p></section>
@@ -224,7 +225,8 @@ function openStudent(number){state.student=number;state.key=saveKey(state.teache
  state.progress=loaded;state.view='home';state.message='';state.error='';render();}
 function logOut(){state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
 function onAction(action){
- switch(action){case 'teachers':state.view='teachers';render();break;
+ switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
+ case 'teachers':state.view='teachers';render();break;
  case 'students':state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
  case 'logout':logOut();break;
  case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
