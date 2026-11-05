@@ -83,8 +83,16 @@ function buildBaseMission(planetIndex,stage,forcedTemplate=null){
    pickups:[{id:'rover-star',x:7,y:3,name:'Star signal',image:'./assets/standalone/pickup_star.png'}],
    directions:planetIndex===0?'Click the rover. Use KEYBOARD ARROWS to collect the glowing STAR at the center-right. Move to the dotted dock, then CLICK AND DRAG its corner handle to resize the rover to 2 squares wide and 2 squares tall. Earn your star when both jobs are finished.':'Click the rover. Use keyboard arrows to move around bad guys, COLLECT the star signal, then reach the matching rover dock.'};
  }
- if(templateStage===2)return {...base,kind:'fit',directions:'Click the full L or T cargo picture. Use arrow keys to turn around space bad guys and FIT each into its matching labeled cargo dock.',obstacles:[[11,6],[0,0]],pieces:[
-  shape('cargo-l','L-shaped cargo',1,1,[[0,0],[0,1],[0,2],[1,2]],{x:planetIndex>=4?8:7,y:0},'pink'),
+ if(templateStage===2)return {...base,kind:'fit',
+  // The first (pink Candy Moon) Level 3 must have two clearly separated, reachable docks.
+  // Bump only this mission's layoutVersion so stale in-progress placements reinitialize,
+  // without changing its level ID, earned stars, or completion record.
+  layoutVersion:planetIndex===0?6:base.layoutVersion,
+  directions:planetIndex===0?
+   'LEVEL 3: CLICK the big PINK L-shaped cargo picture. Move it with your KEYBOARD ARROWS into the PINK L dock at the TOP RIGHT. Next, CLICK the BLUE T-shaped cargo picture and move it into the BLUE T dock at the BOTTOM RIGHT. No resizing.':
+   'Click the full L or T cargo picture. Use arrow keys to move around space bad guys and FIT each into its matching labeled cargo dock.',
+  obstacles:[[11,6],[0,0]],pieces:[
+  shape('cargo-l','PINK L-shaped cargo',1,1,[[0,0],[0,1],[0,2],[1,2]],{x:planetIndex>=4?8:7,y:0},'pink'),
   shape('cargo-t','T-shaped cargo',1,4,[[0,0],[1,0],[2,0],[1,1],[1,2]],{x:planetIndex>=5?6:7,y:3},'blue'),
  ]};
  if(templateStage===3)return {...base,kind:'resize',pieces:[rectangle('rocket','Rocket cabin',2,2,2,2,
