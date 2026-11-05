@@ -34,6 +34,10 @@ function plan(m,run,id,goal){
  return moves;
 }
 test('all 64 first-grade games finish with real arrow movement and space cargo fitting',()=>{
+ // Keep the solvability proof independent from randomized collisions; actual
+ // enemy hazards are exercised separately by the game mechanics tests.
+ const savedRandom=Math.random;Math.random=()=>0;
+ try{
  const missions=allMissions();assert.equal(missions.length,64);
  for(const mission of missions){
   let run=startRun(mission);
@@ -73,6 +77,7 @@ test('all 64 first-grade games finish with real arrow movement and space cargo f
   }
   assert.equal(run.complete,true,mission.id+' failed to complete');
  }
+ }finally{Math.random=savedRandom;}
 });
 test('every moving game demands horizontal AND vertical arrow control',()=>{
  for(let world=0;world<8;world++)for(let stage=1;stage<=6;stage++){
