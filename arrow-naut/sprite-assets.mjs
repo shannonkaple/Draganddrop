@@ -1,68 +1,62 @@
-/** New illustrated Arrow-Naut prototype asset set, 2026-11-02.
- * 63 independently loadable RGBA PNGs from original generated artboards.
- * Small portraits are isolated in transparent-corner space badges so no
- * cut-up sprite sheets or label panels appear on the screens.
- * Student progress IDs and all mission IDs remain stable.
+/** Arrow-Naut standalone transparent PNG catalog (2026-11-05).
+ * NO sprite sheet slicing, shape emojis, or CSS background-position crops.
+ * Legacy saved player IDs remain mapped to whole PNG characters.
  */
-const file = name => `./assets/sprites/${name}.png`;
-export const PLAYERS = [
- {id:'astro-pup',name:'Astro Pup',image:file('astro-pup')},
- {id:'luna-cat',name:'Luna Cat',image:file('luna-cat')},
- {id:'comet-fox',name:'Comet Fox',image:file('comet-fox')},
- {id:'orbit-bunny',name:'Orbit Bunny',image:file('orbit-bunny')},
- {id:'nova-otter',name:'Nova Otter',image:file('nova-otter')},
- {id:'pixel-penguin',name:'Pixel Penguin',image:file('pixel-penguin')},
- {id:'zippy-turtle',name:'Zippy Turtle',image:file('zippy-turtle')},
- {id:'ziggy-alien',name:'Ziggy Alien',image:file('ziggy-alien')},
- {id:'cosmo-kid',name:'Cosmo Kid',image:file('cosmo-kid')},
+const a = name => './assets/standalone/'+name+'.png';
+const j = name => '../arrow-naut-jr/assets/explorers/'+name+'.png';
+const ja= name => '../arrow-naut-jr/assets/new-space-art/'+name+'.png';
+export const PLAYERS=[
+ {id:'astro-pup',name:'Cosmo Fox',image:a('astro_fox')},
+ {id:'luna-cat',name:'Nova Panda',image:a('astro_panda')},
+ {id:'comet-fox',name:'Comet Kitty',image:a('astro_kitten')},
+ {id:'orbit-bunny',name:'Bolt Astronaut Robot',image:a('astro_robot')}
 ];
-export const FRIEND_SPRITES = [
- 'pip-star-sprout','momo-moon-mouse','beebo-bot','glimmer-gecko',
- 'bloop-blob','frosty-ferret','zuzu-comet-cub','nova-starling'
-].map(file);
-export const ENEMY_SPRITES = [
- 'meteor-mite','zap-bot','glitch-rover','asteroid-spike',
- 'cosmic-cube','crater-crab','shadow-ufo','violet-blob'
-].map(file);
-export const SHOP_SPRITES = {
- 'telescope':file('telescope'),
- 'moon-buggy':file('moon-buggy'),
- 'robot-pet':file('beebo-bot'),
- 'crystals':file('crystals'),
- 'rocket-lamp':file('rocket-lamp'),
- 'alien-plant':file('alien-plant'),
- 'space-helmet':file('space-helmet'),
- 'rocket-boots':file('rocket-boots'),
- 'star-cape':file('star-cape'),
- 'astro-goggles':file('astro-goggles'),
- 'mini-ufo':file('mini-ufo'),
- 'solar-satellite':file('solar-satellite'),
- 'cosmic-snowglobe':file('cosmic-snowglobe'),
-};
-export const PUZZLE_SPRITES = {
- 'box-a':file('pink-window'),'box-b':file('blue-window'),
- 'box-c':file('purple-circle'),'box-d':file('green-triangle'),'box-e':file('cosmic-cube'),'rover':file('moon-buggy'),
- 'cargo-l':file('cargo-l-blue'),'cargo-t':file('cargo-t-pink'),
- 'rocket':file('rocket-boots'),'decoy':file('pink-window'),
- 'module':file('blue-console'),'decoy-2':file('cargo-purple'),'decoy-3':file('solar-panel'),'satellite':file('solar-satellite'),
- 'panel':file('solar-panel'),'antenna':file('telescope'),
- 'window':file('space-window'),'console':file('blue-console'),
- 'bridge':file('cargo-bar-orange'),'beacon':file('comet-star'),'signal':file('space-dish')
-};
-export const EARNABLES = [
- {id:'candy-crystal',name:'Candy Moon Crystal',image:file('crystals'),planet:0,level:4},
- {id:'rocket-medal',name:'Rocket Launch Medal',image:file('gold-star'),planet:1,level:4},
- {id:'orbit-gear',name:'Neon Ring Gear',image:file('silver-gear'),planet:2,level:4},
- {id:'frost-diamond',name:'Frost Diamond',image:file('ice-diamond'),planet:3,level:4},
- {id:'robot-battery',name:'Robot Energy Cell',image:file('energy-canister'),planet:4,level:4},
- {id:'dino-fossil',name:'Meteor Star',image:file('comet-star'),planet:5,level:4},
- {id:'ocean-pearl',name:'Ocean Pearl',image:file('purple-circle'),planet:6,level:4},
- {id:'lava-light',name:'Lava Light',image:file('rocket-lamp'),planet:7,level:4},
+const PLAYER_LEGACY={'nova-otter':'astro-pup','pixel-penguin':'luna-cat','zippy-turtle':'orbit-bunny','ziggy-alien':'orbit-bunny','cosmo-kid':'astro-pup'};
+export const FRIEND_SPRITES=[
+ a('rescue_bunny'),a('rescue_turtle'),a('rescue_otter'),a('rescue_koala'),
+ a('rescue_puppy'),j('space_panda'),j('space_kitty'),j('star_bot')
 ];
-export const playerPortrait=(id)=>PLAYERS.find(p=>p.id===id)?.image||PLAYERS[0].image;
-export const friendPortrait=(index)=>FRIEND_SPRITES[index]||FRIEND_SPRITES[0];
-export const enemyPortrait=(index)=>ENEMY_SPRITES[index]||ENEMY_SPRITES[0];
+export const ENEMY_SPRITES=[
+ a('enemy_meteor'),a('enemy_glitch'),a('enemy_asteroid'),
+ ja('meteor_slime'),ja('space_bat')
+];
+export const SHOP_SPRITES={
+ telescope:a('pickup_crystals'),'moon-buggy':a('space_rover'),'robot-pet':a('rescue_puppy'),
+ crystals:a('pickup_crystals'),'rocket-lamp':a('pickup_star'),
+ 'alien-plant':ja('crystal_moon'),'space-helmet':a('astro_robot'),
+ 'rocket-boots':a('space_rover'),'star-cape':a('pickup_star'),
+ 'astro-goggles':a('astro_panda'),'mini-ufo':a('space_ufo'),
+ 'solar-satellite':ja('star_beacon'),'cosmic-snowglobe':ja('star_chest')
+};
+export const PUZZLE_SPRITES={
+ 'box-a':a('crate_pink'),'box-b':a('crate_blue'),
+ 'box-c':a('crate_purple'),'box-d':a('crate_mint'),'box-e':a('crate_purple'),
+ 'rover':a('space_rover'),
+ 'cargo-l':'../arrow-naut-jr/assets/puzzle/l_shaped_cargo.png',
+ 'cargo-t':'../arrow-naut-jr/assets/puzzle/t_shaped_cargo.png',
+ 'rocket':'../arrow-naut-jr/assets/puzzle/rocket.png',
+ 'decoy':a('crate_pink'),'module':a('crate_blue'),
+ 'decoy-2':a('crate_purple'),'decoy-3':a('crate_mint'),
+ 'satellite':'../arrow-naut-jr/assets/puzzle/space_station_satellite.png',
+ 'panel':'../arrow-naut-jr/assets/puzzle/communications_satellite.png',
+ 'antenna':ja('star_beacon'),'window':'../arrow-naut-jr/assets/puzzle/space_greenhouse.png',
+ 'console':'../arrow-naut-jr/assets/puzzle/robot_probe.png',
+ 'bridge':a('space_rover'),'beacon':ja('star_beacon'),'signal':a('pickup_star')
+};
+export const EARNABLES=[
+ {id:'candy-crystal',name:'Candy Moon Crystal',image:a('pickup_crystals'),planet:0,level:4},
+ {id:'rocket-medal',name:'Rocket Launch Medal',image:a('pickup_star'),planet:1,level:4},
+ {id:'orbit-gear',name:'Orbit Star Crystal',image:ja('crystal_moon'),planet:2,level:4},
+ {id:'frost-diamond',name:'Frost Crystal',image:a('pickup_crystals'),planet:3,level:4},
+ {id:'robot-battery',name:'Robot Signal',image:ja('star_beacon'),planet:4,level:4},
+ {id:'dino-fossil',name:'Meteor Star',image:a('pickup_star'),planet:5,level:4},
+ {id:'ocean-pearl',name:'Ocean Satellite',image:a('space_ufo'),planet:6,level:4},
+ {id:'lava-light',name:'Lava Star',image:a('pickup_star'),planet:7,level:4}
+];
+export const playerPortrait=id=>PLAYERS.find(p=>p.id===(PLAYER_LEGACY[id]||id))?.image||PLAYERS[0].image;
+export const friendPortrait=index=>FRIEND_SPRITES[index]||FRIEND_SPRITES[0];
+export const enemyPortrait=index=>ENEMY_SPRITES[Math.abs(index)%ENEMY_SPRITES.length];
 export const earnedItems=progress=>EARNABLES.filter(item=>{
  const ids=['launch','moon','robot','crystal','slime','ice','jungle','core'];
- return progress?.completed?.includes(`${ids[item.planet]}-${item.level}`);
+ return progress?.completed?.includes(ids[item.planet]+'-'+item.level);
 });
