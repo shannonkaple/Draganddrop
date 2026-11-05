@@ -7,6 +7,9 @@ const root=document.getElementById('app');
 const esc=v=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 const state={view:'teachers',teachers:[],teacher:null,number:null,key:null,progress:null,world:0,mission:null,run:null,modal:null,notice:'',error:'',brokenSave:'',pending:null,tabSignature:null,expectedSavedRaw:null};
 const fileImg=(src,alt,cls='')=>'<img class="'+cls+'" src="'+src+'" alt="'+esc(alt)+'" draggable="false" loading="eager" onerror="this.onerror=null;this.src=\'../game-assets/collectibles/computer/laptop_512.png\'">';
+const JUNIOR_MAP_TWO_THEMES=['Aurora Garden','Clockwork Comet','Prism Reef','Cloud Carnival','Crystal Caverns','Nebula Library','Ember Workshop','Moonlight Jungle'];
+const JUNIOR_MAP_TWO_HOTSPOTS=[{x:12,y:36},{x:34,y:19},{x:58,y:17},{x:81,y:35},{x:85,y:72},{x:62,y:79},{x:37,y:77},{x:13,y:70}];
+const juniorMapTwoUnlocked=()=>!!state.progress&&WORLDS.every((_,i)=>completedCount(state.progress,i)===8);
 const chosen=()=>CHARACTERS.find(x=>x.id===state.progress?.character)||CHARACTERS[0];
 const saveKey=(teacher,num)=>'mskaple-arrownaut-junior-v1:'+teacher+':'+num;
 function rememberTab(){
@@ -37,7 +40,7 @@ function header(){
  const playing=!!state.progress;
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
  return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="./assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
- (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
+ (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button>'+(juniorMapTwoUnlocked()?'<button data-action="map-two" class="junior-map-two-entry">MAP TWO</button>':'')+'<button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
  '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">How to Play</button><button data-action="teacher">Teacher</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
 function login(){
@@ -54,6 +57,15 @@ function home(){
  return '<button class="world-pin" data-world="'+i+'" style="left:'+pad.x+'%;top:'+pad.y+'%" '+(unlocked?'':'disabled')+
  ' aria-label="'+esc(world.name)+(unlocked?'':' locked')+'"><strong>'+esc(world.name)+'</strong><small>'+ (unlocked?done+'/8 levels':'LOCKED')+'</small></button>';
  }).join('')+'<div class="map-note">'+WORLDS.reduce((n,_,i)=>n+completedCount(state.progress,i),0)+'/64 original levels · '+state.progress.stars+' stars · Click a planet!</div></div></main>';
+}
+function mapTwoPage(){
+ if(!juniorMapTwoUnlocked())return home();
+ const selected=Number.isInteger(state.mapTwoSelected)?state.mapTwoSelected:null;
+ return '<main class="map-page junior-map-two-page"><div class="junior-map-two-intro"><strong>MAP TWO · THE LOST WORLDS</strong><span>A brand-new galaxy! All eight original planets are complete.</span></div>'+
+ '<div class="map-stage junior-map-two-stage"><img class="map-art" src="../arrow-naut/assets/map-two/lost-worlds-map.jpg" onerror="this.onerror=null;this.src=\'../arrow-naut/assets/map-two/lost-worlds-map.svg\'" alt="New illustrated eight-island Lost Worlds map" draggable="false">'+
+ JUNIOR_MAP_TWO_THEMES.map((name,i)=>{const at=JUNIOR_MAP_TWO_HOTSPOTS[i];return '<button class="junior-map-two-stop" type="button" data-junior-map-two-stop="'+i+'" style="left:'+at.x+'%;top:'+at.y+'%" aria-label="'+esc(name)+' · new world coming soon"><b>'+esc(name)+'</b><small>COMING SOON</small></button>'}).join('')+
+ '</div><div class="junior-map-two-bottom">'+(selected===null?'Your rescued friends are safe! New first-grade missions are being created for these eight worlds.':esc(JUNIOR_MAP_TWO_THEMES[selected])+' is on the new galaxy map. Its first-grade missions are not available yet.')+
+ ' <button data-action="home">Back to Map One</button></div></main>';
 }
 function worldMap(){
  const w=WORLDS[state.world],done=completedCount(state.progress,state.world);
@@ -223,7 +235,7 @@ function modal(){
 }
 function render(){
  root.innerHTML=header()+
- (state.view==='teachers'||state.view==='students'?login():state.view==='home'?home():state.view==='world'?worldMap():
+ (state.view==='teachers'||state.view==='students'?login():state.view==='home'?home():state.view==='map-two'&&juniorMapTwoUnlocked()?mapTwoPage():state.view==='world'?worldMap():
   state.view==='game'?game():state.view==='shop'?shop():state.view==='stuff'?stuff():help())+modal();
  clockSync();
  rememberTab();
@@ -306,9 +318,10 @@ function clockSync(){
  },Math.max(1050,1650-state.mission.world*70));
 }
 function nav(action){
- if(['home','teachers','world','shop','stuff','help','logout'].includes(action)&&!guardStudentNavigation())return;
+ if(['home','teachers','world','shop','stuff','help','logout','map-two'].includes(action)&&!guardStudentNavigation())return;
  switch(action){
   case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-junior-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.number))window.location.reload()}});break;
+  case 'map-two':if(juniorMapTwoUnlocked()){state.view='map-two';state.mapTwoSelected=null;state.modal=null;render()}break;
   case 'home':state.view=state.progress?'home':'teachers';state.modal=null;state.run=null;state.mission=null;render();break;
   case 'teachers':state.view='teachers';state.error='';render();break;
   case 'world':showWorld(state.world);break;
@@ -328,7 +341,7 @@ function nav(action){
    // rescue level just finished, in which case show the main galaxy map.
    const finishedWorld=state.mission?.stage===7&&completedCount(state.progress,state.world)===8;
    state.modal=null;
-   if(finishedWorld){state.mission=null;state.run=null;state.view='home';state.notice='';state.error='';render()}
+   if(finishedWorld){state.mission=null;state.run=null;state.view=juniorMapTwoUnlocked()?'map-two':'home';state.mapTwoSelected=null;state.notice='';state.error='';render()}
    else showWorld(state.world);
    break;
   }
@@ -380,6 +393,10 @@ root.addEventListener('click',e=>{
   }
   if(d.character){
    if(persist({...state.progress,character:d.character})){state.modal=null;render()}
+   return;
+  }
+  if(d.juniorMapTwoStop!==undefined){
+   if(juniorMapTwoUnlocked()){state.mapTwoSelected=Number(d.juniorMapTwoStop);render()}
    return;
   }
   if(d.stuffWorld!==undefined){
