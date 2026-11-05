@@ -24,10 +24,8 @@ export function select(mission,run,id){
   const requested=mission.pieces.find(p=>p.id===mission.target);
   return {ok:false,run,reason:'Look for '+(requested?.name||'the correct picture')+'! Click its MIDDLE, not the decoys.'};
  }
- if(mission.kind==='relay'){
-  const remaining=mission.deliveryOrder.filter(name=>!(run.delivered||[]).includes(name));
-  if(id!==remaining[0])return {ok:false,run,reason:'Look for the highlighted '+mission.pieces.find(p=>p.id===remaining[0])?.name+' first!'};
- }
+ if(mission.kind==='relay'&&(run.delivered||[]).includes(id))
+  return {ok:false,run,reason:'That picture is already docked! Click any other picture.'};
  return {ok:true,run:{...run,selected:id,attempts:run.attempts+1},
   reason:'Selected! Now use the keyboard arrow keys.'};
 }
@@ -105,12 +103,13 @@ export function move(mission,run,key){
  }
  next.collected=collected;
  if(mission.kind==='relay'){
-  const current=mission.deliveryOrder[(next.delivered||[]).length];
-  if(piece.id===current&&piece.goal&&x===piece.goal.x&&y===piece.goal.y){
+  // Independent docking: any of the three objects may be finished first.
+  if(!next.delivered.includes(piece.id)&&piece.goal&&x===piece.goal.x&&y===piece.goal.y){
    next.delivered.push(piece.id);next.selected=null;
-   reason='Signal '+next.delivered.length+' of 3 connected! Click the NEXT highlighted space tool.';
+   reason=next.delivered.length+' of '+mission.pieces.filter(p=>p.goal).length+
+     ' docked! Click ANY remaining picture.';
   }
-  next.complete=next.delivered.length===mission.deliveryOrder.length;
+  next.complete=mission.pieces.filter(p=>p.goal).every(p=>next.delivered.includes(p.id));
  }else{
   const allDelivered=mission.pieces.filter(p=>p.goal).every(p=>{
    const target=next.pieces.find(moved=>moved.id===p.id);
