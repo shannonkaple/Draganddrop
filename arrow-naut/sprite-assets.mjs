@@ -26,7 +26,19 @@ export const SHOP_SPRITES={
  'alien-plant':ja('crystal_moon'),'space-helmet':a('astro_robot'),
  'rocket-boots':a('space_rover'),'star-cape':a('pickup_star'),
  'astro-goggles':a('astro_panda'),'mini-ufo':a('space_ufo'),
- 'solar-satellite':ja('star_beacon'),'cosmic-snowglobe':ja('star_chest')
+ 'solar-satellite':ja('star_beacon'),'cosmic-snowglobe':ja('star_chest'),
+ 'legacy-lollipop':'../arrow-lab/collectibles/candy/lollipop.png',
+ 'legacy-cupcake':'../arrow-lab/collectibles/candy/cupcake.png',
+ 'legacy-pirate-chest':'../arrow-lab/collectibles/pirate/treasure_chest.png',
+ 'legacy-gold-coins':'../arrow-lab/collectibles/pirate/gold_coins.png',
+ 'legacy-compass':'../arrow-lab/collectibles/pirate/compass.png',
+ 'legacy-ice-gem':'../arrow-lab/collectibles/arctic/icicle_gem.png',
+ 'legacy-snowglobe':'../arrow-lab/collectibles/arctic/snow_globe.png',
+ 'legacy-pearl-shell':'../arrow-lab/collectibles/ocean/pearl_shell.png',
+ 'legacy-sea-turtle':'../arrow-lab/collectibles/ocean/sea_turtle.png',
+ 'legacy-starfish':'../arrow-lab/collectibles/ocean/starfish.png',
+ 'legacy-golden-key':'../arrow-lab/collectibles/castle/golden_key.png',
+ 'legacy-hot-cocoa':'../arrow-lab/collectibles/arctic/hot_cocoa.png'
 };
 export const PUZZLE_SPRITES={
  'box-a':a('crate_pink'),'box-b':a('crate_blue'),
