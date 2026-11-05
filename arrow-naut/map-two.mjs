@@ -95,6 +95,20 @@ export function createMapTwoMission(world,stage){
   piece('key',alternate?'Comet Key':'Garden Key','key',1,5,1,1,{x:7,y:5,w:1,h:1},'drag')],
   instructions:`Final mission! MOVE the beacon with ARROWS, DRAG its resize handles to fit the docking zone, then DRAG the rescue key to unlock ${LOST_WORLDS[world].friend}.`};
 }
+/** Show tiny action steps; no student must identify equipment by its name. */
+export function mapTwoKidDirections(m){
+ switch(m.type){
+  case 'select':return 'Look at the picture by the directions. Click the SAME picture below!';
+  case 'move':return '1. Click the picture. 2. Use arrow keys. 3. Move to the SAME faded picture.';
+  case 'drag':return '1. Click and HOLD. 2. Drag the picture to the SAME faded picture. 3. Let go.';
+  case 'resize':return '1. Click the picture. 2. Drag a small handle. 3. Make it fit the faded picture.';
+  case 'sort':return 'Drag BOTH pictures to the SAME faded pictures. Let go!';
+  case 'move-resize':return '1. Click the picture. 2. Move with arrow keys. 3. Drag a handle to make it fit.';
+  case 'mixed':return '1. Click the top picture and move with arrows. 2. Drag the other picture. 3. Match both!';
+  case 'rescue':return '1. Move the first picture with arrows. 2. Make it fit using a handle. 3. Drag the other picture to the faded picture. Rescue your friend!';
+  default:return 'Match the pictures!';
+ }
+}
 export const initialMapTwoRun=mission=>({id:mission.id,layoutVersion:mission.layoutVersion,
  selected:null,pieces:copy(mission.pieces),complete:false,attempts:0});
 const rect=p=>({x:p.x,y:p.y,w:p.w,h:p.h});
@@ -110,7 +124,7 @@ export function mapTwoSolved(mission,run){return mission.type==='select'?
 export function chooseMapTwo(mission,run,id){
  const p=run.pieces.find(x=>x.id===id);
  if(!p)return {ok:false,reason:'Click inside a picture.'};
- if(mission.type==='select'&&id!==mission.targetId)return {ok:false,reason:'Try another picture. Find the one in the directions.'};
+ if(mission.type==='select'&&id!==mission.targetId)return {ok:false,reason:'Try another picture. Find the SAME picture shown above.'};
  const next={...copy(run),selected:id,attempts:run.attempts+1};
  next.complete=mapTwoSolved(mission,next);
  return {ok:true,run:next,reason:next.complete?'Great selection!':'Selected! Follow the skill directions.'};
@@ -197,11 +211,11 @@ export function mountMapTwo(node,{read,save,exit}){
   const unlock=mapTwoStageUnlocked(progress(),world,i),done=dataset().completed.includes(mapTwoId(world,i));
   return `<button type="button" class="m2-level" data-m2-stage="${i}" ${unlock?'':'disabled'}><span>${unlock?i+1:'LOCK'}</span><b>${esc(LOST_STAGE_TITLES[world][i])}</b><small>${done?'DONE · REPLAY':unlock?'PLAY':'Finish the previous level'}</small></button>`}).join('')}</div><div class="m2-friend-line">${graphic(w.friendImage,w.friend,'m2-friend-art')}<span>${dataset().rescued.includes(w.id)?esc(w.friend)+' rescued!':'Rescue '+esc(w.friend)+' after mission 8'}</span></div>`};
  const boardPanel=()=>{const m=createMapTwoMission(world,stage);return `<div class="m2-game-head"><button data-m2-back="world">← ${esc(m.worldInfo.name)} Map</button><h1>Level ${stage+1}: ${esc(m.title)}</h1><span>${esc(m.type.toUpperCase())}</span></div>
-  <div class="m2-instruction"><p>${esc(m.instructions)}</p><button type="button" data-m2-speak="1" aria-label="Read directions aloud">🔊 Listen</button></div>
+  <div class="m2-instruction">${m.type==='select'?graphic(m.pieces.find(p=>p.id===m.targetId).art,'Find this picture','m2-target-cue'):''}<p>${esc(mapTwoKidDirections(m))}</p><button type="button" data-m2-speak="1" aria-label="Read directions aloud">🔊 Listen</button></div>
   <div class="m2-board-wrap"><div class="m2-board" id="m2-board" role="group" aria-label="Space puzzle. Use trackpad and keyboard arrows as instructed.">
    ${graphic(m.worldInfo.scene,'','m2-backdrop')}<div class="m2-soft-grid"></div>
-   ${run.pieces.filter(p=>p.goal).map(p=>`<div class="m2-goal" style="${rectCSS(p.goal)}" aria-label="${esc(p.label)} target"><div class="m2-goal-inner">${graphic(p.art,'','m2-goal-image')}<small>DROP HERE</small></div></div>`).join('')}
-   ${run.pieces.map(p=>`<div class="m2-piece ${run.selected===p.id?'selected':''} ${p.tool==='drag'?'draggable':''}" style="${rectCSS(p)}" data-m2-piece="${esc(p.id)}" data-m2-drag="${p.tool==='drag'?'yes':'no'}" role="button" tabindex="0" aria-label="${esc(p.label)}: ${p.tool}">${graphic(p.art,p.label,'m2-object-image')}<b>${esc(p.label)}</b>${run.selected===p.id&&p.tool==='resize'?['nw','n','ne','e','se','s','sw','w'].map(h=>`<span class="m2-handle m2-handle-${h}" data-m2-handle="${h}" data-m2-for="${esc(p.id)}" role="button" aria-label="Hold and drag ${h} resize handle"></span>`).join(''):''}</div>`).join('')}
+   ${run.pieces.filter(p=>p.goal).map(p=>`<div class="m2-goal" style="${rectCSS(p.goal)}" aria-label="${esc(p.label)} target"><div class="m2-goal-inner">${graphic(p.art,'','m2-goal-image')}<small>SAME PICTURE</small></div></div>`).join('')}
+   ${run.pieces.map(p=>`<div class="m2-piece ${run.selected===p.id?'selected':''} ${p.tool==='drag'?'draggable':''}" style="${rectCSS(p)}" data-m2-piece="${esc(p.id)}" data-m2-drag="${p.tool==='drag'?'yes':'no'}" role="button" tabindex="0" aria-label="${esc(p.label)}: ${p.tool}">${graphic(p.art,p.label,'m2-object-image')}<b>${p.tool==='drag'?'DRAG':p.tool==='resize'?'MAKE BIGGER':p.tool==='move'?'ARROWS':''}</b>${run.selected===p.id&&p.tool==='resize'?['nw','n','ne','e','se','s','sw','w'].map(h=>`<span class="m2-handle m2-handle-${h}" data-m2-handle="${h}" data-m2-for="${esc(p.id)}" role="button" aria-label="Hold and drag ${h} resize handle"></span>`).join(''):''}</div>`).join('')}
   </div></div><div class="m2-feedback" id="m2-feedback" role="status">${esc(notice||'Carefully follow the directions above.')}</div>`};
  function draw(){node.innerHTML=`<main class="m2-page">${screen==='map'?mapPanel():screen==='world'?worldPanel():boardPanel()}${modal?`<div class="m2-modal-scrim" role="dialog" aria-modal="true"><div class="m2-modal"><h2>${modal.friend?'YOU RESCUED A FRIEND!':'MISSION COMPLETE!'}</h2>${modal.friend?graphic(LOST_WORLDS[world].friendImage,modal.friend,'m2-reward-friend'):''}<p>${modal.friend?esc(modal.friend)+' is safe!':'Great space skills!'}</p><strong>${modal.stars?`+${modal.stars} STARS`:'PRACTICE REPLAY'}</strong><button type="button" data-m2-reward="1">Continue</button></div></div>`:''}</main>`;}
  function enterStage(n){if(!mapTwoStageUnlocked(progress(),world,n))return;
@@ -216,7 +230,7 @@ export function mountMapTwo(node,{read,save,exit}){
   if(!result.ok){notice=result.reason;const box=node.querySelector('#m2-feedback');if(box)box.textContent=notice;return}
   commit(result.run);
  }
- function speak(){if(!window.speechSynthesis)return;const message=new SpeechSynthesisUtterance(createMapTwoMission(world,stage).instructions);message.rate=.86;window.speechSynthesis.cancel();window.speechSynthesis.speak(message)}
+ function speak(){if(!window.speechSynthesis)return;const message=new SpeechSynthesisUtterance(mapTwoKidDirections(createMapTwoMission(world,stage)));message.rate=.86;window.speechSynthesis.cancel();window.speechSynthesis.speak(message)}
  function handleClick(event){event.stopPropagation();const button=event.target.closest('[data-m2-exit],[data-m2-world],[data-m2-back],[data-m2-stage],[data-m2-speak],[data-m2-reward],[data-m2-piece]');if(!button)return;
   if(Date.now()-lastDragTime<350)return;
   if(button.hasAttribute('data-m2-exit')){exit();return}
