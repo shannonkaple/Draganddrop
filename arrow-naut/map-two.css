@@ -64,3 +64,5 @@
 .m2-world-stop small{font-size:clamp(9px,.86vw,12px)}
 .m2-map-note{text-align:center;font-size:clamp(11px,1.2vw,15px);max-width:900px;margin:6px auto}
 @media(max-width:690px){.m2-galaxy-stage .m2-world-stop{width:15%;min-height:37px;padding:2px 1px;border-radius:7px}.m2-world-stop b{font-size:clamp(8px,1.8vw,12px)}.m2-world-stop small{font-size:8px}.m2-intro{padding:5px}}
+
+.m2-galaxy-art[hidden]{display:none!important}
