@@ -144,3 +144,7 @@
 .bonus-grid strong{font-size:21px;color:#6547a6}.bonus-grid small{font-size:11px}
 .space-placed[data-move-scene]{cursor:grab;touch-action:none;user-select:none}
 @media(max-width:700px){.bonus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Approved heading typeface: all-caps KAHomebody Club. */
+@font-face{font-family:'KAHomebody Club';src:url('https://shannonkaple.github.io/Taskscreen/KAHomebodyClub.ttf') format('truetype');font-display:swap}
+:where(h1,h2,h3,.brand strong,.mission-head h1,.map-heading,.planet-map-heading strong,.galaxy-stop .stop-name,.bonus-labs h2,.page-head h1,.dialog h2,.modal h2){font-family:'KAHomebody Club',VAG,'Arial Rounded MT Bold',sans-serif!important;text-transform:uppercase;letter-spacing:.035em}
