@@ -77,9 +77,11 @@ function buildBaseMission(planetIndex,stage,forcedTemplate=null){
   if(planetIndex>=2)obstacles.push([2,3],[3,3]);
   if(planetIndex>=4)obstacles.push([6,3],[6,4]);
   if(planetIndex>=6)obstacles.push([9,2],[9,3]);
-  return {...base,pieces:[rectangle('rover','Moon rover',1,5,1,1,{x:10,y:planetIndex>=4?0:1,w:1,h:1},'mint')],obstacles,kind:'move',
+  return {...base,layoutVersion:planetIndex===0?7:base.layoutVersion,
+   pieces:[rectangle('rover','Moon rover',1,5,1,1,planetIndex===0?{x:9,y:1,w:2,h:2}:{x:10,y:planetIndex>=4?0:1,w:1,h:1},'mint',planetIndex===0)],
+   obstacles,kind:'move',
    pickups:[{id:'rover-star',x:7,y:3,name:'Star signal',image:'./assets/standalone/pickup_star.png'}],
-   directions:'Click the rover. Use keyboard arrows to move around bad guys, COLLECT the star signal, then reach the matching rover dock.'};
+   directions:planetIndex===0?'Click the rover. Use KEYBOARD ARROWS to collect the glowing STAR at the center-right. Move to the dotted dock, then CLICK AND DRAG its corner handle to resize the rover to 2 squares wide and 2 squares tall. Earn your star when both jobs are finished.':'Click the rover. Use keyboard arrows to move around bad guys, COLLECT the star signal, then reach the matching rover dock.'};
  }
  if(templateStage===2)return {...base,kind:'fit',directions:'Click the full L or T cargo picture. Use arrow keys to turn around space bad guys and FIT each into its matching labeled cargo dock.',obstacles:[[11,6],[0,0]],pieces:[
   shape('cargo-l','L-shaped cargo',1,1,[[0,0],[0,1],[0,2],[1,2]],{x:planetIndex>=4?8:7,y:0},'pink'),
