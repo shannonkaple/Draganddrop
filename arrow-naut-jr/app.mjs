@@ -1,4 +1,4 @@
-import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=junior-shop-unlock-20261105c';
+import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,BONUS_STAGES,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=junior-shop-unlock-20261105c';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-shop-unlock-20261105c';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
 import {verifiedWrite,writeTabSession,readTabSession,clearTabSession,storageProbe} from './save-integrity.mjs?v=junior-safe-refresh-20261102';
@@ -63,7 +63,11 @@ function worldMap(){
  const available=levelUnlocked(state.progress,state.world,i),completed=state.progress.completed.includes(w.id+'-'+(i+1)),at=LEVEL_STOPS[i];
  return '<button class="level-pin" data-level="'+i+'" style="left:'+at.x+'%;top:'+at.y+'%" '+(available?'':'disabled')+
  ' aria-label="Level '+(i+1)+' '+esc(name)+'"><strong>'+(available?i+1:'LOCK')+'</strong><small>'+esc(name)+(completed?' · DONE':'')+'</small></button>';
- }).join('')+'<button class="map-back" data-action="home">All Planets</button></div></main>';
+ }).join('')+'<button class="map-back" data-action="home">All Planets</button></div>'+
+ '<section class="bonus-labs"><h2>MAP TWO · Extra Arrow Practice</h2><p>Rescue your friend, then play eight more click-and-move challenges. No resizing!</p>'+
+ '<div class="bonus-grid">'+Array.from({length:BONUS_STAGES},(_,i)=>{const stage=i+8,m=createMission(state.world,stage),available=levelUnlocked(state.progress,state.world,stage),completed=state.progress.completed.includes(m.id);
+ return '<button data-level="'+stage+'" '+(available?'':'disabled')+'><strong>'+(completed?'✓':stage+1)+'</strong><span>'+esc(m.name)+'</span><small>'+(completed?'DONE':available?'PLAY':'LOCKED')+'</small></button>';
+ }).join('')+'</div></section></main>';
 }
 const stylePos=(x,y,w=1,h=1)=>'left:'+(x/COLS*100)+'%;top:'+(y/ROWS*100)+'%;width:'+(w/COLS*100)+'%;height:'+(h/ROWS*100)+'%';
 function piece(p){
@@ -238,7 +242,7 @@ function openStudent(number,restore=null){
  if(restore&&worldUnlocked(state.progress,restore.world)){
   state.world=restore.world;
   if(restore.view==='game'&&restore.stage!==null&&levelUnlocked(state.progress,restore.world,restore.stage)){
-   const missionId=WORLDS[restore.world].id+'-'+(restore.stage+1);
+   const missionId=createMission(restore.world,restore.stage).id;
    if(state.progress.completed.includes(missionId)&&!state.progress.active){state.view='world';render();return}
    openLevel(restore.stage);return;
   }
