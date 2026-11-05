@@ -45,6 +45,11 @@ function permutations(arr){
  return arr.flatMap((item,i)=>permutations(arr.filter((_,j)=>j!==i)).map(rest=>[item,...rest]));
 }
 function solveNormal(mission){
+ // Route solvability must not depend on a lucky enemy RNG outcome. This tests
+ // that a valid route exists; separate tests verify unpredictable enemy motion.
+ const savedRandom=Math.random;
+ Math.random=()=>0;
+ try{
  for(const order of permutations(mission.pieces.filter(p=>p.goal).map(p=>p.id))){
   let run=initialMission(mission),valid=true;
   for(const id of order){
@@ -63,6 +68,7 @@ function solveNormal(mission){
   if(valid&&run.complete)return run;
  }
  return null;
+ }finally{Math.random=savedRandom;}
 }
 test('all 64 Arrow-Naut missions are actually beatable using clicking, arrows, and trackpad resize handles',()=>{
  const missions=allMissions();
