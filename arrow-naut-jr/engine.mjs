@@ -99,7 +99,7 @@ export function move(mission,run,key){
   }
   collected.push(pickup.id);
   reason=pickup.name+' collected! '+collected.length+' of '+mission.pickups.length+'.';
-  if(mission.kind==='key-gate'){next.gateOpen=true;reason='Magic key collected! The force field is OPEN!'}
+  if(mission.kind==='key-gate'&&pickup.id==='gate-key'){next.gateOpen=true;reason='Magic key collected! The force field is OPEN!'}
  }
  next.collected=collected;
  if(mission.kind==='relay'){
