@@ -148,3 +148,20 @@
 /* Approved heading typeface: all-caps KAHomebody Club. */
 @font-face{font-family:'KAHomebody Club';src:url('https://shannonkaple.github.io/Taskscreen/KAHomebodyClub.ttf') format('truetype');font-display:swap}
 :where(h1,h2,h3,.brand strong,.mission-head h1,.map-heading,.planet-map-heading strong,.galaxy-stop .stop-name,.bonus-labs h2,.page-head h1,.dialog h2,.modal h2){font-family:'KAHomebody Club',VAG,'Arial Rounded MT Bold',sans-serif!important;text-transform:uppercase;letter-spacing:.035em}
+
+
+/* Accessible independent teacher gate; no reset controls in the student menus. */
+.teacher-tools-overlay{position:fixed;inset:0;z-index:99999;background:#101529b8;display:flex;justify-content:center;align-items:center;padding:14px;overflow-y:auto}
+.teacher-tools-panel{box-sizing:border-box;width:min(96vw,560px);max-height:calc(100dvh - 28px);overflow:auto;background:white;color:#24234e;border:3px solid #594195;border-radius:20px;padding:19px;box-shadow:0 12px 60px #0008;font-family:Arial,sans-serif}
+.teacher-tools-panel header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;background:transparent;color:inherit}
+.teacher-tools-panel h2{font:clamp(23px,3.5vw,34px)/1.15 'KAHomebody Club',VAG,Arial,sans-serif;text-transform:uppercase;margin:0}
+.teacher-tools-panel header button{min-width:42px;font-size:23px;padding:3px}
+.teacher-tools-panel p{font-size:14px;line-height:1.5}
+.teacher-tools-panel label{display:block;margin:13px 0 5px;font-weight:bold;font-size:13px}
+.teacher-tools-panel select,.teacher-tools-panel input{display:block;width:100%;min-height:44px;border:2px solid #6a5aa0;border-radius:9px;padding:8px;font:16px Arial,sans-serif}
+.teacher-tool-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:16px 0}
+.teacher-tools-panel button{white-space:normal;font-size:13px;min-height:44px}
+.teacher-tools-panel [data-teacher-reset]{border-color:#a14343;color:#8b2929}
+.teacher-tools-note{background:#fff4dd;padding:9px;border-radius:8px}
+#teacher-tools-message{font-weight:bold;min-height:20px}
+@media(max-width:500px){.teacher-tool-actions{grid-template-columns:1fr}}
