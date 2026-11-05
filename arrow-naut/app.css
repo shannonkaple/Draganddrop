@@ -165,3 +165,9 @@
 .teacher-tools-note{background:#fff4dd;padding:9px;border-radius:8px}
 #teacher-tools-message{font-weight:bold;min-height:20px}
 @media(max-width:500px){.teacher-tool-actions{grid-template-columns:1fr}}
+
+
+/* Moving bad guys are complete transparent PNG files, never cropped sprites. */
+.moving-hazard{position:absolute;z-index:7;pointer-events:none;display:grid;place-items:center;filter:drop-shadow(0 1px 3px #1b174d)}
+.moving-hazard .moving-hazard-image{display:block;width:100%;height:100%;object-fit:contain;object-position:center;animation:hazard-bob 1s ease-in-out infinite}
+@keyframes hazard-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8%)}}
