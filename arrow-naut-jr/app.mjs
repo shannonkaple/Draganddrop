@@ -1,3 +1,4 @@
+import {openTeacherTools} from '../arrow-naut/teacher-tools.mjs?v=teacher-tools-20261105b';
 import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,BONUS_STAGES,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=junior-shop-unlock-20261105c';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-shop-unlock-20261105c';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
@@ -37,7 +38,7 @@ function header(){
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
  return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="./assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
  (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
- '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">How to Play</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
+ '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">How to Play</button><button data-action="teacher">Teacher</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
 function login(){
  if(state.view==='teachers')return '<main class="entry"><h1>First Grade Space Explorers</h1><p>Choose your first-grade teacher.</p>'+
@@ -303,6 +304,7 @@ function clockSync(){
 function nav(action){
  if(['home','teachers','world','shop','stuff','help','logout'].includes(action)&&!guardStudentNavigation())return;
  switch(action){
+  case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-junior-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.number))window.location.reload()}});break;
   case 'home':state.view=state.progress?'home':'teachers';state.modal=null;state.run=null;state.mission=null;render();break;
   case 'teachers':state.view='teachers';state.error='';render();break;
   case 'world':showWorld(state.world);break;
