@@ -159,13 +159,34 @@ function addProgressiveResizes(mission){
  return {...mission,layoutVersion:4,pieces:[...mission.pieces,...added],
   directions:mission.directions+' BONUS: Click the matching space tiles, hold and drag their resize handles, and fit EACH one into its own labeled dock.'};
 }
-export function createMission(planetIndex,stage){return addProgressiveResizes(buildBaseMission(planetIndex,stage));}
-export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:8},(_,stage)=>createMission(pi,stage)))}
+// Optional Map Two practice labs. Preserve ALL legacy level IDs 1–8 and boss rescues.
+export const BONUS_STAGES=8;
+const BONUS_ORDER=[3,6,5,1,2,4,0,3];
+export function createMission(planetIndex,stage){
+ if(Number.isInteger(stage)&&stage>=8&&stage<8+BONUS_STAGES){
+  const base=buildBaseMission(planetIndex,BONUS_ORDER[stage-8]);
+  // New stable IDs never collide with original 64 levels or saved student runs.
+  return addProgressiveResizes({...base,id:PLANETS[planetIndex].id+'-bonus-'+(stage-7),
+   stage,number:64+planetIndex*BONUS_STAGES+(stage-7),layoutVersion:5,
+   title:'Bonus Lab '+(stage-7)+': '+base.title,
+   directions:base.directions+' This is an extra Map Two practice mission.'});
+ }
+ return addProgressiveResizes(buildBaseMission(planetIndex,stage));
+}
+export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:8+BONUS_STAGES},(_,stage)=>createMission(pi,stage)))}
 export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
-export function completedCount(progress,planetIndex){const prefix=PLANETS[planetIndex].id+'-';return (progress.completed||[]).filter(id=>id.startsWith(prefix)).length}
+export function completedCount(progress,planetIndex){const id=PLANETS[planetIndex].id;return (progress.completed||[]).filter(level=>Array.from({length:8},(_,n)=>id+'-'+(n+1)).includes(level)).length}
+export function bonusCompletedCount(progress,planetIndex){const id=PLANETS[planetIndex].id+'-bonus-';return (progress.completed||[]).filter(level=>Array.from({length:BONUS_STAGES},(_,n)=>id+(n+1)).includes(level)).length}
 export function planetUnlocked(progress,index){return index===0||PLANETS.slice(0,index).every((_,i)=>completedCount(progress,i)===8)}
 export const sceneUnlocked=(progress,index)=>Number.isInteger(index)&&index>=0&&index<PLANETS.length&&!!progress?.completed?.includes(PLANETS[index].id+'-8');
-export function stageUnlocked(progress,pi,stage){return planetUnlocked(progress,pi)&&(stage===0||((progress.completed||[]).includes(`${PLANETS[pi].id}-${stage}`)))}
+export function stageUnlocked(progress,pi,stage){
+ if(!planetUnlocked(progress,pi))return false;
+ if(stage>=8&&stage<8+BONUS_STAGES){
+  const base=PLANETS[pi].id;
+  return (progress.completed||[]).includes(stage===8?base+'-8':base+'-bonus-'+(stage-8));
+ }
+ return stage===0||((progress.completed||[]).includes(`${PLANETS[pi].id}-${stage}`));
+}
 export const SPACE_SHOP=[
  {id:'telescope',name:'Starlight Telescope',price:6},
  {id:'moon-buggy',name:'Mini Moon Buggy',price:9},
