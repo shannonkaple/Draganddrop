@@ -66,3 +66,42 @@
 @media(max-width:690px){.m2-galaxy-stage .m2-world-stop{width:15%;min-height:37px;padding:2px 1px;border-radius:7px}.m2-world-stop b{font-size:clamp(8px,1.8vw,12px)}.m2-world-stop small{font-size:8px}.m2-intro{padding:5px}}
 
 .m2-galaxy-art[hidden]{display:none!important}
+
+/* Match Map One's 1672:941 full-size visual area on Map Two. The title,
+   instructions, feedback, and controls remain in independent rows. */
+.m2-page{width:100%;max-width:none;box-sizing:border-box;min-height:calc(100dvh - var(--bar-height,74px));padding:5px 8px 10px;overflow-x:hidden}
+.m2-intro{max-width:100%;padding:7px 10px}
+.m2-intro strong{font-size:clamp(18px,2.25vw,30px)}
+.m2-intro p{font-size:clamp(11px,1.06vw,15px)}
+.m2-galaxy-stage{
+ width:min(100%,calc((100dvh - var(--bar-height,74px) - 105px)*1672/941),1500px)!important;
+ max-width:100%;aspect-ratio:1672/941;margin:7px auto 5px;
+}
+.m2-galaxy-stage .m2-world-stop{max-width:15%;overflow:hidden;overflow-wrap:anywhere}
+.m2-galaxy-stage .m2-world-stop b,.m2-galaxy-stage .m2-world-stop small{max-width:100%;line-height:1.05}
+.m2-game-head{display:flex;flex-wrap:wrap;gap:5px 10px;margin:0 0 5px}
+.m2-game-head h1{flex:1 1 250px;min-width:0;font-size:clamp(18px,2.1vw,30px)}
+.m2-instruction{display:flex;gap:8px;align-items:center;padding:5px 8px;margin:0 0 5px;max-width:100%;min-height:0}
+.m2-instruction p{flex:1 1 auto;min-width:0;overflow-wrap:break-word;font-size:clamp(12px,1.12vw,16px)}
+.m2-instruction button{flex:0 0 auto;min-height:34px;padding:5px 8px}
+.m2-board-wrap{
+ height:min(calc(100dvh - var(--bar-height,74px) - 155px),calc(100vw * 941 / 1672))!important;
+ width:100%;max-width:100%;min-height:0;overflow:hidden;
+ display:flex;align-items:center;justify-content:center;
+}
+.m2-board{
+ width:min(100%,calc((100dvh - var(--bar-height,74px) - 155px)*1672/941),1500px)!important;
+ height:auto;max-width:100%;max-height:100%;aspect-ratio:1672/941;
+ border-radius:16px;
+}
+.m2-piece,.m2-goal{box-sizing:border-box}
+.m2-goal-inner small,.m2-piece small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.m2-page .m2-level-grid{max-width:1200px;margin:0 auto;gap:10px}
+.m2-page .m2-level{min-height:105px;gap:5px;padding:8px 5px}
+@media(max-height:650px){
+ .m2-page{padding:3px 6px 8px}
+ .m2-game-head{margin-bottom:3px}
+ .m2-instruction{margin-bottom:3px;padding:3px 6px}
+ .m2-board-wrap{height:min(calc(100dvh - var(--bar-height,74px) - 130px),calc(100vw * 941 / 1672))!important}
+ .m2-board{width:min(100%,calc((100dvh - var(--bar-height,74px) - 130px)*1672/941))!important}
+}
