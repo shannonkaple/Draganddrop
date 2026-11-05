@@ -105,3 +105,10 @@
  .m2-board-wrap{height:min(calc(100dvh - var(--bar-height,74px) - 130px),calc(100vw * 941 / 1672))!important}
  .m2-board{width:min(100%,calc((100dvh - var(--bar-height,74px) - 130px)*1672/941))!important}
 }
+
+/* Match-by-picture instruction: show the exact image to find, no object names. */
+.m2-instruction .m2-target-cue{flex:0 0 auto;width:clamp(48px,6vw,82px);height:clamp(44px,5vw,68px);object-fit:contain;background:#fff9dc;border:3px solid #ffc74c;border-radius:11px;padding:3px;box-shadow:0 2px 7px #33205b33}
+.m2-instruction p{font-weight:900;letter-spacing:.01em}
+.m2-piece b{font-size:clamp(8px,.85vw,12px);line-height:1.03;max-width:100%;overflow-wrap:anywhere;text-align:center}
+.m2-goal-inner small{font-size:clamp(7px,.78vw,11px);white-space:normal;max-width:100%;line-height:1.05}
+@media(max-width:700px){.m2-instruction .m2-target-cue{width:43px;height:43px}}
