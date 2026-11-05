@@ -51,7 +51,7 @@ function home(){
 }
 function planetMap(){
  const p=PLANETS[state.planet],done=completedCount(state.progress,state.planet);
- return `<main class="main planet-map-page"><section class="planet-map-wrap" aria-label="${esc(p.name)} planet level map">
+ return `<main class="main planet-map-page with-bonus"><section class="planet-map-wrap" aria-label="${esc(p.name)} planet level map">
  <div class="planet-map-stage"><img class="planet-map-art" src="${planetImage(state.planet)}" alt="Illustrated scenery for ${esc(p.name)}" draggable="false">
  <div class="planet-map-heading"><strong>${esc(p.name)} World</strong><span>${done}/8 Missions · Rescue ${esc(p.friend)}</span></div>
  ${Array.from({length:8},(_,i)=>{const title=createMission(state.planet,i).title,completed=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=stageUnlocked(state.progress,state.planet,i),pin=LEVEL_STOPS[i];return `<button class="planet-level-pin${completed?' is-complete':''}" data-level="${i}" style="left:${pin.x}%;top:${pin.y}%" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} level ${i+1}: ${esc(i===7?'FINAL MAZE - 10 STARS':title)}${completed?', completed':''}${unlocked?'':', locked'}"><strong>${unlocked?i+1:'LOCK'}</strong><span>${esc(title)}</span>${completed?'<small>DONE</small>':''}</button>`}).join('')}
