@@ -97,7 +97,7 @@ export const WORLD_ORDERS=[
  [6,2,4,5,1,3,0],
  [1,5,6,2,3,0,4]
 ];
-export function createMission(world,stage){
+function buildMission(world,stage){
  if(!Number.isInteger(world)||world<0||world>=8||!Number.isInteger(stage)||stage<0||stage>7)
   throw Error('Unknown first-grade mission');
  const id=WORLDS[world].id+'-'+(stage+1),w=WORLDS[world];
@@ -178,9 +178,23 @@ export function createMission(world,stage){
   directions:'RESCUE MAZE! CLICK your explorer. Use the ARROW KEYS to find EXIT. Space bad guys move on safe side paths!',
   pieces:[],rocks:maze.walls,mazeStart:maze.start,mazeGoal:maze.goal,enemies:maze.enemies,safeRoute:maze.safeRoute};
 }
+// Post-rescue practice: extra first-grade click + keyboard movement only.
+export const BONUS_STAGES=8;
+const BONUS_ORDER=[0,2,1,4,5,6,3,2];
+export function createMission(world,stage){
+ if(Number.isInteger(stage)&&stage>=8&&stage<8+BONUS_STAGES){
+  const base=buildMission(world,BONUS_ORDER[stage-8]);
+  return {...base,id:WORLDS[world].id+'-bonus-'+(stage-7),stage,
+   mechanicVersion:6,name:'Bonus '+(stage-7)+': '+base.name,
+   directions:base.directions+' EXTRA SPACE PRACTICE! Click with the trackpad and move with keyboard arrows.'};
+ }
+ return buildMission(world,stage);
+}
 export function createProgress(){return {version:1,completed:[],stars:0,purchases:[],rescued:[],character:CHARACTERS[0].id,worldScene:[],sceneWorld:0,active:null}}
-export function completedCount(progress,w){return progress.completed.filter(id=>id.startsWith(WORLDS[w].id+'-')).length}
+export function completedCount(progress,w){return (progress.completed||[]).filter(id=>Array.from({length:8},(_,n)=>WORLDS[w].id+'-'+(n+1)).includes(id)).length}
 export function worldUnlocked(progress,w){return w===0||WORLDS.slice(0,w).every((_,i)=>progress.completed.includes(WORLDS[i].id+'-8'))}
 export const sceneUnlocked=(progress,index)=>Number.isInteger(index)&&index>=0&&index<WORLDS.length&&!!progress?.completed?.includes(WORLDS[index].id+'-8');
-export function levelUnlocked(progress,w,stage){return worldUnlocked(progress,w)&&(stage===0||progress.completed.includes(WORLDS[w].id+'-'+stage))}
+export function levelUnlocked(progress,w,stage){if(!worldUnlocked(progress,w))return false;const id=WORLDS[w].id;if(stage>=8&&stage<16)return progress.completed.includes(stage===8?id+'-8':id+'-bonus-'+(stage-8));return stage===0||progress.completed.includes(id+'-'+stage)}
 export function allMissions(){return WORLDS.flatMap((_,w)=>NAMES.map((_,s)=>createMission(w,s)))}
+
+export function allBonusMissions(){return WORLDS.flatMap((_,w)=>Array.from({length:BONUS_STAGES},(_,n)=>createMission(w,8+n)))}
