@@ -182,7 +182,7 @@ export function mountMapTwo(node,{read,save,exit}){
  }
  const mapPanel=()=>`<section class="m2-intro"><strong>MAP TWO · THE LOST WORLDS</strong><p>A BRAND-NEW SPACE MAP · Eight new worlds · Your Map One stars and rescued friends are still saved.</p></section>
  <div class="m2-galaxy-stage" role="group" aria-label="New Map Two galaxy with eight different worlds">
- <img class="m2-galaxy-art" src="./assets/map-two/lost-worlds-map.jpg" alt="Eight original Map Two world islands joined by a star trail" draggable="false" onerror="this.hidden=true">
+ <img class="m2-galaxy-art" src="./assets/map-two/lost-worlds-map.jpg" alt="Eight original Map Two world islands joined by a star trail" draggable="false" onerror="this.onerror=null;this.src='./assets/map-two/lost-worlds-map.svg'">
  ${MAP_TWO_THEMES.map((theme,i)=>{
   const ready=i<LOST_WORLDS.length;
   const unlocked=ready&&mapTwoWorldUnlocked(progress(),i);
