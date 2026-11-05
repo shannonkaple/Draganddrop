@@ -62,7 +62,7 @@ function buildBaseMission(planetIndex,stage,forcedTemplate=null){
   const odd=planetIndex%2===1,target=odd?'box-b':'box-a';
   const goal=odd?{x:1,y:4,w:2,h:2}:{x:9,y:4,w:2,h:2};
   const checkpoint=odd?{x:5,y:1}:{x:4,y:2};
-  return {...base,kind:'precision',layoutVersion:5,
+  return {...base,kind:'precision',layoutVersion:9,
    title:odd?'Blue Signal Search & Delivery':'Pink Signal Search & Delivery',
    directions:'Find and CLICK the '+(odd?'BLUE':'PINK')+' picture (not the decoys). Use ARROW KEYS to collect its glowing star, dodge obstacles, and deliver it into the matching dock. One click does NOT finish the level.',
    pieces:[
@@ -131,7 +131,7 @@ function buildBaseMission(planetIndex,stage,forcedTemplate=null){
  * starter, obstacle, collectible, and goal. Junior never imports this.
  */
 function addProgressiveResizes(mission){
- if(mission.kind==='click'||mission.kind==='final-maze')return mission;
+ if(mission.kind==='click'||mission.kind==='final-maze'||(mission.kind==='precision'&&mission.templateStage===0))return mission;
  const {planetIndex,stage}=mission;
  const desired=Math.min(3,Math.max(0,Math.floor((planetIndex*7+stage)/11)));
  if(!desired)return mission;
