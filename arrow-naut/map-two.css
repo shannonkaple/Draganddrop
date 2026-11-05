@@ -53,3 +53,5 @@
 @media(max-width:900px){.m2-page{padding:6px 8px}.m2-worlds{gap:7px}.m2-board-wrap{height:min(51dvh,480px)}.m2-board{width:min(100%,calc(51dvh*1672/941))}.m2-level-grid{gap:6px}.m2-page .m2-level{min-height:95px;padding:5px}.m2-level>b{font-size:12px}.m2-instruction{padding:5px}}
 @media(max-width:640px){.m2-worlds{grid-template-columns:1fr}.m2-world-scene{height:200px}.m2-level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.m2-instruction{flex-direction:column}.m2-board-wrap{height:38dvh}.m2-board{width:min(100%,calc(38dvh*1672/941))}.m2-object-image{height:67%}}
 @media(prefers-reduced-motion:reduce){.m2-page,.m2-piece{scroll-behavior:auto;transition:none}}
+/* Approved heading typeface: all-caps KAHomebody Club. */
+:where(.m2-page h1,.m2-page h2,.m2-page h3,.m2-world-title,.m2-heading){font-family:'KAHomebody Club',VAG,Arial,sans-serif!important;text-transform:uppercase;letter-spacing:.035em}
