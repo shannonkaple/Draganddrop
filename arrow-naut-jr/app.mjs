@@ -125,6 +125,10 @@ function refreshGameDisplay(){
    if(el){el.style.left=e.x/COLS*100+'%';el.style.top=e.y/ROWS*100+'%'}
   }
  }
+ for(const enemy of run.movingHazards||[]){
+  const el=Array.from(board.querySelectorAll('[data-moving-hazard]')).find(node=>node.dataset.movingHazard===enemy.id);
+  if(el){el.style.left=enemy.x/COLS*100+'%';el.style.top=enemy.y/ROWS*100+'%'}
+ }
  for(const el of board.querySelectorAll('[data-pickup]'))
   el.hidden=(run.collected||[]).includes(el.dataset.pickup);
  const gate=board.querySelector('.force-gate');
@@ -143,8 +147,10 @@ function game(){
  const gate=m.gate&&!run.gateOpen?'<div class="force-gate" style="'+stylePos(m.gate.x,m.gate.y)+'">'+
   fileImg(m.gate.img,'Locked force field','gate-picture')+'<small>LOCKED</small></div>':'';
  const meter=missionMeter(m,run);
+ const movingEnemies=(run.movingHazards||[]).map((enemy,i)=>'<div class="junior-moving-hazard" data-moving-hazard="'+esc(enemy.id)+'" style="'+stylePos(enemy.x,enemy.y)+'">'+
+ fileImg(ENEMIES[(m.world+i+2)%ENEMIES.length],'Moving space bad guy','moving-enemy-picture')+'</div>').join('');
  
- const walls=m.rocks.map(([x,y])=>'<div class="rock" style="'+stylePos(x,y)+'">'+
+ const walls=m.rocks.map(([x,y],i)=>'<div class="rock" style="'+stylePos(x,y)+'">'+
  fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+'</div>').join('');
  let mazePieces='';
  if(isMaze){
@@ -158,7 +164,7 @@ function game(){
  '<div class="directions"><strong>'+esc(m.directions)+'</strong><button type="button" class="listen" data-action="listen" aria-label="Read the level directions aloud" title="Click to hear the instructions again"><span class="speaker-icon" aria-hidden="true">🔊</span><span class="listen-label">HEAR DIRECTIONS</span></button></div>'+
  '<div class="board-area"><div class="game-board" role="group" aria-label="First grade trackpad click and keyboard arrow puzzle" tabindex="-1">'+
  '<img class="board-backdrop" src="'+w.jpg+'" alt="" draggable="false">'+
- '<div class="grid"></div>'+targets+walls+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div><div class="junior-friend-preview" aria-label="Friend to rescue">'+fileImg(w.friend,'Rescue friend','junior-friend-preview-pic')+'<small>RESCUE</small></div>')+
+ '<div class="grid"></div>'+targets+walls+movingEnemies+gate+pickups+(isMaze?mazePieces:run.pieces.map(piece).join(''))+(isMaze?'':'<div class="junior-explorer-helper" aria-hidden="true">'+fileImg(chosen().img,'','junior-explorer-helper-pic')+'</div><div class="junior-friend-preview" aria-label="Friend to rescue">'+fileImg(w.friend,'Rescue friend','junior-friend-preview-pic')+'<small>RESCUE</small></div>')+
  '</div></div><p id="feedback" class="feedback'+(state.error?' error':'')+'" role="status">'+esc(state.notice||'Click a picture with your trackpad. Move with keyboard arrows.')+'</p></main>';
 }
 function shop(){
