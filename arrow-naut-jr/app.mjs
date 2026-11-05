@@ -57,7 +57,7 @@ function home(){
 }
 function worldMap(){
  const w=WORLDS[state.world],done=completedCount(state.progress,state.world);
- return '<main class="map-page"><div class="map-stage"><img src="'+w.jpg+'" class="map-art" alt="'+esc(w.name)+' illustrated world" draggable="false">'+
+ return '<main class="map-page with-bonus"><div class="map-stage"><img src="'+w.jpg+'" class="map-art" alt="'+esc(w.name)+' illustrated world" draggable="false">'+
  '<div class="map-heading">'+esc(w.name)+' · '+done+'/8 complete</div>'+
  NAMES.map((_,i)=>{
  const name=createMission(state.world,i).name;
