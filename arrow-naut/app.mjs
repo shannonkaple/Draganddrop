@@ -65,7 +65,7 @@ function positionStyle(piece){return `left:${piece.x/GRID.columns*100}%;top:${pi
 function goalShape(piece){
  const g=piece.goal;if(!g)return '';
  const bbox={...piece,x:g.x,y:g.y,w:g.w??piece.w,h:g.h??piece.h};
- const label=piece.name.toUpperCase();
+ const label='SAME PICTURE';
  return `<div class="goal matching-dock" style="${positionStyle(bbox)}" role="img" aria-label="Destination for ${esc(piece.name)}">
    ${art(PUZZLE_SPRITES[piece.id], '', 'goal-ghost')}
    <span class="goal-label">${esc(label)}</span></div>`;
@@ -78,6 +78,26 @@ function pieceHtml(piece){
  return `<div class="${cls}" data-boundary="${esc(piece.id)}" style="${positionStyle(piece)}">${inner}${piece.resize&&selected?['nw','n','ne','e','se','s','sw','w'].map(handle=>`<button type="button" class="resize-handle handle-${handle}" data-resize="${esc(piece.id)}" data-handle="${handle}" title="Hold and drag to resize" aria-label="Drag ${handle} handle"></button>`).join(''):''}</div>`;
 }
 
+/** Read-aloud directions use what children can SEE, never item vocabulary. */
+function kidDirections(m){
+ const active=m.pieces.filter(p=>p.goal);
+ const extra=active.some(p=>p.resize);
+ const stars=(m.pickups||[]).length;
+ const collect=stars?' Get '+(stars===1?'the star':'all the stars')+'.':'';
+ const bad=(m.hazards||[]).length?' Stay away from the moving bad guys.':'';
+ if(m.kind==='final-maze')return '1. Click your space friend. 2. Use arrow keys to find EXIT. 3. Stay away from bad guys. SPACE can zap them.';
+ if(m.kind==='arrow-sequence')return 'Look at the big arrow. Press that same arrow key. Keep going!';
+ if(m.kind==='precision'){
+  const target=m.pieces.find(p=>p.id===m.clickTarget);
+  const hue=target?.color&&['pink','blue','purple','mint'].includes(target.color)?target.color.toUpperCase()+' ':'';
+  return '1. Click the '+hue+'picture.'+' 2. Use the arrow keys.'+collect+' 3. Move it to the SAME faded picture.'+(extra?' 4. Click each little tile. Drag its yellow handle to fit.':'')+bad;
+ }
+ if(m.kind==='fit')return '1. Click a shape. 2. Use the arrow keys. 3. Move it to the SAME faded shape. Do both!'+(extra?' Make the little tiles fit, too.':'');
+ if(m.kind==='resize')return '1. Click the picture. 2. Drag a yellow handle. 3. Make it fit the faded picture.'+bad;
+ if(m.kind==='move')return '1. Click your picture. 2. Move with the arrow keys.'+collect+' 3. Go to the SAME faded picture.'+(extra?' Drag a yellow handle to make it fit.':'')+bad;
+ if(m.kind==='mixed'||m.kind==='place')return '1. Click one picture. 2. Use arrow keys to move it. 3. Match the SAME faded picture. '+(extra?'If it is too small, drag a yellow handle. ':'')+'Do all the pictures.'+bad;
+ return 'Click the picture. Use arrow keys. Go to the SAME faded picture.';
+}
 function finalePage(){
  const m=state.mission,run=state.run,z=100/GRID.columns,h=100/GRID.rows;
  const walls=m.walls.map(([x,y])=>`<div class="finale-wall" aria-hidden="true" style="left:${x*z}%;top:${y*h}%;width:${z}%;height:${h}%"></div>`).join('');
@@ -93,7 +113,7 @@ function finalePage(){
   return `<div class="finale-laser-beam" aria-hidden="true" style="${style}"></div>${shot.hit?`<div class="laser-hit-word" style="left:${(b.x+.5)*z}%;top:${(b.y+.5)*h}%">ZAP!</div>`:''}`;
  })():'';
  return `<main class="main playing final-maze-page"><div class="mission-head"><h1>${esc(m.planet.name)} · FINAL SPACE MAZE</h1><span class="mode-label">10 stars · Hits: ${run.maze.hits} · Zapped: ${run.maze.zapped||0}</span><button class="back" data-action="planet">Back to World Map</button></div>
- <section class="mission-frame"><div class="directions-bar"><p>Move with arrow keys. Press SPACE or use FIRE LASER to zap bad guys. Gain 1 charge every 4 moves. Reach EXIT for 10 stars!</p><button class="speak" data-action="listen" aria-label="Hear directions">Listen</button><button type="button" class="laser-fire-button" data-action="laser" ${(run.maze.energy??3)<=0?"disabled":""}>FIRE LASER · SPACE (${run.maze.energy??3}/3)</button></div>
+ <section class="mission-frame"><div class="directions-bar"><p>${esc(kidDirections(m))}</p><button class="speak" data-action="listen" aria-label="Hear directions">Listen</button><button type="button" class="laser-fire-button" data-action="laser" ${(run.maze.energy??3)<=0?"disabled":""}>FIRE LASER · SPACE (${run.maze.energy??3}/3)</button></div>
  <div class="board-frame"><div class="space-board finale-board" id="space-board" style="--world-hue:${m.planet.hue}" role="group" aria-label="Maze: arrow keys move the explorer; avoid four moving enemies; walls block movement.">
  <img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" draggable="false"><div class="grid-lines"></div>${walls}${goal}${creatures}${player}${beam}</div></div></section>
  <div class="feedback${state.error?' error':''}" id="live-status" role="status">${esc(state.message||'Find your way to EXIT. Bad guys send you back to START, but your stars are safe.')}</div></main>`;
@@ -104,7 +124,7 @@ function missionPage(){
  if(m.kind==='arrow-sequence'){
   const i=run.patternIndex||0;
   const arrows={ArrowUp:'↑',ArrowRight:'→',ArrowDown:'↓',ArrowLeft:'←'};
-  return `<main class="main playing"><h1>${esc(m.title)}</h1><div class="directions-bar"><p>${esc(m.directions)}</p></div><div class="signal-code-stage"><img src="${planetImage(m.planetIndex)}" alt="" draggable="false"><strong>${arrows[m.pattern[i]||'ArrowUp']}</strong><p>PRESS THE MATCHING KEYBOARD ARROW · ${i} / ${m.pattern.length}</p></div><button data-action="planet">Back to Map</button><p id="live-status" class="feedback" role="status">${esc(state.message)}</p></main>`;
+  return `<main class="main playing"><h1>${esc(m.title)}</h1><div class="directions-bar"><p>${esc(kidDirections(m))}</p></div><div class="signal-code-stage"><img src="${planetImage(m.planetIndex)}" alt="" draggable="false"><strong>${arrows[m.pattern[i]||'ArrowUp']}</strong><p>PRESS THE MATCHING KEYBOARD ARROW · ${i} / ${m.pattern.length}</p></div><button data-action="planet">Back to Map</button><p id="live-status" class="feedback" role="status">${esc(state.message)}</p></main>`;
  }
 
  const boardTargets=m.pieces.filter(p=>p.goal).map(p=>goalShape(p)).join('');
@@ -271,7 +291,7 @@ function onAction(action){
  case 'stuff':if(state.progress){state.view='stuff';state.modal=null;render()}break;
  case 'help':state.view='help';state.modal=null;render();break;
  case 'fullscreen':{const target=document.documentElement;if(document.fullscreenElement){document.exitFullscreen?.().catch?.(()=>notify('Full screen could not close.',true));}else{target.requestFullscreen?.().catch?.(()=>notify('Full screen is unavailable in this browser.',true));}break;}
- case 'listen':if(state.mission)speak(state.mission.directions);break;
+ case 'listen':if(state.mission)speak(kidDirections(state.mission));break;
   case 'laser':onLaser();break;
  case 'intro-ok':{const next={...state.progress,seenIntros:[...state.progress.seenIntros,PLANETS[state.modal.planet].id]};if(persist(next)){state.modal=null;state.error='';render()};break}
  case 'reward-ok':{
