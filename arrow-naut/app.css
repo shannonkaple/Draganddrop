@@ -180,3 +180,8 @@
 .planet-map-page.with-bonus .bonus-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 .planet-map-page.with-bonus .bonus-grid button{min-height:58px;padding:4px 6px;gap:0}
 @media (max-width:700px){.planet-map-page.with-bonus .bonus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Visible fallback for level collectible stars, including Chromebook image-loading delays. */
+.mission-pickup .pickup-visible-star{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(23px,3vw,43px);line-height:1;filter:drop-shadow(0 0 5px #fff);z-index:1}
+.mission-pickup .mission-pickup-art{position:relative;z-index:2;max-width:70%;max-height:70%;object-fit:contain}
+.mission-pickup>span:last-child{position:relative;z-index:3}
