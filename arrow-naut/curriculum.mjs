@@ -6,31 +6,32 @@ import {makeFinalMaze} from './finale-maze.mjs?v=all-boss-safe-lasers-20261102';
 export const GRID={columns:12,rows:7};
 export const PLANETS=[
   // IMPORTANT: legacy internal IDs stay intact to protect saved progress.
-  {id:'launch',name:'Candy Moon',friend:'Pip the Star Sprout',hue:315,blurb:'Careful space clicking on the candy moon.',enemyIdeas:['Moon Mite','Sprinkle Drone','Gumdrop Hopper','Sugar Sprite']},
-  {id:'moon',name:'Rocket Launch',friend:'Momo Moon Mouse',hue:213,blurb:'Move your rover at the launch base.',enemyIdeas:['Rocket Gremlin','Fuel Beetle','Zap Bot','Spark Drone']},
-  {id:'robot',name:'Neon Ringed Planet',friend:'Beebo Bot',hue:275,blurb:'Fit colorful cargo into space bays.',enemyIdeas:['Orbit Mite','Ring Crawler','Plasma Pixie','Zap Sprite']},
-  {id:'crystal',name:'Crystal Ice',friend:'Glimmer Gecko',hue:195,blurb:'Resize and arrange icy space tools.',enemyIdeas:['Ice Mite','Prism Moth','Snow Sprite','Frost Drone']},
-  {id:'slime',name:'Robot Space Station',friend:'Bloop the Blob',hue:190,blurb:'Repair robots using careful selection.',enemyIdeas:['Glitch Bug','Gear Gremlin','Circuit Crawler','Battery Bot']},
-  {id:'ice',name:'Dino Asteroid',friend:'Frosty Ferret',hue:105,blurb:'Solve prehistoric asteroid puzzles.',enemyIdeas:['Meteor Beetle','Fossil Hopper','Crater Crab','Comet Crawler']},
-  {id:'jungle',name:'Ocean Planet',friend:'Zuzu Comet Cub',hue:185,blurb:'Fit equipment in a watery world.',enemyIdeas:['Wave Mite','Bubble Bot','Coral Crab','Reef Crawler']},
-  {id:'core',name:'Lava Planet',friend:'Nova Starling',hue:14,blurb:'Combine all your skills at the final planet.',enemyIdeas:['Lava Blob','Ember Beetle','Magma Sprite','Fire Drone']},
+  {id:'launch',name:'Candy Moon',friend:'Stella Space Bunny',hue:315,blurb:'Careful space clicking on the candy moon.',enemyIdeas:['Moon Mite','Sprinkle Drone','Gumdrop Hopper','Sugar Sprite']},
+  {id:'moon',name:'Rocket Launch',friend:'Zippy Space Turtle',hue:213,blurb:'Move your rover at the launch base.',enemyIdeas:['Rocket Gremlin','Fuel Beetle','Zap Bot','Spark Drone']},
+  {id:'robot',name:'Neon Ringed Planet',friend:'Orbit Otter',hue:275,blurb:'Fit colorful cargo into space bays.',enemyIdeas:['Orbit Mite','Ring Crawler','Plasma Pixie','Zap Sprite']},
+  {id:'crystal',name:'Crystal Ice',friend:'Cosmic Koala',hue:195,blurb:'Resize and arrange icy space tools.',enemyIdeas:['Ice Mite','Prism Moth','Snow Sprite','Frost Drone']},
+  {id:'slime',name:'Robot Space Station',friend:'Pixel Space Pup',hue:190,blurb:'Repair robots using careful selection.',enemyIdeas:['Glitch Bug','Gear Gremlin','Circuit Crawler','Battery Bot']},
+  {id:'ice',name:'Dino Asteroid',friend:'Nova Space Panda',hue:105,blurb:'Solve prehistoric asteroid puzzles.',enemyIdeas:['Meteor Beetle','Fossil Hopper','Crater Crab','Comet Crawler']},
+  {id:'jungle',name:'Ocean Planet',friend:'Comet Space Kitty',hue:185,blurb:'Fit equipment in a watery world.',enemyIdeas:['Wave Mite','Bubble Bot','Coral Crab','Reef Crawler']},
+  {id:'core',name:'Lava Planet',friend:'Starbot Explorer',hue:14,blurb:'Combine all your skills at the final planet.',enemyIdeas:['Lava Blob','Ember Beetle','Magma Sprite','Fire Drone']},
 ];
 export const MISSION_NAMES=[
   'Color Signal Click','Star Rover Expedition','Match Cargo Bays','Stretch the Rocket',
-  'Find the Blue Module','Repair the Satellite','Build the Space Station','Planet Maze Finale'
+  'Find the Blue Module','Repair the Satellite','Build the Space Station','Planet Maze Finale',
+  'Double-Star Rover Run','Space Signal Search'
 ];
 /** Eight distinct mission orders: final boss stays level 8 to gate rescue and next world.
  * IDs / levels are never renumbered so saved stars and unlocks are preserved.
  */
 export const WORLD_ORDERS=[
  [0,1,2,3,4,5,6],
- [1,4,0,5,2,6,3],
- [2,0,5,1,3,4,6],
- [4,2,6,0,1,3,5],
- [5,1,3,2,0,6,4],
- [3,6,1,4,2,0,5],
- [6,4,2,5,1,3,0],
- [2,5,4,6,3,1,0]
+ [8,4,0,5,2,6,3],
+ [2,0,9,1,3,4,6],
+ [4,2,6,8,1,3,5],
+ [5,1,3,2,0,8,4],
+ [3,6,9,4,2,0,5],
+ [6,4,2,5,1,9,0],
+ [8,5,4,6,9,1,2]
 ];
 export const MISSION_SKILLS=[
   'Click carefully INSIDE the requested box.',
@@ -40,7 +41,9 @@ export const MISSION_SKILLS=[
   'Click the correct object, not the one overlapping it. Then move it.',
   'Move the satellite with arrows. DRAG the panel handle to resize it.',
   'Click inside to select, use arrows to move, and DRAG handles to stretch the pieces.',
-  'Use arrow keys to escape the maze! Press SPACE or click FIRE LASER to zap bad guys. Reach EXIT to earn 10 stars and unlock the next planet.'
+  'Use arrow keys to escape the maze! Press SPACE or click FIRE LASER to zap bad guys. Reach EXIT to earn 10 stars and unlock the next planet.',
+  'Collect TWO star signals while dodging the bad guys, then guide the rover into the labeled dock.',
+  'Find the blue communications module. Collect both signal crystals, then move it into the matching dock.'
 ];
 const shape=(id,name,x,y,cells,goal,color)=>({id,name,x,y,w:Math.max(...cells.map(c=>c[0]))+1,h:Math.max(...cells.map(c=>c[1]))+1,cells,goal,color,resize:false});
 const rectangle=(id,name,x,y,w,h,goal,color,resize=false)=>({id,name,x,y,w,h,goal,color,resize});
@@ -89,12 +92,30 @@ export function createMission(planetIndex,stage){
   rectangle('window','Space window',1,4,2,2,{x:6,y:planetIndex>=4?2:3,w:3+(planetIndex>=4?1:0),h:2+(planetIndex>=4?1:0)},'pink',true),
   rectangle('console','Control console',4,5,2,1,{x:7,y:5,w:2,h:1},'blue'),
  ]};
+ if(templateStage===8)return {...base,kind:'move',title:'Double-Star Rover Run',
+  directions:MISSION_SKILLS[8],
+  pieces:[rectangle('rover','Moon rover',1,5,1,1,{x:10,y:1,w:1,h:1},'mint')],
+  obstacles:[[5,2],[5,3],[6,3],[8,1],[10,5]],
+  pickups:[
+   {id:'first-star',x:3,y:2,name:'Star Signal One',image:'./assets/standalone/pickup_star.png'},
+   {id:'second-star',x:8,y:4,name:'Star Signal Two',image:'./assets/standalone/pickup_star.png'}
+  ]};
+ if(templateStage===9)return {...base,kind:'precision',title:'Space Signal Search',
+  directions:MISSION_SKILLS[9],clickTarget:'module',
+  pieces:[rectangle('module','Blue communications module',1,1,2,2,{x:8,y:4,w:2,h:2},'blue'),
+   rectangle('decoy','Pink decoy',5,0,2,1,null,'pink'),
+   rectangle('decoy-2','Purple decoy',1,5,2,1,null,'purple')],
+  obstacles:[[11,0],[0,6]],
+  pickups:[
+   {id:'signal-one',x:4,y:1,name:'Signal Crystal One',image:'./assets/standalone/pickup_crystals.png'},
+   {id:'signal-two',x:6,y:3,name:'Signal Crystal Two',image:'./assets/standalone/pickup_star.png'}
+  ]};
  const final=makeFinalMaze(planetIndex);
  return {...base,kind:'final-maze',title:'Planet Maze Finale',directions:MISSION_SKILLS[7],
   pieces:[],obstacles:[],walls:final.walls,safeRoute:final.safeRoute,mazeStart:final.start,mazeGoal:final.goal,enemies:final.enemies};
 
 }
-export function allMissions(){return PLANETS.flatMap((_,pi)=>MISSION_NAMES.map((_,stage)=>createMission(pi,stage)))}
+export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:8},(_,stage)=>createMission(pi,stage)))}
 export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
 export function completedCount(progress,planetIndex){const prefix=PLANETS[planetIndex].id+'-';return (progress.completed||[]).filter(id=>id.startsWith(prefix)).length}
 export function planetUnlocked(progress,index){return index===0||PLANETS.slice(0,index).every((_,i)=>completedCount(progress,i)===8)}
