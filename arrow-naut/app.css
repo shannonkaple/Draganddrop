@@ -185,3 +185,9 @@
 .mission-pickup .pickup-visible-star{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(23px,3vw,43px);line-height:1;filter:drop-shadow(0 0 5px #fff);z-index:1}
 .mission-pickup .mission-pickup-art{position:relative;z-index:2;max-width:70%;max-height:70%;object-fit:contain}
 .mission-pickup>span:last-child{position:relative;z-index:3}
+
+/* MY STUFF: saved size per placed object; full PNGs remain visible (never cropped). */
+.space-placed[data-move-scene],.scene-decor[data-move-scene]{transform:translate(-50%,-50%) scale(var(--scene-scale,1));transform-origin:center center;overflow:visible}
+.scene-scale-buttons{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);display:flex;gap:4px;align-items:center;justify-content:center;z-index:30;white-space:nowrap;pointer-events:auto}
+.scene-scale-buttons button{position:static!important;inset:auto!important;display:grid!important;place-items:center!important;box-sizing:border-box!important;min-width:27px!important;width:27px!important;min-height:27px!important;height:27px!important;padding:0!important;border:2px solid #4a397d!important;border-radius:9px!important;background:#fff4bf!important;color:#24154a!important;font:bold 21px/1 Arial,sans-serif!important;box-shadow:0 2px 3px #24203a55!important;cursor:pointer}
+.scene-scale-buttons button:focus-visible{outline:3px solid #21ccdb;outline-offset:2px}
