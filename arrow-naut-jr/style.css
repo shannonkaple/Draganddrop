@@ -156,3 +156,11 @@ button:hover:not(:disabled){background:#fffae8}button:focus-visible{outline:4px 
 .rock-picture{object-fit:contain;animation:gentle-hazard 1.5s ease-in-out infinite}
 @keyframes gentle-hazard{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
 @media(prefers-reduced-motion:reduce){.rock-picture{animation:none}}
+
+
+/* Complete rescue-friend PNGs in all first-grade levels. */
+.junior-friend-preview{position:absolute;bottom:0;right:0;width:8%;height:16%;pointer-events:none;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;filter:drop-shadow(0 0 3px white)}
+.junior-friend-preview-pic{width:100%;height:82%;object-fit:contain}
+.junior-friend-preview small{font:800 clamp(7px,.68vw,10px) Arial,sans-serif;background:#fff9bedd;color:#193161;padding:1px 2px;border-radius:4px}
+.finish .finish-friend{width:100%;height:80%;object-fit:contain;position:absolute;top:0;left:0}
+.finish small{position:absolute;bottom:0;left:0;right:0;background:#07585abf;color:#fff;text-align:center;font:900 clamp(8px,.77vw,11px) Arial,sans-serif}
