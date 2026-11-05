@@ -160,12 +160,12 @@ function buildMission(world,stage){
   rocks:[[11,0],[0,6]],pickups:[beacon('signal-a',4,world%2?2:4,'Signal 1',starSignal,'target'),
    beacon('signal-b',7,world%2?4:2,'Signal 2',starSignal,'target')]};
  if(activity===5)return {...base,kind:'key-gate',name:NAMES[5],
-  directions:'FORCE FIELD! Choose the SATELLITE or ROVER first. Move with arrow keys. The SATELLITE collects the KEY to open the gate; the ROVER collects its STAR. Put BOTH into their matching docks. You can switch pictures at any time.',
+  directions:'FORCE FIELD! Choose the SATELLITE or ROVER first. Move with arrow keys. EITHER picture may collect the KEY to open the gate; the ROVER collects its STAR. Put BOTH into their matching docks. You can switch pictures at any time.',
   pieces:[pc('keyboard','Communications Satellite',1,1,{x:9,y:1},art[1]),
    pc('mouse','Moon Rover',1,5,{x:9,y:5},art[2])],
   rocks:Array.from({length:7},(_,y)=>[5,y]).filter(v=>v[1]!==3),
   gate:{x:5,y:3,img:moveFind('lightning_energy_cell')},
-  pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',moveFind(world===3?'blue_ice_key':'golden_signal_key'),'keyboard'),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
+  pickups:[beacon('gate-key',3+world%2,3,'Open the Gate',moveFind(world===3?'blue_ice_key':'golden_signal_key')),beacon('scan-rover',7,4,'Rover Scan',gold,'mouse')]};
  if(activity===6)return {...base,kind:'relay',name:NAMES[6],
   directions:'SPACE DOCKS! CLICK ANY picture first. Use ARROW KEYS to move it into its matching dock. Click any other picture whenever you want. Dock all THREE in ANY ORDER. No turning or resizing!',
   pieces:[pc('trackpad','Little Robot Probe',4,3,{x:10,y:2},art[0]),
