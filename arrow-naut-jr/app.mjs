@@ -37,7 +37,7 @@ function header(){
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
  return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="./assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
  (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button><button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
- '<nav class="side-nav"><button data-action="help">How to Play</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
+ '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">How to Play</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
 function login(){
  if(state.view==='teachers')return '<main class="entry"><h1>First Grade Space Explorers</h1><p>Choose your first-grade teacher.</p>'+
@@ -302,6 +302,11 @@ function nav(action){
   case 'shop':state.view='shop';state.modal=null;render();break;
   case 'stuff':state.view='stuff';state.modal=null;state.pending=null;render();break;
   case 'help':state.view='help';state.modal=null;render();break;
+  case 'fullscreen':{
+   if(document.fullscreenElement)document.exitFullscreen?.().catch?.(()=>{});
+   else document.documentElement.requestFullscreen?.().catch?.(()=>{});
+   break;
+  }
   case 'logout':try{clearTabSession(sessionStorage)}catch{}state.tabSignature=null;state.expectedSavedRaw=null;state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
   case 'characters':state.modal={type:'character'};render();break;
   case 'character-close':state.modal=null;render();break;
