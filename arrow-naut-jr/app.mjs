@@ -81,7 +81,7 @@ function worldMap(){
 const stylePos=(x,y,w=1,h=1)=>'left:'+(x/COLS*100)+'%;top:'+(y/ROWS*100)+'%;width:'+(w/COLS*100)+'%;height:'+(h/ROWS*100)+'%';
 function piece(p){
  const selected=state.run.selected===p.id;
- const isNext=state.mission.kind==='relay'&&state.mission.deliveryOrder[(state.run.delivered||[]).length]===p.id;
+ const isNext=state.mission.kind==='relay'&&!(state.run.delivered||[]).includes(p.id);
  const delivered=state.mission.kind==='relay'&&(state.run.delivered||[]).includes(p.id);
  const graphic=p.id==='rover'?chosen().img:p.img;
  const pictureName=p.id==='rover'?chosen().name:p.name;
@@ -91,8 +91,8 @@ function piece(p){
 }
 function missionMeter(m,run){
  if(m.kind==='relay'){
-  const n=(run.delivered||[]).length,active=m.pieces.find(p=>p.id===m.deliveryOrder[n]);
-  return 'SIGNALS: '+n+' / 3 · CLICK '+(active?.name||'NEXT')+' NEXT';
+  const n=(run.delivered||[]).length;
+  return 'DOCKED: '+n+' / '+m.pieces.filter(p=>p.goal).length+' · CHOOSE ANY PICTURE';
  }
  if((m.pickups||[]).length){
   return (m.kind==='key-gate'?(run.gateOpen?'FIELD OPEN · ':'FIND THE KEY · '):
@@ -119,7 +119,7 @@ function refreshGameDisplay(){
   el.style.top=piece.y/ROWS*100+'%';
   el.classList.toggle('chosen',selected===piece.id);
   if(m.kind==='relay'){
-   el.classList.toggle('next-up',m.deliveryOrder[(run.delivered||[]).length]===piece.id);
+   el.classList.toggle('next-up',!(run.delivered||[]).includes(piece.id));
    el.classList.toggle('docked',(run.delivered||[]).includes(piece.id));
   }
  }
