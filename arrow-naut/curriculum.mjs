@@ -170,16 +170,25 @@ function addProgressiveResizes(mission){
 // Optional Map Two practice labs. Preserve ALL legacy level IDs 1–8 and boss rescues.
 export const BONUS_STAGES=8;
 const BONUS_ORDER=[3,6,5,1,2,4,0,3];
+function withPatrollingEnemies(mission){
+ // Hazards appear in moving-picture challenges, not precision clicking,
+ // multi-piece docking, or fixed boss-maze corridors.
+ if(!['move','precision'].includes(mission.kind)||mission.stage===7||
+    !(mission.stage>=8||mission.planetIndex>=3))return mission;
+ return {...mission,layoutVersion:Math.max(6,mission.layoutVersion||1),
+  hazards:[{id:'patrol-a',x:5,y:0},{id:'patrol-b',x:10,y:6}],
+  directions:mission.directions+' WATCH OUT: two space bad guys MOVE after every arrow press! If one touches your picture, you restart this puzzle.'};
+}
 export function createMission(planetIndex,stage){
  if(Number.isInteger(stage)&&stage>=8&&stage<8+BONUS_STAGES){
   const base=buildBaseMission(planetIndex,BONUS_ORDER[stage-8]);
   // New stable IDs never collide with original 64 levels or saved student runs.
-  return addProgressiveResizes({...base,id:PLANETS[planetIndex].id+'-bonus-'+(stage-7),
+  return withPatrollingEnemies(addProgressiveResizes({...base,id:PLANETS[planetIndex].id+'-bonus-'+(stage-7),
    stage,number:64+planetIndex*BONUS_STAGES+(stage-7),layoutVersion:5,
    title:'Bonus Lab '+(stage-7)+': '+base.title,
-   directions:base.directions+' This is an extra Map Two practice mission.'});
+   directions:base.directions+' This is an extra Map Two practice mission.'}));
  }
- return addProgressiveResizes(buildBaseMission(planetIndex,stage));
+ return withPatrollingEnemies(addProgressiveResizes(buildBaseMission(planetIndex,stage)));
 }
 export function allMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:8},(_,stage)=>createMission(pi,stage)))}
 export function allBonusMissions(){return PLANETS.flatMap((_,pi)=>Array.from({length:BONUS_STAGES},(_,n)=>createMission(pi,8+n)))}
