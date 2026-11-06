@@ -137,10 +137,14 @@ function missionPage(){
  <div class="feedback${state.error?' error':''}" role="status" id="live-status">${esc(state.message||'Click an object inside its border, then use your arrow keys.')}</div></main>`;
 }
 function shop(){return `<main class="main"><div class="page-head"><div><h1>Space Star Shop</h1><p>Stars: ${progressText()} · Earn 1 star per new regular level and 10 stars for a final maze. Replays are practice only!</p></div><button data-action="home">Home</button></div><div class="shop-grid">${SPACE_SHOP.map(item=>{const bought=state.progress.purchases.includes(item.id);return `<div class="shop-item card">${art(SHOP_SPRITES[item.id]||'./assets/sprites/comet-star.png',item.name,'shop-art')}<strong>${esc(item.name)}</strong><p>Decorate your own space station.</p><button data-buy="${esc(item.id)}" ${bought||state.progress.stars<item.price?'disabled':''}>${bought?'Owned':`Buy for ${item.price}`}</button></div>`}).join('')}</div></main>`}
+/** Always save decorations in the world currently shown on screen. */
+const activeScenePlanet=()=>{
+ if(!state.progress)return -1;
+ const chosen=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+ return sceneUnlocked(state.progress,chosen)?chosen:PLANETS.findIndex((_,i)=>sceneUnlocked(state.progress,i));
+};
 function stuff(){
- const requested=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
- const unlockedWorlds=PLANETS.map((_,i)=>i).filter(i=>sceneUnlocked(state.progress,i));
- const sceneWorld=unlockedWorlds.includes(requested)?requested:(unlockedWorlds[0]??-1);
+ const sceneWorld=activeScenePlanet();
  if(sceneWorld<0)return `<main class="main"><section class="entry"><h1>MY STUFF IS LOCKED</h1><p>Finish all eight levels of Candy Moon, including its rescue maze, to unlock your first world background.</p><p>Purchased decorations and stars are safe and will be available after the map is completed.</p><button data-action="home">Back to Planets</button></section></main>`;
  const collected=earnedItems(state.progress);
  const owned=state.progress.purchases.map(id=>SPACE_SHOP.find(x=>x.id===id)).filter(Boolean);
@@ -319,7 +323,7 @@ root.addEventListener('click',event=>{
  if(!mouseEligible(event)){notify('Use the trackpad and keyboard—not the touchscreen.',true);return}
  const scene=event.target.closest('[data-scene-board]');
  if(scene&&state.scenePending&&!event.target.closest('[data-put-away],[data-scene-scale]')){
-  const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+  const planet=activeScenePlanet();
   const rect=scene.getBoundingClientRect();
   const x=Math.max(7,Math.min(93,Math.round(100*(event.clientX-rect.left)/rect.width)));
   const y=Math.max(10,Math.min(90,Math.round(100*(event.clientY-rect.top)/rect.height)));
@@ -337,7 +341,7 @@ root.addEventListener('click',event=>{
  if(el.dataset.sceneWorld!==undefined){const i=Number(el.dataset.sceneWorld);if(sceneUnlocked(state.progress,i)&&persist({...state.progress,scenePlanet:i})){state.error='';render()}return}
  if(el.dataset.placeItem){state.scenePending=el.dataset.placeItem;state.error='';render();return}
  if(el.dataset.sceneScale&&el.dataset.sceneId){
-  const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+  const planet=activeScenePlanet();
   const current=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
   const target=current.find(e=>e.planet===planet&&e.id===el.dataset.sceneId);
   if(!target)return;
@@ -346,7 +350,7 @@ root.addEventListener('click',event=>{
   return;
  }
  if(el.dataset.putAway){
-  const planet=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+  const planet=activeScenePlanet();
   const current=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
   if(persist({...state.progress,worldScene:current.filter(x=>!(x.id===el.dataset.putAway&&x.planet===planet))})){state.error='';render()}return;
  }
@@ -416,7 +420,7 @@ root.addEventListener('pointerdown',event=>{
  const piece=event.target.closest('[data-move-scene]');
  if(!piece||event.target.closest('[data-put-away],[data-remove],[data-scene-scale]')||event.pointerType!=='mouse'||event.button!==0||!state.progress)return;
  const board=piece.closest('[data-scene-board]');if(!board)return;
- const world=Number.isInteger(state.progress.scenePlanet)?state.progress.scenePlanet:0;
+ const world=activeScenePlanet();
  const original=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[]).find(x=>x.planet===world&&x.id===piece.dataset.moveScene);
  if(!original)return;
  event.preventDefault();
