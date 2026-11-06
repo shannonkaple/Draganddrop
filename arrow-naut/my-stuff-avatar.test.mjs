@@ -95,8 +95,8 @@ test('Junior bad guys are pictures with no distracting BAD GUY or BLOCK captions
  const app=read('../arrow-naut-jr/app.mjs');
  assert.doesNotMatch(app,/junior-danger-label">BAD GUY/,
   'moving and rescue enemies should not display BAD GUY labels');
- assert.match(app,/m\.world===3\?'<small class="junior-board-label junior-block-label">BLOCK<\/small>':''/,
-  'only ice walls may keep their useful BLOCK caption');
+ assert.doesNotMatch(app,/junior-block-label">BLOCK/,
+  'ice walls and other blocks should show art only, no BLOCK label');
  assert.match(app,/moving-enemy-picture/,
   'moving enemy original pictures must stay visible');
  assert.match(app,/enemy-picture/,
