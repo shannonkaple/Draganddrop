@@ -167,14 +167,14 @@ function game(){
   fileImg(m.gate.img,'Locked force field','gate-picture')+'<small class="junior-board-label">LOCKED</small></div>':'';
  const meter=missionMeter(m,run);
  const movingEnemies=(run.movingHazards||[]).map((enemy,i)=>'<div class="junior-moving-hazard" data-moving-hazard="'+esc(enemy.id)+'" style="'+stylePos(enemy.x,enemy.y)+'">'+
- fileImg(ENEMIES[(m.world+i+2)%ENEMIES.length],'Moving space bad guy','moving-enemy-picture')+'<small class="junior-board-label junior-danger-label">BAD GUY</small></div>').join('');
+ fileImg(ENEMIES[(m.world+i+2)%ENEMIES.length],'Moving space bad guy','moving-enemy-picture')+'</div>').join('');
  
  const walls=m.rocks.map(([x,y],i)=>'<div class="rock" style="'+stylePos(x,y)+'">'+
- fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+'<small class="junior-board-label junior-block-label">BLOCK</small></div>').join('');
+ fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+(m.world===3?'<small class="junior-board-label junior-block-label">BLOCK</small>':'')+'</div>').join('');
  let mazePieces='';
  if(isMaze){
   const current=chosen();
-  const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" data-enemy="'+esc(e.id)+'" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'<small class="junior-board-label junior-danger-label">BAD GUY</small></div>').join('');
+  const enemies=run.maze.enemies.map((e,i)=>'<div class="enemy" data-enemy="'+esc(e.id)+'" style="'+stylePos(e.x,e.y)+'">'+fileImg(ENEMIES[(m.world+i)%ENEMIES.length],'Space bad guy','enemy-picture')+'</div>').join('');
   mazePieces='<div class="finish" style="'+stylePos(m.mazeGoal.x,m.mazeGoal.y)+'">'+fileImg(w.friend,'Rescue friend','finish-friend')+'<small class="junior-board-label junior-finish-label">RESCUE · EXIT</small></div>'+enemies+
    '<div class="explorer'+(run.selected==='explorer'?' chosen':'')+'" data-explorer="yes" style="'+stylePos(run.maze.x,run.maze.y)+'"><button data-select="explorer" aria-label="Select your space explorer">'+fileImg(current.img,current.name,'explorer-picture')+'</button><span class="junior-board-label junior-piece-label">YOU</span></div>';
  }
@@ -216,8 +216,8 @@ function stuff(){
  '<div class="world-tabs">'+WORLDS.map((x,i)=>'<button data-stuff-world="'+i+'" '+(sceneUnlocked(p,i)?'':'disabled title="Beat all eight levels first"')+' '+(i===w?'aria-pressed="true"':'')+'>'+esc(x.name)+(sceneUnlocked(p,i)?'':' · LOCKED')+'</button>').join('')+'</div>'+
  '<div class="decor-scene" data-scene="yes">'+fileImg(WORLDS[w].jpg,WORLDS[w].name,'scene-backdrop')+
  placed.map(x=>{const item=owned.find(i=>i.key===x.key);if(!item)return '';
- return '<div class="scene-decor" data-move-scene="'+esc(x.key)+'" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%;--scene-scale:'+Math.max(.6,Math.min(2.2,Number(x.scale)||1))+'">'+
- fileImg(item.img,item.name,'decor-image')+'<button data-remove="'+esc(x.key)+'" aria-label="Put '+esc(item.name)+' away">×</button>'+
+ return '<div class="scene-decor" data-move-scene="'+esc(x.key)+'" style="left:'+Math.min(94,Math.max(6,x.x))+'%;top:'+Math.min(91,Math.max(9,x.y))+'%;--scene-scale:'+Math.max(.5,Math.min(5,Number(x.scale)||1))+'">'+
+ '<span class="scene-resizable-art">'+fileImg(item.img,item.name,'decor-image')+'</span><button data-remove="'+esc(x.key)+'" aria-label="Put '+esc(item.name)+' away">×</button>'+
  '<div class="scene-scale-buttons" aria-label="Resize '+esc(item.name)+'"><button data-scene-scale="smaller" data-scene-key="'+esc(x.key)+'" aria-label="Make '+esc(item.name)+' smaller">−</button><button data-scene-scale="bigger" data-scene-key="'+esc(x.key)+'" aria-label="Make '+esc(item.name)+' bigger">+</button></div></div>';
  }).join('')+'</div>'+
  '<p class="status-text">'+(state.pending?'Click a spot to place your picture.':'Click MY CHARACTER below to add yourself! Drag to move. + / − to resize.')+'</p>'+
@@ -428,7 +428,7 @@ root.addEventListener('click',e=>{
    const p=state.progress,world=activeSceneWorld(),scene=Array.isArray(p.worldScene)?p.worldScene:[];
    const target=scene.find(x=>x.world===world&&x.key===d.sceneKey);
    if(!target)return;
-   const scale=Math.max(.6,Math.min(2.2,Math.round(((Number(target.scale)||1)+(d.sceneScale==='bigger'?.2:-.2))*10)/10));
+   const scale=Math.max(.5,Math.min(5,Math.round(((Number(target.scale)||1)+(d.sceneScale==='bigger'?.5:-.5))*10)/10));
    if(persist({...p,worldScene:scene.map(x=>x===target?{...x,scale}:x)}))render();
    return;
   }
