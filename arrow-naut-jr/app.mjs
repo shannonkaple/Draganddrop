@@ -425,7 +425,7 @@ root.addEventListener('click',e=>{
   }
   if(d.place){state.pending=d.place;render();return}
   if(d.sceneScale&&d.sceneKey){
-   const p=state.progress,world=p.sceneWorld??0,scene=Array.isArray(p.worldScene)?p.worldScene:[];
+   const p=state.progress,world=activeSceneWorld(),scene=Array.isArray(p.worldScene)?p.worldScene:[];
    const target=scene.find(x=>x.world===world&&x.key===d.sceneKey);
    if(!target)return;
    const scale=Math.max(.6,Math.min(2.2,Math.round(((Number(target.scale)||1)+(d.sceneScale==='bigger'?.2:-.2))*10)/10));
@@ -433,7 +433,7 @@ root.addEventListener('click',e=>{
    return;
   }
   if(d.remove){
-   const p=state.progress,world=p.sceneWorld??0,scene=Array.isArray(p.worldScene)?p.worldScene:[];
+   const p=state.progress,world=activeSceneWorld(),scene=Array.isArray(p.worldScene)?p.worldScene:[];
    if(persist({...p,worldScene:scene.filter(x=>!(x.world===world&&x.key===d.remove))}))render();
    return;
   }
@@ -443,7 +443,7 @@ root.addEventListener('click',e=>{
   const box=scene.getBoundingClientRect();
   const x=Math.max(6,Math.min(94,Math.round(100*(e.clientX-box.left)/box.width)));
   const y=Math.max(9,Math.min(91,Math.round(100*(e.clientY-box.top)/box.height)));
-  const p=state.progress,world=p.sceneWorld??0,prev=Array.isArray(p.worldScene)?p.worldScene:[];
+  const p=state.progress,world=activeSceneWorld(),prev=Array.isArray(p.worldScene)?p.worldScene:[];
   const next={...p,worldScene:[...prev.filter(t=>!(t.key===state.pending&&t.world===world)),{world,key:state.pending,x,y}]};
   if(persist(next)){state.pending=null;render()}
  }
