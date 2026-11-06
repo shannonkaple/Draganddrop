@@ -170,7 +170,7 @@ function game(){
  fileImg(ENEMIES[(m.world+i+2)%ENEMIES.length],'Moving space bad guy','moving-enemy-picture')+'</div>').join('');
  
  const walls=m.rocks.map(([x,y],i)=>'<div class="rock" style="'+stylePos(x,y)+'">'+
- fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+(m.world===3?'<small class="junior-board-label junior-block-label">BLOCK</small>':'')+'</div>').join('');
+ fileImg(m.world===3?'./assets/move-find/ice_wall_four_blocks.png':ENEMIES[(m.world+i)%ENEMIES.length],m.world===3?'Ice wall':'Space bad guy','rock-picture')+'</div>').join('');
  let mazePieces='';
  if(isMaze){
   const current=chosen();
