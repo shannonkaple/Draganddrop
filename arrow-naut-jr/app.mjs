@@ -198,7 +198,10 @@ function shop(){
 function stuff(){
  const p=state.progress,unlockedWorlds=WORLDS.map((_,i)=>i).filter(i=>sceneUnlocked(p,i)),w=unlockedWorlds.includes(p.sceneWorld)?p.sceneWorld:(unlockedWorlds[0]??-1);
  if(w<0)return '<main class="stuff-page"><h1>MY STUFF IS LOCKED</h1><p>Beat all eight levels in Candy Moon, including the rescue maze, to unlock its picture background. Purchased items and stars are saved.</p><button data-action="home">Back to Planets</button></main>';
+ // One student-controlled avatar per world, with its image always reflecting
+ // the current character selection. Keep the ID constant to retain placement.
  const owned=[
+ {key:'avatar:self',name:'MY CHARACTER',img:chosen().img},
  ...p.purchases.map(id=>ITEMS.find(x=>x.id===id)).filter(Boolean).map(x=>({...x,key:'item:'+x.id})),
  ...p.rescued.map(id=>WORLDS.find(x=>x.id===id)).filter(Boolean).map(x=>({key:'friend:'+x.id,name:x.name+' Friend',img:x.friend}))
  ];
@@ -211,7 +214,7 @@ function stuff(){
  fileImg(item.img,item.name,'decor-image')+'<button data-remove="'+esc(x.key)+'" aria-label="Put '+esc(item.name)+' away">×</button>'+
  '<div class="scene-scale-buttons" aria-label="Resize '+esc(item.name)+'"><button data-scene-scale="smaller" data-scene-key="'+esc(x.key)+'" aria-label="Make '+esc(item.name)+' smaller">−</button><button data-scene-scale="bigger" data-scene-key="'+esc(x.key)+'" aria-label="Make '+esc(item.name)+' bigger">+</button></div></div>';
  }).join('')+'</div>'+
- '<p class="status-text">'+(state.pending?'Click a place on your world picture.':'Choose an item below to place it.')+'</p>'+
+ '<p class="status-text">'+(state.pending?'Click a spot to place your picture.':'Click MY CHARACTER below to add yourself! Drag to move. + / − to resize.')+'</p>'+
  '<div class="inventory">'+owned.map(x=>'<button data-place="'+esc(x.key)+'" '+(state.pending===x.key?'aria-pressed="true"':'')+'>'+
  fileImg(x.img,x.name,'inventory-image')+'<small>'+esc(x.name)+'</small></button>').join('')+
  (owned.length?'':'<p>Play levels to earn stars and rescue friends. Buy decorations at the Star Shop!</p>')+'</div></main>';
