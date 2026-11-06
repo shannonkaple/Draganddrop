@@ -195,8 +195,14 @@ function shop(){
  (owned?'OWNED':'Buy · '+x.price+' stars')+'</button></div>';
  }).join('')+'</div></main>';
 }
+/** Keep placement, resize and drag in the same visible unlocked world. */
+const activeSceneWorld=()=>{
+ if(!state.progress)return -1;
+ const chosen=Number.isInteger(state.progress.sceneWorld)?state.progress.sceneWorld:0;
+ return sceneUnlocked(state.progress,chosen)?chosen:WORLDS.findIndex((_,i)=>sceneUnlocked(state.progress,i));
+};
 function stuff(){
- const p=state.progress,unlockedWorlds=WORLDS.map((_,i)=>i).filter(i=>sceneUnlocked(p,i)),w=unlockedWorlds.includes(p.sceneWorld)?p.sceneWorld:(unlockedWorlds[0]??-1);
+ const p=state.progress,w=activeSceneWorld();
  if(w<0)return '<main class="stuff-page"><h1>MY STUFF IS LOCKED</h1><p>Beat all eight levels in Candy Moon, including the rescue maze, to unlock its picture background. Purchased items and stars are saved.</p><button data-action="home">Back to Planets</button></main>';
  // One student-controlled avatar per world, with its image always reflecting
  // the current character selection. Keep the ID constant to retain placement.
@@ -450,7 +456,7 @@ root.addEventListener('pointerdown',event=>{
  const piece=event.target.closest('[data-move-scene]');
  if(!piece||event.target.closest('[data-put-away],[data-remove],[data-scene-scale]')||event.pointerType!=='mouse'||event.button!==0||!state.progress)return;
  const board=piece.closest('[data-scene]');if(!board)return;
- const world=Number.isInteger(state.progress.sceneWorld)?state.progress.sceneWorld:0;
+ const world=activeSceneWorld();
  const original=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[]).find(x=>x.world===world&&x.key===piece.dataset.moveScene);
  if(!original)return;
  event.preventDefault();
