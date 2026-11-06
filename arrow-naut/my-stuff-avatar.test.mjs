@@ -102,3 +102,19 @@ test('Junior bad guys are pictures with no distracting BAD GUY or BLOCK captions
  assert.match(app,/enemy-picture/,
   'rescue enemy original pictures must stay visible');
 });
+
+test('Both games show picture-labeled navigation and a direct Home Map exit from Shop and My Stuff',()=>{
+ for(const path of ['./app.mjs','../arrow-naut-jr/app.mjs']){
+  const source=read(path);
+  const header=source.slice(source.indexOf('function header(){'),source.indexOf('function ',source.indexOf('function header(){')+10));
+  const shop=source.slice(source.indexOf('function shop(){'),source.indexOf('function ',source.indexOf('function shop(){')+10));
+  const stuff=source.slice(source.indexOf('function stuff(){'),source.indexOf('function ',source.indexOf('function stuff(){')+10));
+  assert.match(header,/🏠 Home Map/,path+' needs an icon and words on Home Map navigation');
+  assert.match(header,/⭐ Star Shop/,path+' needs a star shop icon');
+  assert.match(header,/🎒 My Stuff/,path+' needs a bag icon');
+  assert.match(shop,/class="kid-home-button" data-action="home"/,path+' shop should have a direct Home Map button');
+  assert.match(stuff,/class="kid-home-button" data-action="home"/,path+' My Stuff should have a direct Home Map button');
+  assert.match(shop,/data-action="stuff"/,path+' shop should have a visible My Stuff button');
+  assert.match(stuff,/data-action="shop"/,path+' My Stuff should have a visible Shop button');
+ }
+});
