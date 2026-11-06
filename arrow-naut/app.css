@@ -297,3 +297,23 @@
 }
 .space-placed .scene-scale-buttons,.scene-decor .scene-scale-buttons{z-index:30}
 .space-placed [data-put-away],.scene-decor [data-remove]{z-index:35}
+
+/* Kid-friendly navigation: same icons and words in every destination.
+   The Home Map action is clearly distinguishable and never emoji-only. */
+.topbar .nav-home-button,.kid-home-button{
+ background:#fff1ad!important;
+ border:2px solid #7852ae!important;
+ color:#2e205d!important;
+ font-weight:900!important;
+ box-shadow:0 3px 0 #59437445!important;
+}
+.topbar .nav-home-button:hover,.kid-home-button:hover{background:#ffe88f!important}
+.kid-page-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:6px;flex:0 0 auto}
+.kid-page-actions button{min-height:37px;padding:6px 10px;font-size:clamp(12px,1.05vw,16px);white-space:nowrap}
+.kid-page-nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;width:100%;min-height:40px}
+.kid-page-nav h1{margin:0!important;line-height:1.12}
+@media(max-width:720px){
+ .kid-page-actions{justify-content:center}
+ .kid-page-actions button{padding:5px 8px;min-height:34px}
+ .kid-page-nav{justify-content:center;text-align:center}
+}
