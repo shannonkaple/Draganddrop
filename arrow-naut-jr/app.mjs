@@ -40,8 +40,8 @@ function header(){
  const playing=!!state.progress;
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
  return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="./assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
- (playing?'<nav class="center-nav" aria-label="Student navigation"><button data-action="home">Home</button>'+(juniorMapTwoUnlocked()?'<button data-action="map-two" class="junior-map-two-entry">MAP TWO</button>':'')+'<button data-action="shop">My Stars: '+state.progress.stars+'</button><button data-action="stuff">My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
- '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">How to Play</button><button data-action="teacher">Teacher</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
+ (playing?'<nav class="center-nav" aria-label="Student navigation"><button class="nav-home-button" data-action="home">🏠 Home Map</button>'+(juniorMapTwoUnlocked()?'<button data-action="map-two" class="junior-map-two-entry">🌌 Map Two</button>':'')+'<button data-action="shop">⭐ Star Shop · '+state.progress.stars+'</button><button data-action="stuff">🎒 My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
+ '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">❓ How to Play</button><button data-action="teacher">Teacher</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
 function login(){
  if(state.view==='teachers')return '<main class="entry"><h1>First Grade Space Explorers</h1><p>Choose your first-grade teacher.</p>'+
@@ -187,7 +187,7 @@ function game(){
  '</div></div><p id="feedback" class="feedback'+(state.error?' error':'')+'" role="status">'+esc(state.notice||'Click a picture with your trackpad. Move with keyboard arrows.')+'</p></main>';
 }
 function shop(){
- return '<main class="content-page"><h1>Space Star Shop</h1><p>You have '+state.progress.stars+' stars. Earn 1 star on a new level and 10 stars for a rescue maze. Replays are for practice.</p>'+
+ return '<main class="content-page"><div class="kid-page-nav"><h1>⭐ Star Shop</h1><div class="kid-page-actions"><button type="button" class="kid-home-button" data-action="home">🏠 Home Map</button><button type="button" data-action="stuff">🎒 My Stuff</button></div></div><p>You have '+state.progress.stars+' stars. Earn 1 star on a new level and 10 stars for a rescue maze. Replays are for practice.</p>'+
  '<div class="item-grid">'+ITEMS.map(x=>{
  const owned=state.progress.purchases.includes(x.id);
  return '<div class="shop-card">'+fileImg(x.img,x.name,'shop-picture')+'<strong>'+esc(x.name)+'</strong>'+
@@ -203,7 +203,7 @@ const activeSceneWorld=()=>{
 };
 function stuff(){
  const p=state.progress,w=activeSceneWorld();
- if(w<0)return '<main class="stuff-page"><h1>MY STUFF IS LOCKED</h1><p>Beat all eight levels in Candy Moon, including the rescue maze, to unlock its picture background. Purchased items and stars are saved.</p><button data-action="home">Back to Planets</button></main>';
+ if(w<0)return '<main class="stuff-page"><h1>MY STUFF IS LOCKED</h1><p>Beat all eight levels in Candy Moon, including the rescue maze, to unlock its picture background. Purchased items and stars are saved.</p><button type="button" class="kid-home-button" data-action="home">🏠 Home Map</button></main>';
  // One student-controlled avatar per world, with its image always reflecting
  // the current character selection. Keep the ID constant to retain placement.
  const owned=[
@@ -212,7 +212,7 @@ function stuff(){
  ...p.rescued.map(id=>WORLDS.find(x=>x.id===id)).filter(Boolean).map(x=>({key:'friend:'+x.id,name:x.name+' Friend',img:x.friend}))
  ];
  const placed=(Array.isArray(p.worldScene)?p.worldScene:[]).filter(x=>x.world===w);
- return '<main class="stuff-page"><h1>My Space World</h1><p>Click an item to place it. Drag to move it. Use + and − to make it bigger or smaller.</p>'+
+ return '<main class="stuff-page"><div class="kid-page-nav"><h1>🎒 My Stuff</h1><div class="kid-page-actions"><button type="button" class="kid-home-button" data-action="home">🏠 Home Map</button><button type="button" data-action="shop">⭐ Star Shop</button></div></div><p>Click an item to place it. Drag to move it. Use + and − to make it bigger or smaller.</p>'+
  '<div class="world-tabs">'+WORLDS.map((x,i)=>'<button data-stuff-world="'+i+'" '+(sceneUnlocked(p,i)?'':'disabled title="Beat all eight levels first"')+' '+(i===w?'aria-pressed="true"':'')+'>'+esc(x.name)+(sceneUnlocked(p,i)?'':' · LOCKED')+'</button>').join('')+'</div>'+
  '<div class="decor-scene" data-scene="yes">'+fileImg(WORLDS[w].jpg,WORLDS[w].name,'scene-backdrop')+
  placed.map(x=>{const item=owned.find(i=>i.key===x.key);if(!item)return '';
