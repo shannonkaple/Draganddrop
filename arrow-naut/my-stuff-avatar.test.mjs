@@ -73,3 +73,32 @@ test('First grade: students can place their chosen astronaut and keep it in ever
  assert.match(render(),/data-move-scene="avatar:self"/);
  assert.match(source,/world=activeSceneWorld\(\)/);
 });
+
+test('Both My Stuff scenes support 5x pictures while keeping action buttons unscaled',()=>{
+ for(const [appPath,cssPath] of [
+  ['./app.mjs','./app.css'],
+  ['../arrow-naut-jr/app.mjs','../arrow-naut-jr/style.css']]){
+  const app=read(appPath),css=read(cssPath);
+  assert.match(app,/Math\.max\(\.5,Math\.min\(5,Number\([xe]\.scale\)\|\|1\)\)/,
+   appPath+' must render up to 5x, including existing saved items');
+  assert.match(app,/scene-resizable-art/,
+   appPath+' must wrap only the illustration, not the buttons');
+  assert.match(app,/data-scene-scale="bigger"/,
+   appPath+' must retain the plus button');
+  assert.match(app,/data-scene-scale="smaller"/,
+   appPath+' must retain the minus button');
+  assert.match(css,/\.scene-resizable-art\{[\s\S]*?transform:scale\(var\(--scene-scale,1\)\)/,
+   cssPath+' must scale artwork, not controls');
+ }
+});
+test('Junior bad guys are pictures with no distracting BAD GUY or BLOCK captions',()=>{
+ const app=read('../arrow-naut-jr/app.mjs');
+ assert.doesNotMatch(app,/junior-danger-label">BAD GUY/,
+  'moving and rescue enemies should not display BAD GUY labels');
+ assert.match(app,/m\.world===3\?'<small class="junior-board-label junior-block-label">BLOCK<\/small>':''/,
+  'only ice walls may keep their useful BLOCK caption');
+ assert.match(app,/moving-enemy-picture/,
+  'moving enemy original pictures must stay visible');
+ assert.match(app,/enemy-picture/,
+  'rescue enemy original pictures must stay visible');
+});
