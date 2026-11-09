@@ -632,7 +632,7 @@ function startMoveGame(type,stage,puzzle){
  const goalYs=spec.reverse?ys.slice().reverse():ys.slice();
  const height=count===4?19:22;
  run.pieces=spec.icons.map((icon,i)=>({
-  id:i,emoji:icon,x:11+(i%2)*5,y:ys[i],w:15,h,tx:spec.shared?67:71+(i%2)*2,ty:spec.shared?39:goalYs[i],done:false
+  id:i,emoji:icon,x:11+(i%2)*5,y:ys[i],w:15,h:height,tx:spec.shared?67:71+(i%2)*2,ty:spec.shared?39:goalYs[i],done:false
  }));
  run.badge=promptBadge(spec.title.toUpperCase()+' · '+(dragging?'DRAG & DROP':'SELECT + ARROWS'));
  if(spec.shared){
