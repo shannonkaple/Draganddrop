@@ -142,7 +142,11 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
    const here=completions(local),there=completions(saved);
    const localHasUnique=!arraysInclude(there,here);
    const cloudHasUnique=!arraysInclude(here,there);
-   if(localHasUnique){
+   const localOnlyPurchase=(local?.purchases||[]).some(id=>!(saved.purchases||[]).includes(id));
+   const remoteSceneKeys=new Set((saved.worldScene||[]).map(sceneKey));
+   const localOnlyScene=(local?.worldScene||[]).some(e=>!remoteSceneKeys.has(sceneKey(e)));
+   const localOnlyRescue=(local?.rescued||[]).some(id=>!(saved.rescued||[]).includes(id));
+   if(localHasUnique||localOnlyPurchase||localOnlyScene||localOnlyRescue){
     // Keep BOTH records intact until teacher explicitly approves a merge.
     lastConflict={local:copy(local),remote:copy(saved),revision};
     throw Error(cloudHasUnique?
