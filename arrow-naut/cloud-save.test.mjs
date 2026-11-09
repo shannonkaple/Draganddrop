@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeCloudSave} from './cloud-save.mjs';
+import {makeCloudSave,combineClassroomProgress} from './cloud-save.mjs';
 
 function fakeStorage(){
  const m=new Map();
@@ -80,4 +80,33 @@ test('cloud save does not put student code or teacher pairing key in the public 
  assert.doesNotMatch(content,/FMRBHMSTAEQ35D7HGJC78HWJ/);
  assert.doesNotMatch(content,/\.from\(['"]arrownaut_cloud_saves/);
  assert.match(content,/teacher setup key/i);
+});
+
+test('teacher-assisted merge keeps unique completed levels, rescues, inventory and scenery',()=>{
+ const left=progress(['launch-1','launch-2'],{
+  stars:3,purchases:['moon-buggy'],rescued:['launch'],
+  worldScene:[{planet:0,id:'shop:moon-buggy',x:28,y:31,scale:1.6}]
+ });
+ const right=progress(['launch-1','moon-1'],{
+  stars:5,purchases:['robot-pet'],rescued:['moon'],
+  worldScene:[{planet:1,id:'shop:robot-pet',x:60,y:60,scale:1.2}]
+ });
+ const merged=combineClassroomProgress(left,right,id=>({'moon-buggy':2,'robot-pet':3})[id]||0);
+ assert.deepEqual(new Set(merged.completed),new Set(['launch-1','launch-2','moon-1']));
+ assert.deepEqual(new Set(merged.purchases),new Set(['moon-buggy','robot-pet']));
+ assert.deepEqual(new Set(merged.rescued),new Set(['launch','moon']));
+ assert.equal(merged.worldScene.length,2);
+ assert.equal(merged.active,null);
+ assert.ok(merged.stars>=0);
+});
+test('teacher-assisted merge preserves both Map Two worlds without clearing earlier Map One work',()=>{
+ const left=progress(['launch-1'],{
+  mapTwo:{version:1,completed:['lost-aurora-1'],rescued:[],seenIntros:[],active:null}
+ });
+ const right=progress(['launch-1','moon-1'],{
+  mapTwo:{version:1,completed:['lost-clockwork-1'],rescued:[],seenIntros:[],active:null}
+ });
+ const merged=combineClassroomProgress(left,right);
+ assert.deepEqual(new Set(merged.mapTwo.completed),new Set(['lost-aurora-1','lost-clockwork-1']));
+ assert.deepEqual(new Set(merged.completed),new Set(['launch-1','moon-1']));
 });
