@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2d6848">
+<meta name="description" content="Skills Safari: sixty-four first-grade computer skills challenges across eight safari maps.">
+<title>Skills Safari | Ms. Kaple's First Grade Computer Adventure</title>
+<style>
+@font-face{font-family:Homebody;src:url('https://shannonkaple.github.io/Taskscreen/KAHomebodyClub.ttf') format('truetype');font-display:swap}
+@font-face{font-family:VAG;src:url('https://shannonkaple.github.io/Taskscreen/VAG-Rounded-Std-Black_47296.ttf') format('truetype');font-display:swap}
+:root{--ink:#263e36;--green:#2e704a;--gold:#fbd36c;--cream:#fff9e7;--line:#346847;font-family:VAG,'Arial Rounded MT Bold',Arial,sans-serif}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}body{background:linear-gradient(135deg,#edfbdc,#d4f0e2 60%,#d7eafa);color:var(--ink)}
+button{font:inherit;cursor:pointer;border:2px solid var(--line);border-radius:13px;background:#fffdf5;color:#24563f;padding:8px 12px;min-height:39px;box-shadow:0 2px 0 #a8c8a8}button:disabled{opacity:.55;cursor:not-allowed}button:hover:not(:disabled){background:#ffefb6}button:focus-visible{outline:4px solid #ffc753;outline-offset:2px}
+h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.035em;text-transform:uppercase}
+#app{min-height:100dvh;display:flex;flex-direction:column}.topbar{min-height:74px;display:grid;grid-template-columns:minmax(175px,1fr) auto minmax(175px,1fr);gap:7px;align-items:center;background:linear-gradient(105deg,#ffdba6,#fcf3c4 40%,#b5ecd0 75%,#c6ebf5);border-bottom:3px solid #2a744d;padding:7px 13px}
+.logo{font-size:clamp(21px,2.1vw,32px);line-height:1;color:#276347}.logo small{display:block;margin-top:5px;font-size:10px;color:#396653;font-family:VAG,Arial}.nav{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}.nav.right{justify-content:flex-end}.nav button{font-size:clamp(10px,.9vw,13px);white-space:nowrap;min-height:35px;padding:6px 8px}.pill{display:inline-flex;align-items:center;border:2px solid #87ab79;border-radius:999px;background:#fff9e8;padding:5px 9px;font-size:12px}
+.main{width:min(1120px,98%);margin:0 auto;padding:19px 12px}.main h1{font-size:clamp(25px,3vw,38px);color:#2d764a;margin:10px 0}.main p{line-height:1.4}
+.picker{background:#fffdf4;border:3px solid #86bc7e;border-radius:24px;padding:23px;margin:auto;max-width:960px;text-align:center;box-shadow:0 10px 0 #b0d0a8}
+.picker h1{margin:6px}.picker .mascot{font-size:54px}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:19px auto}.choices button{min-height:54px;background:#e6f6d5;font-size:18px}.choices.numbers{grid-template-columns:repeat(10,minmax(0,1fr))}.choices.numbers button{font-size:24px;min-width:0;background:#fff1bd}.small-note{font:14px Arial,sans-serif;color:#5d685e}
+.map-page{flex:1;display:grid;place-items:center;min-height:0;padding:8px}
+.map-stage{position:relative;width:min(100%,calc((100dvh - 94px)*1.7768));aspect-ratio:1672/941;max-height:calc(100dvh - 95px);min-height:330px;overflow:hidden;border:5px solid #fff9e5;border-radius:19px;box-shadow:0 8px 29px #184d4166;background:#a6d5a0}
+.map-stage.global{background:radial-gradient(ellipse at 58% 78%,#8fe1d4 0 9%,transparent 10%),linear-gradient(155deg,#b6eac8 0 28%,#91bf83 29% 48%,#d1d789 49% 71%,#8dbc8c 72%)}
+.map-stage.region{background:linear-gradient(150deg,#b8edd8,#e9e0a3 66%,#9cc18d)}
+.map-stage::before{content:'🌴        🌿           🌳            🌴           🌳        🌿';white-space:pre;letter-spacing:2vw;position:absolute;bottom:7%;left:0;right:0;text-align:center;font-size:clamp(26px,5vw,67px);opacity:.45;pointer-events:none}
+.map-stage[data-theme="desert"]{background:linear-gradient(#bce9f9 0 54%,#efdaa0 54% 70%,#dbb979 70%)}
+.map-stage[data-theme="river"]{background:linear-gradient(150deg,#b3e6d0 0 25%,#81c8c5 30% 53%,#cfe4ab 62%,#77b982 100%)}
+.map-stage[data-theme="dusk"]{background:linear-gradient(140deg,#839eb4,#e9ba95 51%,#aac185)}
+.map-stage[data-theme="forest"]{background:linear-gradient(150deg,#5eaf83,#a7d495 43%,#a9dcca 62%,#427f65)}
+.map-stage[data-theme="plains"]{background:linear-gradient(#d2e9ee 0 52%,#efdc9f 52% 75%,#9fbd81 75%)}
+.map-stage[data-theme="swamp"]{background:linear-gradient(130deg,#80ae81,#9fd4bd 49%,#86b9a8 65%,#aacb80)}
+.map-stage[data-theme="savanna"]{background:linear-gradient(#c4e9fa 0 49%,#e9cc86 49% 70%,#92bb70 70%)}
+.map-stage[data-theme="canopy"]{background:linear-gradient(145deg,#a1ddb2,#a6e9d4 60%,#7bb98f)}
+.map-stage[data-theme="night"]{background:linear-gradient(#829db0,#b5ccba 65%,#9bba8b)}
+.map-heading{position:absolute;top:2%;left:17%;right:17%;padding:7px;text-align:center;background:#fffdefed;border:2px solid #7eb38a;border-radius:15px;z-index:2;font-size:clamp(17px,2.1vw,30px);color:#286a49}
+.map-sub{font:700 clamp(11px,1.1vw,16px)/1.1 VAG,Arial,sans-serif;color:#385c4f}
+.pin{position:absolute;transform:translate(-50%,-50%);width:clamp(74px,9.5vw,134px);min-height:clamp(67px,8vw,105px);padding:5px 6px;z-index:3;background:#fffdf5e9;border:3px solid #348354;box-shadow:0 4px 0 #36774a77;text-align:center}
+.pin .pin-icon{display:block;font-size:clamp(26px,3vw,47px);line-height:1.03}.pin strong{display:block;font-size:clamp(10px,1vw,17px);line-height:1.03;margin:2px 0}.pin small{display:block;font-size:clamp(9px,.8vw,12px);line-height:1.02}.pin:disabled{background:#d8e3d5de;border-color:#889f8e;color:#6b7c70}.pin:disabled .pin-icon{filter:grayscale(1)}
+.pin.level{width:clamp(58px,7.7vw,107px);min-height:clamp(61px,6.5vw,91px)}.pin.level .pin-icon{font-size:clamp(20px,2.5vw,39px)}
+.map-back{position:absolute;left:1%;bottom:2%;z-index:7;background:#fff9db}.map-foot{position:absolute;bottom:2%;left:21%;right:6%;background:#fffdf6e8;border-radius:9px;padding:5px 9px;text-align:center;font-size:clamp(10px,.95vw,14px)}
+.game-page{flex:1;min-height:0;padding:7px 10px;display:flex;flex-direction:column;gap:8px}.game-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.game-head h1{font-size:clamp(16px,1.7vw,25px);color:#296f4a;margin:2px 0}.game-head small{font-size:12px}
+.directions{display:flex;align-items:center;justify-content:space-between;gap:9px;background:#fffdf3;border:2px solid #7ab583;border-radius:14px;padding:8px 12px;min-height:53px}.directions strong{font-size:clamp(13px,1.35vw,19px)}
+.playfield{position:relative;min-height:330px;flex:1;max-height:calc(100dvh - 212px);background:linear-gradient(#caeff8 0 46%,#def0bc 46% 75%,#9dce7d 75%);border:5px solid #fff;border-radius:21px;box-shadow:0 6px 0 #95c492;overflow:hidden;outline:none;user-select:none;touch-action:none}
+.playfield[data-theme="forest"]{background:linear-gradient(#a9e1bc,#b0e4c3 52%,#7dbb8d 52%)}
+.playfield[data-theme="desert"]{background:linear-gradient(#cbeafa 0 56%,#ecd49c 56%)}
+.playfield[data-theme="river"]{background:linear-gradient(#c9eff5 0 45%,#8bd4cf 45% 70%,#95b886 70%)}
+.playfield[data-theme="savanna"]{background:linear-gradient(#d0eaf1 0 52%,#e6cd91 52%)}
+.field-deco{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.25}
+.field-deco:before{content:'🌳';position:absolute;bottom:10%;left:4%;font-size:64px}
+.field-deco:after{content:'🌴';position:absolute;bottom:9%;right:4%;font-size:69px}
+.interactive{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.question-bubble{position:absolute;left:50%;top:9px;transform:translateX(-50%);background:#fffbf1ed;border:2px solid #b1c780;border-radius:50px;padding:7px 15px;font-size:clamp(14px,1.4vw,19px);text-align:center;min-width:140px;max-width:93%;z-index:6;pointer-events:none}
+.card-grid{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:clamp(10px,2vw,27px);max-width:900px;padding:55px 8px 0}
+.animal-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:4px solid #ccb66b;background:#fff9e7e9;border-radius:22px;width:clamp(95px,14vw,160px);height:clamp(104px,19vh,161px);box-shadow:0 7px 0 #b39865}
+.animal-card .face{font-size:clamp(46px,6.5vw,77px)}.animal-card.done{background:#cbf8bf;border-color:#63aa5d;pointer-events:none}.animal-card.wrong{outline:5px solid #e69d7a}
+.key-work{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:100%;padding:45px 5px 0}
+.key-work .key-label{font-size:clamp(13px,2vw,20px);text-align:center;background:#fffce8e6;border-radius:12px;padding:7px 12px}
+.key-work .keycap{background:#fffdfa;border:5px solid #3c7153;box-shadow:0 10px 0 #91ae8c;border-radius:26px;color:#346d50;min-width:145px;font:clamp(80px,12vw,145px)/1.15 VAG,Arial,sans-serif;text-align:center;padding:5px 18px}
+.key-work .key-dots{font-size:18px;color:#397b5a}
+.maze-stack{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding-top:44px;width:100%}
+.maze{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:min(88%,650px);height:min(56vh,310px)}
+.maze-cell{border:2px solid #a7c68d;background:#fffde2bc;border-radius:8px;display:grid;place-items:center;font-size:clamp(22px,3vw,39px)}
+.maze-cell.rock{background:#a2bba5}.maze-cell.goal{background:#ffe9a1;border:3px dashed #b99537}.maze-cell.player{background:#e5f4ff;border:4px solid #3984b5;cursor:pointer}.maze-cell.chosen{outline:4px solid #ffb945;outline-offset:1px}
+.move-zone{position:relative;width:100%;height:100%}
+.draggy,.target{position:absolute;width:15%;height:22%;display:grid;place-items:center;font-size:clamp(40px,5vw,75px);border-radius:16px}
+.target{z-index:2;border:4px dashed #669766;background:#fbfce653;pointer-events:none}.target .ghost{opacity:.34;filter:grayscale(1)}
+.draggy{z-index:5;border:3px solid #fffdf2;background:#fffdf0a8;cursor:grab;touch-action:none}
+.draggy.selected{outline:5px solid #ffcd5c;z-index:9}.draggy.done{pointer-events:none;z-index:3;border-color:#6bb36e;background:#b4f0b45e}
+.scroll-case{width:min(93%,580px);height:75%;overflow-y:auto;overscroll-behavior:contain;border:4px solid #84ab88;border-radius:18px;background:#fffdf5;box-shadow:0 5px 0 #96ba95;touch-action:pan-y;margin-top:41px}
+.scroll-item{display:flex;align-items:center;justify-content:center;gap:15px;min-height:106px;margin:9px 11px;padding:10px;background:#e9f7db;border:2px solid #83bb86;border-radius:15px;font-size:clamp(19px,2.4vw,30px);width:calc(100% - 22px)}
+.scroll-item span{font-size:44px}
+.feedback{color:#316c51;font-size:clamp(12px,1.4vw,17px);min-height:19px;margin-top:4px}.feedback.error{color:#a3422e}
+.modal{position:fixed;inset:0;z-index:30;background:#153b31ca;display:grid;place-items:center;padding:14px}
+.modal-card{background:#fffdf1;border:5px solid #e6bf55;border-radius:25px;max-width:540px;width:100%;padding:28px;text-align:center;box-shadow:0 10px 40px #102b285e}
+.modal-card .friend{font-size:95px}.modal-card h2{font-size:36px;color:#31724c;margin:7px}.modal-card p{font-size:17px}
+.hidden{display:none!important}.status{padding:4px 11px;color:#5c694f;font-size:12px}
+@media(max-width:780px){.topbar{grid-template-columns:1fr auto}.nav{grid-column:1 / -1;order:3}.nav.right{grid-column:2;grid-row:1;order:0}.map-stage{min-height:300px}.choices.numbers{grid-template-columns:repeat(6,1fr)}.pin{width:70px;min-height:67px}.pin.level{width:58px}.map-heading{top:1%}}
+@media(max-height:650px){.topbar{min-height:58px}.game-page{gap:4px}.directions{padding:4px}.playfield{max-height:calc(100dvh - 165px)}}
+</style>
+</head>
+<body><div id="app"></div>
+<script>
+'use strict';
+const app=document.getElementById('app');
+const TEACHERS=[{id:'grade1-01',name:'Ricketts'},{id:'grade1-02',name:'Brice'},{id:'grade1-03',name:'Bell'},{id:'grade1-04',name:'Wyckoff'},{id:'grade1-05',name:'Lacroix'},{id:'grade1-06',name:'Williams'},{id:'grade1-07',name:'Hicks'},{id:'grade1-08',name:'Haney'},{id:'grade1-09',name:'Vannoy'},{id:'grade1-10',name:'Messer'},{id:'grade1-11',name:'Basso'},{id:'grade1-12',name:'Canatella'},{id:'grade1-13',name:'Boyle'},{id:'grade1-14',name:'Simon'},{id:'grade1-15',name:'Arceneaux'},{id:'grade1-16',name:'Sims'},{id:'grade1-17',name:'Juvenal'},{id:'grade1-18',name:'Rizzutto'}];
+const ANIMALS=[{name:'Toucan',icon:'🦜'},{name:'Monkey',icon:'🐒'},{name:'Parrot',icon:'🦜'},{name:'Zebra',icon:'🦓'},{name:'Elephant',icon:'🐘'},{name:'Giraffe',icon:'🦒'},{name:'Otter',icon:'🦦'},{name:'Lion',icon:'🦁'},{name:'Frog',icon:'🐸'},{name:'Butterfly',icon:'🦋'},{name:'Turtle',icon:'🐢'},{name:'Hippo',icon:'🦛'}];
+const WORLDS=[
+ {name:'Toucan Treetops',skill:'Single Click',type:'click',icon:'🦜',friend:'Toucan',friendIcon:'🦜',theme:'forest'},
+ {name:'Monkey Mischief',skill:'Double Click',type:'double',icon:'🐒',friend:'Monkey',friendIcon:'🐒',theme:'forest'},
+ {name:'Parrot Letter Jungle',skill:'Keyboard Letters',type:'letter',icon:'🔤',friend:'Parrot',friendIcon:'🦜',theme:'forest'},
+ {name:'Zebra Number Plains',skill:'Keyboard Numbers',type:'number',icon:'🔢',friend:'Zebra',friendIcon:'🦓',theme:'plains'},
+ {name:'Elephant Arrow Trails',skill:'Arrow Keys',type:'arrows',icon:'⬆️',friend:'Elephant',friendIcon:'🐘',theme:'desert'},
+ {name:'Giraffe Lookout',skill:'Select & Move',type:'selectmove',icon:'🦒',friend:'Giraffe',friendIcon:'🦒',theme:'savanna'},
+ {name:'Otter River Delivery',skill:'Click & Drag',type:'drag',icon:'🦦',friend:'Otter',friendIcon:'🦦',theme:'river'},
+ {name:'Lion Scroll Savannah',skill:'Two-Finger Scroll',type:'scroll',icon:'🦁',friend:'Lion',friendIcon:'🦁',theme:'savanna'}
+];
+const WORLD_SPOTS=[[10,44],[23,29],[36,47],[48,32],[61,48],[74,29],[86,47],[92,71]];
+const LEVEL_SPOTS=[[17,31],[35,19],[57,24],[79,34],[82,65],[61,77],[38,71],[17,63]];
+const LETTER_KEYS=[['A'],['S','M'],['T','B'],['R','L','D'],['P','C','F'],['G','H','K'],['W','Y','N','V'],['Z','Q','J','X']];
+const NUMBER_KEYS=[['5'],['2'],['7','1'],['0','9'],['3','6'],['4','8'],['2','7','5'],['1','0','9','6']];
+const MAZE_ROCKS=[
+ [],[[3,2]],[[2,2],[4,2]],[[2,1],[2,2],[4,3]],[[1,2],[3,2],[5,2]],
+ [[2,1],[2,2],[2,3],[4,2]],[[1,1],[3,1],[4,2],[6,3]],
+ [[2,2],[3,2],[4,2],[5,2],[3,1],[5,3]]
+];
+const seqLengths=[1,1,2,2,3,3,3,4];
+const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null};
+let run=null,advanceTimer=null;
+function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+function node(html){const wrapper=document.createElement('div');wrapper.innerHTML=html;return wrapper.firstElementChild}
+function clamp(n,low,high){return Math.max(low,Math.min(high,n))}
+function saveKey(){return 'skills-safari-v1:'+state.teacher.id+':'+state.number}
+function loadProgress(){state.done=[];try{const raw=JSON.parse(localStorage.getItem(saveKey())||'[]');if(Array.isArray(raw))state.done=[...new Set(raw.filter(x=>Number.isInteger(x)&&x>=0&&x<64))].sort((a,b)=>a-b)}catch(e){state.done=[]}}
+function persist(){if(state.preview||!state.teacher||!state.number)return true;try{localStorage.setItem(saveKey(),JSON.stringify(state.done));return true}catch(e){feedback('Your work could not save on this Chromebook. Please tell your teacher.',true);return false}}
+function done(w,s){return state.done.includes(w*8+s)}
+function count(w){return state.done.filter(i=>Math.floor(i/8)===w).length}
+function unlocked(w){return state.preview||w===0||count(w-1)===8}
+function stageUnlocked(w,s){return state.preview||s===0||done(w,s-1)}
+function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
+function setView(v){clearTimeout(advanceTimer);state.view=v;run=null;render()}
+function speak(text){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.82;u.pitch=1.05;window.speechSynthesis.speak(u)}
+function feedback(message,error){const f=document.getElementById('feedback');if(!f)return;f.textContent=message;f.classList.toggle('error',!!error)}
+function header(){
+ const header=el('header','topbar');
+ const branding=el('div','logo','SKILLS SAFARI');
+ branding.append(el('small','',state.teacher&&state.number?state.teacher.name+' · STUDENT #'+state.number:'FIRST GRADE COMPUTER ADVENTURE'));header.append(branding);
+ const nav=el('nav','nav');
+ if(state.teacher||state.preview){
+  const home=el('button','','🌿 Safari Map');home.onclick=()=>setView('home');nav.append(home);
+  const friends=el('button','','🐾 Friends '+WORLDS.filter((w,i)=>count(i)===8).length+'/8');friends.onclick=showFriends;nav.append(friends);
+ }
+ header.append(nav);
+ const right=el('nav','nav right');
+ if(state.teacher||state.preview){
+  right.append(el('span','pill','⭐ '+totalStars()+' Stars'));
+  const switcher=el('button','','Change Student');switcher.onclick=()=>{state.teacher=null;state.number=null;state.preview=false;setView('teachers')};right.append(switcher);
+ }else{right.append(el('span','pill','8 MAPS · 64 CHALLENGES'))}
+ header.append(right);return header
+}
+function render(){app.replaceChildren(header());
+ if(state.view==='teachers'||state.view==='numbers'){renderEntry();return}
+ if(state.view==='home'){renderHome();return}
+ if(state.view==='world'){renderWorld();return}
+ if(state.view==='game'){renderGame();return}
+}
+function renderEntry(){
+ const main=el('main','main'),box=el('section','picker');box.append(el('div','mascot','🦁 🌴 🦒'));
+ box.append(el('h1','',state.view==='teachers'?'WHO IS YOUR TEACHER?':'WHAT IS YOUR NUMBER?'));
+ box.append(el('p','',state.view==='teachers'?'Click your first-grade teacher. No typing!':'Click your classroom number to start your safari.'));
+ const grid=el('div','choices'+(state.view==='numbers'?' numbers':''));
+ if(state.view==='teachers')TEACHERS.forEach(t=>{const b=el('button','',t.name);b.onclick=()=>{state.teacher=t;setView('numbers')};grid.append(b)});
+ else for(let n=1;n<=30;n++){const b=el('button','',String(n));b.onclick=()=>{state.number=n;state.preview=false;loadProgress();setView('home')};grid.append(b)}
+ box.append(grid);
+ if(state.view==='numbers'){const back=el('button','','← Choose Different Teacher');back.onclick=()=>setView('teachers');box.append(back)}
+ if(state.view==='teachers'){const preview=el('button','','👩‍🏫 Teacher Preview: Open Every Map & Level');preview.onclick=()=>{state.teacher=null;state.number=null;state.preview=true;state.done=[];setView('home')};box.append(preview);
+  box.append(el('p','small-note','Teacher preview does not overwrite student progress. Student work saves on each Chromebook browser.'))}
+ main.append(box);app.append(main);
+}
+function mapBackground(stage,theme){
+ stage.dataset.theme=theme;
+ const deco=el('div','');deco.setAttribute('aria-hidden','true');deco.style.cssText='position:absolute;inset:0;pointer-events:none;opacity:.24;font-size:clamp(35px,5vw,77px)';
+ deco.innerHTML='<span style="position:absolute;top:15%;left:3%">🌴</span><span style="position:absolute;bottom:14%;right:5%">🌳</span><span style="position:absolute;top:16%;right:21%">☀️</span><span style="position:absolute;bottom:22%;left:31%">🌿</span>';
+ stage.append(deco)
+}
+function renderHome(){
+ const main=el('main','map-page'),stage=el('section','map-stage global');stage.setAttribute('aria-label','Skills Safari world map');mapBackground(stage,'forest');
+ const heading=el('div','map-heading','THE GREAT SKILLS SAFARI');heading.append(el('div','map-sub','Explore 8 safari regions · Rescue 8 new friends'));stage.append(heading);
+ WORLDS.forEach((world,i)=>{const b=el('button','pin');b.style.left=WORLD_SPOTS[i][0]+'%';b.style.top=WORLD_SPOTS[i][1]+'%';b.disabled=!unlocked(i);
+ b.append(el('span','pin-icon',unlocked(i)?world.icon:'🔒'));b.append(el('strong','',world.name));b.append(el('small','',count(i)===8?'✓ FRIEND RESCUED':count(i)+'/8 COMPLETE'));
+ b.onclick=()=>{state.world=i;setView('world')};stage.append(b)});
+ stage.append(el('div','map-foot','Finish 8 challenges in one region to rescue its safari friend and unlock the next region.'));main.append(stage);app.append(main)
+}
+function renderWorld(){
+ const w=WORLDS[state.world],main=el('main','map-page'),stage=el('section','map-stage region');mapBackground(stage,w.theme);
+ const heading=el('div','map-heading',w.icon+' '+w.name.toUpperCase());heading.append(el('div','map-sub',w.skill.toUpperCase()+' · '+count(state.world)+'/8 CHALLENGES'));stage.append(heading);
+ LEVEL_SPOTS.forEach((pos,i)=>{const b=el('button','pin level');b.style.left=pos[0]+'%';b.style.top=pos[1]+'%';b.disabled=!stageUnlocked(state.world,i);
+ b.append(el('span','pin-icon',i===7?(stageUnlocked(state.world,i)?w.friendIcon:'🔒'):(done(state.world,i)?'⭐':stageUnlocked(state.world,i)?'🐾':'🔒')));
+ b.append(el('strong','',i===7?'RESCUE!':'LEVEL '+(i+1)));b.append(el('small','',done(state.world,i)?'DONE ✓':i===7?'SAFARI FRIEND':'CHALLENGE'));
+ b.onclick=()=>{state.stage=i;setView('game')};stage.append(b)});
+ const back=el('button','map-back','← All Safari Regions');back.onclick=()=>setView('home');stage.append(back);
+ stage.append(el('div','map-foot','Every challenge practices '+w.skill+'. Level 8 earns '+w.friend+'!'));
+ main.append(stage);app.append(main)
+}
+function directions(){
+ const w=WORLDS[state.world],s=state.stage,prefix=s===7?'RESCUE MISSION! ':'';
+ if(w.type==='click')return prefix+'CLICK the pictured animal one time. Follow the animal pictures in order.';
+ if(w.type==='double')return prefix+'DOUBLE-CLICK each pictured animal quickly. Do not single-click.';
+ if(w.type==='letter')return prefix+'Find each shown LETTER on your real keyboard. Press one letter at a time.';
+ if(w.type==='number')return prefix+'Find each shown NUMBER on your real keyboard. Press one number at a time.';
+ if(w.type==='arrows')return prefix+'CLICK the safari jeep. Use the KEYBOARD ARROWS to reach the yellow camp. Avoid rocks.';
+ if(w.type==='selectmove')return prefix+'CLICK the pictured animal. Use the KEYBOARD ARROWS to MOVE it into the matching dotted spot.';
+ if(w.type==='drag')return prefix+'CLICK AND HOLD a picture, MOVE it with your trackpad, then RELEASE in its matching spot.';
+ return prefix+'Use TWO FINGERS to SCROLL down the page, then CLICK the animal shown above.'
+}
+function renderGame(){
+ const w=WORLDS[state.world],main=el('main','game-page');
+ const head=el('div','game-head');
+ const h=el('h1','',w.icon+' '+w.name+' — Challenge '+(state.stage+1)+'/8');head.append(h);
+ const back=el('button','','← Map');back.onclick=()=>setView('world');head.append(back);main.append(head);
+ const box=el('div','directions'),txt=el('strong','',directions());box.append(txt);
+ const say=el('button','','🔊 Hear Directions');say.onclick=()=>speak(directions());box.append(say);main.append(box);
+ const board=el('section','playfield');board.dataset.theme=w.theme;board.id='game-board';board.tabIndex=0;board.append(el('div','field-deco'));
+ const puzzle=el('div','interactive');puzzle.id='puzzle';board.append(puzzle);main.append(board);
+ const bottom=el('div','feedback','Complete the challenge to earn a star!');bottom.id='feedback';main.append(bottom);
+ if(state.preview)main.append(el('div','status','TEACHER PREVIEW — challenges do not save stars.'));
+ app.append(main);
+ setupPuzzle();board.focus({preventScroll:true});
+}
+function promptBadge(text){
+ const b=el('div','question-bubble',text);document.getElementById('puzzle').append(b);return b
+}
+function animalChoices(want,stage,limit){
+ const choices=[];let i=0;while(choices.length<limit){const a=ANIMALS[(stage*3+i)%ANIMALS.length];if(!choices.some(x=>x.name===a.name))choices.push(a);i++}
+ want.forEach(a=>{if(!choices.some(x=>x.name===a.name))choices[choices.length-1-want.indexOf(a)%choices.length]=a});
+ return choices
+}
+function setupPuzzle(){
+ const w=WORLDS[state.world],s=state.stage,puzzle=document.getElementById('puzzle');
+ run={type:w.type,stage:s,step:0,complete:false};
+ if(w.type==='click'||w.type==='double'){
+  const length=seqLengths[s],start=(s*2+(w.type==='double'?4:0))%ANIMALS.length;
+  const targets=Array.from({length},(_,i)=>ANIMALS[(start+i*2)%ANIMALS.length]);
+  run.targets=targets;const pool=animalChoices(targets,s,Math.max(4,targets.length+1));
+  const badge=promptBadge((w.type==='double'?'DOUBLE-CLICK ':'CLICK ')+targets[0].icon+' '+targets[0].name.toUpperCase());run.badge=badge;
+  const grid=el('div','card-grid');puzzle.append(grid);
+  pool.forEach(a=>{const b=el('button','animal-card');b.append(el('span','face',a.icon));b.append(el('span','',a.name));
+   b.addEventListener(w.type==='double'?'dblclick':'click',e=>{if(run.complete)return;if(e.detail===0&&w.type==='double')return;const expected=run.targets[run.step];if(a.name!==expected.name){feedback('Try the animal shown at the top!',true);b.classList.add('wrong');setTimeout(()=>b.classList.remove('wrong'),450);return;}
+     b.classList.add('done');run.step++;feedback('Great job! ⭐');
+     if(run.step===run.targets.length)completeLevel();else badge.textContent=(w.type==='double'?'DOUBLE-CLICK ':'CLICK ')+run.targets[run.step].icon+' '+run.targets[run.step].name.toUpperCase();
+   });grid.append(b)})
+  return
+ }
+ if(w.type==='letter'||w.type==='number'){
+  run.keys=(w.type==='letter'?LETTER_KEYS:NUMBER_KEYS)[s].slice();
+  const stack=el('div','key-work');stack.append(el('div','key-label',w.type==='letter'?'FIND THIS LETTER ON YOUR CHROMEBOOK KEYBOARD':'FIND THIS NUMBER ON YOUR CHROMEBOOK KEYBOARD'));
+  run.keycap=el('div','keycap',run.keys[0]);stack.append(run.keycap);run.dots=el('div','key-dots','KEY 1 OF '+run.keys.length);stack.append(run.dots);puzzle.append(stack);return
+ }
+ if(w.type==='arrows'){
+  run.start=[0,2];run.position=[0,2];run.goal=[7,2];run.selected=false;run.rocks=MAZE_ROCKS[s];
+  const wrap=el('div','maze-stack');run.prompt=el('div','question-bubble','CLICK THE JEEP, THEN USE THE ARROW KEYS');wrap.append(run.prompt);
+  run.grid=el('div','maze');wrap.append(run.grid);wrap.append(el('div','small-note','Click the 🚙 first. Move around rocks to the ⛺.'));puzzle.append(wrap);paintMaze();return
+ }
+ if(w.type==='selectmove'||w.type==='drag'){
+  const zone=el('div','move-zone');puzzle.append(zone);
+  const names=['🦒','🦓','🐘','🐒','🐸','🦋','🦜','🦁'];
+  const number=w.type==='drag'?(s<2?1:s<5?2:3):(s<4?1:s<7?2:3);
+  const pieces=[];
+  for(let i=0;i<number;i++){
+   const icon=names[(s+i*3)%names.length],y=number===1?42:14+i*(number===2?44:28);
+   pieces.push({id:i,emoji:icon,x:12,y,w:15,h:22,tx:70,ty:y,done:false})
+  }
+  run.pieces=pieces;run.selected=null;run.zone=zone;
+  run.badge=promptBadge(w.type==='drag'?'DRAG EACH PICTURE INTO ITS OUTLINE':'CLICK '+pieces[0].emoji+' AND MOVE WITH ARROWS');
+  pieces.forEach(p=>{const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.append(el('span','ghost',p.emoji));zone.append(t)});
+  pieces.forEach(p=>{const item=el('div','draggy',p.emoji);item.dataset.id=p.id;zone.append(item);p.element=item;positionPiece(p);
+   if(w.type==='drag')item.addEventListener('pointerdown',e=>dragStart(e,p));
+   else item.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||p.done)return;run.selected=p;run.badge.textContent='ARROWS → MATCH THE '+p.emoji+' OUTLINE';pieces.forEach(x=>x.element.classList.toggle('selected',x===p));document.getElementById('game-board').focus({preventScroll:true})})
+  });return
+ }
+ if(w.type==='scroll'){
+  const count=9+s, targetIndex=4+s,target=ANIMALS[(s*2+5)%ANIMALS.length];
+  run.scrollTarget=targetIndex;
+  run.badge=promptBadge('SCROLL DOWN AND FIND '+target.icon+' '+target.name.toUpperCase());
+  const pane=el('div','scroll-case');run.scrollPane=pane;
+  for(let i=0;i<count;i++){
+   const a=i===targetIndex?target:ANIMALS[(i+s+3)%ANIMALS.length];const item=el('button','scroll-item');
+   item.append(el('span','',a.icon));item.append(el('strong','',a.name));item.dataset.position=i;
+   item.onclick=()=>{if(run.complete)return;if(i!==targetIndex){feedback('Keep looking! Scroll down and find the picture at the top.',true);return}
+    if(pane.scrollTop<50){feedback('Scroll down with TWO fingers first!',true);return}
+    completeLevel()};
+   pane.append(item)
+  }
+  puzzle.append(pane);return
+ }
+}
+function positionPiece(p){p.element.style.left=p.x+'%';p.element.style.top=p.y+'%';p.element.style.width=p.w+'%';p.element.style.height=p.h+'%'}
+function paintMaze(){
+ const grid=run.grid;grid.replaceChildren();
+ for(let y=0;y<5;y++)for(let x=0;x<8;x++){
+  const cell=el('div','maze-cell');
+  if(run.rocks.some(p=>p[0]===x&&p[1]===y)){cell.classList.add('rock');cell.textContent='🪨'}
+  else if(run.position[0]===x&&run.position[1]===y){cell.classList.add('player');if(run.selected)cell.classList.add('chosen');cell.textContent='🚙';cell.onclick=()=>{run.selected=true;feedback('Now use the arrow keys!');paintMaze();document.getElementById('game-board').focus({preventScroll:true})}}
+  else if(run.goal[0]===x&&run.goal[1]===y){cell.classList.add('goal');cell.textContent='⛺'}
+  grid.append(cell)
+ }
+}
+function dragStart(e,p){
+ if(e.pointerType==='touch'||run.complete||p.done)return;
+ e.preventDefault();const zone=run.zone,rect=zone.getBoundingClientRect();p.element.classList.add('selected');
+ const startX=e.clientX,startY=e.clientY,ox=p.x,oy=p.y;
+ const onMove=ev=>{const dx=(ev.clientX-startX)/rect.width*100,dy=(ev.clientY-startY)/rect.height*100;p.x=clamp(ox+dx,0,100-p.w);p.y=clamp(oy+dy,0,100-p.h);positionPiece(p)};
+ const onUp=()=>{
+  p.element.removeEventListener('pointermove',onMove);p.element.removeEventListener('pointerup',onUp);p.element.removeEventListener('pointercancel',onUp);
+  p.element.classList.remove('selected');
+  if(Math.abs(p.x-p.tx)<8&&Math.abs(p.y-p.ty)<10){
+   p.x=p.tx;p.y=p.ty;p.done=true;p.element.classList.add('done');positionPiece(p);feedback('Perfect delivery! ⭐');
+   if(run.pieces.every(x=>x.done))completeLevel()
+  }else{feedback('Good try! Drag the picture into its dotted outline.')}
+ };
+ p.element.addEventListener('pointermove',onMove);p.element.addEventListener('pointerup',onUp);p.element.addEventListener('pointercancel',onUp);
+ try{p.element.setPointerCapture(e.pointerId)}catch(err){}
+}
+function completeLevel(){
+ if(!run||run.complete)return;
+ run.complete=true;
+ const world=state.world,stage=state.stage;
+ if(!state.preview&&!done(world,stage)){state.done.push(world*8+stage);state.done.sort((a,b)=>a-b);if(!persist()){return}}
+ feedback('Great work! Safari star earned! ⭐');
+ if(stage===7){advanceTimer=setTimeout(()=>{if(state.view==='game'&&state.world===world&&state.stage===stage)showRescue()},580)}
+ else{advanceTimer=setTimeout(()=>{if(state.view==='game'&&state.world===world&&state.stage===stage)setView('world')},700)}
+}
+function showRescue(){
+ const w=WORLDS[state.world],modal=el('div','modal'),box=el('div','modal-card');
+ box.append(el('div','friend',w.friendIcon));box.append(el('h2','','SAFARI FRIEND RESCUED!'));
+ box.append(el('p','','You rescued '+w.friend+'! You finished all 8 '+w.skill+' challenges and earned 10 bonus stars.'));
+ const next=el('button','','🌴 Return to the Safari Map');next.onclick=()=>setView('home');box.append(next);modal.append(box);document.body.append(modal);
+ const base=next.onclick;next.onclick=()=>{modal.remove();base()};
+}
+function showFriends(){
+ const modal=el('div','modal'),box=el('div','modal-card');box.append(el('h2','','MY SAFARI FRIENDS'));
+ box.append(el('div','friend',WORLDS.filter((w,i)=>count(i)===8).map(w=>w.friendIcon).join(' ')||'🐾'));
+ box.append(el('p','','Rescue a new friend at challenge 8 of each safari region.'));
+ const close=el('button','','Close');close.onclick=()=>modal.remove();box.append(close);modal.append(box);document.body.append(modal)
+}
+window.addEventListener('keydown',e=>{
+ if(state.view!=='game'||!run||run.complete||!['letter','number','arrows','selectmove'].includes(run.type))return;
+ if(run.type==='letter'||run.type==='number'){
+  const expected=run.keys[run.step];let input=e.key;
+  if(run.type==='letter')input=input.toUpperCase();
+  if(input.length!==1)return;
+  e.preventDefault();if(e.repeat)return;
+  if(input!==expected){feedback('Look carefully for '+expected+' on your real keyboard.',true);return}
+  run.step++;feedback('Nice key find! ⭐');
+  if(run.step===run.keys.length)completeLevel();
+  else{run.keycap.textContent=run.keys[run.step];run.dots.textContent='KEY '+(run.step+1)+' OF '+run.keys.length}
+  return
+ }
+ const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+ if(!d)return;
+ e.preventDefault();
+ if(run.type==='arrows'){
+  if(!run.selected){feedback('Click the jeep FIRST, then use the arrow keys.',true);return}
+  const x=run.position[0]+d[0],y=run.position[1]+d[1];
+  if(x<0||y<0||x>=8||y>=5||run.rocks.some(p=>p[0]===x&&p[1]===y)){feedback('Rock or edge! Try a different arrow.',true);return}
+  run.position=[x,y];paintMaze();if(x===run.goal[0]&&y===run.goal[1])completeLevel();return
+ }
+ if(run.type==='selectmove'){
+  const p=run.selected;if(!p||p.done){feedback('Click an unfinished picture first.',true);return}
+  p.x=clamp(p.x+d[0]*4,0,100-p.w);p.y=clamp(p.y+d[1]*4,0,100-p.h);positionPiece(p);
+  if(Math.abs(p.x-p.tx)<5&&Math.abs(p.y-p.ty)<7){p.x=p.tx;p.y=p.ty;p.done=true;p.element.classList.remove('selected');p.element.classList.add('done');positionPiece(p);run.selected=null;feedback('Great move! ⭐');if(run.pieces.every(x=>x.done))completeLevel()}
+ }
+});
+render();
+</script>
+</body></html>
