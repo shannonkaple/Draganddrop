@@ -29,7 +29,7 @@ One **1600 × 900 landscape** background per skill world, with the central 70% u
 
 ## 3. Safari friend rescue portraits (8 independent transparent PNGs)
 
-**Integrated first batch:** Toucan, Monkey, Parrot, Zebra, Elephant, Giraffe, and Lion now have independently generated, transparent PNGs at `assets/animals/`, used by the live maps, challenges and rescue screens. **Otter still needs original art.** Frog and butterfly are also pending game-piece animals. The current optimized game sprites are 384 × 384; the full-resolution originals are in the downloadable batch ZIP.
+**All ten original animal sprites integrated:** Toucan, Monkey, Parrot, Zebra, Elephant, Giraffe, Otter, Lion, Frog, and Butterfly each have an independently generated transparent PNG under `assets/animals/`, used for map pins, relevant game pieces, and rescue screens. Sprites are 384 × 384; full-resolution originals were generated separately. Remaining artwork needs are the original illustrated safari maps, scenery backgrounds, reusable props and store items.
 Each **1024 × 1024**, full-body, child-friendly, consistent art style, full character visible, soft outline, transparent background. Do not use cropped collage sprites.
 - [x] `assets/animals/toucan.png` — colorful toucan, rescued after map 1 stage 8.
 - [x] `assets/animals/monkey.png` — friendly monkey, rescued after map 2 stage 8.
@@ -37,8 +37,12 @@ Each **1024 × 1024**, full-body, child-friendly, consistent art style, full cha
 - [x] `assets/animals/zebra.png` — friendly zebra, rescued after map 4 stage 8.
 - [x] `assets/animals/elephant.png` — baby elephant, rescued after map 5 stage 8.
 - [x] `assets/animals/giraffe.png` — baby giraffe, rescued after map 6 stage 8.
-- [ ] `assets/friends/otter.png` — river otter, rescued after map 7 stage 8.
+- [x] `assets/animals/otter.png` — river otter, rescued after map 7 stage 8.
 - [x] `assets/animals/lion.png` — friendly lion cub, rescued after map 8 stage 8.
+
+**Additional gameplay animals, individually generated and transparent:**
+- [x] `assets/animals/frog.png` — frog in selection, dragging, clicking and scrolling puzzles.
+- [x] `assets/animals/butterfly.png` — butterfly in clicking hunts and scrolling clues.
 
 ## 4. Player characters (optional initial polish, 4 PNGs)
 - [ ] `assets/explorers/safari-fox.png`
