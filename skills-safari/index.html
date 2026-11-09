@@ -119,6 +119,17 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .scroll-item.hint{outline:2px solid #ebd386}
 .scroll-score{position:absolute;right:12px;bottom:9px;background:#fff5d7ed;border:2px solid #b6aa6c;border-radius:14px;padding:5px 12px;z-index:7;font-size:14px}
 
+.game-animal-img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
+.pin-icon .game-animal-img{height:clamp(30px,3vw,49px);max-width:100%;margin:auto}
+.pin.level .pin-icon .game-animal-img{height:clamp(23px,2.7vw,40px)}
+.tap-item .game-animal-img{width:87%;height:87%;margin:auto}
+.draggy .game-animal-img,.target .game-animal-img{width:92%;height:92%;margin:auto}
+.scroll-item .game-animal-img{width:48px;height:48px}
+.modal-card .friend{min-height:112px;display:grid;place-items:center}
+.modal-card .friend .game-animal-img{width:min(230px,50vw);height:min(230px,29vh)}
+.friends-gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.friends-gallery .friend-tile{width:108px;min-height:120px;border:2px solid #8cb789;border-radius:14px;background:#fff9df;padding:5px;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:12px}
+.friends-gallery .friend-tile .game-animal-img{height:78px;max-height:78px}
 </style>
 </head>
 <body><div id="app"></div>
@@ -150,6 +161,18 @@ const seqLengths=[1,1,2,2,3,3,3,4];
 const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null};
 let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
+const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Lion:'lion'});
+const EMOJI_ANIMAL_PNG=Object.freeze({'🐒':'monkey','🦜':'parrot','🦓':'zebra','🐘':'elephant','🦒':'giraffe','🦁':'lion'});
+function putAnimalArt(host,emoji,species=null){
+ host.replaceChildren();
+ const name=species?PNG_ANIMALS[species]:EMOJI_ANIMAL_PNG[emoji];
+ if(!name){host.textContent=emoji;return host;}
+ const im=document.createElement('img');im.className='game-animal-img';im.src='./assets/animals/'+name+'.png';
+ im.alt=species||name;im.draggable=false;im.onerror=()=>{if(im.isConnected)host.textContent=emoji};host.append(im);
+ return host;
+}
+function safariArt(emoji,cls='',species=null){return putAnimalArt(el('span',cls),emoji,species)}
+
 function node(html){const wrapper=document.createElement('div');wrapper.innerHTML=html;return wrapper.firstElementChild}
 function clamp(n,low,high){return Math.max(low,Math.min(high,n))}
 function saveKey(){return 'skills-safari-v1:'+state.teacher.id+':'+state.number}
@@ -210,7 +233,7 @@ function renderHome(){
  const main=el('main','map-page'),stage=el('section','map-stage global');stage.setAttribute('aria-label','Skills Safari world map');mapBackground(stage,'forest');
  const heading=el('div','map-heading','THE GREAT SKILLS SAFARI');heading.append(el('div','map-sub','Explore 8 safari regions · Rescue 8 new friends'));stage.append(heading);
  WORLDS.forEach((world,i)=>{const b=el('button','pin');b.style.left=WORLD_SPOTS[i][0]+'%';b.style.top=WORLD_SPOTS[i][1]+'%';b.disabled=!unlocked(i);
- b.append(el('span','pin-icon',unlocked(i)?world.icon:'🔒'));b.append(el('strong','',world.name));b.append(el('small','',count(i)===8?'✓ FRIEND RESCUED':count(i)+'/8 COMPLETE'));
+ b.append(unlocked(i)?safariArt(world.friendIcon,'pin-icon',world.friend):el('span','pin-icon','🔒'));b.append(el('strong','',world.name));b.append(el('small','',count(i)===8?'✓ FRIEND RESCUED':count(i)+'/8 COMPLETE'));
  b.onclick=()=>{state.world=i;setView('world')};stage.append(b)});
  stage.append(el('div','map-foot','Finish 8 challenges in one region to rescue its safari friend and unlock the next region.'));main.append(stage);app.append(main)
 }
@@ -223,7 +246,7 @@ function renderWorld(){
  const w=WORLDS[state.world],main=el('main','map-page'),stage=el('section','map-stage region');mapBackground(stage,w.theme);
  const heading=el('div','map-heading',w.icon+' '+w.name.toUpperCase());heading.append(el('div','map-sub',w.skill.toUpperCase()+' · '+count(state.world)+'/8 CHALLENGES'));stage.append(heading);
  LEVEL_SPOTS.forEach((pos,i)=>{const b=el('button','pin level');b.style.left=pos[0]+'%';b.style.top=pos[1]+'%';b.disabled=!stageUnlocked(state.world,i);
- b.append(el('span','pin-icon',i===7?(stageUnlocked(state.world,i)?w.friendIcon:'🔒'):(done(state.world,i)?'⭐':stageUnlocked(state.world,i)?'🐾':'🔒')));
+ b.append(i===7&&stageUnlocked(state.world,i)?safariArt(w.friendIcon,'pin-icon',w.friend):el('span','pin-icon',i===7?'🔒':done(state.world,i)?'⭐':stageUnlocked(state.world,i)?'🐾':'🔒'));
  b.append(el('strong','',i===7?'RESCUE!':'LEVEL '+(i+1)));b.append(el('small','',done(state.world,i)?'DONE ✓':missionTitle(state.world,i)));
  b.onclick=()=>{state.stage=i;setView('game')};stage.append(b)});
  const back=el('button','map-back','← All Safari Regions');back.onclick=()=>setView('home');stage.append(back);
@@ -339,7 +362,7 @@ function startTapGame(type,stage,puzzle){
   // Allow the same picture to appear multiple times in a sequence mission.
   if(config.mode==='sequence')setTimeout(()=>{
    if(run&&run.active&&!run.complete&&state.view==='game'){
-    b.disabled=false;b.classList.remove('hit');b.textContent=symbol;
+    b.disabled=false;b.classList.remove('hit');putAnimalArt(b,symbol);
    }
   },250);
   feedback('Great '+(twice?'double-click':'click')+'! ⭐ '+run.taps+' / '+config.goal);
@@ -347,7 +370,7 @@ function startTapGame(type,stage,puzzle){
   if(config.mode==='hunt'){
    setTimeout(()=>{
     if(!run||run.complete||!run.active||state.view!=='game')return;
-    b.disabled=false;b.classList.remove('hit');b.textContent=symbol;
+    b.disabled=false;b.classList.remove('hit');putAnimalArt(b,symbol);
     const other=buttons[(i+run.taps*3)%buttons.length];
     if(other&&other!==b){
      const x=b.style.left,y=b.style.top;b.style.left=other.style.left;b.style.top=other.style.top;
@@ -357,7 +380,7 @@ function startTapGame(type,stage,puzzle){
   }
  }
  icons().forEach((symbol,i)=>{
-  const b=el('button','tap-item',symbol);
+  const b=putAnimalArt(el('button','tap-item'),symbol);
   b.type='button';b.setAttribute('aria-label',action.toLowerCase()+' '+symbol);
   if(config.moving)b.classList.add('float');
   if(config.fast)b.classList.add('fast');
@@ -509,7 +532,7 @@ function startMoveGame(type,stage,puzzle){
   const t=el('div','target basket','🧺');t.style.left='66%';t.style.top='37%';t.style.width='20%';t.style.height='28%';zone.append(t);run.sharedTarget=t;
  }else{
   run.pieces.forEach((p,i)=>{
-   const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.style.width=p.w+'%';t.style.height=p.h+'%';t.append(el('span','ghost',p.emoji));
+   const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.style.width=p.w+'%';t.style.height=p.h+'%';t.append(safariArt(p.emoji,'ghost'));
    if(spec.moving)t.classList.add('raft');
    zone.append(t);p.goalEl=t;
   });
@@ -522,13 +545,13 @@ function startMoveGame(type,stage,puzzle){
  }
  if(spec.decoys){
   spec.decoys.forEach((icon,i)=>{
-   const d=el('div','draggy',icon);d.style.left=(34+i*20)+'%';d.style.top=(i%2?20:66)+'%';
+   const d=putAnimalArt(el('div','draggy'),icon);d.style.left=(34+i*20)+'%';d.style.top=(i%2?20:66)+'%';
    d.style.width='13%';d.style.height='20%';d.style.zIndex='3';zone.append(d);
    d.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;feedback('Find the ZEBRA instead!',true)});
   });
  }
  run.pieces.forEach(p=>{
-  const item=el('div','draggy',p.emoji);item.dataset.id=p.id;zone.append(item);p.element=item;positionPiece(p);
+  const item=putAnimalArt(el('div','draggy'),p.emoji);item.dataset.id=p.id;zone.append(item);p.element=item;positionPiece(p);
   if(dragging)item.addEventListener('pointerdown',e=>dragStart(e,p));
   else item.addEventListener('pointerdown',e=>{
    if(e.pointerType==='touch'||p.done||run.active===false)return;
@@ -584,7 +607,7 @@ function startScrollGame(stage,puzzle){
  for(let i=0;i<spec.total;i++){
   const goal=goalIndex.get(i),symbol=goal?.icon||filler[(i+stage*3)%filler.length];
   const b=el('button','scroll-item');b.type='button';b.dataset.row=i;
-  b.append(el('span','',symbol));b.append(el('strong','',goal?'SAFARI CLUE':'SAFARI TRAIL'));
+  b.append(safariArt(symbol));b.append(el('strong','',goal?'SAFARI CLUE':'SAFARI TRAIL'));
   b.onclick=()=>{
    if(!run||run.complete||run.active===false||state.view!=='game')return;
    const next=spec.targets[run.scrollStep];
@@ -677,14 +700,17 @@ function completeLevel(){
 }
 function showRescue(){
  const w=WORLDS[state.world],modal=el('div','modal'),box=el('div','modal-card');
- box.append(el('div','friend',w.friendIcon));box.append(el('h2','','SAFARI FRIEND RESCUED!'));
+ box.append(safariArt(w.friendIcon,'friend',w.friend));box.append(el('h2','','SAFARI FRIEND RESCUED!'));
  box.append(el('p','','You rescued '+w.friend+'! You finished all 8 '+w.skill+' challenges and earned 10 bonus stars.'));
  const next=el('button','','🌴 Return to the Safari Map');next.onclick=()=>setView('home');box.append(next);modal.append(box);document.body.append(modal);
  const base=next.onclick;next.onclick=()=>{modal.remove();base()};
 }
 function showFriends(){
  const modal=el('div','modal'),box=el('div','modal-card');box.append(el('h2','','MY SAFARI FRIENDS'));
- box.append(el('div','friend',WORLDS.filter((w,i)=>count(i)===8).map(w=>w.friendIcon).join(' ')||'🐾'));
+ const gallery=el('div','friends-gallery'),completed=WORLDS.filter((w,i)=>count(i)===8);
+ if(!completed.length)gallery.append(el('div','friend','🐾'));
+ completed.forEach(w=>{const tile=el('div','friend-tile');tile.append(safariArt(w.friendIcon,'',w.friend),el('span','',w.friend));gallery.append(tile)});
+ box.append(gallery);
  box.append(el('p','','Rescue a new friend at challenge 8 of each safari region.'));
  const close=el('button','','Close');close.onclick=()=>modal.remove();box.append(close);modal.append(box);document.body.append(modal)
 }
