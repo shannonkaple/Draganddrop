@@ -10,6 +10,40 @@ const backupPrefix='arrownaut-local-before-cloud:';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 const copy=v=>JSON.parse(JSON.stringify(v));
 const completions=p=>[...(p?.completed||[]),...(p?.mapTwo?.completed||[])];
+
+const union=(a=[],b=[])=>[...new Set([...(a||[]),...(b||[])])];
+const reward=id=>/-8$/.test(id)?10:1;
+function sceneKey(e){return String(e?.planet??e?.world??'')+':'+String(e?.id??e?.key??'')}
+export function combineClassroomProgress(local,remote,getPrice=()=>0){
+ // Only COMPLETED work and existing inventory merge. In-progress puzzles may
+ // be restarted because two Chromebooks cannot both be the active puzzle.
+ const here=completions(local),there=completions(remote);
+ const additionalLocal=here.filter(id=>!there.includes(id));
+ const additionalRemote=there.filter(id=>!here.includes(id));
+ const localPurchases=local?.purchases||[],remotePurchases=remote?.purchases||[];
+ const value=id=>Number(getPrice(id))||0;
+ const missingLocalPurchases=localPurchases.filter(id=>!remotePurchases.includes(id));
+ const missingRemotePurchases=remotePurchases.filter(id=>!localPurchases.includes(id));
+ const fromLocal=Math.max(0,(local?.stars||0)+additionalRemote.reduce((s,id)=>s+reward(id),0)-
+  missingRemotePurchases.reduce((s,id)=>s+value(id),0));
+ const fromRemote=Math.max(0,(remote?.stars||0)+additionalLocal.reduce((s,id)=>s+reward(id),0)-
+  missingLocalPurchases.reduce((s,id)=>s+value(id),0));
+ const scene=new Map();
+ for(const e of [...(local?.worldScene||[]),...(remote?.worldScene||[])])
+  if(e&&typeof e==='object')scene.set(sceneKey(e),copy(e));
+ const merged={...copy(remote),completed:union(local.completed,remote.completed),
+  purchases:union(localPurchases,remotePurchases),
+  rescued:union(local.rescued,remote.rescued),
+  seenIntros:union(local.seenIntros,remote.seenIntros),
+  worldScene:[...scene.values()],stars:Math.max(fromLocal,fromRemote),active:null};
+ if(local.mapTwo||remote.mapTwo){
+  const a=local.mapTwo||{},b=remote.mapTwo||{};
+  merged.mapTwo={...b,version:1,completed:union(a.completed,b.completed),
+   rescued:union(a.rescued,b.rescued),seenIntros:union(a.seenIntros,b.seenIntros),active:null};
+ }
+ return merged;
+}
+
 const arraysInclude=(a,b)=>b.every(x=>a.includes(x));
 function getDevice(){
  try{const value=localStorage.getItem(DEVICE_KEY);return /^[a-f0-9]{64}$/.test(value||'')?value:null}
@@ -23,9 +57,9 @@ async function post(data){
  if(!response.ok||!result.ok)throw new Error(result.error||'Cloud request failed');
  return result;
 }
-export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice}){
+export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice,getPrice=()=>0}){
  let revision=null,session=0,activeScope='',status='unpaired',panel=null,queue=Promise.resolve();
- let pending=0,blocked=false;
+ let pending=0,blocked=false,lastConflict=null;
  const identity=()=>{
   const {teacher,student}=getIdentity();
   return teacher&&Number.isInteger(student)?{game,teacher,student}:null;
@@ -60,7 +94,7 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
   document.body.append(overlay);
  }
  function reset(){
-  session++;revision=null;activeScope='';pending=0;blocked=false;
+  session++;revision=null;activeScope='';pending=0;blocked=false;lastConflict=null;
   panel?.remove();panel=null;clearLoading();queue=Promise.resolve();
   setStatus(isPaired()?'idle':'unpaired');
  }
@@ -97,6 +131,7 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
    if(tag!==session)return false;
    revision=remote.revision;
    const local=getProgress(),saved=remote.progress;
+   lastConflict=null;
    if(saved===null){
     // First sync of this student. Preserve existing local progress from an
     // older Chromebook and upload it as the initial remote record.
@@ -108,11 +143,11 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
    const localHasUnique=!arraysInclude(there,here);
    const cloudHasUnique=!arraysInclude(here,there);
    if(localHasUnique){
-    // Do not automatically overwrite either save if the student has separate
-    // progress on multiple devices. The teacher can back up the local record.
+    // Keep BOTH records intact until teacher explicitly approves a merge.
+    lastConflict={local:copy(local),remote:copy(saved),revision};
     throw Error(cloudHasUnique?
-      'Both computers contain different completed levels. Back up this Chromebook before combining them.':
-      'This computer has levels not yet in the cloud. Ask your teacher to recover those levels safely.');
+      'Two Chromebooks have different completed levels. Ask your teacher to combine them safely.':
+      'This Chromebook has more completed levels. Ask your teacher to combine its progress with the cloud.');
    }
    if(JSON.stringify(local)!==JSON.stringify(saved)){
     safeBackup(local,'import');
@@ -121,8 +156,25 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
    blocked=false;clearLoading();setStatus('saved');return true;
   }catch(error){if(tag===session)statusError(error);return false}
  }
+ async function mergePending(){
+  const conflict=lastConflict,current=identity(),device=getDevice(),tag=session;
+  if(!conflict||!current||!device)return false;
+  const merged=combineClassroomProgress(conflict.local,conflict.remote,getPrice);
+  const original=getProgress();
+  safeBackup(original,'before-merge');
+  safeBackup(conflict.remote,'remote-before-merge');
+  setStatus('syncing');blocked=true;
+  try{
+   const saved=await post({action:'save',deviceToken:device,...current,
+    revision:conflict.revision,progress:merged});
+   if(tag!==session)return false;
+   revision=saved.revision;
+   applyProgress(copy(merged));lastConflict=null;blocked=false;setStatus('saved');
+   return true;
+  }catch(error){if(tag===session)statusError(error);return false}
+ }
  async function attach(){
-  session++;pending=0;revision=null;activeScope='';blocked=false;
+  session++;pending=0;revision=null;activeScope='';blocked=false;lastConflict=null;
   if(!getDevice()){setStatus('unpaired');return false}
   return syncNow();
  }
@@ -138,7 +190,9 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
    (!paired?'<label for="cloud-classroom-key">Teacher setup key (teacher only)</label>'+
      '<input type="password" id="cloud-classroom-key" autocomplete="off" spellcheck="false" placeholder="Teacher enters once">'+
      '<button type="button" data-cloud-action="pair">🔗 Pair This Computer</button>':
-     '<button type="button" data-cloud-action="sync">🔄 Check My Saved Game</button>')+
+     '<button type="button" data-cloud-action="sync">🔄 Check My Saved Game</button>'+
+     (lastConflict?'<p>Two Chromebooks have different saved work. Ask your teacher to combine it.</p>'+
+     '<button type="button" data-cloud-action="merge">🧩 Combine Both Saves</button>':''))+
    '<p class="cloud-save-result" role="status"></p>'+
    '<button type="button" data-cloud-action="close">Close</button></section>';
   document.body.append(panel);
@@ -162,6 +216,13 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
      const synced=await attach();
      if(!synced)open();
     }catch(error){msg('Pairing failed. '+error.message);setStatus('unpaired')}
+   }else if(action==='merge'){
+     if(!lastConflict)return;
+     if(!window.confirm('Teacher: combine completed levels and purchased items from BOTH computers? A backup of each record will be saved on this Chromebook.'))return;
+     const saved=await mergePending();
+     msg(saved?'Both saves combined! Completed levels and My Stuff are kept.':
+       'Could not combine the saves. No original record was deleted.');
+     if(saved){panel?.remove();panel=null}
    }else if(action==='sync'){
      const synced=await syncNow();
      msg(synced?'Cloud connection checked and your progress loaded.':
