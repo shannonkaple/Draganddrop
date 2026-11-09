@@ -46,4 +46,27 @@ jobs:
             progress:{version:1,completed:[],purchases:[],rescued:[],stars:0}});
           assert.equal(noOverwrite.status,401,'A public visitor must never overwrite classroom work');
           console.log('PASS: unpaired data is confidential, pairing rejects guesses, anonymous writes blocked');
+          // This token is intentionally restricted in the database to the
+          // synthetic grade2-99 test classroom, never a real student class.
+          const testDeviceToken='966955bd7bdaaaf500bdb8a2b847fa77596685fe19514d7276b5976d4b1c4ba3';
+          const testScope={...scope,deviceToken:testDeviceToken};
+          const initial=await send({...testScope,action:'load'});
+          assert.equal(initial.status,200,JSON.stringify(initial));
+          const next={version:1,completed:['synthetic-ci-1','synthetic-ci-2'],
+           purchases:[],rescued:[],stars:2,active:null};
+          const saved=await send({...testScope,action:'save',
+           revision:initial.body.revision,progress:next});
+          assert.equal(saved.status,200,JSON.stringify(saved));
+          const reloaded=await send({...testScope,action:'load'});
+          assert.equal(reloaded.status,200,JSON.stringify(reloaded));
+          assert.deepEqual(reloaded.body.progress,next);
+          assert.equal(reloaded.body.revision,saved.body.revision);
+          const conflict=await send({...testScope,action:'save',
+           revision:initial.body.revision,progress:next});
+          assert.equal(conflict.status,409,'Old Chromebooks must not overwrite newer saves');
+          const realClassDenied=await send({...testScope,teacher:'grade2-01',action:'load'});
+          assert.equal(realClassDenied.status,403,
+           'A synthetic test browser cannot read real classroom progress');
+          console.log('PASS: cloud load, save, reload, conflict protection, and isolated test-device scope');
+
           NODE
