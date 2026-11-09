@@ -278,15 +278,17 @@ function render(){
 }
 function openStudent(number,restore=null){
  if(!Number.isInteger(number)||number<1||number>30)return;
+ cloud.reset();
  state.number=number;state.key=saveKey(state.teacher,number);state.brokenSave='';
- try{const raw=localStorage.getItem(state.key);state.progress=readProgress(raw);state.expectedSavedRaw=raw;}
+ let brandNew=false;
+ try{const raw=localStorage.getItem(state.key);brandNew=raw===null;state.progress=readProgress(raw);state.expectedSavedRaw=raw;}
  catch(e){state.brokenSave=e.message;state.error=e.message;state.view='teachers';render();return}
  if(!storageProbe(localStorage)){
   state.brokenSave='Chromebook storage is blocked';state.error='Your Chromebook cannot save progress. Tell your teacher before starting.';
   state.view='teachers';render();return;
  }
  state.view='home';state.error='';state.notice='';
- void cloud.attach();
+ void cloud.attach().then(()=>{if(brandNew&&!cloud.hasCode())cloud.open()});
  // Old animal/fantasy choices are no longer available; change only the
  // portrait preference and preserve all stars, purchased/placed objects, and wins.
  if(!CHARACTERS.some(c=>c.id===state.progress.character)){
@@ -361,7 +363,7 @@ function nav(action){
   case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-junior-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.number))window.location.reload()}});break;
   case 'map-two':if(juniorMapTwoUnlocked()){state.view='map-two';state.mapTwoSelected=null;state.modal=null;render()}break;
   case 'home':state.view=state.progress?'home':'teachers';state.modal=null;state.run=null;state.mission=null;render();break;
-  case 'teachers':state.view='teachers';state.error='';render();break;
+  case 'teachers':cloud.reset();state.view='teachers';state.error='';render();break;
   case 'world':showWorld(state.world);break;
   case 'shop':state.view='shop';state.modal=null;render();break;
   case 'stuff':state.view='stuff';state.modal=null;state.pending=null;render();break;
