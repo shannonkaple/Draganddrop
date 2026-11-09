@@ -131,6 +131,9 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .tap-item .game-animal-img{width:94%;height:94%;margin:auto}
 .draggy .game-animal-img,.target .game-animal-img{width:96%;height:96%;margin:auto}
 .scroll-item .game-animal-img{width:clamp(64px,6vw,82px);height:clamp(64px,6vw,82px)}
+.key-scenery{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px}
+.key-scenery .game-animal-img{width:clamp(38px,4.5vw,62px);height:clamp(38px,4.5vw,62px)}
+.target.basket .game-animal-img{max-height:100%;max-width:100%;object-fit:contain}
 .maze-cell .game-animal-img{width:90%;height:90%;max-width:100%;max-height:100%;margin:auto}
 .modal-card .friend{min-height:112px;display:grid;place-items:center}
 .modal-card .friend .game-animal-img{width:min(230px,50vw);height:min(230px,29vh)}
@@ -235,7 +238,7 @@ function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className
 const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly',Turtle:'turtle',Hippo:'hippo',Lizard:'lizard',Ladybug:'ladybug',Crab:'crab',Fish:'fish',TropicalFish:'tropical-fish'});
 const EMOJI_ANIMAL_PNG=Object.freeze({'🐒':'monkey','🦜':'parrot','🦓':'zebra','🐘':'elephant','🦒':'giraffe','🦦':'otter','🦁':'lion','🐸':'frog','🦋':'butterfly','🐢':'turtle','🦛':'hippo','🦎':'lizard','🐞':'ladybug','🦀':'crab','🐟':'fish','🐠':'tropical-fish'});
 // Original individual transparent PNGs, reused consistently across every safari skill.
-const SAFARI_PIECE_PNG=Object.freeze({'🎒':'backpack','🧭':'compass','📷':'camera','🔭':'telescope','BINOCULARS':'binoculars','🗺️':'safari-map','⛺':'tent','🪣':'bucket','🚙':'jeep','🔑':'key'});
+const SAFARI_PIECE_PNG=Object.freeze({'🎒':'backpack','🧭':'compass','📷':'camera','🔭':'telescope','BINOCULARS':'binoculars','🗺️':'safari-map','⛺':'tent','🪣':'bucket','🚙':'jeep','🔑':'key','📣':'megaphone','🧺':'picnic-basket','🍌':'banana','🍎':'apple','🥥':'coconut','🍍':'pineapple','🍇':'grapes','✨':'firefly','🪶':'feather','🐚':'seashell'});
 function putAnimalArt(host,emoji,species=null){
  host.replaceChildren();
  const animal=species?PNG_ANIMALS[species]:EMOJI_ANIMAL_PNG[emoji];
@@ -591,8 +594,8 @@ function updateKeyGame(){
  const suffix=spec.kind==='count'?'HOW MANY?':'FIND THIS KEY';
  run.keycap.textContent=spec.kind==='count'?'?':key;
  run.keyDots.textContent=suffix+' · '+(step+1)+' / '+run.keys.length+' · '+spec.title.toUpperCase();
- if(spec.kind==='count')run.scenery.textContent=Array.from({length:Number(key)},()=>spec.decor).join(' ');
- else if(spec.kind==='egg')run.scenery.textContent=Array.from({length:run.keys.length-step},()=>spec.decor).join(' ');
+ if(spec.kind==='count')run.scenery.replaceChildren(...Array.from({length:Number(key)},()=>safariArt(spec.decor)));
+ else if(spec.kind==='egg')run.scenery.replaceChildren(...Array.from({length:run.keys.length-step},()=>safariArt(spec.decor)));
  else if(spec.kind==='code')run.scenery.textContent=Array.from({length:run.keys.length},(_,i)=>i<step?'🔓':'🔒').join(' ');
  else if(spec.kind==='trail')run.scenery.textContent=Array.from({length:run.keys.length},(_,i)=>i<step?'⭐':'🪶').join(' ');
  else run.scenery.textContent=spec.decor+'　'+Array.from({length:Math.max(1,step+1)},()=>spec.kind==='signal'?'🎵':'✨').join(' ');
@@ -645,7 +648,7 @@ function startMoveGame(type,stage,puzzle){
  }));
  run.badge=promptBadge(spec.title.toUpperCase()+' · '+(dragging?'DRAG & DROP':'SELECT + ARROWS'));
  if(spec.shared){
-  const t=el('div','target basket','🧺');t.style.left='66%';t.style.top='37%';t.style.width='20%';t.style.height='28%';zone.append(t);run.sharedTarget=t;
+  const t=putAnimalArt(el('div','target basket'),'🧺');t.style.left='66%';t.style.top='37%';t.style.width='20%';t.style.height='28%';zone.append(t);run.sharedTarget=t;
  }else{
   run.pieces.forEach((p,i)=>{
    const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.style.width=p.w+'%';t.style.height=p.h+'%';t.append(safariArt(p.emoji,'ghost'));
