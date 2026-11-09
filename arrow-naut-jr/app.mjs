@@ -15,6 +15,7 @@ const chosen=()=>CHARACTERS.find(x=>x.id===state.progress?.character)||CHARACTER
 const saveKey=(teacher,num)=>'mskaple-arrownaut-junior-v1:'+teacher+':'+num;
 const cloud=makeCloudSave({
  game:'junior',
+ getPrice:id=>ITEMS.find(x=>x.id===id)?.price||0,
  getIdentity:()=>({teacher:state.teacher,student:state.number}),
  getProgress:()=>state.progress,
  applyProgress:progress=>{
