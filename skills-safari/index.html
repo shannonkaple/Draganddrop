@@ -336,6 +336,12 @@ function startTapGame(type,stage,puzzle){
    setTimeout(()=>b.classList.remove('miss'),330);return;
   }
   b.disabled=true;b.classList.add('hit');b.textContent='✨';run.taps++;refresh();
+  // Allow the same picture to appear multiple times in a sequence mission.
+  if(config.mode==='sequence')setTimeout(()=>{
+   if(run&&run.active&&!run.complete&&state.view==='game'){
+    b.disabled=false;b.classList.remove('hit');b.textContent=symbol;
+   }
+  },250);
   feedback('Great '+(twice?'double-click':'click')+'! ⭐ '+run.taps+' / '+config.goal);
   if(run.taps===config.goal){run.active=false;stopTapTimers();completeLevel();return}
   if(config.mode==='hunt'){
@@ -375,7 +381,7 @@ function startTapGame(type,stage,puzzle){
   run.active=false;stopTapTimers();
   const retry=el('div','tap-again');retry.append(el('h2','','TIME IS UP!'));
   retry.append(el('p','','You caught '+run.taps+' of '+config.goal+'. Try again!'));
-  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>{stopTapTimers();renderGame()};
+  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>setView('game');
   retry.append(button);puzzle.append(retry);
  },1000);
 }
@@ -423,7 +429,7 @@ function showMissionClock(seconds){
   if(run)run.active=false;
   const again=el('div','tap-again');again.append(el('h2','','TIME IS UP!'));
   again.append(el('p','','Try the same challenge again. Your finished levels are safe.'));
-  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>{stopTapTimers();renderGame()};
+  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>setView('game');
   again.append(button);board.append(again);
  },1000);
 }
