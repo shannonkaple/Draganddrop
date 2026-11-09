@@ -185,18 +185,18 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
   return syncNow();
  }
  function open(){
-  if(!identity())return;
+  const selected=identity();
   panel?.remove();panel=document.createElement('div');panel.className='cloud-save-overlay';
   const paired=isPaired();
   panel.innerHTML='<section class="cloud-save-panel" role="dialog" aria-modal="true" aria-labelledby="cloud-title">'+
    '<h2 id="cloud-title">☁️ Classroom Saving</h2>'+
    '<p>'+ (paired?'This computer is connected. Students just choose their teacher and number.':
      'TEACHER SETUP: Pair this Chromebook once. Students never have to type a save code.')+'</p>'+
-   '<p class="cloud-save-student">'+esc(identity().teacher)+' · Student #'+identity().student+'</p>'+
+   '<p class="cloud-save-student">'+(selected?esc(selected.teacher)+' · Student #'+selected.student:'No student login needed for teacher setup')+'</p>'+ 
    (!paired?'<label for="cloud-classroom-key">Teacher setup key (teacher only)</label>'+
      '<input type="password" id="cloud-classroom-key" autocomplete="off" spellcheck="false" placeholder="Teacher enters once">'+
      '<button type="button" data-cloud-action="pair">🔗 Pair This Computer</button>':
-     '<button type="button" data-cloud-action="sync">🔄 Check My Saved Game</button>'+
+     (selected?'<button type="button" data-cloud-action="sync">🔄 Check My Saved Game</button>':'<p>This browser is ready for students.</p>')+
      (lastConflict?'<p>Two Chromebooks have different saved work. Ask your teacher to combine it.</p>'+
      '<button type="button" data-cloud-action="merge">🧩 Combine Both Saves</button>':''))+
    '<p class="cloud-save-result" role="status"></p>'+
@@ -219,8 +219,12 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
      localStorage.setItem(DEVICE_KEY,result.deviceToken);
      if(localStorage.getItem(DEVICE_KEY)!==result.deviceToken)throw Error('Cannot store secure browser pairing');
      input.value='';panel?.remove();panel=null;
-     const synced=await attach();
-     if(!synced)open();
+     if(identity()){
+      const synced=await attach();
+      if(!synced)open();
+     }else{
+      setStatus('idle');
+     }
     }catch(error){msg('Pairing failed. '+error.message);setStatus('unpaired')}
    }else if(action==='merge'){
      if(!lastConflict)return;
