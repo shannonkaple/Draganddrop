@@ -163,8 +163,10 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
  async function mergePending(){
   const conflict=lastConflict,current=identity(),device=getDevice(),tag=session;
   if(!conflict||!current||!device)return false;
-  const merged=combineClassroomProgress(conflict.local,conflict.remote,getPrice);
+  // Include anything completed after the initial sync conflict, not just
+  // the snapshot taken when the two Chromebooks first disagreed.
   const original=getProgress();
+  const merged=combineClassroomProgress(original,conflict.remote,getPrice);
   safeBackup(original,'before-merge');
   safeBackup(conflict.remote,'remote-before-merge');
   setStatus('syncing');blocked=true;
