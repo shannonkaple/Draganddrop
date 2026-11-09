@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LOST_WORLDS,LOST_STAGE_TYPES,createMapTwoMission,initialMapTwoRun,chooseMapTwo,moveMapTwo,dropMapTwo,resizeMapTwo,finishMapTwo,mapTwoData,mapTwoStageUnlocked,mapTwoWorldUnlocked,mapTwoCount} from './map-two.mjs';
+import {LOST_WORLDS,LOST_STAGE_TYPES,createMapTwoMission,initialMapTwoRun,chooseMapTwo,moveMapTwo,dropMapTwo,resizeMapTwo,rotateMapTwo,finishMapTwo,mapTwoData,mapTwoStageUnlocked,mapTwoWorldUnlocked,mapTwoCount} from './map-two.mjs';
 const base=()=>({version:1,completed:[],stars:17,rescued:['launch'],purchases:['telescope'],worldScene:[{id:'shop:telescope',planet:0,x:40,y:40}],active:{id:'launch-2'},mapTwo:undefined});
 const repeat=(fn,num,first)=>{let s=first;for(let i=0;i<num;i++){const r=fn(s);assert.equal(r.ok,true,r.reason);s=r.run}return s};
 function complete(m){let run=initialMapTwoRun(m);
@@ -13,6 +13,9 @@ function complete(m){let run=initialMapTwoRun(m);
    let o=chooseMapTwo(m,run,p.id);assert.equal(o.ok,true,o.reason);run=o.run;
    while(run.pieces.find(x=>x.id===p.id).x < p.goal.x){o=moveMapTwo(m,run,'ArrowRight');assert.equal(o.ok,true,o.reason);run=o.run}
    while(run.pieces.find(x=>x.id===p.id).y < p.goal.y){o=moveMapTwo(m,run,'ArrowDown');assert.equal(o.ok,true,o.reason);run=o.run}
+   if(['rotate','move-rotate'].includes(p.tool)){
+    o=rotateMapTwo(m,run,p.id,p.goal.rotation/90);assert.equal(o.ok,true,o.reason);run=o.run;
+   }
    if(p.tool==='resize'){
     const now=run.pieces.find(x=>x.id===p.id);const dx=p.goal.w-now.w,dy=p.goal.h-now.h;
     if(dx||dy){o=resizeMapTwo(m,run,p.id,'se',dx,dy);assert.equal(o.ok,true,o.reason);run=o.run}
@@ -51,4 +54,24 @@ test('invalid drag, blocked cells, wrong selection and unselected resize do not 
  m=createMapTwoMission(0,3);run=initialMapTwoRun(m);
  assert.equal(resizeMapTwo(m,run,'panel','se',2,1).ok,false);
  assert.equal(moveMapTwo(m,run,'ArrowLeft').ok,false);
+});
+test('curved arrow rotation snaps the selected box to a 90/180-degree goal without awarding map-one progress',()=>{
+ const a=createMapTwoMission(0,5),b=createMapTwoMission(1,5);
+ assert.equal(a.type,'rotate');assert.equal(b.type,'move-rotate');
+ let run=initialMapTwoRun(a);
+ assert.equal(rotateMapTwo(a,run,'turn-box',1).ok,false,'box must be selected');
+ run=chooseMapTwo(a,run,'turn-box').run;
+ assert.equal(rotateMapTwo(a,run,'turn-box',0).ok,false);
+ const turned=rotateMapTwo(a,run,'turn-box',1);
+ assert.equal(turned.ok,true);assert.equal(turned.run.pieces[0].rotation,90);assert.equal(turned.run.complete,true);
+ const rotatedAgain=rotateMapTwo(a,turned.run,'turn-box',1);
+ assert.equal(rotatedAgain.run.complete,false,'orientation matters, not just location');
+ const c=complete(b);assert.equal(c.complete,true);assert.equal(c.pieces[0].rotation,180);
+});
+test('Map Two remains sequentially locked unless the teacher uses preview mode',()=>{
+ const progress=base();
+ assert.equal(mapTwoWorldUnlocked(progress,0),true);
+ assert.equal(mapTwoWorldUnlocked(progress,1),false);
+ assert.equal(mapTwoStageUnlocked(progress,0,0),true);
+ assert.equal(mapTwoStageUnlocked(progress,0,1),false);
 });

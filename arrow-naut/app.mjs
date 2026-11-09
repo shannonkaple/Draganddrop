@@ -1,15 +1,15 @@
-import {openTeacherTools} from './teacher-tools.mjs?v=teacher-tools-20261105b';
+import {openTeacherTools} from './teacher-tools.mjs?v=teacher-preview-20261109a';
 import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,bonusCompletedCount,BONUS_STAGES,planetUnlocked,stageUnlocked,sceneUnlocked,SPACE_SHOP} from './curriculum.mjs?v=classroom-qa-20261105a';
 import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=naut-easy-feedback-r1';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=map-two-locked-r2';
-import {mountMapTwo} from './map-two.mjs?v=picture-first-steps-20261105';
+import {mountMapTwo} from './map-two.mjs?v=rotate-and-preview-20261109a';
 import {makeCloudSave} from './cloud-save.mjs?v=automatic-progress-by-number-20261109a';
 const root=document.getElementById('app');
 let disposeMapTwo=null;
 const $=selector=>root.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const state={teacher:null,student:null,teachers:[],progress:null,view:'teachers',planet:0,mission:null,run:null,modal:null,message:'',error:'',dataError:'',key:null,scenePending:null};
+const state={teacher:null,student:null,teachers:[],progress:null,teacherPreview:false,view:'teachers',planet:0,mission:null,run:null,modal:null,message:'',error:'',dataError:'',key:null,scenePending:null};
 const saveKey=(teacher,number)=>`mskaple-arrownaut-v1:${teacher}:${number}`;
 const idOf=mission=>mission.id;
 /* The cloud link is scoped to the existing teacher and student-number save.
@@ -34,6 +34,7 @@ function speak(text){
 }
 function notify(message,isError=false){state.message=message;state.error=isError?message:'';let status=$('#live-status');if(status){status.textContent=message;status.classList.toggle('error',isError)}}
 function persist(next){
+ if(state.teacherPreview){notify('Teacher preview never writes a student record.',true);return false}
  if(!state.key||state.dataError){notify('The saved student record could not be read. Nothing has been overwritten.',true);return false}
  try{const text=JSON.stringify(next);localStorage.setItem(state.key,text);
   if(localStorage.getItem(state.key)!==text)throw Error('Write did not verify');
@@ -47,10 +48,10 @@ const progressText=()=>state.progress?`${state.progress.stars} stars`:'0 stars';
 const art=(src,alt,cls='asset-image')=>`<img class="asset-image ${cls}" src="${esc(src||'./assets/standalone/pickup_star.png')}" alt="${esc(alt)}" draggable="false" loading="eager">`;
 const playerImg=()=>art(playerPortrait(state.progress?.playerId),'Your chosen Arrow-Naut','header-player-img');
 function header(){
- const hasStudent=!!state.progress;
+ const hasStudent=!!state.student&&!!state.progress;
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
  return `<header class="topbar" id="main-header"><div class="brand"><img class="astronaut-corner" src="../arrow-naut-jr/assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div class="brand-title"><strong>ARROW-NAUT SPACE ADVENTURE</strong><small>SECOND GRADE · CLICK · MOVE · RESIZE · FIT${hasStudent?' · '+esc(studentText):''}</small></div></div>
- <nav class="center-controls" aria-label="Game controls">${hasStudent?
+ <nav class="center-controls" aria-label="Game controls">${state.teacherPreview?`<button data-action="teacher-menu">Teacher Preview Menu</button><button data-action="teacher-end">End Preview</button>`:hasStudent?
   `<button class="nav-home-button" data-action="home">🏠 Home Map</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">🌌 Map Two</button>`:''}<button data-action="shop">⭐ Star Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Auto Save</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">❓ How to Play</button><button data-action="teacher">Teacher</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
@@ -64,7 +65,7 @@ function entry(){
 function home(){
  return `<main class="main galaxy-home"><section class="galaxy-map-wrap" aria-label="Choose one of eight space planets">
  <div class="galaxy-map-stage"><img class="galaxy-map-art" src="${GALAXY_MAP}" alt="Eight bright cartoon planet islands joined by a rainbow space trail" draggable="false">
- ${PLANETS.map((p,i)=>{const unlocked=planetUnlocked(state.progress,i),done=completedCount(state.progress,i),pad=GALAXY_STOPS[i];return `<button class="galaxy-stop${unlocked?'':' is-locked'}" style="left:${pad.x}%;top:${pad.y}%" data-planet="${i}" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} Planet, ${done} of 8 levels complete${unlocked?'':' locked'}"><span class="stop-icon">${unlocked?'GO':'LOCK'}</span><span class="stop-name">${esc(p.name)}</span><span class="stop-count">${unlocked?`${done}/8 complete`:'Locked'}</span></button>`}).join('')}
+ ${PLANETS.map((p,i)=>{const unlocked=state.teacherPreview||planetUnlocked(state.progress,i),done=completedCount(state.progress,i),pad=GALAXY_STOPS[i];return `<button class="galaxy-stop${unlocked?'':' is-locked'}" style="left:${pad.x}%;top:${pad.y}%" data-planet="${i}" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} Planet, ${done} of 8 levels complete${unlocked?'':' locked'}"><span class="stop-icon">${unlocked?'GO':'LOCK'}</span><span class="stop-name">${esc(p.name)}</span><span class="stop-count">${unlocked?`${done}/8 complete`:'Locked'}</span></button>`}).join('')}
  <div class="galaxy-progress" aria-live="polite">${state.progress.stars} stars · ${PLANETS.reduce((n,_,i)=>n+completedCount(state.progress,i),0)}/64 original missions · ${state.progress.completed.filter(id=>id.includes('-bonus-')).length} extra labs · Beat the final maze to unlock each new planet</div>
  </div></section></main>`;
 }
@@ -73,7 +74,7 @@ function planetMap(){
  return `<main class="main planet-map-page"><section class="planet-map-wrap" aria-label="${esc(p.name)} planet level map">
  <div class="planet-map-stage"><img class="planet-map-art" src="${planetImage(state.planet)}" alt="Illustrated scenery for ${esc(p.name)}" draggable="false">
  <div class="planet-map-heading"><strong>${esc(p.name)} World</strong><span>${done}/8 Missions · Rescue ${esc(p.friend)}</span></div>
- ${Array.from({length:8},(_,i)=>{const title=createMission(state.planet,i).title,completed=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=stageUnlocked(state.progress,state.planet,i),pin=LEVEL_STOPS[i];return `<button class="planet-level-pin${completed?' is-complete':''}" data-level="${i}" style="left:${pin.x}%;top:${pin.y}%" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} level ${i+1}: ${esc(i===7?'FINAL MAZE - 10 STARS':title)}${completed?', completed':''}${unlocked?'':', locked'}"><strong>${unlocked?i+1:'LOCK'}</strong><span>${esc(title)}</span>${completed?'<small>DONE</small>':''}</button>`}).join('')}
+ ${Array.from({length:8},(_,i)=>{const title=createMission(state.planet,i).title,completed=state.progress.completed.includes(`${p.id}-${i+1}`),unlocked=state.teacherPreview||stageUnlocked(state.progress,state.planet,i),pin=LEVEL_STOPS[i];return `<button class="planet-level-pin${completed?' is-complete':''}" data-level="${i}" style="left:${pin.x}%;top:${pin.y}%" ${unlocked?'':'disabled'} aria-label="${esc(p.name)} level ${i+1}: ${esc(i===7?'FINAL MAZE - 10 STARS':title)}${completed?', completed':''}${unlocked?'':', locked'}"><strong>${unlocked?i+1:'LOCK'}</strong><span>${esc(title)}</span>${completed?'<small>DONE</small>':''}</button>`}).join('')}
  <button class="map-home-button" data-action="home">All Planets</button>
  </div></section>
  </main>`;
@@ -202,24 +203,27 @@ function modalHtml(){const modal=state.modal;if(!modal)return '';
  }
  return `<div class="dialog-scrim"><section class="dialog-panel ${modal.kind==='player'?'player-selection-dialog':''}" role="dialog" aria-modal="true" aria-label="${modal.kind==='intro'?'Meet your rescue friend':modal.kind==='player'?'Choose your Arrow-Naut':'Mission complete'}">${content}${state.error?`<p class="error-banner" role="alert">${esc(state.error)}</p>`:''}</section></div>`;
 }
+function teacherPreviewPage(){return `<main class="main"><section class="entry"><h1>TEACHER PREVIEW · ALL LEVELS</h1><p>Open any lesson without completing earlier levels. Preview actions never change student stars, levels or saved work.</p><div class="selection-grid"><button data-action="home">VIEW MAP ONE</button><button data-action="map-two">VIEW MAP TWO</button><button data-action="teacher-end">EXIT PREVIEW</button></div></section><section class="entry"><h2>Map One — choose any planet</h2><div class="selection-grid">${PLANETS.map((p,i)=>`<button data-preview-world="${i}">${esc(p.name)} · 8 levels</button>`).join('')}</div></section></main>`}
 function render(){
  if(disposeMapTwo){disposeMapTwo();disposeMapTwo=null}
  root.innerHTML=header()+(state.view==='map-two'?'<div id="map-two-root" class="map-two-mount"></div>':
- (state.view==='teachers'||state.view==='students'?entry():state.view==='home'?home():state.view==='planet'?planetMap():state.view==='mission'?missionPage():state.view==='shop'?shop():state.view==='stuff'?stuff():state.view==='error'?errorPage():help()))+modalHtml();
- if(state.view==='map-two'&&mapTwoUnlocked()){
+ (state.view==='teachers'||state.view==='students'?entry():state.view==='home'?home():state.view==='teacher-preview'?teacherPreviewPage():state.view==='planet'?planetMap():state.view==='mission'?missionPage():state.view==='shop'?shop():state.view==='stuff'?stuff():state.view==='error'?errorPage():help()))+modalHtml();
+ if(state.view==='map-two'&&(state.teacherPreview||mapTwoUnlocked())){
   disposeMapTwo=mountMapTwo($('#map-two-root'),{
    read:()=>state.progress,
-   save:next=>persist(next),
-   exit:()=>{state.view='home';state.modal=null;render()}
+   save:next=>state.teacherPreview?false:persist(next),
+    teacherPreview:state.teacherPreview,
+   exit:()=>{state.view=state.teacherPreview?'teacher-preview':'home';state.modal=null;render()}
   });
  }
  scheduleFit();syncFinaleClock();cloud.update()
 }
 function scheduleFit(){requestAnimationFrame(()=>{const header=$('#main-header');const board=$('#space-board');if(!header)return;const height=Math.round(header.getBoundingClientRect().height);root.style.setProperty('--bar-height',height+'px');if(!board)return;const frame=$('.board-frame');if(!frame)return;const rect=frame.getBoundingClientRect();const w=Math.max(100,Math.min(rect.width-6,(rect.height-6)*1672/941));root.style.setProperty('--board-width',Math.floor(w)+'px')})}
-function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=i;state.view='planet';state.mission=null;state.run=null;state.message='';state.error='';render();
- const p=PLANETS[i];if(!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
-function startMission(stage){if(!Number.isInteger(stage)||stage<0||stage>7||!stageUnlocked(state.progress,state.planet,stage))return;
+function showPlanet(i){if(!state.teacherPreview&&!planetUnlocked(state.progress,i))return;state.planet=i;state.view='planet';state.mission=null;state.run=null;state.message='';state.error='';render();
+ const p=PLANETS[i];if(!state.teacherPreview&&!state.progress.seenIntros.includes(p.id)){state.modal={kind:'intro',planet:i};render()}}
+function startMission(stage){if(!Number.isInteger(stage)||stage<0||stage>7||(!state.teacherPreview&&!stageUnlocked(state.progress,state.planet,stage)))return;
  const m=createMission(state.planet,stage),old=state.progress.active;
+ if(state.teacherPreview){state.mission=m;state.run=initialMission(m);state.view='mission';state.modal=null;state.message='TEACHER PREVIEW — no progress is saved or stars awarded.';state.error='';render();return}
  // Preserve a student's already-correct pink picture and collected star when
  // removing the accidental Solar Tile requirement from this specific level.
  if(m.planetIndex===2&&m.stage===1&&old?.id===m.id&&!old.complete&&
@@ -255,7 +259,8 @@ function startMission(stage){if(!Number.isInteger(stage)||stage<0||stage>7||!sta
  }
  if(!resume||migrate){if(!persist({...state.progress,active:clone(run)}))return;}
  state.mission=m;state.run=run;state.view='mission';state.message=m.kind==='final-maze'?'Use arrow keys to dodge the moving bad guys and reach EXIT!':'Click INSIDE to select. Arrows MOVE; hold and DRAG a resize handle to STRETCH.';state.error='';render();}
-function saveMissionAction(nextRun,message){const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
+function saveMissionAction(nextRun,message){if(state.teacherPreview){state.run=nextRun;state.message=nextRun.complete?'Preview complete! No stars or progress changed.':message;state.error='';render();return}
+ const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
  state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
 function award(){
  // The 64th ORIGINAL mission is the final Map One rescue. Only the first
@@ -285,7 +290,7 @@ function onArrow(key){if(state.view!=='mission'||state.modal)return;const result
 
 let finaleClock=null;
 function syncFinaleClock(){
- const shouldTick=state.view==='mission'&&state.mission?.kind==='final-maze'&&!state.modal&&!state.run?.complete;
+ const shouldTick=!state.teacherPreview&&state.view==='mission'&&state.mission?.kind==='final-maze'&&!state.modal&&!state.run?.complete;
  if(!shouldTick){if(finaleClock){clearInterval(finaleClock);finaleClock=null}return}
  if(finaleClock)return;
  const delay=Math.max(600,1480-state.mission.planetIndex*95);
@@ -302,15 +307,17 @@ function applyPurchase(id){const item=SPACE_SHOP.find(x=>x.id===id);if(!item)ret
 function openStudent(number){cloud.reset();state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';let loaded;
  try{loaded=validatedSave(localStorage.getItem(state.key))}catch(e){state.dataError=e.message;state.error=e.message;state.view='error';render();return}
  state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach();}
-function logOut(){cloud.reset();state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
+function logOut(){cloud.reset();state.teacherPreview=false;state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
 function onAction(action){
- switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
+ switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onPreview:()=>{state.teacherPreview=true;if(!state.progress)state.progress=createProgress();state.modal=null;state.mission=null;state.run=null;state.view='teacher-preview';render()},onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
+ case 'teacher-menu':if(state.teacherPreview){state.view='teacher-preview';state.modal=null;state.mission=null;state.run=null;render()}break;
+ case 'teacher-end':if(state.teacherPreview){state.teacherPreview=false;state.modal=null;state.mission=null;state.run=null;if(!state.student)state.progress=null;state.view=state.student?'home':'teachers';render()}break;
  case 'teachers':cloud.reset();state.view='teachers';render();break;
  case 'students':cloud.reset();state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
  case 'logout':logOut();break;
  case 'cloud':cloud.open();break;
  case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
-  case 'map-two':if(mapTwoUnlocked()){state.view='map-two';state.modal=null;state.mission=null;state.run=null;render()}break;
+  case 'map-two':if(state.teacherPreview||mapTwoUnlocked()){state.view='map-two';state.modal=null;state.mission=null;state.run=null;render()}break;
  case 'planet':showPlanet(state.planet);break;
  case 'shop':if(state.progress){state.view='shop';state.modal=null;render()}break;
  case 'player':if(state.progress){state.modal={kind:'player'};render()}break;
@@ -354,6 +361,7 @@ root.addEventListener('click',event=>{
  if(el.dataset.action){onAction(el.dataset.action);return}
  if(el.dataset.teacher){state.teacher=el.dataset.teacher;state.view='students';state.error='';render();return}
  if(el.dataset.student){openStudent(Number(el.dataset.student));return}
+ if(el.dataset.previewWorld!==undefined&&state.teacherPreview){showPlanet(Number(el.dataset.previewWorld));return}
  if(el.dataset.planet){showPlanet(Number(el.dataset.planet));return}
  if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
  if(el.dataset.sceneWorld!==undefined){const i=Number(el.dataset.sceneWorld);if(sceneUnlocked(state.progress,i)&&persist({...state.progress,scenePlanet:i})){state.error='';render()}return}

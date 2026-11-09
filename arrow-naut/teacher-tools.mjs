@@ -5,7 +5,7 @@
  */
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeName=s=>String(s??'class').replace(/[^a-z0-9_-]+/gi,'-');
-export function openTeacherTools({teachers=[],teacherId='',prefix='',onReset=()=>{}}={}){
+export function openTeacherTools({teachers=[],teacherId='',prefix='',onReset=()=>{},onPreview=()=>{}}={}){
  document.getElementById('teacher-tools-overlay')?.remove();
  let authorized=false;
  const overlay=document.createElement('div');
@@ -20,7 +20,7 @@ export function openTeacherTools({teachers=[],teacherId='',prefix='',onReset=()=
    ${authorized?`<p>Records on <strong>this Chromebook/browser only</strong>. Other students' devices are not connected.</p>
    <label for="teacher-class">CLASS</label><select id="teacher-class">${teachers.map(t=>`<option value="${esc(t.id)}" ${t.id===chooseClass?'selected':''}>${esc(t.name)}</option>`).join('')}</select>
    <label for="teacher-number">STUDENT NUMBER (FOR ONE-STUDENT ACTIONS)</label><select id="teacher-number">${Array.from({length:30},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select>
-   <div class="teacher-tool-actions"><button type="button" data-teacher-export="student">BACK UP STUDENT</button><button type="button" data-teacher-export="class">BACK UP CLASS</button><button type="button" data-teacher-reset="student">RESET ONE STUDENT</button><button type="button" data-teacher-reset="class">RESET ENTIRE CLASS</button></div>
+   <div class="teacher-tool-actions"><button type="button" data-teacher-preview="1">PREVIEW ALL MAPS & LEVELS</button><button type="button" data-teacher-export="student">BACK UP STUDENT</button><button type="button" data-teacher-export="class">BACK UP CLASS</button><button type="button" data-teacher-reset="student">RESET ONE STUDENT</button><button type="button" data-teacher-reset="class">RESET ENTIRE CLASS</button></div>
    <p class="teacher-tools-note">Back up student data before resets. A reset permanently clears saved progress on THIS browser only. Teacher tools lock when closed.</p>
    `:`<p>Enter the teacher passcode to view settings. Students cannot see reset controls before unlocking.</p>
    <form id="teacher-pass-form"><label for="teacher-pass">TEACHER PASSCODE</label><input id="teacher-pass" type="password" inputmode="numeric" autocomplete="off" required maxlength="12"><button type="submit">UNLOCK</button></form>`}
@@ -50,6 +50,7 @@ export function openTeacherTools({teachers=[],teacherId='',prefix='',onReset=()=
   const btn=event.target.closest('button');if(!btn)return;
   if(btn.hasAttribute('data-teacher-close')){close();return}
   if(!authorized)return;
+  if(btn.hasAttribute('data-teacher-preview')){close();onPreview();return}
   const {id,num}=current();if(!id){message('Choose a class first.');return}
   const type=btn.dataset.teacherExport||btn.dataset.teacherReset;
   if(!type)return;
