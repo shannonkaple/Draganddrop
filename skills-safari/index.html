@@ -107,6 +107,13 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .mission-timer.urgent{color:#b72828}
 .arrow-pickup{background:#eaf6c8!important;border:2px dashed #b49d4f}
 
+
+.move-beacon{position:absolute;z-index:4;width:8%;height:12%;display:grid;place-items:center;font-size:clamp(20px,3.5vw,43px);border-radius:50%;background:#ffe9a6c7;border:3px dashed #ceab48;pointer-events:none}
+.move-beacon.picked{background:#c1f0b8;border-color:#5ba967;opacity:.7}
+.target.raft{animation:target-raft 2s ease-in-out infinite alternate}
+@keyframes target-raft{from{translate:-20px 0}to{translate:20px 0}}
+@media(prefers-reduced-motion:reduce){.target.raft{animation:none}}
+
 </style>
 </head>
 <body><div id="app"></div>
@@ -220,8 +227,8 @@ function directions(){
  if(w.type==='letter')return prefix+LETTER_GAMES[s].help;
  if(w.type==='number')return prefix+NUMBER_GAMES[s].help;
  if(w.type==='arrows')return prefix+ARROW_GAMES[s].help;
- if(w.type==='selectmove')return prefix+'CLICK the pictured animal. Use the KEYBOARD ARROWS to MOVE it into the matching dotted spot.';
- if(w.type==='drag')return prefix+(s===0?'NEW SKILL! Practice slowly: PRESS AND HOLD the trackpad, SLIDE the picture, then LET GO in the dotted space.':'PRESS AND HOLD, SLIDE, and RELEASE each picture in its dotted space. Do not use arrow keys.');
+ if(w.type==='selectmove')return prefix+SELECT_GAMES[s].help;
+ if(w.type==='drag')return prefix+DRAG_GAMES[s].help;
  return prefix+(s===0?'NEW SKILL! Put TWO FINGERS on your trackpad and SLIDE DOWN together to scroll the list. Then CLICK the animal.':'Use TWO FINGERS to SCROLL down the list, then CLICK the animal shown above.')
 }
 function renderGame(){
@@ -448,29 +455,105 @@ function startArrowGame(stage,puzzle){
  showMissionClock(spec.seconds);
 }
 
+
+const SELECT_GAMES=[
+ {title:'Giraffe Finds Home',help:'CLICK the giraffe first, then use ARROW KEYS to guide it home!',icons:['🦒'],kind:'dock'},
+ {title:'Lost Zebra Search',help:'Find and SELECT the ZEBRA, not the other animals. Use ARROW KEYS to rescue it!',icons:['🦓'],decoys:['🐘','🦁'],kind:'find'},
+ {title:'Safari Animal Taxi',help:'SELECT TWO animals, one at a time, and use ARROWS to bring each home!',icons:['🐒','🦓'],kind:'multi'},
+ {title:'Switching Safari Stops',help:'SELECT each animal and use ARROWS to SWAP its starting side!',icons:['🐘','🦒'],kind:'swap',reverse:true},
+ {title:'Golden Checkpoint Chase',help:'SELECT the frog. Use ARROWS to collect TWO GOLDEN STARS before docking!',icons:['🐸'],kind:'checkpoint',beacons:[[38,53],[56,53]]},
+ {title:'Habitat Shuffle',help:'SELECT and MOVE THREE animals into their matching faded pictures!',icons:['🦓','🦒','🐘'],kind:'shuffle',reverse:true},
+ {title:'Lookout Delivery Race',help:'SELECT and MOVE THREE animals and collect a star before time runs out!',icons:['🐒','🦓','🐸'],kind:'race',beacons:[[42,50]],seconds:150},
+ {title:'Rescue the Giraffe',help:'RESCUE THE GIRAFFE! SELECT and MOVE FOUR animals, collect TWO badges!',icons:['🦒','🦁','🐘','🦓'],kind:'rescue',beacons:[[40,48],[58,68]],seconds:190}
+];
+const DRAG_GAMES=[
+ {title:'Banana Basket',help:'NEW SKILL! CLICK, HOLD, SLIDE, RELEASE the banana into the big basket!',icons:['🍌'],kind:'basket',shared:true},
+ {title:'River Fish Rescue',help:'CLICK AND HOLD, then DRAG TWO fish into their own matching outlines!',icons:['🐟','🐠'],kind:'matching'},
+ {title:'Otter Picnic',help:'DRAG THREE picnic foods into the one picnic basket!',icons:['🍎','🍌','🍇'],kind:'basket',shared:true},
+ {title:'Safari Supply Sort',help:'DRAG THREE different safari supplies into their matching spots!',icons:['🎒','🔭','📷'],kind:'matching'},
+ {title:'Floating River Raft',help:'DRAG TWO animals onto the SLOWLY MOVING rafts!',icons:['🐸','🐢'],kind:'moving',moving:true},
+ {title:'Jungle Picnic Pickup',help:'COLLECT FOUR picnic things with drag-and-drop into the picnic basket!',icons:['🥥','🍎','🍌','🍍'],kind:'basket',shared:true},
+ {title:'River Delivery Dash',help:'DRAG THREE supplies into their matching spots before time runs out!',icons:['🎒','🐟','🧭'],kind:'race',seconds:150},
+ {title:'Rescue the Otter',help:'RESCUE THE OTTER! DRAG FOUR river supplies into their matching spots!',icons:['🐟','🦀','🪣','🐚'],kind:'rescue',seconds:190}
+];
+function startMoveGame(type,stage,puzzle){
+ const dragging=type==='drag',spec=(dragging?DRAG_GAMES:SELECT_GAMES)[stage];
+ run.active=true;run.spec=spec;run.selected=null;
+ run.beacons=[];
+ const zone=el('div','move-zone');run.zone=zone;puzzle.append(zone);
+ const count=spec.icons.length;
+ const ys=count===1?[42]:count===2?[23,60]:count===3?[12,40,68]:[6,30,54,77];
+ const goalYs=spec.reverse?ys.slice().reverse():ys.slice();
+ const height=count===4?19:22;
+ run.pieces=spec.icons.map((icon,i)=>({
+  id:i,emoji:icon,x:11+(i%2)*5,y:ys[i],w:15,h,tx:spec.shared?67:71+(i%2)*2,ty:spec.shared?39:goalYs[i],done:false
+ }));
+ run.badge=promptBadge(spec.title.toUpperCase()+' · '+(dragging?'DRAG & DROP':'SELECT + ARROWS'));
+ if(spec.shared){
+  const t=el('div','target basket','🧺');t.style.left='66%';t.style.top='37%';t.style.width='20%';t.style.height='28%';zone.append(t);run.sharedTarget=t;
+ }else{
+  run.pieces.forEach((p,i)=>{
+   const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.style.width=p.w+'%';t.style.height=p.h+'%';t.append(el('span','ghost',p.emoji));
+   if(spec.moving)t.classList.add('raft');
+   zone.append(t);p.goalEl=t;
+  });
+ }
+ if(spec.beacons){
+  spec.beacons.forEach(([x,y],i)=>{
+   const b=el('div','move-beacon',i%2?'🏅':'⭐');b.style.left=x+'%';b.style.top=y+'%';
+   run.beacons.push({x,y,got:false,element:b});zone.append(b)
+  });
+ }
+ if(spec.decoys){
+  spec.decoys.forEach((icon,i)=>{
+   const d=el('div','draggy',icon);d.style.left=(34+i*20)+'%';d.style.top=(i%2?20:66)+'%';
+   d.style.width='13%';d.style.height='20%';d.style.zIndex='3';zone.append(d);
+   d.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;feedback('Find the ZEBRA instead!',true)});
+  });
+ }
+ run.pieces.forEach(p=>{
+  const item=el('div','draggy',p.emoji);item.dataset.id=p.id;zone.append(item);p.element=item;positionPiece(p);
+  if(dragging)item.addEventListener('pointerdown',e=>dragStart(e,p));
+  else item.addEventListener('pointerdown',e=>{
+   if(e.pointerType==='touch'||p.done||run.active===false)return;
+   e.preventDefault();run.selected=p;zone.querySelectorAll('.draggy').forEach(x=>x.classList.remove('selected'));
+   item.classList.add('selected');run.badge.textContent='MOVE '+p.emoji+' WITH KEYBOARD ARROWS';document.getElementById('game-board').focus({preventScroll:true});
+  });
+ });
+ if(spec.seconds)showMissionClock(spec.seconds);
+}
+function checkMoveCheckpoints(p){
+ if(!run?.beacons?.length)return;
+ const cx=p.x+p.w/2,cy=p.y+p.h/2;
+ for(const b of run.beacons){
+  if(!b.got&&Math.abs(cx-(b.x+4))<7&&Math.abs(cy-(b.y+6))<9){
+   b.got=true;b.element.classList.add('picked');b.element.textContent='✅';
+   feedback('Checkpoint collected! ⭐');
+  }
+ }
+}
+function verifyMoveDock(p){
+ const ready=!run.beacons.length||run.beacons.every(b=>b.got);
+ if(Math.abs(p.x-p.tx)>=5||Math.abs(p.y-p.ty)>=7)return;
+ if(!ready){feedback('Collect the glowing checkpoints first!',true);return}
+ p.x=p.tx;p.y=p.ty;p.done=true;p.element.classList.remove('selected');p.element.classList.add('done');positionPiece(p);run.selected=null;
+ feedback('Animal rescued! ⭐');
+ if(run.pieces.every(item=>item.done))completeLevel();
+}
+function targetPosition(p){
+ const t=run.sharedTarget||p.goalEl;
+ if(!t)return {x:p.tx,y:p.ty,w:p.w,h:p.h};
+ const zone=run.zone.getBoundingClientRect(),r=t.getBoundingClientRect();
+ return {x:(r.left-zone.left)/zone.width*100,y:(r.top-zone.top)/zone.height*100,w:r.width/zone.width*100,h:r.height/zone.height*100};
+}
+
 function setupPuzzle(){
  const w=WORLDS[state.world],s=state.stage,puzzle=document.getElementById('puzzle');
  run={type:w.type,stage:s,step:0,complete:false};
  if(w.type==='click'||w.type==='double'){startTapGame(w.type,s,puzzle);return}
  if(w.type==='letter'||w.type==='number'){startKeyGame(w.type,s,puzzle);return}
  if(w.type==='arrows'){startArrowGame(s,puzzle);return}
- if(w.type==='selectmove'||w.type==='drag'){
-  const zone=el('div','move-zone');puzzle.append(zone);
-  const names=['🦒','🦓','🐘','🐒','🐸','🦋','🦜','🦁'];
-  const number=w.type==='drag'?(s<2?1:s<5?2:3):(s<4?1:s<7?2:3);
-  const pieces=[];
-  for(let i=0;i<number;i++){
-   const icon=names[(s+i*3)%names.length],y=number===1?42:14+i*(number===2?44:28);
-   pieces.push({id:i,emoji:icon,x:12,y,w:15,h:22,tx:70,ty:y,done:false})
-  }
-  run.pieces=pieces;run.selected=null;run.zone=zone;
-  run.badge=promptBadge(w.type==='drag'?(s===0?'HOLD · SLIDE · LET GO':'DRAG EACH PICTURE INTO ITS OUTLINE'):'CLICK '+pieces[0].emoji+' AND MOVE WITH ARROWS');
-  pieces.forEach(p=>{const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.append(el('span','ghost',p.emoji));zone.append(t)});
-  pieces.forEach(p=>{const item=el('div','draggy',p.emoji);item.dataset.id=p.id;zone.append(item);p.element=item;positionPiece(p);
-   if(w.type==='drag')item.addEventListener('pointerdown',e=>dragStart(e,p));
-   else item.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||p.done)return;run.selected=p;run.badge.textContent='ARROWS → MATCH THE '+p.emoji+' OUTLINE';pieces.forEach(x=>x.element.classList.toggle('selected',x===p));document.getElementById('game-board').focus({preventScroll:true})})
-  });return
- }
+ if(w.type==='selectmove'||w.type==='drag'){startMoveGame(w.type,s,puzzle);return}
  if(w.type==='scroll'){
   const count=s===0?7:9+s, targetIndex=s===0?2:4+s,target=ANIMALS[(s*2+5)%ANIMALS.length];
   run.scrollTarget=targetIndex;
@@ -505,19 +588,36 @@ function paintMaze(){
  run.arrowHint.textContent=remaining?'Collect '+remaining+' more '+run.spec.decor+' before camp ⛺.':'All supplies collected! Drive to camp ⛺!';
 }
 function dragStart(e,p){
- if(e.pointerType==='touch'||run.complete||p.done)return;
- e.preventDefault();const zone=run.zone,rect=zone.getBoundingClientRect();p.element.classList.add('selected');
- const startX=e.clientX,startY=e.clientY,ox=p.x,oy=p.y;
- const onMove=ev=>{const dx=(ev.clientX-startX)/rect.width*100,dy=(ev.clientY-startY)/rect.height*100;p.x=clamp(ox+dx,0,100-p.w);p.y=clamp(oy+dy,0,100-p.h);positionPiece(p)};
- const onUp=()=>{
-  p.element.removeEventListener('pointermove',onMove);p.element.removeEventListener('pointerup',onUp);p.element.removeEventListener('pointercancel',onUp);
-  p.element.classList.remove('selected');
-  if(Math.abs(p.x-p.tx)<8&&Math.abs(p.y-p.ty)<10){
-   p.x=p.tx;p.y=p.ty;p.done=true;p.element.classList.add('done');positionPiece(p);feedback('Perfect delivery! ⭐');
-   if(run.pieces.every(x=>x.done))completeLevel()
-  }else{feedback('Good try! Drag the picture into its dotted outline.')}
+ if(e.pointerType==='touch'||!run||run.complete||run.active===false||p.done)return;
+ e.preventDefault();
+ const zone=run.zone,rect=zone.getBoundingClientRect();p.element.classList.add('selected');
+ const x0=e.clientX,y0=e.clientY,ox=p.x,oy=p.y;
+ const onMove=ev=>{
+  if(run.active===false)return;
+  p.x=clamp(ox+(ev.clientX-x0)/rect.width*100,0,100-p.w);
+  p.y=clamp(oy+(ev.clientY-y0)/rect.height*100,0,100-p.h);positionPiece(p)
  };
- p.element.addEventListener('pointermove',onMove);p.element.addEventListener('pointerup',onUp);p.element.addEventListener('pointercancel',onUp);
+ const onUp=()=>{
+  p.element.removeEventListener('pointermove',onMove);
+  p.element.removeEventListener('pointerup',onUp);
+  p.element.removeEventListener('pointercancel',onUp);
+  p.element.classList.remove('selected');
+  if(run.active===false)return;
+  const t=targetPosition(p);
+  const cx=p.x+p.w/2,cy=p.y+p.h/2,tx=t.x+t.w/2,ty=t.y+t.h/2;
+  const success=run.spec.shared?
+    Math.abs(cx-tx)<t.w/2+2&&Math.abs(cy-ty)<t.h/2+3:
+    Math.abs(cx-tx)<10&&Math.abs(cy-ty)<12;
+  if(!success){feedback('Keep holding as you slide, then let go INSIDE the destination.',true);return}
+  p.done=true;p.element.classList.add('done');
+  if(run.spec.shared){p.element.style.display='none'}
+  else{p.x=t.x;p.y=t.y;positionPiece(p)}
+  feedback('Great drag and drop! '+run.pieces.filter(x=>x.done).length+' / '+run.pieces.length+' ⭐');
+  if(run.pieces.every(item=>item.done))completeLevel()
+ };
+ p.element.addEventListener('pointermove',onMove);
+ p.element.addEventListener('pointerup',onUp);
+ p.element.addEventListener('pointercancel',onUp);
  try{p.element.setPointerCapture(e.pointerId)}catch(err){}
 }
 function completeLevel(){
@@ -574,9 +674,17 @@ window.addEventListener('keydown',e=>{
   return
  }
  if(run.type==='selectmove'){
-  const p=run.selected;if(!p||p.done){feedback('Click an unfinished picture first.',true);return}
-  p.x=clamp(p.x+d[0]*4,0,100-p.w);p.y=clamp(p.y+d[1]*4,0,100-p.h);positionPiece(p);
-  if(Math.abs(p.x-p.tx)<5&&Math.abs(p.y-p.ty)<7){p.x=p.tx;p.y=p.ty;p.done=true;p.element.classList.remove('selected');p.element.classList.add('done');positionPiece(p);run.selected=null;feedback('Great move! ⭐');if(run.pieces.every(x=>x.done))completeLevel()}
+  if(run.active===false)return;
+  const p=run.selected;if(!p||p.done){feedback('CLICK an unfinished animal first!',true);return}
+  const beforeX=p.x,beforeY=p.y;
+  p.x=clamp(p.x+d[0]*4,0,100-p.w);p.y=clamp(p.y+d[1]*4,0,100-p.h);
+  // Do not allow unfinished selectable animals to cover a finished one.
+  const collide=run.pieces.some(q=>q!==p&&q.done&&
+   Math.max(0,Math.min(p.x+p.w,q.x+q.w)-Math.max(p.x,q.x))*
+   Math.max(0,Math.min(p.y+p.h,q.y+q.h)-Math.max(p.y,q.y))>2);
+  if(collide){p.x=beforeX;p.y=beforeY;feedback('That spot is filled! Steer around it.',true)}
+  positionPiece(p);checkMoveCheckpoints(p);verifyMoveDock(p);
+  return
  }
 });
 render();
