@@ -28,7 +28,7 @@ test('16 map two missions have unique IDs, two distinct orders, and valid starts
  assert.equal(LOST_WORLDS.length,2);assert.notDeepEqual(LOST_STAGE_TYPES[0],LOST_STAGE_TYPES[1]);
  const missions=LOST_WORLDS.flatMap((_,w)=>Array.from({length:8},(_,s)=>createMapTwoMission(w,s)));
  assert.equal(new Set(missions.map(m=>m.id)).size,16);
- for(const m of missions){const r=initialMapTwoRun(m);assert.equal(r.layoutVersion,1);assert.equal(r.id,m.id);assert.ok(r.pieces.every(p=>p.x>=0&&p.x+p.w<=12&&p.y>=0&&p.y+p.h<=7));}
+ for(const m of missions){const r=initialMapTwoRun(m);assert.equal(r.layoutVersion,m.stage===5?2:1);assert.equal(r.id,m.id);assert.ok(r.pieces.every(p=>p.x>=0&&p.x+p.w<=12&&p.y>=0&&p.y+p.h<=7));}
 });
 test('all 16 selectable, arrow-moving, trackpad-dropping and trackpad-resizing missions are solvable',()=>{
  for(let w=0;w<2;w++)for(let s=0;s<8;s++)complete(createMapTwoMission(w,s));
