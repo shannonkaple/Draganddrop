@@ -110,3 +110,12 @@ test('teacher-assisted merge preserves both Map Two worlds without clearing earl
  assert.deepEqual(new Set(merged.mapTwo.completed),new Set(['lost-aurora-1','lost-clockwork-1']));
  assert.deepEqual(new Set(merged.completed),new Set(['launch-1','moon-1']));
 });
+
+test('do not discard My Stuff purchases when cloud has the same completed lessons',async()=>{
+ const local=progress(['launch-1'],{purchases:['telescope']});
+ const remote=progress(['launch-1'],{purchases:[]});
+ const x=setup(local,remote);
+ assert.equal(await x.client.attach(),false);
+ assert.deepEqual(x.current().purchases,['telescope']);
+ assert.ok(x.reports.some(x=>x.includes('NOT SAVED')));
+});
