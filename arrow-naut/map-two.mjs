@@ -24,8 +24,8 @@ export const MAP_TWO_THEMES = Object.freeze([
  {name:'Moonlight Jungle',scene:'./assets/map-two/moonlight-jungle.jpg',active:false}
 ]);
 export const MAP_TWO_STOPS = Object.freeze([
- {x:12,y:36},{x:34,y:19},{x:58,y:17},{x:81,y:35},
- {x:85,y:72},{x:62,y:79},{x:37,y:77},{x:13,y:70}
+ {x:17,y:39},{x:38,y:39},{x:62,y:39},{x:86,y:39},
+ {x:85,y:73},{x:63,y:80},{x:38,y:81},{x:16,y:73}
 ]);
 export const MAP_TWO_LEVEL_STOPS = Object.freeze([{x:16,y:32},{x:35,y:22},{x:57,y:26},{x:79,y:35},{x:84,y:65},{x:62,y:76},{x:40,y:73},{x:18,y:64}]);
 export const LOST_STAGE_TYPES = Object.freeze([
@@ -215,14 +215,14 @@ export function mountMapTwo(node,{read,save,exit,teacherPreview=false}){
  }
  const mapPanel=()=>`<section class="m2-intro"><strong>MAP TWO · THE LOST WORLDS</strong><p>A BRAND-NEW SPACE MAP · Eight new worlds · Your Map One stars and rescued friends are still saved.</p></section>
  <div class="m2-galaxy-stage" role="group" aria-label="New Map Two galaxy with eight different worlds">
- <img class="m2-galaxy-art" src="./assets/map-two/lost-worlds-map.jpg" alt="Eight original Map Two world islands joined by a star trail" draggable="false" onerror="this.onerror=null;this.src='./assets/map-two/lost-worlds-map.svg'">
+ <img class="m2-galaxy-art" src="./assets/map-two/lost-worlds-illustrated.jpg?v=20261109" alt="Eight illustrated fantasy space worlds across a connected star trail" draggable="false" onload="this.parentNode.dataset.illustrated=this.currentSrc.includes('lost-worlds-illustrated.jpg')?'yes':'no'" onerror="this.onerror=null;this.parentNode.dataset.illustrated='no';this.src='./assets/map-two/lost-worlds-map.jpg'">
  ${MAP_TWO_THEMES.map((theme,i)=>{
   const ready=i<LOST_WORLDS.length;
   const unlocked=ready&&(teacherPreview||mapTwoWorldUnlocked(progress(),i));
   const done=ready?mapTwoCount(progress(),i):0;
   const at=MAP_TWO_STOPS[i];
-  return `<button type="button" class="m2-world-stop" style="left:${at.x}%;top:${at.y}%" data-m2-world="${i}" ${unlocked?'':'disabled'} aria-label="${esc(theme.name)} ${unlocked?'open':ready?'locked':'coming soon'}">
-   <b>${i+1}. ${esc(theme.name)}</b><small>${ready?(unlocked?done+'/8 complete':'LOCKED'):'COMING SOON'}</small></button>`;
+  return `<button type="button" class="m2-world-stop" style="left:${at.x}%;top:${at.y}%" data-m2-world="${i}" ${unlocked?'':'disabled'} aria-label="${esc(theme.name)} ${unlocked?'open':ready?'locked':'coming soon'}" title="${esc(theme.name)} — ${ready?(unlocked?done+'/8 missions completed':'Locked'):'Coming soon'}">
+   <b>${i+1}. ${esc(theme.name)}</b><small>${ready?(unlocked?done+'/8':'LOCKED'):'COMING SOON'}</small></button>`;
  }).join('')}</div>
  <p class="m2-map-note">Map Two is separate from the original planets. Complete each new world to unlock the next one. Additional original worlds and their full illustrations will be added here.</p>
  <button type="button" class="m2-return" data-m2-exit="1">Return to Map One</button>`;
