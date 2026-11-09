@@ -1,0 +1,59 @@
+name: Verify Arrow-Naut portable cloud saves
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'arrow-naut/cloud-save.mjs'
+      - '.github/workflows/arrownaut-cloud-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: arrownaut-cloud-smoke
+  cancel-in-progress: true
+jobs:
+  verify-portable-save-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm student cloud client compiles
+        run: node --check arrow-naut/cloud-save.mjs
+      - name: Test protected cloud save with synthetic data only
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {randomBytes} from 'node:crypto';
+          const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+          const code=[...randomBytes(16)].map(b=>alphabet[b%32]).join('');
+          const url='https://vcjyhcnsuiwdeqqbiwgx.supabase.co/functions/v1/arrownaut-save';
+          const base={game:'naut',teacher:'grade2-99',student:30,code};
+          const a=async data=>{
+            const res=await fetch(url,{method:'POST',headers:{
+              'Content-Type':'application/json','Origin':'https://shannonkaple.github.io'
+            },body:JSON.stringify(data)});
+            return {status:res.status,body:await res.json()};
+          };
+          const progress={version:1,completed:['synthetic-test-1'],
+            purchases:[],rescued:[],stars:1,active:null};
+          const created=await a({...base,action:'create',progress});
+          assert.equal(created.status,201,JSON.stringify(created));
+          const loaded=await a({...base,action:'load'});
+          assert.equal(loaded.status,200,JSON.stringify(loaded));
+          assert.deepEqual(loaded.body.progress,progress);
+          const next={...progress,completed:['synthetic-test-1','synthetic-test-2'],stars:2};
+          const saved=await a({...base,action:'save',revision:loaded.body.revision,progress:next});
+          assert.equal(saved.status,200,JSON.stringify(saved));
+          const stale=await a({...base,action:'save',revision:loaded.body.revision,progress});
+          assert.equal(stale.status,409,JSON.stringify(stale));
+          const confirmed=await a({...base,action:'load'});
+          assert.deepEqual(confirmed.body.progress,next);
+          // Never read another student's record with a guessed public class/number.
+          const wrong=await a({...base,student:29,action:'load'});
+          assert.equal(wrong.status,404,JSON.stringify(wrong));
+          console.log('PASS: create, restore, safe versioned save, conflict refusal, scope protection');
+          NODE
