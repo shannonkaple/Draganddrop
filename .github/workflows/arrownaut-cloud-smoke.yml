@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'arrow-naut/cloud-save.mjs'
+      - 'arrow-naut/cloud-save.test.mjs'
       - '.github/workflows/arrownaut-cloud-smoke.yml'
   workflow_dispatch:
 permissions:
