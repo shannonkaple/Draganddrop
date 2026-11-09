@@ -16,6 +16,7 @@ const idOf=mission=>mission.id;
  * No personal student names or service keys are sent to the public web app. */
 const cloud=makeCloudSave({
  game:'naut',
+ getPrice:id=>SPACE_SHOP.find(x=>x.id===id)?.price||0,
  getIdentity:()=>({teacher:state.teacher,student:state.student}),
  getProgress:()=>state.progress,
  applyProgress:progress=>{
