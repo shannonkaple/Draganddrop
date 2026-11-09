@@ -1,5 +1,5 @@
 import {openTeacherTools} from '../arrow-naut/teacher-tools.mjs?v=teacher-tools-20261105b';
-import {makeCloudSave} from '../arrow-naut/cloud-save.mjs?v=portable-cloud-20261109a';
+import {makeCloudSave} from '../arrow-naut/cloud-save.mjs?v=teacher-paired-classroom-sync-20261109b';
 import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,BONUS_STAGES,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=jr-clear-cargo-docks-20261106';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-easy-feedback-r1';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
@@ -55,7 +55,7 @@ function header(){
  const playing=!!state.progress;
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
  return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="./assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
- (playing?'<nav class="center-nav" aria-label="Student navigation"><button class="nav-home-button" data-action="home">🏠 Home Map</button>'+(juniorMapTwoUnlocked()?'<button data-action="map-two" class="junior-map-two-entry">🌌 Map Two</button>':'')+'<button data-action="shop">⭐ Star Shop · '+state.progress.stars+'</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Save Code</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
+ (playing?'<nav class="center-nav" aria-label="Student navigation"><button class="nav-home-button" data-action="home">🏠 Home Map</button>'+(juniorMapTwoUnlocked()?'<button data-action="map-two" class="junior-map-two-entry">🌌 Map Two</button>':'')+'<button data-action="shop">⭐ Star Shop · '+state.progress.stars+'</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Classroom Sync</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
  '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">❓ How to Play</button><button data-action="teacher">Teacher</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
 function login(){
@@ -280,15 +280,14 @@ function openStudent(number,restore=null){
  if(!Number.isInteger(number)||number<1||number>30)return;
  cloud.reset();
  state.number=number;state.key=saveKey(state.teacher,number);state.brokenSave='';
- let brandNew=false;
- try{const raw=localStorage.getItem(state.key);brandNew=raw===null;state.progress=readProgress(raw);state.expectedSavedRaw=raw;}
+ try{const raw=localStorage.getItem(state.key);state.progress=readProgress(raw);state.expectedSavedRaw=raw;}
  catch(e){state.brokenSave=e.message;state.error=e.message;state.view='teachers';render();return}
  if(!storageProbe(localStorage)){
   state.brokenSave='Chromebook storage is blocked';state.error='Your Chromebook cannot save progress. Tell your teacher before starting.';
   state.view='teachers';render();return;
  }
  state.view='home';state.error='';state.notice='';
- void cloud.attach().then(()=>{if(brandNew&&!cloud.hasCode())cloud.open()});
+ void cloud.attach().then(ok=>{if(!ok)cloud.open()});
  // Old animal/fantasy choices are no longer available; change only the
  // portrait preference and preserve all stars, purchased/placed objects, and wins.
  if(!CHARACTERS.some(c=>c.id===state.progress.character)){
