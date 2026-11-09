@@ -28,15 +28,17 @@ One **1600 × 900 landscape** background per skill world, with the central 70% u
 - [ ] `assets/scenes/08-scroll-savannah.jpg`
 
 ## 3. Safari friend rescue portraits (8 independent transparent PNGs)
+
+**Integrated first batch:** Toucan, Monkey, Parrot, Zebra, Elephant, Giraffe, and Lion now have independently generated, transparent PNGs at `assets/animals/`, used by the live maps, challenges and rescue screens. **Otter still needs original art.** Frog and butterfly are also pending game-piece animals. The current optimized game sprites are 384 × 384; the full-resolution originals are in the downloadable batch ZIP.
 Each **1024 × 1024**, full-body, child-friendly, consistent art style, full character visible, soft outline, transparent background. Do not use cropped collage sprites.
-- [ ] `assets/friends/toucan.png` — colorful toucan, rescued after map 1 stage 8.
-- [ ] `assets/friends/monkey.png` — friendly monkey, rescued after map 2 stage 8.
-- [ ] `assets/friends/parrot.png` — bright parrot, rescued after map 3 stage 8.
-- [ ] `assets/friends/zebra.png` — friendly zebra, rescued after map 4 stage 8.
-- [ ] `assets/friends/elephant.png` — baby elephant, rescued after map 5 stage 8.
-- [ ] `assets/friends/giraffe.png` — baby giraffe, rescued after map 6 stage 8.
+- [x] `assets/animals/toucan.png` — colorful toucan, rescued after map 1 stage 8.
+- [x] `assets/animals/monkey.png` — friendly monkey, rescued after map 2 stage 8.
+- [x] `assets/animals/parrot.png` — bright parrot, rescued after map 3 stage 8.
+- [x] `assets/animals/zebra.png` — friendly zebra, rescued after map 4 stage 8.
+- [x] `assets/animals/elephant.png` — baby elephant, rescued after map 5 stage 8.
+- [x] `assets/animals/giraffe.png` — baby giraffe, rescued after map 6 stage 8.
 - [ ] `assets/friends/otter.png` — river otter, rescued after map 7 stage 8.
-- [ ] `assets/friends/lion.png` — friendly lion cub, rescued after map 8 stage 8.
+- [x] `assets/animals/lion.png` — friendly lion cub, rescued after map 8 stage 8.
 
 ## 4. Player characters (optional initial polish, 4 PNGs)
 - [ ] `assets/explorers/safari-fox.png`
