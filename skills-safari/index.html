@@ -97,6 +97,16 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 @media(max-width:720px){.tap-zone{left:2%;right:2%;top:65px}.tap-item{width:58px;height:58px;font-size:32px}.tap-again{inset:17% 5%}}
 @media(prefers-reduced-motion:reduce){.tap-item.float{animation:none}}
 
+
+/* Skill-specific mission variations, keeping Chromebook-sized targets. */
+.key-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:55px 10px 5px;gap:9px}
+.key-stage .keycap{font:clamp(67px,11vw,120px)/1 VAG,Arial,sans-serif;color:#305c4a;background:#fffbe7;border:4px solid #7fba87;border-radius:20px;min-width:135px;padding:12px 20px;text-align:center}
+.key-scenery{font-size:clamp(27px,4vw,54px);letter-spacing:8px;min-height:52px;text-align:center}
+.key-progress{background:#fffdf3ed;padding:7px 15px;border-radius:30px;font-size:clamp(13px,1.3vw,19px);text-align:center}
+.mission-timer{position:absolute;right:12px;top:11px;z-index:9;background:#fff8c3;border:2px solid #c9a852;border-radius:24px;padding:5px 12px;font-size:16px}
+.mission-timer.urgent{color:#b72828}
+.arrow-pickup{background:#eaf6c8!important;border:2px dashed #b49d4f}
+
 </style>
 </head>
 <body><div id="app"></div>
@@ -126,7 +136,7 @@ const MAZE_ROCKS=[
 ];
 const seqLengths=[1,1,2,2,3,3,3,4];
 const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null};
-let run=null,advanceTimer=null,tapClock=null,tapDrift=null;
+let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 function node(html){const wrapper=document.createElement('div');wrapper.innerHTML=html;return wrapper.firstElementChild}
 function clamp(n,low,high){return Math.max(low,Math.min(high,n))}
@@ -138,7 +148,7 @@ function count(w){return state.done.filter(i=>Math.floor(i/8)===w).length}
 function unlocked(w){return state.preview||w===0||count(w-1)===8}
 function stageUnlocked(w,s){return state.preview||s===0||done(w,s-1)}
 function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
-function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);tapClock=null;tapDrift=null;}
+function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);clearInterval(missionClock);tapClock=null;tapDrift=null;missionClock=null;}
 function setView(v){clearTimeout(advanceTimer);stopTapTimers();state.view=v;run=null;render()}
 function speak(text){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.82;u.pitch=1.05;window.speechSynthesis.speak(u)}
 function feedback(message,error){const f=document.getElementById('feedback');if(!f)return;f.textContent=message;f.classList.toggle('error',!!error)}
@@ -207,9 +217,9 @@ function directions(){
  const w=WORLDS[state.world],s=state.stage,prefix=s===7?'RESCUE MISSION! ':'';
  if(w.type==='click')return prefix+CLICK_GAMES[s].help;
  if(w.type==='double')return prefix+DOUBLE_GAMES[s].help;
- if(w.type==='letter')return prefix+'Find each shown LETTER on your real keyboard. Press one letter at a time.';
- if(w.type==='number')return prefix+'Find each shown NUMBER on your real keyboard. Press one number at a time.';
- if(w.type==='arrows')return prefix+'CLICK the safari jeep. Use the KEYBOARD ARROWS to reach the yellow camp. Avoid rocks.';
+ if(w.type==='letter')return prefix+LETTER_GAMES[s].help;
+ if(w.type==='number')return prefix+NUMBER_GAMES[s].help;
+ if(w.type==='arrows')return prefix+ARROW_GAMES[s].help;
  if(w.type==='selectmove')return prefix+'CLICK the pictured animal. Use the KEYBOARD ARROWS to MOVE it into the matching dotted spot.';
  if(w.type==='drag')return prefix+(s===0?'NEW SKILL! Practice slowly: PRESS AND HOLD the trackpad, SLIDE the picture, then LET GO in the dotted space.':'PRESS AND HOLD, SLIDE, and RELEASE each picture in its dotted space. Do not use arrow keys.');
  return prefix+(s===0?'NEW SKILL! Put TWO FINGERS on your trackpad and SLIDE DOWN together to scroll the list. Then CLICK the animal.':'Use TWO FINGERS to SCROLL down the list, then CLICK the animal shown above.')
@@ -353,20 +363,97 @@ function startTapGame(type,stage,puzzle){
  },1000);
 }
 
+
+const LETTER_GAMES=[
+ {title:'Parrot Letter Finder',help:'Find A, S and M on your REAL keyboard to feed the parrot!',keys:['A','S','M'],kind:'find',decor:'🦜'},
+ {title:'Feather Flight',help:'Press each letter on the feather trail to help the feathers fly!',keys:['F','T','B','R'],kind:'trail',decor:'🪶'},
+ {title:'Jungle Sound Signals',help:'Press the letter shown to send FIVE parrot signals!',keys:['P','C','F','G','H'],kind:'signal',decor:'📣'},
+ {title:'Treasure Letter Code',help:'Unlock the treasure chest with FIVE letter keys!',keys:['K','L','D','R','P'],kind:'code',decor:'🗝️'},
+ {title:'Egg Rescue',help:'Press the letters to save SIX parrot eggs!',keys:['E','N','B','T','M','G'],kind:'egg',decor:'🥚'},
+ {title:'Parrot Echo',help:'Copy SEVEN letter calls with your keyboard!',keys:['W','Y','N','V','S','D','J'],kind:'echo',decor:'🎵'},
+ {title:'Letter Sky Race',help:'Catch SEVEN letter clues using the keyboard before the timer ends!',keys:['R','M','F','P','K','H','Z'],kind:'race',decor:'✨',seconds:95},
+ {title:'Rescue the Parrot',help:'RESCUE THE PARROT! Press EIGHT letter clues before time runs out!',keys:['Z','Q','J','X','P','R','A','T'],kind:'rescue',decor:'🦜',seconds:120}
+];
+const NUMBER_GAMES=[
+ {title:'Zebra Number Finder',help:'Find 5, 2 and 7 on your REAL keyboard!',keys:['5','2','7'],kind:'find',decor:'🦓'},
+ {title:'Count the Coconuts',help:'Count the coconuts and PRESS the matching number key!',keys:['2','3','5'],kind:'count',decor:'🥥'},
+ {title:'Waterhole Counting',help:'COUNT the animals and PRESS that number key!',keys:['4','1','6','2'],kind:'count',decor:'🐾'},
+ {title:'Number Treasure Lock',help:'Unlock the treasure using the FOUR-number code!',keys:['9','0','3','6'],kind:'code',decor:'🔐'},
+ {title:'Fruit Basket Numbers',help:'COUNT each basket of fruit and press the number!',keys:['3','5','7','2','4'],kind:'count',decor:'🍌'},
+ {title:'Zebra Stripe Signals',help:'Press the numbers in the order they appear!',keys:['8','2','5','0','7','1'],kind:'signal',decor:'🦓'},
+ {title:'Number Sprint',help:'Press SEVEN number clues before the clock runs out!',keys:['5','9','1','6','0','3','8'],kind:'race',decor:'⭐',seconds:95},
+ {title:'Rescue the Zebra',help:'RESCUE THE ZEBRA! Find EIGHT number keys before time runs out!',keys:['7','2','9','0','4','8','1','6'],kind:'rescue',decor:'🦓',seconds:120}
+];
+const ARROW_GAMES=[
+ {title:'Drive to Camp',help:'CLICK the jeep, then steer with keyboard ARROWS to the camp!',points:[],rocks:[],decor:'⛺'},
+ {title:'Banana Pickup',help:'Collect TWO bananas with arrow keys, then reach camp!',points:[[2,1],[5,3]],rocks:[[3,2]],decor:'🍌'},
+ {title:'Safari Photo Tour',help:'Drive to the TWO camera stops before finishing!',points:[[2,4],[5,0]],rocks:[[2,2],[4,2]],decor:'📷'},
+ {title:'Rocky River Crossing',help:'Steer around rocks, collect the key and reach camp!',points:[[3,0]],rocks:[[2,1],[2,2],[4,3]],decor:'🔑'},
+ {title:'Waterhole Explorer',help:'Collect TWO water buckets before returning to camp!',points:[[1,0],[6,4]],rocks:[[1,2],[3,2],[5,2]],decor:'🪣'},
+ {title:'Elephant Supply Trail',help:'Pick up supplies from TWO camps and finish the trail!',points:[[1,4],[6,0]],rocks:[[2,1],[2,2],[2,3],[4,2]],decor:'🎒'},
+ {title:'Arrow-Key Safari Race',help:'Collect BOTH checkpoint stars and reach camp before time runs out!',points:[[1,4],[6,0]],rocks:[[2,1],[2,2],[2,3],[4,2]],decor:'⭐',seconds:130},
+ {title:'Rescue the Elephant',help:'RESCUE THE ELEPHANT! Collect THREE rescue badges and reach camp!',points:[[1,4],[4,4],[6,0]],rocks:[[2,2],[3,2],[4,2],[5,2],[3,1],[5,3]],decor:'🏅',seconds:160}
+];
+function showMissionClock(seconds){
+ if(!seconds)return;
+ let remaining=seconds;const timer=el('div','mission-timer','⏱ '+remaining+'s'),board=document.getElementById('game-board');
+ board.append(timer);
+ missionClock=setInterval(()=>{
+  if(state.view!=='game'||!run||run.complete){clearInterval(missionClock);return}
+  remaining--;timer.textContent='⏱ '+remaining+'s';timer.classList.toggle('urgent',remaining<=15);
+  if(remaining>0)return;
+  stopTapTimers();
+  if(run)run.active=false;
+  const again=el('div','tap-again');again.append(el('h2','','TIME IS UP!'));
+  again.append(el('p','','Try the same challenge again. Your finished levels are safe.'));
+  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>{stopTapTimers();renderGame()};
+  again.append(button);board.append(again);
+ },1000);
+}
+function startKeyGame(type,stage,puzzle){
+ const spec=(type==='letter'?LETTER_GAMES:NUMBER_GAMES)[stage];
+ run.keys=spec.keys.slice();run.step=0;run.active=true;run.spec=spec;
+ const badge=promptBadge(spec.title.toUpperCase());
+ const stack=el('div','key-stage');run.stack=stack;
+ const scenery=el('div','key-scenery','');run.scenery=scenery;stack.append(scenery);
+ run.keycap=el('div','keycap','');stack.append(run.keycap);
+ run.keyDots=el('div','key-progress','');stack.append(run.keyDots);
+ puzzle.append(stack);
+ updateKeyGame();
+ showMissionClock(spec.seconds);
+}
+function updateKeyGame(){
+ if(!run||run.complete)return;
+ const spec=run.spec,step=run.step,key=run.keys[step];
+ if(!spec||key===undefined)return;
+ const suffix=spec.kind==='count'?'HOW MANY?':'FIND THIS KEY';
+ run.keycap.textContent=spec.kind==='count'?'?':key;
+ run.keyDots.textContent=suffix+' · '+(step+1)+' / '+run.keys.length+' · '+spec.title.toUpperCase();
+ if(spec.kind==='count')run.scenery.textContent=Array.from({length:Number(key)},()=>spec.decor).join(' ');
+ else if(spec.kind==='egg')run.scenery.textContent=Array.from({length:run.keys.length-step},()=>spec.decor).join(' ');
+ else if(spec.kind==='code')run.scenery.textContent=Array.from({length:run.keys.length},(_,i)=>i<step?'🔓':'🔒').join(' ');
+ else if(spec.kind==='trail')run.scenery.textContent=Array.from({length:run.keys.length},(_,i)=>i<step?'⭐':'🪶').join(' ');
+ else run.scenery.textContent=spec.decor+'　'+Array.from({length:Math.max(1,step+1)},()=>spec.kind==='signal'?'🎵':'✨').join(' ');
+}
+function startArrowGame(stage,puzzle){
+ const spec=ARROW_GAMES[stage];
+ run.active=true;run.spec=spec;
+ run.start=[0,2];run.position=[0,2];run.goal=[7,2];run.selected=false;
+ run.rocks=spec.rocks;run.checkpoints=spec.points;run.picked=[];
+ const wrap=el('div','maze-stack');
+ run.prompt=el('div','question-bubble',spec.title.toUpperCase()+' · CLICK 🚙 FIRST');wrap.append(run.prompt);
+ run.grid=el('div','maze');wrap.append(run.grid);
+ run.arrowHint=el('div','small-note','Click the jeep. Collect every '+spec.decor+' before camp ⛺.');wrap.append(run.arrowHint);
+ puzzle.append(wrap);paintMaze();
+ showMissionClock(spec.seconds);
+}
+
 function setupPuzzle(){
  const w=WORLDS[state.world],s=state.stage,puzzle=document.getElementById('puzzle');
  run={type:w.type,stage:s,step:0,complete:false};
  if(w.type==='click'||w.type==='double'){startTapGame(w.type,s,puzzle);return}
- if(w.type==='letter'||w.type==='number'){
-  run.keys=(w.type==='letter'?LETTER_KEYS:NUMBER_KEYS)[s].slice();
-  const stack=el('div','key-work');stack.append(el('div','key-label',w.type==='letter'?'FIND THIS LETTER ON YOUR CHROMEBOOK KEYBOARD':'FIND THIS NUMBER ON YOUR CHROMEBOOK KEYBOARD'));
-  run.keycap=el('div','keycap',run.keys[0]);stack.append(run.keycap);run.dots=el('div','key-dots','KEY 1 OF '+run.keys.length);stack.append(run.dots);puzzle.append(stack);return
- }
- if(w.type==='arrows'){
-  run.start=[0,2];run.position=[0,2];run.goal=[7,2];run.selected=false;run.rocks=MAZE_ROCKS[s];
-  const wrap=el('div','maze-stack');run.prompt=el('div','question-bubble','CLICK THE JEEP, THEN USE THE ARROW KEYS');wrap.append(run.prompt);
-  run.grid=el('div','maze');wrap.append(run.grid);wrap.append(el('div','small-note','Click the 🚙 first. Move around rocks to the ⛺.'));puzzle.append(wrap);paintMaze();return
- }
+ if(w.type==='letter'||w.type==='number'){startKeyGame(w.type,s,puzzle);return}
+ if(w.type==='arrows'){startArrowGame(s,puzzle);return}
  if(w.type==='selectmove'||w.type==='drag'){
   const zone=el('div','move-zone');puzzle.append(zone);
   const names=['🦒','🦓','🐘','🐒','🐸','🦋','🦜','🦁'];
@@ -404,12 +491,18 @@ function positionPiece(p){p.element.style.left=p.x+'%';p.element.style.top=p.y+'
 function paintMaze(){
  const grid=run.grid;grid.replaceChildren();
  for(let y=0;y<5;y++)for(let x=0;x<8;x++){
-  const cell=el('div','maze-cell');
+  const cell=el('div','maze-cell'),pickedIndex=run.checkpoints.findIndex((p,i)=>p[0]===x&&p[1]===y&&!run.picked.includes(i));
   if(run.rocks.some(p=>p[0]===x&&p[1]===y)){cell.classList.add('rock');cell.textContent='🪨'}
-  else if(run.position[0]===x&&run.position[1]===y){cell.classList.add('player');if(run.selected)cell.classList.add('chosen');cell.textContent='🚙';cell.onclick=()=>{run.selected=true;feedback('Now use the arrow keys!');paintMaze();document.getElementById('game-board').focus({preventScroll:true})}}
+  else if(run.position[0]===x&&run.position[1]===y){
+   cell.classList.add('player');if(run.selected)cell.classList.add('chosen');cell.textContent='🚙';
+   cell.onclick=()=>{run.selected=true;feedback('Now use the keyboard ARROW keys!');paintMaze();document.getElementById('game-board').focus({preventScroll:true})};
+  }
+  else if(pickedIndex>=0){cell.classList.add('arrow-pickup');cell.textContent=run.spec.decor}
   else if(run.goal[0]===x&&run.goal[1]===y){cell.classList.add('goal');cell.textContent='⛺'}
-  grid.append(cell)
+  grid.append(cell);
  }
+ const remaining=run.checkpoints.length-run.picked.length;
+ run.arrowHint.textContent=remaining?'Collect '+remaining+' more '+run.spec.decor+' before camp ⛺.':'All supplies collected! Drive to camp ⛺!';
 }
 function dragStart(e,p){
  if(e.pointerType==='touch'||run.complete||p.done)return;
@@ -453,24 +546,32 @@ function showFriends(){
 window.addEventListener('keydown',e=>{
  if(state.view!=='game'||!run||run.complete||!['letter','number','arrows','selectmove'].includes(run.type))return;
  if(run.type==='letter'||run.type==='number'){
+  if(run.active===false)return;
   const expected=run.keys[run.step];let input=e.key;
   if(run.type==='letter')input=input.toUpperCase();
   if(input.length!==1)return;
   e.preventDefault();if(e.repeat)return;
-  if(input!==expected){feedback('Look carefully for '+expected+' on your real keyboard.',true);return}
-  run.step++;feedback('Nice key find! ⭐');
-  if(run.step===run.keys.length)completeLevel();
-  else{run.keycap.textContent=run.keys[run.step];run.dots.textContent='KEY '+(run.step+1)+' OF '+run.keys.length}
+  if(input!==expected){feedback('Find '+expected+' on your real Chromebook keyboard!',true);return}
+  run.step++;feedback('Nice key find! ⭐ '+run.step+' / '+run.keys.length);
+  if(run.step>=run.keys.length)completeLevel();else updateKeyGame();
   return
  }
  const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
  if(!d)return;
  e.preventDefault();
  if(run.type==='arrows'){
-  if(!run.selected){feedback('Click the jeep FIRST, then use the arrow keys.',true);return}
+  if(run.active===false)return;
+  if(!run.selected){feedback('Click the jeep FIRST, then use the keyboard arrows.',true);return}
   const x=run.position[0]+d[0],y=run.position[1]+d[1];
-  if(x<0||y<0||x>=8||y>=5||run.rocks.some(p=>p[0]===x&&p[1]===y)){feedback('Rock or edge! Try a different arrow.',true);return}
-  run.position=[x,y];paintMaze();if(x===run.goal[0]&&y===run.goal[1])completeLevel();return
+  if(x<0||y<0||x>=8||y>=5||run.rocks.some(p=>p[0]===x&&p[1]===y)){feedback('Rock or edge! Try another arrow.',true);return}
+  run.position=[x,y];
+  run.checkpoints.forEach((p,i)=>{if(p[0]===x&&p[1]===y&&!run.picked.includes(i)){run.picked.push(i);feedback('Collected '+run.spec.decor+'! ⭐')}});
+  paintMaze();
+  if(x===run.goal[0]&&y===run.goal[1]){
+   if(run.picked.length===run.checkpoints.length)completeLevel();
+   else feedback('Collect all '+run.spec.decor+' before finishing!',true);
+  }
+  return
  }
  if(run.type==='selectmove'){
   const p=run.selected;if(!p||p.done){feedback('Click an unfinished picture first.',true);return}
