@@ -4,6 +4,7 @@ import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMissi
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=map-two-locked-r2';
 import {mountMapTwo} from './map-two.mjs?v=picture-first-steps-20261105';
+import {makeCloudSave} from './cloud-save.mjs?v=portable-cloud-20261109a';
 const root=document.getElementById('app');
 let disposeMapTwo=null;
 const $=selector=>root.querySelector(selector);
@@ -11,6 +12,21 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const state={teacher:null,student:null,teachers:[],progress:null,view:'teachers',planet:0,mission:null,run:null,modal:null,message:'',error:'',dataError:'',key:null,scenePending:null};
 const saveKey=(teacher,number)=>`mskaple-arrownaut-v1:${teacher}:${number}`;
 const idOf=mission=>mission.id;
+/* The cloud link is scoped to the existing teacher and student-number save.
+ * No personal student names or service keys are sent to the public web app. */
+const cloud=makeCloudSave({
+ game:'naut',
+ getIdentity:()=>({teacher:state.teacher,student:state.student}),
+ getProgress:()=>state.progress,
+ applyProgress:progress=>{
+  if(!state.key)return;
+  const bytes=JSON.stringify(progress);
+  localStorage.setItem(state.key,bytes);
+  if(localStorage.getItem(state.key)!==bytes)throw Error('Cannot verify cloud import');
+  state.progress=validatedSave(bytes);state.view='home';state.mission=null;state.run=null;state.modal=null;render();
+ },
+ notice:message=>{state.message=message;state.error=message;const el=$('#live-status');if(el)el.textContent=message}
+});
 function speak(text){
  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){notify('Speech is unavailable on this browser.');return}
  window.speechSynthesis.cancel();let u=new window.SpeechSynthesisUtterance(text);u.rate=.82;window.speechSynthesis.speak(u);
@@ -20,7 +36,7 @@ function persist(next){
  if(!state.key||state.dataError){notify('The saved student record could not be read. Nothing has been overwritten.',true);return false}
  try{const text=JSON.stringify(next);localStorage.setItem(state.key,text);
   if(localStorage.getItem(state.key)!==text)throw Error('Write did not verify');
-  state.progress=next;state.dataError='';return true;
+  state.progress=next;state.dataError='';cloud.enqueue(next);return true;
  }catch(error){notify('NOT SAVED. Your previous work is safe. Tell your teacher and try again.',true);return false}
 }
 // All 64 original Map One missions, not eight levels from one planet.
@@ -34,7 +50,7 @@ function header(){
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
  return `<header class="topbar" id="main-header"><div class="brand"><img class="astronaut-corner" src="../arrow-naut-jr/assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div class="brand-title"><strong>ARROW-NAUT SPACE ADVENTURE</strong><small>SECOND GRADE · CLICK · MOVE · RESIZE · FIT${hasStudent?' · '+esc(studentText):''}</small></div></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
-  `<button class="nav-home-button" data-action="home">🏠 Home Map</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">🌌 Map Two</button>`:''}<button data-action="shop">⭐ Star Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
+  `<button class="nav-home-button" data-action="home">🏠 Home Map</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">🌌 Map Two</button>`:''}<button data-action="shop">⭐ Star Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Save Code</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">❓ How to Play</button><button data-action="teacher">Teacher</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
 function entry(){
@@ -196,7 +212,7 @@ function render(){
    exit:()=>{state.view='home';state.modal=null;render()}
   });
  }
- scheduleFit();syncFinaleClock()
+ scheduleFit();syncFinaleClock();cloud.update()
 }
 function scheduleFit(){requestAnimationFrame(()=>{const header=$('#main-header');const board=$('#space-board');if(!header)return;const height=Math.round(header.getBoundingClientRect().height);root.style.setProperty('--bar-height',height+'px');if(!board)return;const frame=$('.board-frame');if(!frame)return;const rect=frame.getBoundingClientRect();const w=Math.max(100,Math.min(rect.width-6,(rect.height-6)*1672/941));root.style.setProperty('--board-width',Math.floor(w)+'px')})}
 function showPlanet(i){if(!planetUnlocked(state.progress,i))return;state.planet=i;state.view='planet';state.mission=null;state.run=null;state.message='';state.error='';render();
@@ -284,13 +300,14 @@ function syncFinaleClock(){
 function applyPurchase(id){const item=SPACE_SHOP.find(x=>x.id===id);if(!item)return;const result=purchase(state.progress,item);if(!result.ok){notify(result.reason,true);return}if(persist(result.progress)){state.message='You bought '+item.name+'!';state.error='';render();}}
 function openStudent(number){state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';let loaded;
  try{loaded=validatedSave(localStorage.getItem(state.key))}catch(e){state.dataError=e.message;state.error=e.message;state.view='error';render();return}
- state.progress=loaded;state.view='home';state.message='';state.error='';render();}
-function logOut(){state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
+ state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach();}
+function logOut(){cloud.reset();state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
 function onAction(action){
  switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
  case 'teachers':state.view='teachers';render();break;
  case 'students':state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
  case 'logout':logOut();break;
+ case 'cloud':cloud.open();break;
  case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
   case 'map-two':if(mapTwoUnlocked()){state.view='map-two';state.modal=null;state.mission=null;state.run=null;render()}break;
  case 'planet':showPlanet(state.planet);break;
