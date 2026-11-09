@@ -151,6 +151,51 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .map-stage.has-art .map-foot{pointer-events:none}
 .playfield.has-scene{background-image:linear-gradient(#f6fff11a,#fafff116),var(--safari-scene-image)!important;background-repeat:no-repeat;background-position:center;background-size:100% 100%}
 .playfield.has-scene .field-deco{display:none}
+
+/* Readable game objects: solid, high-contrast surfaces above illustrated scenes. */
+.playfield.has-scene .tap-item,
+.playfield.has-scene .animal-card,
+.playfield.has-scene .draggy,
+.playfield.has-scene .move-zone .safari-selectable,
+.playfield.has-scene .scroll-item,
+.playfield.has-scene .maze-cell,
+.playfield.has-scene .move-beacon{
+ background-color:#fffdf2;
+ border-color:#367a53;
+ box-shadow:0 3px 8px #193b2e55;
+}
+.playfield.has-scene .tap-item.hit,
+.playfield.has-scene .animal-card.done,
+.playfield.has-scene .draggy.done,
+.playfield.has-scene .move-zone .safari-selectable.done,
+.playfield.has-scene .scroll-item.found,
+.playfield.has-scene .move-beacon.picked{background-color:#d3f3c7;}
+.playfield.has-scene .tap-item.miss,
+.playfield.has-scene .animal-card.wrong{background-color:#ffe0d7;}
+.playfield.has-scene .maze-cell.rock{background-color:#a9c2ac;}
+.playfield.has-scene .maze-cell.goal{background-color:#fff0b2;border-color:#b99537;}
+.playfield.has-scene .maze-cell.player{background-color:#e5f4ff;border-color:#3984b5;}
+.playfield.has-scene .maze-cell.chosen,
+.playfield.has-scene .draggy.selected,
+.playfield.has-scene .move-zone .safari-selectable.selected{outline:4px solid #ffcd5c;outline-offset:1px;}
+.playfield.has-scene .target{
+ background-color:#fffdf2;
+ border-color:#669766;
+ box-shadow:0 3px 8px #193b2e55;
+}
+.playfield.has-scene .key-scenery{
+ background:#fffdf2;
+ border:3px solid #77a77c;
+ border-radius:18px;
+ padding:10px 16px;
+ max-width:94%;
+ line-height:1.5;
+ overflow-wrap:anywhere;
+ box-shadow:0 4px 12px #193b2e44;
+}
+.playfield.has-scene .tap-meter,
+.playfield.has-scene .scroll-score,
+.playfield.has-scene .key-progress{background:#fffdf2;}
 </style>
 </head>
 <body><div id="app"></div>
