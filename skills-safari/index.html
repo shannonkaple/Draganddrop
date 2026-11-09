@@ -114,6 +114,11 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 @keyframes target-raft{from{translate:-20px 0}to{translate:20px 0}}
 @media(prefers-reduced-motion:reduce){.target.raft{animation:none}}
 
+
+.scroll-item.found{background:#c9f3ba;border-color:#50a363;color:#276342;pointer-events:none}
+.scroll-item.hint{outline:2px solid #ebd386}
+.scroll-score{position:absolute;right:12px;bottom:9px;background:#fff5d7ed;border:2px solid #b6aa6c;border-radius:14px;padding:5px 12px;z-index:7;font-size:14px}
+
 </style>
 </head>
 <body><div id="app"></div>
@@ -209,12 +214,17 @@ function renderHome(){
  b.onclick=()=>{state.world=i;setView('world')};stage.append(b)});
  stage.append(el('div','map-foot','Finish 8 challenges in one region to rescue its safari friend and unlock the next region.'));main.append(stage);app.append(main)
 }
+
+function missionTitle(world,stage){
+ const list=[CLICK_GAMES,DOUBLE_GAMES,LETTER_GAMES,NUMBER_GAMES,ARROW_GAMES,SELECT_GAMES,DRAG_GAMES,SCROLL_GAMES][world];
+ return list?.[stage]?.title||list?.[stage]?.name||'Safari Challenge'
+}
 function renderWorld(){
  const w=WORLDS[state.world],main=el('main','map-page'),stage=el('section','map-stage region');mapBackground(stage,w.theme);
  const heading=el('div','map-heading',w.icon+' '+w.name.toUpperCase());heading.append(el('div','map-sub',w.skill.toUpperCase()+' · '+count(state.world)+'/8 CHALLENGES'));stage.append(heading);
  LEVEL_SPOTS.forEach((pos,i)=>{const b=el('button','pin level');b.style.left=pos[0]+'%';b.style.top=pos[1]+'%';b.disabled=!stageUnlocked(state.world,i);
  b.append(el('span','pin-icon',i===7?(stageUnlocked(state.world,i)?w.friendIcon:'🔒'):(done(state.world,i)?'⭐':stageUnlocked(state.world,i)?'🐾':'🔒')));
- b.append(el('strong','',i===7?'RESCUE!':'LEVEL '+(i+1)));b.append(el('small','',done(state.world,i)?'DONE ✓':i===7?'SAFARI FRIEND':'CHALLENGE'));
+ b.append(el('strong','',i===7?'RESCUE!':'LEVEL '+(i+1)));b.append(el('small','',done(state.world,i)?'DONE ✓':missionTitle(state.world,i)));
  b.onclick=()=>{state.stage=i;setView('game')};stage.append(b)});
  const back=el('button','map-back','← All Safari Regions');back.onclick=()=>setView('home');stage.append(back);
  stage.append(el('div','map-foot','Every challenge practices '+w.skill+'. Level 8 earns '+w.friend+'!'));
@@ -229,12 +239,12 @@ function directions(){
  if(w.type==='arrows')return prefix+ARROW_GAMES[s].help;
  if(w.type==='selectmove')return prefix+SELECT_GAMES[s].help;
  if(w.type==='drag')return prefix+DRAG_GAMES[s].help;
- return prefix+(s===0?'NEW SKILL! Put TWO FINGERS on your trackpad and SLIDE DOWN together to scroll the list. Then CLICK the animal.':'Use TWO FINGERS to SCROLL down the list, then CLICK the animal shown above.')
+ return prefix+SCROLL_GAMES[s].help
 }
 function renderGame(){
  const w=WORLDS[state.world],main=el('main','game-page');
  const head=el('div','game-head');
- const h=el('h1','',w.icon+' '+w.name+' — Challenge '+(state.stage+1)+'/8');head.append(h);
+ const h=el('h1','',w.icon+' '+w.name+' — '+missionTitle(state.world,state.stage)+' ('+(state.stage+1)+'/8)');head.append(h);
  const back=el('button','','← Map');back.onclick=()=>setView('world');head.append(back);main.append(head);
  const box=el('div','directions'),txt=el('strong','',directions());box.append(txt);
  // First lesson in each NEW skill map includes a non-blocking visual how-to.
@@ -547,6 +557,49 @@ function targetPosition(p){
  return {x:(r.left-zone.left)/zone.width*100,y:(r.top-zone.top)/zone.height*100,w:r.width/zone.width*100,h:r.height/zone.height*100};
 }
 
+
+const SCROLL_GAMES=[
+ {title:'Find the Hidden Lion',help:'NEW SKILL! Use TWO FINGERS to SCROLL down and find the LION!',total:12,targets:[['🦁',5]]},
+ {title:'River Animal Search',help:'SCROLL down the list to find the OTTER, then find the FISH!',total:15,targets:[['🦦',6],['🐟',11]]},
+ {title:'Fruit Trail Finder',help:'SCROLL down and find BANANA, COCONUT, and PINEAPPLE in order!',total:19,targets:[['🍌',5],['🥥',10],['🍍',15]]},
+ {title:'Ranger Clue Hunt',help:'SCROLL and find the PAW, BINOCULARS, and SAFARI MAP!',total:20,targets:[['🐾',5],['🔭',11],['🗺️',16]]},
+ {title:'Up and Down Safari',help:'SCROLL DOWN for a STAR, back UP for a COMPASS, then DOWN for a GEM!',total:22,targets:[['⭐',16],['🧭',1],['💎',19]]},
+ {title:'Ranger Supply Search',help:'SCROLL down the supply list to find FOUR lost safari supplies!',total:25,targets:[['⛺',5],['🪣',11],['📷',17],['🎒',22]]},
+ {title:'Scroll Scavenger Sprint',help:'FIND FIVE hidden pictures by SCROLLING before the timer runs out!',total:27,targets:[['🦋',5],['🐒',10],['🐘',15],['🦒',20],['🪶',24]],seconds:160},
+ {title:'Rescue the Lion',help:'RESCUE THE LION! SCROLL UP AND DOWN and find SIX rescue badges!',total:30,targets:[['🏅',5],['🦁',12],['🔑',18],['🦋',24],['🧭',2],['🏆',28]],seconds:200}
+];
+function startScrollGame(stage,puzzle){
+ const spec=SCROLL_GAMES[stage];
+ run.active=true;run.spec=spec;run.scrollStep=0;
+ run.badge=promptBadge(spec.title.toUpperCase()+' · SCROLL TO FIND '+spec.targets[0][0]);
+ const pane=el('div','scroll-case');run.scrollPane=pane;
+ const filler=['🌿','🍃','🌼','🌻','🌴','🍄','🪵','🌱','🍀','🪨','🌸','🐞','💮','🌹','🍁','☁️','🌾','🍂'];
+ const goalIndex=new Map(spec.targets.map(([icon,row],i)=>[row,{icon,step:i}]));
+ for(let i=0;i<spec.total;i++){
+  const goal=goalIndex.get(i),symbol=goal?.icon||filler[(i+stage*3)%filler.length];
+  const b=el('button','scroll-item');b.type='button';b.dataset.row=i;
+  b.append(el('span','',symbol));b.append(el('strong','',goal?'SAFARI CLUE':'SAFARI TRAIL'));
+  b.onclick=()=>{
+   if(!run||run.complete||run.active===false||state.view!=='game')return;
+   const next=spec.targets[run.scrollStep];
+   if(!goal||goal.step!==run.scrollStep){
+    feedback('Find '+next[0]+' by scrolling. Look carefully!',true);return
+   }
+   if(i>3&&pane.scrollTop<25){feedback('Scroll down with TWO fingers first!',true);return}
+   b.disabled=true;b.classList.add('found');b.querySelector('strong').textContent='FOUND! ⭐';
+   run.scrollStep++;feedback('Great scrolling! '+run.scrollStep+' / '+spec.targets.length+' clues found! ⭐');
+   if(run.scrollStep===spec.targets.length){completeLevel();return}
+   run.badge.textContent='SCROLL TO FIND '+spec.targets[run.scrollStep][0]+' · '+spec.title.toUpperCase();
+   updateScrollProgress()
+  };
+  pane.append(b)
+ }
+ puzzle.append(pane);
+ const hud=el('div','scroll-score','FIND 0 / '+spec.targets.length);run.scrollHud=hud;puzzle.append(hud);
+ function updateScrollProgress(){hud.textContent='FIND '+run.scrollStep+' / '+spec.targets.length}
+ if(spec.seconds)showMissionClock(spec.seconds);
+}
+
 function setupPuzzle(){
  const w=WORLDS[state.world],s=state.stage,puzzle=document.getElementById('puzzle');
  run={type:w.type,stage:s,step:0,complete:false};
@@ -554,21 +607,7 @@ function setupPuzzle(){
  if(w.type==='letter'||w.type==='number'){startKeyGame(w.type,s,puzzle);return}
  if(w.type==='arrows'){startArrowGame(s,puzzle);return}
  if(w.type==='selectmove'||w.type==='drag'){startMoveGame(w.type,s,puzzle);return}
- if(w.type==='scroll'){
-  const count=s===0?7:9+s, targetIndex=s===0?2:4+s,target=ANIMALS[(s*2+5)%ANIMALS.length];
-  run.scrollTarget=targetIndex;
-  run.badge=promptBadge((s===0?'✌️ TWO FINGERS DOWN · THEN CLICK ':'SCROLL DOWN · FIND ')+target.icon+' '+target.name.toUpperCase());
-  const pane=el('div','scroll-case');run.scrollPane=pane;
-  for(let i=0;i<count;i++){
-   const a=i===targetIndex?target:ANIMALS[(i+s+3)%ANIMALS.length];const item=el('button','scroll-item');
-   item.append(el('span','',a.icon));item.append(el('strong','',a.name));item.dataset.position=i;
-   item.onclick=()=>{if(run.complete)return;if(i!==targetIndex){feedback('Keep looking! Scroll down and find the picture at the top.',true);return}
-    if(pane.scrollTop<50){feedback('Scroll down with TWO fingers first!',true);return}
-    completeLevel()};
-   pane.append(item)
-  }
-  puzzle.append(pane);return
- }
+ if(w.type==='scroll'){startScrollGame(s,puzzle);return}
 }
 function positionPiece(p){p.element.style.left=p.x+'%';p.element.style.top=p.y+'%';p.element.style.width=p.w+'%';p.element.style.height=p.h+'%'}
 function paintMaze(){
