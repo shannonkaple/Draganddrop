@@ -79,6 +79,24 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .hidden{display:none!important}.status{padding:4px 11px;color:#5c694f;font-size:12px}
 @media(max-width:780px){.topbar{grid-template-columns:1fr auto}.nav{grid-column:1 / -1;order:3}.nav.right{grid-column:2;grid-row:1;order:0}.map-stage{min-height:300px}.choices.numbers{grid-template-columns:repeat(6,1fr)}.pin{width:70px;min-height:67px}.pin.level{width:58px}.map-heading{top:1%}}
 @media(max-height:650px){.topbar{min-height:58px}.game-page{gap:4px}.directions{padding:4px}.playfield{max-height:calc(100dvh - 165px)}}
+
+/* Safari mini-games — floating objects, collecting, timed hunts and double-click rescue. */
+.tap-zone{position:absolute;top:72px;left:6%;right:6%;bottom:12px;z-index:5}
+.tap-item{position:absolute;display:grid;place-items:center;width:clamp(62px,7.5vw,96px);height:clamp(62px,7.5vw,96px);font-size:clamp(34px,4.4vw,57px);line-height:1;transform:translate(-50%,-50%);border:3px solid #468458;border-radius:21px;background:#fffae9ec;box-shadow:0 5px 0 #8bb48d7a;touch-action:manipulation;transition:left .65s ease,top .65s ease}
+.tap-item.float{animation:safari-float 1.8s ease-in-out infinite alternate}
+.tap-item.fast{animation-duration:1.1s}
+.tap-item.hit{background:#c4f6be;border-color:#58a663;pointer-events:none;animation:none;opacity:.65}
+.tap-item.miss{background:#ffddd1;border-color:#d77c65}
+.tap-item:disabled{pointer-events:none}
+.tap-meter{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);z-index:8;background:#fff9dcf2;border:2px solid #7aab77;border-radius:50px;padding:6px 17px;display:flex;gap:16px;justify-content:center;font-size:clamp(14px,1.35vw,19px);white-space:nowrap}
+.tap-clock.urgent{color:#bc4532;font-weight:bold}
+.tap-again{position:absolute;z-index:25;inset:18% 22%;background:#fffbeb;border:4px solid #e4bc5d;border-radius:24px;display:flex;align-items:center;justify-content:center;gap:12px;flex-direction:column;text-align:center;padding:15px;box-shadow:0 10px 40px #204c3966}
+.tap-again h2{margin:0;font-size:28px}
+.tap-again p{margin:0}
+@keyframes safari-float{from{translate:-11px -8px;rotate:-5deg}to{translate:11px 10px;rotate:5deg}}
+@media(max-width:720px){.tap-zone{left:2%;right:2%;top:65px}.tap-item{width:58px;height:58px;font-size:32px}.tap-again{inset:17% 5%}}
+@media(prefers-reduced-motion:reduce){.tap-item.float{animation:none}}
+
 </style>
 </head>
 <body><div id="app"></div>
@@ -108,7 +126,7 @@ const MAZE_ROCKS=[
 ];
 const seqLengths=[1,1,2,2,3,3,3,4];
 const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null};
-let run=null,advanceTimer=null;
+let run=null,advanceTimer=null,tapClock=null,tapDrift=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 function node(html){const wrapper=document.createElement('div');wrapper.innerHTML=html;return wrapper.firstElementChild}
 function clamp(n,low,high){return Math.max(low,Math.min(high,n))}
@@ -120,7 +138,8 @@ function count(w){return state.done.filter(i=>Math.floor(i/8)===w).length}
 function unlocked(w){return state.preview||w===0||count(w-1)===8}
 function stageUnlocked(w,s){return state.preview||s===0||done(w,s-1)}
 function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
-function setView(v){clearTimeout(advanceTimer);state.view=v;run=null;render()}
+function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);tapClock=null;tapDrift=null;}
+function setView(v){clearTimeout(advanceTimer);stopTapTimers();state.view=v;run=null;render()}
 function speak(text){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.82;u.pitch=1.05;window.speechSynthesis.speak(u)}
 function feedback(message,error){const f=document.getElementById('feedback');if(!f)return;f.textContent=message;f.classList.toggle('error',!!error)}
 function header(){
@@ -186,8 +205,8 @@ function renderWorld(){
 }
 function directions(){
  const w=WORLDS[state.world],s=state.stage,prefix=s===7?'RESCUE MISSION! ':'';
- if(w.type==='click')return prefix+'CLICK the pictured animal one time. Follow the animal pictures in order.';
- if(w.type==='double')return prefix+'DOUBLE-CLICK each pictured animal quickly. Do not single-click.';
+ if(w.type==='click')return prefix+CLICK_GAMES[s].help;
+ if(w.type==='double')return prefix+DOUBLE_GAMES[s].help;
  if(w.type==='letter')return prefix+'Find each shown LETTER on your real keyboard. Press one letter at a time.';
  if(w.type==='number')return prefix+'Find each shown NUMBER on your real keyboard. Press one number at a time.';
  if(w.type==='arrows')return prefix+'CLICK the safari jeep. Use the KEYBOARD ARROWS to reach the yellow camp. Avoid rocks.';
@@ -231,22 +250,113 @@ function animalChoices(want,stage,limit){
  const rotation=stage%choices.length;
  return choices.slice(rotation).concat(choices.slice(0,rotation));
 }
+
+const CLICK_GAMES=[
+ {name:'Safari Supply Search',help:'CLICK FOUR safari supplies to pack your explorer bag!',mode:'collect',items:['🎒','🧭','📷','🔭'],goal:4},
+ {name:'Butterfly Catch',help:'CLICK SIX floating butterflies before they fly away!',mode:'hunt',icon:'🦋',other:['🌿','🌼','🐞'],goal:6,slots:7,moving:true},
+ {name:'Banana Bonanza',help:'CLICK SEVEN BANANAS. Leave the other fruit alone!',mode:'hunt',icon:'🍌',other:['🍎','🥥','🍍'],goal:7,slots:9},
+ {name:'Camouflage Finder',help:'Find and CLICK the animal shown in the clue. The clue changes!',mode:'sequence',order:['🐸','🦎','🐒','🦓','🦜'],other:['🐘','🦁','🦋'],goal:5,slots:8},
+ {name:'Firefly Flash',help:'CLICK EIGHT floating FIREFLIES in the jungle!',mode:'hunt',icon:'✨',other:['🍃','🌸','⭐'],goal:8,slots:9,moving:true,fast:true},
+ {name:'Safari Photo Hunt',help:'Follow SIX different animal clues and CLICK the moving animals!',mode:'sequence',order:['🦒','🐘','🦓','🦁','🐒','🦜'],other:['🐢','🦋','🐸'],goal:6,slots:10,moving:true},
+ {name:'Jungle Click Rush',help:'CLICK TEN floating STARS in 50 seconds!',mode:'hunt',icon:'⭐',other:['🌿','🌸','🍃'],goal:10,slots:10,moving:true,fast:true,seconds:50},
+ {name:'Rescue the Toucan',help:'RESCUE THE TOUCAN! CLICK TWELVE floating FEATHERS in 65 seconds!',mode:'hunt',icon:'🪶',other:['🍃','🦋','🌼'],goal:12,slots:10,moving:true,fast:true,seconds:65}
+];
+const DOUBLE_GAMES=[
+ {name:'Open Supply Crates',help:'DOUBLE-CLICK FOUR crates to unpack them!',mode:'collect',items:['📦','📦','📦','📦'],goal:4},
+ {name:'Balloon Pop',help:'DOUBLE-CLICK FIVE floating BALLOONS to pop them!',mode:'collect',items:['🎈','🎈','🎈','🎈','🎈'],goal:5,moving:true},
+ {name:'Treasure Chest Hunt',help:'DOUBLE-CLICK SIX treasure chests to reveal their prizes!',mode:'collect',items:['🧰','🧰','🧰','🧰','🧰','🧰'],goal:6},
+ {name:'Unlock the Gates',help:'DOUBLE-CLICK the six LOCKS. Ignore the other objects!',mode:'hunt',icon:'🔒',other:['🪵','🌿','🌼'],goal:6,slots:8},
+ {name:'Monkey Snack Time',help:'DOUBLE-CLICK SEVEN moving BANANAS for the monkeys!',mode:'hunt',icon:'🍌',other:['🥥','🍎','🍍'],goal:7,slots:9,moving:true},
+ {name:'Secret Jungle Nests',help:'DOUBLE-CLICK the animal nest clue. Find SIX clues in order!',mode:'sequence',order:['🪺','🥚','🐣','🪺','🥚','🐣'],other:['🍃','🌼','🐸'],goal:6,slots:9,moving:true},
+ {name:'Double-Click Dash',help:'DOUBLE-CLICK EIGHT floating stars in 65 seconds!',mode:'hunt',icon:'⭐',other:['🌼','🍃','🦋'],goal:8,slots:10,moving:true,fast:true,seconds:65},
+ {name:'Monkey Rescue Race',help:'RESCUE THE MONKEY! DOUBLE-CLICK TEN GATES in 75 seconds!',mode:'hunt',icon:'🔒',other:['🌿','🪵','🌼'],goal:10,slots:10,moving:true,fast:true,seconds:75}
+];
+function startTapGame(type,stage,puzzle){
+ const twice=type==='double',config=(twice?DOUBLE_GAMES:CLICK_GAMES)[stage],action=twice?'DOUBLE-CLICK':'CLICK';
+ run.taps=0;run.active=true;run.config=config;
+ const label=promptBadge(config.name.toUpperCase()+' · '+action);
+ const zone=el('div','tap-zone');puzzle.append(zone);
+ const meter=el('div','tap-meter'),count=el('span',''),timeLabel=el('span','tap-clock');
+ meter.append(count,timeLabel);puzzle.append(meter);
+ let time=config.seconds||0;
+ const number=config.slots||config.items.length, buttons=[];
+ function refresh(){
+  count.textContent='⭐ '+run.taps+' / '+config.goal;
+  timeLabel.textContent=config.seconds?'⏱ '+time+' SECONDS':'';
+  timeLabel.classList.toggle('urgent',config.seconds&&time<=12);
+  if(config.mode==='sequence')label.textContent=action+' '+config.order[run.taps]+' · '+config.name.toUpperCase();
+ }
+ function icons(){
+  if(config.mode==='collect')return config.items.slice();
+  if(config.mode==='sequence'){
+   const icons=Array.from(new Set(config.order.concat(config.other)));
+   const extras=['🌴','🥥','🌸','🪵','🧭','🐾'];
+   for(let i=0;icons.length<number&&i<extras.length;i++)if(!icons.includes(extras[i]))icons.push(extras[i]);
+   return icons;
+  }
+  return Array.from({length:number},(_,i)=>i%3===1?config.other[Math.floor(i/3)%config.other.length]:config.icon);
+ }
+ function slot(b,i){
+  b.style.left=(12+(i%4)*25)+'%';
+  b.style.top=(15+Math.floor(i/4)*34)+'%';
+  b.style.animationDelay=(-i*.36)+'s';
+ }
+ function push(b,symbol,i){
+  if(!run||run.complete||!run.active||b.disabled||state.view!=='game')return;
+  if(config.mode==='hunt'&&symbol!==config.icon||
+     config.mode==='sequence'&&symbol!==config.order[run.taps]){
+   b.classList.add('miss');feedback('Look for '+(config.mode==='sequence'?config.order[run.taps]:config.icon)+'!',true);
+   setTimeout(()=>b.classList.remove('miss'),330);return;
+  }
+  b.disabled=true;b.classList.add('hit');b.textContent='✨';run.taps++;refresh();
+  feedback('Great '+(twice?'double-click':'click')+'! ⭐ '+run.taps+' / '+config.goal);
+  if(run.taps===config.goal){run.active=false;stopTapTimers();completeLevel();return}
+  if(config.mode==='hunt'){
+   setTimeout(()=>{
+    if(!run||run.complete||!run.active||state.view!=='game')return;
+    b.disabled=false;b.classList.remove('hit');b.textContent=symbol;
+    const other=buttons[(i+run.taps*3)%buttons.length];
+    if(other&&other!==b){
+     const x=b.style.left,y=b.style.top;b.style.left=other.style.left;b.style.top=other.style.top;
+     other.style.left=x;other.style.top=y;
+    }
+   },twice?750:420);
+  }
+ }
+ icons().forEach((symbol,i)=>{
+  const b=el('button','tap-item',symbol);
+  b.type='button';b.setAttribute('aria-label',action.toLowerCase()+' '+symbol);
+  if(config.moving)b.classList.add('float');
+  if(config.fast)b.classList.add('fast');
+  slot(b,i);b.addEventListener(twice?'dblclick':'click',e=>{if(twice&&e.detail<2)return;push(b,symbol,i)});
+  zone.append(b);buttons.push(b);
+ });
+ refresh();
+ if(config.moving){
+  tapDrift=setInterval(()=>{
+   if(!run||run.complete||!run.active||state.view!=='game')return;
+   const available=buttons.filter(b=>!b.disabled);
+   if(available.length<2)return;
+   const idx=(run.taps+Math.floor(Date.now()/3600))%available.length;
+   const a=available[idx],b=available[(idx+2)%available.length];if(a===b)return;
+   const x=a.style.left,y=a.style.top;a.style.left=b.style.left;a.style.top=b.style.top;b.style.left=x;b.style.top=y;
+  },3600);
+ }
+ if(config.seconds)tapClock=setInterval(()=>{
+  if(!run||run.complete||state.view!=='game'){stopTapTimers();return}
+  time--;refresh();if(time>0)return;
+  run.active=false;stopTapTimers();
+  const retry=el('div','tap-again');retry.append(el('h2','','TIME IS UP!'));
+  retry.append(el('p','','You caught '+run.taps+' of '+config.goal+'. Try again!'));
+  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>{stopTapTimers();renderGame()};
+  retry.append(button);puzzle.append(retry);
+ },1000);
+}
+
 function setupPuzzle(){
  const w=WORLDS[state.world],s=state.stage,puzzle=document.getElementById('puzzle');
  run={type:w.type,stage:s,step:0,complete:false};
- if(w.type==='click'||w.type==='double'){
-  const length=seqLengths[s],start=(s*2+(w.type==='double'?4:0))%ANIMALS.length;
-  const targets=Array.from({length},(_,i)=>ANIMALS[(start+i*2)%ANIMALS.length]);
-  run.targets=targets;const pool=animalChoices(targets,s,Math.max(4,targets.length+1));
-  const badge=promptBadge((w.type==='double'?'DOUBLE-CLICK ':'CLICK ')+targets[0].icon+' '+targets[0].name.toUpperCase());run.badge=badge;
-  const grid=el('div','card-grid');puzzle.append(grid);
-  pool.forEach(a=>{const b=el('button','animal-card');b.append(el('span','face',a.icon));b.append(el('span','',a.name));
-   b.addEventListener(w.type==='double'?'dblclick':'click',e=>{if(run.complete)return;if(e.detail===0&&w.type==='double')return;const expected=run.targets[run.step];if(a.name!==expected.name){feedback('Try the animal shown at the top!',true);b.classList.add('wrong');setTimeout(()=>b.classList.remove('wrong'),450);return;}
-     b.classList.add('done');run.step++;feedback('Great job! ⭐');
-     if(run.step===run.targets.length)completeLevel();else badge.textContent=(w.type==='double'?'DOUBLE-CLICK ':'CLICK ')+run.targets[run.step].icon+' '+run.targets[run.step].name.toUpperCase();
-   });grid.append(b)})
-  return
- }
+ if(w.type==='click'||w.type==='double'){startTapGame(w.type,s,puzzle);return}
  if(w.type==='letter'||w.type==='number'){
   run.keys=(w.type==='letter'?LETTER_KEYS:NUMBER_KEYS)[s].slice();
   const stack=el('div','key-work');stack.append(el('div','key-label',w.type==='letter'?'FIND THIS LETTER ON YOUR CHROMEBOOK KEYBOARD':'FIND THIS NUMBER ON YOUR CHROMEBOOK KEYBOARD'));
@@ -319,6 +429,7 @@ function dragStart(e,p){
 }
 function completeLevel(){
  if(!run||run.complete)return;
+ stopTapTimers();
  run.complete=true;
  const world=state.world,stage=state.stage;
  if(!state.preview&&!done(world,stage)){state.done.push(world*8+stage);state.done.sort((a,b)=>a-b);if(!persist()){return}}
