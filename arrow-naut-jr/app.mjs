@@ -1,4 +1,5 @@
 import {openTeacherTools} from '../arrow-naut/teacher-tools.mjs?v=teacher-tools-20261105b';
+import {makeCloudSave} from '../arrow-naut/cloud-save.mjs?v=portable-cloud-20261109a';
 import {COLS,ROWS,WORLDS,GALAXY,WORLD_STOPS,LEVEL_STOPS,CHARACTERS,ENEMIES,ITEMS,NAMES,createMission,createProgress,completedCount,BONUS_STAGES,worldUnlocked,levelUnlocked,sceneUnlocked} from './curriculum.mjs?v=jr-clear-cargo-docks-20261106';
 import {clone,startRun,select,move,patrol,finish,purchase,readProgress} from './engine.mjs?v=junior-easy-feedback-r1';
 import {touchGeneratedClick} from './input-policy.mjs?v=jr-trackpad-click-fix-20261102';
@@ -12,6 +13,19 @@ const JUNIOR_MAP_TWO_HOTSPOTS=[{x:12,y:36},{x:34,y:19},{x:58,y:17},{x:81,y:35},{
 const juniorMapTwoUnlocked=()=>!!state.progress&&WORLDS.every((_,i)=>completedCount(state.progress,i)===8);
 const chosen=()=>CHARACTERS.find(x=>x.id===state.progress?.character)||CHARACTERS[0];
 const saveKey=(teacher,num)=>'mskaple-arrownaut-junior-v1:'+teacher+':'+num;
+const cloud=makeCloudSave({
+ game:'junior',
+ getIdentity:()=>({teacher:state.teacher,student:state.number}),
+ getProgress:()=>state.progress,
+ applyProgress:progress=>{
+  if(!state.key)return;
+  const bytes=JSON.stringify(progress);
+  verifiedWrite(localStorage,state.key,progress);
+  state.expectedSavedRaw=bytes;state.progress=readProgress(bytes);state.view='home';
+  state.mission=null;state.run=null;state.modal=null;render();
+ },
+ notice:message=>{state.notice=message;state.error=message;const el=document.getElementById('feedback');if(el)el.textContent=message}
+});
 function rememberTab(){
  if(!state.progress||!state.teacher||!state.number)return;
  const info={teacher:state.teacher,number:state.number,view:state.view,world:state.world,stage:state.mission?.stage??null};
@@ -32,6 +46,7 @@ function persist(progress){
   verifiedWrite(localStorage,state.key,progress);
   state.expectedSavedRaw=JSON.stringify(progress);
   state.progress=progress;
+  cloud.enqueue(progress);
   const label=root.querySelector('#save-state');if(label){label.textContent='Saved';label.classList.remove('save-error')}
   return true;
  }catch(e){const label=root.querySelector('#save-state');if(label){label.textContent='NOT SAVED';label.classList.add('save-error')}notice('NOT SAVED. Do not close this tab. Tell your teacher.',true);return false}
@@ -40,7 +55,7 @@ function header(){
  const playing=!!state.progress;
  const teacher=state.teachers.find(t=>t.id===state.teacher)?.name||'';
  return '<header class="topbar" id="topbar"><div class="branding"><img class="astronaut-corner" src="./assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div><strong>ARROW-NAUT JUNIOR</strong><small>FIRST GRADE · CLICK + KEYBOARD ARROWS'+(playing?' · '+esc(teacher)+' #'+state.number:'')+'</small></div></div>'+
- (playing?'<nav class="center-nav" aria-label="Student navigation"><button class="nav-home-button" data-action="home">🏠 Home Map</button>'+(juniorMapTwoUnlocked()?'<button data-action="map-two" class="junior-map-two-entry">🌌 Map Two</button>':'')+'<button data-action="shop">⭐ Star Shop · '+state.progress.stars+'</button><button data-action="stuff">🎒 My Stuff</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
+ (playing?'<nav class="center-nav" aria-label="Student navigation"><button class="nav-home-button" data-action="home">🏠 Home Map</button>'+(juniorMapTwoUnlocked()?'<button data-action="map-two" class="junior-map-two-entry">🌌 Map Two</button>':'')+'<button data-action="shop">⭐ Star Shop · '+state.progress.stars+'</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Save Code</button><button data-action="characters">Change Explorer</button><span class="save-state" id="save-state" aria-live="polite">Saved</span></nav>':'<span></span>')+
  '<nav class="side-nav"><button data-action="fullscreen">Full Screen</button><button data-action="help">❓ How to Play</button><button data-action="teacher">Teacher</button>'+(playing?'<button data-action="logout">Change Student</button>':'')+'</nav></header>';
 }
 function login(){
@@ -259,6 +274,7 @@ function render(){
   state.view==='game'?game():state.view==='shop'?shop():state.view==='stuff'?stuff():help())+modal();
  clockSync();
  rememberTab();
+ cloud.update();
 }
 function openStudent(number,restore=null){
  if(!Number.isInteger(number)||number<1||number>30)return;
@@ -270,6 +286,7 @@ function openStudent(number,restore=null){
   state.view='teachers';render();return;
  }
  state.view='home';state.error='';state.notice='';
+ void cloud.attach();
  // Old animal/fantasy choices are no longer available; change only the
  // portrait preference and preserve all stars, purchased/placed objects, and wins.
  if(!CHARACTERS.some(c=>c.id===state.progress.character)){
@@ -340,6 +357,7 @@ function clockSync(){
 function nav(action){
  if(['home','teachers','world','shop','stuff','help','logout','map-two'].includes(action)&&!guardStudentNavigation())return;
  switch(action){
+  case 'cloud':cloud.open();break;
   case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-junior-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.number))window.location.reload()}});break;
   case 'map-two':if(juniorMapTwoUnlocked()){state.view='map-two';state.mapTwoSelected=null;state.modal=null;render()}break;
   case 'home':state.view=state.progress?'home':'teachers';state.modal=null;state.run=null;state.mission=null;render();break;
@@ -353,7 +371,7 @@ function nav(action){
    else document.documentElement.requestFullscreen?.().catch?.(()=>{});
    break;
   }
-  case 'logout':try{clearTabSession(sessionStorage)}catch{}state.tabSignature=null;state.expectedSavedRaw=null;state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
+  case 'logout':cloud.reset();try{clearTabSession(sessionStorage)}catch{}state.tabSignature=null;state.expectedSavedRaw=null;state.teacher=null;state.number=null;state.key=null;state.progress=null;state.view='teachers';state.modal=null;render();break;
   case 'characters':state.modal={type:'character'};render();break;
   case 'character-close':state.modal=null;render();break;
   case 'victory-ok':{
