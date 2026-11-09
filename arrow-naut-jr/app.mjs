@@ -48,7 +48,7 @@ function persist(progress){
   state.expectedSavedRaw=JSON.stringify(progress);
   state.progress=progress;
   cloud.enqueue(progress);
-  const label=root.querySelector('#save-state');if(label){label.textContent='Saved';label.classList.remove('save-error')}
+  const label=root.querySelector('#save-state');if(label){label.textContent='Saved Here';label.classList.remove('save-error')}
   return true;
  }catch(e){const label=root.querySelector('#save-state');if(label){label.textContent='NOT SAVED';label.classList.add('save-error')}notice('NOT SAVED. Do not close this tab. Tell your teacher.',true);return false}
 }
