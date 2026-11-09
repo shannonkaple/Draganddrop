@@ -62,7 +62,7 @@ function header(){
 function login(){
  if(state.view==='teachers')return '<main class="entry"><h1>First Grade Space Explorers</h1><p>Choose your first-grade teacher.</p>'+
  (state.error?'<p class="error" role="alert">'+esc(state.error)+'</p>':'')+
- '<div class="choose-grid">'+state.teachers.map(t=>'<button data-teacher="'+esc(t.id)+'">'+esc(t.name)+'</button>').join('')+'</div></main>';
+ '<div class="choose-grid">'+state.teachers.map(t=>'<button data-teacher="'+esc(t.id)+'">'+esc(t.name)+'</button>').join('')+'</div><button type="button" class="teacher-pair-button" data-action="cloud">🔗 Teacher: Pair This Computer</button></main>';
  return '<main class="entry"><button data-action="teachers">Back to Teachers</button><h1>Choose Your Student Number</h1>'+
  '<div class="choose-grid student-nums">'+Array.from({length:30},(_,i)=>'<button data-student="'+(i+1)+'">'+(i+1)+'</button>').join('')+'</div></main>';
 }
