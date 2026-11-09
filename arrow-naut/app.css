@@ -317,3 +317,25 @@
  .kid-page-actions button{padding:5px 8px;min-height:34px}
  .kid-page-nav{justify-content:center;text-align:center}
 }
+
+/* Cross-Chromebook student saves are linked by private code, never by the
+   public teacher/student number alone. Keep these controls readable for K–2. */
+.cloud-save-overlay{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;
+ background:rgba(12,20,56,.86);padding:16px;overflow-y:auto}
+.cloud-save-panel{box-sizing:border-box;width:min(100%,560px);max-height:95dvh;overflow-y:auto;
+ border:4px solid #7863c0;border-radius:21px;background:#fffef5;color:#211d53;
+ box-shadow:0 12px 50px #03091d;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+ gap:9px;padding:19px 19px 23px;text-align:center}
+.cloud-save-panel h2{width:100%;font-size:clamp(22px,2.5vw,34px);margin:0}
+.cloud-save-panel p,.cloud-save-panel label{width:100%;margin:2px 0;font:700 clamp(13px,1.2vw,17px)/1.4 Arial,sans-serif}
+.cloud-save-student{color:#563797}
+.cloud-save-panel .cloud-code{font:900 clamp(19px,2.25vw,31px)/1.4 monospace;
+ letter-spacing:1px;color:#25175b;background:#e7e6ff;border:3px dashed #7c6fc5;
+ border-radius:11px;padding:10px 5px;user-select:all}
+.cloud-save-panel input{width:100%;min-height:48px;border:3px solid #7763b0;border-radius:9px;
+ padding:7px 11px;font:800 22px monospace;text-align:center;text-transform:uppercase;letter-spacing:1px}
+.cloud-save-panel button{flex:1 1 185px;min-height:45px;font-size:clamp(12px,1.1vw,16px);
+ white-space:normal}
+.cloud-save-panel .cloud-save-result{min-height:25px;color:#712565}
+button[data-action="cloud"]{background:#d9fcff!important;border-color:#72a4c4!important;color:#163962!important}
+button[data-action="cloud"]:focus-visible{outline:4px solid #ffa92e}
