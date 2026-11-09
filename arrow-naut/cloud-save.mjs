@@ -31,6 +31,7 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
  let queue=Promise.resolve(),panel=null;
  const identity=()=>keyFor(getIdentity,game);
  const key=()=>{const id=identity();return id?linkKey(id.game,id.teacher,id.student):''};
+ const hasCode=()=>code.length===16;
  function update(){
   const b=document.querySelector('button[data-action="cloud"]');
   if(b){
@@ -153,5 +154,5 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
    }
   });
  }
- return {attach,enqueue,open,update,reset};
+ return {attach,enqueue,open,update,reset,hasCode};
 }
