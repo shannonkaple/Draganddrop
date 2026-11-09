@@ -3,7 +3,7 @@
 
 A new standalone first-grade game structurally modeled on **Arrow-Nauts Jr.** with 8 safari regions × 8 activities = 64 total challenges. Each region practices one real computer skill, with the eighth challenge rescuing a safari friend and unlocking the next region.
 
-**Current status:** Fully programmed first playable prototype. It uses safari-themed CSS backgrounds and temporary emoji pieces. The final artwork still needs to be created and integrated; see [ART_ASSET_LIST.md](ART_ASSET_LIST.md). The site is not yet visually identical to Arrow-Nauts Jr. because the 17 priority map/friend images are missing.
+**Current status:** Fully programmed playable prototype with **seven original individual transparent animal PNGs integrated** (toucan, monkey, parrot, zebra, elephant, giraffe, lion), replacing those emoji in map pins, puzzles, rescues, and Friends. Otter, frog, butterfly, the original map and scenery backgrounds, and shop art remain pending; see [ART_ASSET_LIST.md](ART_ASSET_LIST.md). The site is not yet visually identical to Arrow-Nauts Jr. because its nine map JPGs and other art still need to be generated.
 
 Features:
 - First-grade roster from `rainbow-road/data/teachers.json`: Ricketts, Brice, Bell, Wyckoff, Lacroix, Williams, Hicks, Haney, Vannoy, Messer, Basso, Canatella, Boyle, Simon, Arceneaux, Sims, Juvenal, Rizzutto.
@@ -18,7 +18,7 @@ Features:
 
 **Safety/QA requirements before classroom launch:** Verify keyboard focus, double-click cadence, moving and drag interactions on a real Chromebook; check all 64 unique challenges, save-on-reload, locks, 8 rescue awards, and responsive map hotspots. No student full names are stored. Do not reuse the Arrow-Nauts Jr. storage prefix or mutate that game.
 
-**Known omissions relative to Arrow-Nauts Jr.:** Full original safari art, collectible Star Shop, My Stuff decoration placements, and cross-device cloud sync are not yet included. These should be added only as separate changes after gameplay and artwork are confirmed.
+**Known omissions relative to Arrow-Nauts Jr.:** Most original safari scenery artwork, otter/frog/butterfly characters, collectible Star Shop, My Stuff decoration placements, and cross-device cloud sync are not yet included. These should be added only as separate changes after gameplay and artwork are confirmed.
 
 
 ## Eight genuinely different mini-games per region (November 9 update)
