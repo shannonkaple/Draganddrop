@@ -1,158 +1,173 @@
 /**
- * Portable, private student-progress backup for Arrow-Naut (both grades).
- * Does not put student records on an open table or in a public URL.
- * Every cloud account is protected by an unguessable 16-character code.
- * A local verified save ALWAYS happens first; never silently throw it away.
+ * One-time TEACHER pairing per classroom browser, then automatic student sync.
+ * Students enter ONLY their existing teacher and student number.
+ * All browser database access is mediated by the private Edge Function;
+ * no anonymous or public database read/write permissions exist.
  */
 const API='https://vcjyhcnsuiwdeqqbiwgx.supabase.co/functions/v1/arrownaut-save';
-const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const clean=v=>String(v??'').toUpperCase().replace(/[^A-Z2-9]/g,'');
-const codeDisplay=v=>clean(v).match(/.{1,4}/g)?.join('-')||'';
-const linkKey=(game,teacher,student)=>'arrownaut-cloud-link-v1:'+game+':'+teacher+':'+student;
+const DEVICE_KEY='arrownaut-trusted-classroom-browser-v1';
+const backupPrefix='arrownaut-local-before-cloud:';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-const count=p=>(p?.completed?.length||0)+(p?.mapTwo?.completed?.length||0);
-function freshCode(){
- const raw=new Uint8Array(16);crypto.getRandomValues(raw);
- return [...raw].map(x=>alphabet[x%alphabet.length]).join('');
+const copy=v=>JSON.parse(JSON.stringify(v));
+const completions=p=>[...(p?.completed||[]),...(p?.mapTwo?.completed||[])];
+const arraysInclude=(a,b)=>b.every(x=>a.includes(x));
+function getDevice(){
+ try{const value=localStorage.getItem(DEVICE_KEY);return /^[a-f0-9]{64}$/.test(value||'')?value:null}
+ catch{return null}
 }
 async function post(data){
- const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),cache:'no-store'});
- let body;try{body=await response.json()}catch{body={error:'Cloud connection unavailable'}}
- if(!response.ok||!body.ok)throw new Error(body.error||'Cloud save failed');
- return body;
+ const body=JSON.stringify(data);
+ const response=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+  body,cache:'no-store',keepalive:body.length<59000});
+ let result;try{result=await response.json()}catch{result={error:'Cloud unavailable'}}
+ if(!response.ok||!result.ok)throw new Error(result.error||'Cloud request failed');
+ return result;
 }
-const keyFor=(getIdentity,game)=>{
- const {teacher,student}=getIdentity();
- if(!teacher||!Number.isInteger(student))return null;
- return {game,teacher,student};
-};
 export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice}){
- let code='',revision=0,scope='',status='unlinked',paused=false;
- let queue=Promise.resolve(),panel=null;
- const identity=()=>keyFor(getIdentity,game);
- const key=()=>{const id=identity();return id?linkKey(id.game,id.teacher,id.student):''};
- const hasCode=()=>code.length===16;
- function update(){
-  const b=document.querySelector('button[data-action="cloud"]');
-  if(b){
-   b.textContent=status==='saved'?'☁️ Cloud Saved':status==='syncing'?'☁️ Saving…':status==='error'?'⚠️ Not Synced':code?'☁️ Cloud Save':'☁️ Save Code';
-   b.title=status==='error'?'Cloud not saved. Your work is stored only on this Chromebook until this is fixed.':'Access this student progress on other Chromebooks';
-  }
+ let revision=null,session=0,activeScope='',status='unpaired',panel=null,queue=Promise.resolve();
+ let pending=0,blocked=false;
+ const identity=()=>{
+  const {teacher,student}=getIdentity();
+  return teacher&&Number.isInteger(student)?{game,teacher,student}:null;
+ };
+ const scope=()=>{const x=identity();return x?x.game+':'+x.teacher+':'+x.student:''};
+ const isPaired=()=>!!getDevice();
+ const update=()=>{
+  const button=document.querySelector('button[data-action="cloud"]');
+  if(!button)return;
+  button.textContent=status==='saved'?'☁️ Saved':
+   status==='syncing'?'☁️ Syncing…':status==='error'?'⚠️ Not Synced':
+   isPaired()?'☁️ Cloud Sync':'☁️ Teacher Setup';
+  button.title=status==='saved'?'Progress is stored online and can load on another paired classroom Chromebook':
+   status==='error'?'Cloud save failed. This computer still has a local copy.':
+   'Teacher pairs the classroom browser once. Students do not need a code.';
+ };
+ const setStatus=v=>{status=v;update()};
+ const note=message=>{notice(message);console.warn('Arrow-Naut cloud sync:',message)};
+ function safeBackup(progress,reason){
+  if(!progress)return;
+  const key=backupPrefix+scope()+':'+Date.now()+':'+reason;
+  try{
+   const value=JSON.stringify(progress);localStorage.setItem(key,value);
+   if(localStorage.getItem(key)!==value)throw Error('Backup did not verify');
+  }catch{throw Error('The previous progress cannot be backed up. The game will not overwrite it.')}
  }
- function setStatus(next){status=next;update()}
- function reset(){code='';revision=0;paused=false;status='unlinked';scope='';panel?.remove();panel=null;update()}
- function announceError(error){
-  paused=true;setStatus('error');
-  notice('NOT SAVED TO CLOUD. Work is still on THIS computer. Click ⚠️ Not Synced before switching Chromebooks.');
-  console.warn('Cloud save unavailable',String(error?.message||error));
+ function clearLoading(){document.querySelector('.cloud-loading-overlay')?.remove()}
+ function showLoading(){
+  clearLoading();
+  const overlay=document.createElement('div');overlay.className='cloud-loading-overlay';
+  overlay.innerHTML='<div class="cloud-loading-card" role="status" aria-live="polite">☁️ Loading your saved game…</div>';
+  document.body.append(overlay);
  }
- async function loadRemote(importMode=false){
-  const id=identity();if(!id||!code)return;
-  const thisScope=key();const response=await post({...id,code,action:'load'});
-  if(thisScope!==key())return;
-  revision=response.revision;
-  const local=getProgress(),remote=response.progress;
-  if(!remote||remote.version!==1||!Array.isArray(remote.completed))throw new Error('Cloud record invalid; local save was not changed');
-  // Never overwrite unique completed levels just because another device is newer.
-  const localIDs=[...(local?.completed||[]),...(local?.mapTwo?.completed||[])];
-  const remoteSet=new Set([...(remote.completed||[]),...(remote.mapTwo?.completed||[])]);
-  const remoteIDs=[...(remote.completed||[]),...(remote.mapTwo?.completed||[])];
-  const localSet=new Set(localIDs);
-  const localHasUnique=localIDs.some(x=>!remoteSet.has(x));
-  const remoteHasUnique=remoteIDs.some(x=>!localSet.has(x));
-  if(localHasUnique && remoteHasUnique){
-   throw new Error('This Chromebook and the cloud each have different completed levels. Ask the teacher to back up this computer before merging.');
-  }
-  if(localHasUnique&&!remoteHasUnique){
-   // This original device has the most completed lessons. Keep it and safely
-   // upload using the current server revision.
-   setStatus('syncing');enqueue(local);return;
-  }
-  if(remoteHasUnique||importMode||(!localHasUnique&&!remoteHasUnique&&count(remote)>count(local))){
-    if(remoteHasUnique&&local&&JSON.stringify(local)!==JSON.stringify(remote)){
-      const backup='arrownaut-before-cloud-import:'+thisScope+':'+Date.now();
-      localStorage.setItem(backup,JSON.stringify(local));
-    }
-    applyProgress(remote);
-  }
-  paused=false;setStatus('saved');
+ function reset(){
+  session++;revision=null;activeScope='';pending=0;blocked=false;
+  panel?.remove();panel=null;clearLoading();queue=Promise.resolve();
+  setStatus(isPaired()?'idle':'unpaired');
  }
+ const statusError=error=>{
+  blocked=true;setStatus('error');clearLoading();
+  note('⚠️ CLOUD NOT SAVED. Your progress is still on this Chromebook. Tell your teacher before switching computers.');
+  console.warn('Cloud sync error:',String(error?.message||error));
+ };
  function enqueue(progress){
-  const id=identity(),thisScope=key();
-  if(!id||!code||paused)return;
-  setStatus('syncing');
-  const snapshot=JSON.parse(JSON.stringify(progress));
+  const current=identity(),device=getDevice(),tag=session;
+  if(!current||!device||blocked||revision===null||activeScope!==scope())return;
+  const snapshot=copy(progress);pending++;setStatus('syncing');
   queue=queue.catch(()=>{}).then(async()=>{
-   if(thisScope!==key()||paused)return;
+   if(tag!==session||blocked)return;
    try{
-    const saved=await post({...id,code,revision,action:'save',progress:snapshot});
-    if(thisScope!==key())return;
-    revision=saved.revision;setStatus('saved');
-   }catch(e){if(thisScope===key())announceError(e)}
+    const result=await post({action:'save',deviceToken:device,...current,revision,progress:snapshot});
+    if(tag!==session)return;
+    revision=result.revision;pending=Math.max(0,pending-1);
+    if(pending===0)setStatus('saved');
+   }catch(error){if(tag===session)statusError(error)}
   });
+ }
+ async function syncNow(){
+  if(!identity())return false;
+  const device=getDevice(),tag=session;
+  if(!device){setStatus('unpaired');return false}
+  const current=identity();activeScope=scope();blocked=false;setStatus('syncing');
+  showLoading();
+  try{
+   // Always drain writes for this student before reading cloud data.
+   await queue.catch(()=>{});
+   if(tag!==session)return false;
+   const remote=await post({action:'load',deviceToken:device,...current});
+   if(tag!==session)return false;
+   revision=remote.revision;
+   const local=getProgress(),saved=remote.progress;
+   if(saved===null){
+    // First sync of this student. Preserve existing local progress from an
+    // older Chromebook and upload it as the initial remote record.
+    enqueue(local);clearLoading();return true;
+   }
+   if(!saved||saved.version!==1||!Array.isArray(saved.completed))
+    throw Error('Cloud record has an unexpected format. No local work was changed.');
+   const here=completions(local),there=completions(saved);
+   const localHasUnique=!arraysInclude(there,here);
+   const cloudHasUnique=!arraysInclude(here,there);
+   if(localHasUnique){
+    // Do not automatically overwrite either save if the student has separate
+    // progress on multiple devices. The teacher can back up the local record.
+    throw Error(cloudHasUnique?
+      'Both computers contain different completed levels. Back up this Chromebook before combining them.':
+      'This computer has levels not yet in the cloud. Ask your teacher to recover those levels safely.');
+   }
+   if(JSON.stringify(local)!==JSON.stringify(saved)){
+    safeBackup(local,'import');
+    applyProgress(copy(saved));
+   }
+   blocked=false;clearLoading();setStatus('saved');return true;
+  }catch(error){if(tag===session)statusError(error);return false}
  }
  async function attach(){
-  const k=key();if(!k){reset();return}
-  scope=k;revision=0;paused=false;code=clean(localStorage.getItem(k)||'');
-  if(code.length!==16){code='';setStatus('unlinked');return}
-  setStatus('syncing');
-  try{await loadRemote(false)}catch(e){announceError(e)}
+  session++;pending=0;revision=null;activeScope='';blocked=false;
+  if(!getDevice()){setStatus('unpaired');return false}
+  return syncNow();
  }
- const button=(label,action)=>'<button type="button" data-cloud-action="'+action+'">'+label+'</button>';
  function open(){
   if(!identity())return;
-  panel?.remove();
-  panel=document.createElement('div');panel.className='cloud-save-overlay';
+  panel?.remove();panel=document.createElement('div');panel.className='cloud-save-overlay';
+  const paired=isPaired();
   panel.innerHTML='<section class="cloud-save-panel" role="dialog" aria-modal="true" aria-labelledby="cloud-title">'+
-   '<h2 id="cloud-title">☁️ Save Your Game</h2><p>Play on another Chromebook using your private SAVE CODE.</p>'+
+   '<h2 id="cloud-title">☁️ Classroom Saving</h2>'+
+   '<p>'+ (paired?'This computer is connected. Students just choose their teacher and number.':
+     'TEACHER SETUP: Pair this Chromebook once. Students never have to type a save code.')+'</p>'+
    '<p class="cloud-save-student">'+esc(identity().teacher)+' · Student #'+identity().student+'</p>'+
-   (code?'<p class="cloud-code" aria-label="Your private cloud save code">'+codeDisplay(code)+'</p>'+
-       '<p>Keep this code somewhere safe. Never post it online.</p>'+button('📋 Copy Code','copy')+button('🔄 Sync Now','sync'):
-     '<label for="cloud-existing-code">Already have a SAVE CODE?</label><input id="cloud-existing-code" autocomplete="off" spellcheck="false" maxlength="19" placeholder="XXXX-XXXX-XXXX-XXXX">'+
-     button('🔓 Open My Saved Game','connect')+
-     '<p>First time? On the Chromebook with your MOST completed levels:</p>'+
-     button('✨ Make My Save Code','create'))+
-     '<p class="cloud-save-result" role="status"></p>'+
-     button('✖ Close','close')+'</section>';
+   (!paired?'<label for="cloud-classroom-key">Teacher setup key (teacher only)</label>'+
+     '<input type="password" id="cloud-classroom-key" autocomplete="off" spellcheck="false" placeholder="Teacher enters once">'+
+     '<button type="button" data-cloud-action="pair">🔗 Pair This Computer</button>':
+     '<button type="button" data-cloud-action="sync">🔄 Check My Saved Game</button>')+
+   '<p class="cloud-save-result" role="status"></p>'+
+   '<button type="button" data-cloud-action="close">Close</button></section>';
   document.body.append(panel);
-  const result=()=>panel?.querySelector('.cloud-save-result');
-  const msg=t=>{if(result())result().textContent=t};
+  const msg=t=>{const el=panel?.querySelector('.cloud-save-result');if(el)el.textContent=t};
   panel.addEventListener('click',async e=>{
-   const action=e.target.closest('[data-cloud-action]')?.dataset.cloudAction;if(!action)return;
+   const action=e.target.closest('button[data-cloud-action]')?.dataset.cloudAction;
+   if(!action)return;
    if(action==='close'){panel.remove();panel=null;return}
-   if(action==='copy'){try{await navigator.clipboard.writeText(codeDisplay(code));msg('Code copied. Save it securely!')}catch{msg('Write down the code above.')}return}
-   if(action==='sync'){paused=false;try{await loadRemote(false);if(!paused)enqueue(getProgress());msg('Cloud connection checked.')}catch(err){announceError(err);msg(String(err.message))}return}
-   if(action==='create'){
+   if(action==='pair'){
+    const input=panel?.querySelector('#cloud-classroom-key');
+    const pairingCode=input?.value?.trim()||'';
+    if(pairingCode.replace(/[^a-zA-Z2-9]/g,'').length!==24){
+      msg('Please ask your teacher to enter the complete setup key.');return
+    }
+    msg('Connecting this classroom computer…');
     try{
-     const id=identity(),progress=getProgress(),newCode=freshCode();
-     const created=await post({...id,code:newCode,action:'create',progress});
-     const k=key();if(!k)return;
-     localStorage.setItem(k,newCode);
-     code=newCode;revision=created.revision;paused=false;setStatus('saved');
-     open();panel?.querySelector('.cloud-save-result')?.append('Cloud save created! Copy or write down this code to use on other computers.');
-    }catch(err){msg('Could not start cloud saving. Local progress is still safe. '+err.message)}
-    return;
-   }
-   if(action==='connect'){
-    const candidate=clean(panel.querySelector('#cloud-existing-code')?.value||'');
-    if(candidate.length!==16){msg('Enter the 16-character save code.');return}
-    const previous=code;code=candidate;paused=false;
-    try{
-      const local=getProgress();
-      const response=await post({...identity(),code,action:'load'});
-      const remote=response.progress;
-      const localIDs=[...(local?.completed||[]),...(local?.mapTwo?.completed||[])];
-      const remoteIDs=new Set([...(remote?.completed||[]),...(remote?.mapTwo?.completed||[])]);
-      if(localIDs.some(x=>!remoteIDs.has(x)))throw new Error('This computer has completed levels not in the cloud. Start cloud saving on that original Chromebook or back up this record before linking.');
-      const k=key();
-      if(!k)return;
-      localStorage.setItem(k,candidate);revision=response.revision;
-      if(local&&JSON.stringify(local)!==JSON.stringify(remote))
-        localStorage.setItem('arrownaut-before-cloud-import:'+k+':'+Date.now(),JSON.stringify(local));
-      applyProgress(remote);setStatus('saved');open();msg('Connected! Your cloud progress is loaded.');
-    }catch(err){code=previous;msg('Could not connect: '+err.message)}
+     const result=await post({action:'pair',pairingCode});
+     localStorage.setItem(DEVICE_KEY,result.deviceToken);
+     if(localStorage.getItem(DEVICE_KEY)!==result.deviceToken)throw Error('Cannot store secure browser pairing');
+     input.value='';panel?.remove();panel=null;
+     const synced=await attach();
+     if(!synced)open();
+    }catch(error){msg('Pairing failed. '+error.message);setStatus('unpaired')}
+   }else if(action==='sync'){
+     const synced=await syncNow();
+     msg(synced?'Cloud connection checked and your progress loaded.':
+       'Cloud sync needs attention. Do not switch Chromebooks until this is resolved.');
    }
   });
  }
- return {attach,enqueue,open,update,reset,hasCode};
+ return {attach,enqueue,open,update,reset,isPaired};
 }
