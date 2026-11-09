@@ -64,11 +64,17 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .maze{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;width:min(88%,650px);height:min(56vh,310px)}
 .maze-cell{border:2px solid #a7c68d;background:#fffde2bc;border-radius:8px;display:grid;place-items:center;font-size:clamp(22px,3vw,39px)}
 .maze-cell.rock{background:#a2bba5}.maze-cell.goal{background:#ffe9a1;border:3px dashed #b99537}.maze-cell.player{background:#e5f4ff;border:4px solid #3984b5;cursor:pointer}.maze-cell.chosen{outline:4px solid #ffb945;outline-offset:1px}
-.move-zone{position:relative;width:100%;height:100%}
+.move-zone{position:absolute;inset:0;width:100%;height:100%;overflow:hidden}
 .draggy,.target{position:absolute;width:15%;height:22%;display:grid;place-items:center;font-size:clamp(40px,5vw,75px);border-radius:16px}
 .target{z-index:2;border:4px dashed #669766;background:#fbfce653;pointer-events:none}.target .ghost{opacity:.34;filter:grayscale(1)}
 .draggy{z-index:5;border:3px solid #fffdf2;background:#fffdf0a8;cursor:grab;touch-action:none}
 .draggy.selected{outline:5px solid #ffcd5c;z-index:9}.draggy.done{pointer-events:none;z-index:3;border-color:#6bb36e;background:#b4f0b45e}
+.move-zone .safari-selectable{z-index:10;border:3px solid #377e52;background:#fff9dcf2;box-shadow:0 5px 0 #80a878;cursor:pointer;overflow:hidden;touch-action:none}
+.move-zone .safari-selectable.selected{border-color:#e7a929;outline:5px solid #ffd763;outline-offset:1px;background:#fff8d0}
+.move-zone .safari-selectable.done{border-color:#4eaa63;outline:none;background:#c7f1be;cursor:default}
+.move-zone .safari-selectable .game-animal-img{width:100%;height:calc(100% - 22px);object-fit:contain}
+.move-zone .animal-name-tag{position:absolute;bottom:0;left:0;right:0;min-height:21px;display:grid;place-items:center;font:700 clamp(11px,1.2vw,15px)/1.1 Arial,sans-serif;letter-spacing:.03em;color:#22553a;background:#fff5d0;pointer-events:none}
+.move-zone .safari-selectable.selected .animal-name-tag{background:#ffe38a}
 .scroll-case{width:min(93%,580px);height:75%;overflow-y:auto;overscroll-behavior:contain;border:4px solid #84ab88;border-radius:18px;background:#fffdf5;box-shadow:0 5px 0 #96ba95;touch-action:pan-y;margin-top:41px}
 .scroll-item{display:flex;align-items:center;justify-content:center;gap:15px;min-height:106px;margin:9px 11px;padding:10px;background:#e9f7db;border:2px solid #83bb86;border-radius:15px;font-size:clamp(19px,2.4vw,30px);width:calc(100% - 22px)}
 .scroll-item span{font-size:44px}
@@ -566,6 +572,7 @@ function startMoveGame(type,stage,puzzle){
  }else{
   run.pieces.forEach((p,i)=>{
    const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.style.width=p.w+'%';t.style.height=p.h+'%';t.append(safariArt(p.emoji,'ghost'));
+   if(!dragging)t.append(el('span','animal-name-tag','HOME'));
    if(spec.moving)t.classList.add('raft');
    zone.append(t);p.goalEl=t;
   });
@@ -586,11 +593,23 @@ function startMoveGame(type,stage,puzzle){
  run.pieces.forEach(p=>{
   const item=putAnimalArt(el('div','draggy'),p.emoji);item.dataset.id=p.id;zone.append(item);p.element=item;positionPiece(p);
   if(dragging)item.addEventListener('pointerdown',e=>dragStart(e,p));
-  else item.addEventListener('pointerdown',e=>{
-   if(e.pointerType==='touch'||p.done||run.active===false)return;
-   e.preventDefault();run.selected=p;zone.querySelectorAll('.draggy').forEach(x=>x.classList.remove('selected'));
-   item.classList.add('selected');run.badge.textContent='MOVE '+p.emoji+' WITH KEYBOARD ARROWS';document.getElementById('game-board').focus({preventScroll:true});
-  });
+  else{
+   item.classList.add('safari-selectable');
+   item.append(el('span','animal-name-tag',ANIMALS.find(a=>a.icon===p.emoji)?.name?.toUpperCase()||'SELECT'));
+   item.tabIndex=0;item.setAttribute('role','button');
+   item.setAttribute('aria-label','Select '+(ANIMALS.find(a=>a.icon===p.emoji)?.name||'animal')+' and use keyboard arrows to move it');
+   const selectPiece=()=>{
+    if(!run||run.complete||run.active===false||p.done||state.view!=='game')return;
+    run.selected=p;zone.querySelectorAll('.draggy').forEach(x=>x.classList.remove('selected'));
+    item.classList.add('selected');
+    run.badge.textContent='SELECTED '+p.emoji+' · USE THE KEYBOARD ARROWS';
+    feedback('Animal selected! Press the ARROW KEYS to move it toward HOME.');
+    document.getElementById('game-board')?.focus({preventScroll:true});
+   };
+   item.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;e.preventDefault();selectPiece()});
+   item.addEventListener('click',e=>{if(e.detail===0)selectPiece()});
+   item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectPiece()}});
+  }
  });
  if(spec.seconds)showMissionClock(spec.seconds);
 }
@@ -606,7 +625,9 @@ function checkMoveCheckpoints(p){
 }
 function verifyMoveDock(p){
  const ready=!run.beacons.length||run.beacons.every(b=>b.got);
- if(Math.abs(p.x-p.tx)>=5||Math.abs(p.y-p.ty)>=7)return;
+ const centerX=p.x+p.w/2,centerY=p.y+p.h/2;
+ const goalX=p.tx+p.w/2,goalY=p.ty+p.h/2;
+ if(Math.abs(centerX-goalX)>6||Math.abs(centerY-goalY)>9)return;
  if(!ready){feedback('Collect the glowing checkpoints first!',true);return}
  p.x=p.tx;p.y=p.ty;p.done=true;p.element.classList.remove('selected');p.element.classList.add('done');positionPiece(p);run.selected=null;
  feedback('Animal rescued! ⭐');
@@ -787,6 +808,7 @@ window.addEventListener('keydown',e=>{
    Math.max(0,Math.min(p.x+p.w,q.x+q.w)-Math.max(p.x,q.x))*
    Math.max(0,Math.min(p.y+p.h,q.y+q.h)-Math.max(p.y,q.y))>2);
   if(collide){p.x=beforeX;p.y=beforeY;feedback('That spot is filled! Steer around it.',true)}
+  else if(p.x!==beforeX||p.y!==beforeY)feedback('Nice moving! Keep going toward the matching HOME picture.');
   positionPiece(p);checkMoveCheckpoints(p);verifyMoveDock(p);
   return
  }
