@@ -57,7 +57,7 @@ function header(){
 function entry(){
  if(state.view==='teachers')return `<main class="main"><section class="hero"><span class="tag">WELCOME, SPACE EXPLORER</span><h1>Choose Your Teacher</h1><p>Click carefully. Get ready to use your trackpad and arrow keys on an out-of-this-world mission!</p></section>
  ${state.error?`<p class="error-banner" role="alert">${esc(state.error)} <button data-action="reload-teachers">Try Again</button></p>`:''}
- <section class="entry"><h2>Who is your teacher?</h2><div class="selection-grid">${state.teachers.map(t=>`<button data-teacher="${esc(t.id)}">${esc(t.name)}</button>`).join('')}</div></section></main>`;
+ <section class="entry"><h2>Who is your teacher?</h2><div class="selection-grid">${state.teachers.map(t=>`<button data-teacher="${esc(t.id)}">${esc(t.name)}</button>`).join('')}</div><button type="button" class="teacher-pair-button" data-action="cloud">🔗 Teacher: Pair This Computer</button></section></main>`;
  return `<main class="main"><section class="entry"><button data-action="teachers">← Teachers</button><h1>Choose Your Student Number</h1><p>Use your classroom number. When your teacher has connected the computer, your saved work follows you to any classroom Chromebook.</p>
  <div class="selection-grid number-grid">${Array.from({length:30},(_,i)=>`<button data-student="${i+1}">${i+1}</button>`).join('')}</div></section></main>`;
 }
