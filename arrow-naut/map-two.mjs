@@ -286,7 +286,7 @@ export function mountMapTwo(node,{read,save,exit,teacherPreview=false}){
   event.preventDefault();const x=event.clientX-drag.x,y=event.clientY-drag.y;drag.lastX=x;drag.lastY=y;
   const item=node.querySelector(`[data-m2-piece="${drag.pieceId}"]`);
   if(item&&drag.mode==='drag')item.style.transform=`translate(${x}px, ${y}px)`;
-  if(item&&drag.mode==='rotate'){const turns=Math.max(-3,Math.min(3,Math.round(x/(drag.board.width/12))||1));const photo=item.querySelector('.m2-object-image');if(photo)photo.style.transform='rotate('+(((drag.base.pieces.find(p=>p.id===drag.pieceId)?.rotation||0)+turns*90+360)%360)+'deg)';}
+  if(item&&drag.mode==='rotate'){const turns=Math.max(-3,Math.min(3,Math.round(x/(drag.board.width/12))));const photo=item.querySelector('.m2-object-image');if(photo)photo.style.transform='rotate('+(((drag.base.pieces.find(p=>p.id===drag.pieceId)?.rotation||0)+turns*90+360)%360)+'deg)';}
   if(item&&drag.mode==='resize'){
    const dx=Math.round(x/drag.board.width*12),dy=Math.round(y/drag.board.height*7),m=createMapTwoMission(world,stage);
    const result=resizeMapTwo(m,drag.base,drag.pieceId,drag.handle,dx,dy);
@@ -298,7 +298,7 @@ export function mountMapTwo(node,{read,save,exit,teacherPreview=false}){
   const dx=Math.round((event.clientX-d.x)/d.board.width*12),dy=Math.round((event.clientY-d.y)/d.board.height*7);
   const p=d.base.pieces.find(p=>p.id===d.pieceId);
   if(d.mode==='drag')action('drop',d.pieceId,p.x+dx,p.y+dy);
-  else if(d.mode==='rotate')action('rotate',d.pieceId,Math.max(-3,Math.min(3,dx||1)));
+  else if(d.mode==='rotate'){if(dx)action('rotate',d.pieceId,Math.max(-3,Math.min(3,dx)));else{notice='Hold the curved arrow and drag sideways to rotate.';draw()}}
   else action('resize',d.pieceId,d.handle,dx,dy);
   if(node.querySelector('.m2-board')&&node.querySelector('[data-m2-piece="'+d.pieceId+'"]')?.style.transform)draw();
  }

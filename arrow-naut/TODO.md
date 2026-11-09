@@ -52,3 +52,14 @@
 - [ ] Replace temporary CSS maze wall boundaries with approved illustrated **independent** PNG collision-wall art. Keep the actual path and visual cells aligned.
 - [ ] Live GitHub Pages browser QA: header, all eight mazes, four moving enemy collisions, playthrough, 1/10-star rewards, replay, shop buys, inventory placement/reload, normal/fullscreen.
 - [ ] Playtest difficulty with second graders. Do not mark final art or gameplay QA complete on source-code checks alone.
+
+
+## November 9 — Map Two rotation and read-only Teacher Preview
+- [x] Preserve existing 64/64 Map One mission gate before student Map Two entry; all original mission IDs, saved stars, rescued friends and student save keys remain unchanged.
+- [x] Keep Map Two as a separate eight-stop galaxy; Aurora Garden and Clockwork Comet have eight playable missions each and distinct illustrated eight-pin world maps matching Map One's layout.
+- [x] Add visible curved-arrow trackpad rotation to Aurora Garden level 6 and combined keyboard-move/rotate to Clockwork Comet level 6. Goals validate angle as well as position.
+- [x] Add Teacher panel passcode-gated **PREVIEW ALL MAPS & LEVELS** allowing all eight original planets and their missions plus both implemented Map Two worlds without prerequisite wins; preview never writes saved progress or awards stars.
+- [x] Automated GitHub Actions tests passed and GitHub Pages deployment succeeded on November 9. Live browser smoke tested Teacher code, Map One last planet/final maze, Map Two Aurora Garden level 6, map art, and rotation handle display; no broken assets reported.
+- [ ] Verify full drag-to-rotate gesture and snapped orientation on an actual second-grade trackpad/Chromebook, normal and fullscreen, including accidental clicks and leave/re-enter behavior.
+- [ ] Produce and approve separate 1672×941 illustrated backgrounds, friends and genuinely distinct eight-level activities for Prism Reef, Cloud Carnival, Crystal Caverns, Nebula Library, Ember Workshop, and Moonlight Jungle. They stay visibly COMING SOON / locked until complete, rather than offering nonworking levels.
+- [ ] Playtest all sixteen new missions with real second graders and visually verify map overlays at 1280×720 and 1366×768.
