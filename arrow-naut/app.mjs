@@ -298,14 +298,14 @@ function syncFinaleClock(){
  },delay);
 }
 function applyPurchase(id){const item=SPACE_SHOP.find(x=>x.id===id);if(!item)return;const result=purchase(state.progress,item);if(!result.ok){notify(result.reason,true);return}if(persist(result.progress)){state.message='You bought '+item.name+'!';state.error='';render();}}
-function openStudent(number){state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';let loaded;
+function openStudent(number){cloud.reset();state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';const brandNew=localStorage.getItem(state.key)===null;let loaded;
  try{loaded=validatedSave(localStorage.getItem(state.key))}catch(e){state.dataError=e.message;state.error=e.message;state.view='error';render();return}
- state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach();}
+ state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach().then(()=>{if(brandNew&&!cloud.hasCode())cloud.open()});}
 function logOut(){cloud.reset();state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
 function onAction(action){
  switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
- case 'teachers':state.view='teachers';render();break;
- case 'students':state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
+ case 'teachers':cloud.reset();state.view='teachers';render();break;
+ case 'students':cloud.reset();state.view='students';state.dataError='';state.error='';state.progress=null;render();break;
  case 'logout':logOut();break;
  case 'cloud':cloud.open();break;
  case 'home':if(state.progress){state.view='home';state.modal=null;state.mission=null;state.run=null;render()}break;
