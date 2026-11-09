@@ -41,6 +41,8 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .game-page{flex:1;min-height:0;padding:7px 10px;display:flex;flex-direction:column;gap:8px}.game-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .game-head h1{font-size:clamp(16px,1.7vw,25px);color:#296f4a;margin:2px 0}.game-head small{font-size:12px}
 .directions{display:flex;align-items:center;justify-content:space-between;gap:9px;background:#fffdf3;border:2px solid #7ab583;border-radius:14px;padding:8px 12px;min-height:53px}.directions strong{font-size:clamp(13px,1.35vw,19px)}
+.new-skill-guide{display:inline-block;padding:5px 9px;border:2px dashed #d09e3d;border-radius:12px;background:#fff0b9;font-size:clamp(11px,1.02vw,15px);text-align:center;color:#55401c}
+@media(max-width:850px){.directions{flex-wrap:wrap}.new-skill-guide{order:2;width:100%}}
 .playfield{position:relative;min-height:330px;flex:1;max-height:calc(100dvh - 212px);background:linear-gradient(#caeff8 0 46%,#def0bc 46% 75%,#9dce7d 75%);border:5px solid #fff;border-radius:21px;box-shadow:0 6px 0 #95c492;overflow:hidden;outline:none;user-select:none;touch-action:none}
 .playfield[data-theme="forest"]{background:linear-gradient(#a9e1bc,#b0e4c3 52%,#7dbb8d 52%)}
 .playfield[data-theme="desert"]{background:linear-gradient(#cbeafa 0 56%,#ecd49c 56%)}
@@ -190,8 +192,8 @@ function directions(){
  if(w.type==='number')return prefix+'Find each shown NUMBER on your real keyboard. Press one number at a time.';
  if(w.type==='arrows')return prefix+'CLICK the safari jeep. Use the KEYBOARD ARROWS to reach the yellow camp. Avoid rocks.';
  if(w.type==='selectmove')return prefix+'CLICK the pictured animal. Use the KEYBOARD ARROWS to MOVE it into the matching dotted spot.';
- if(w.type==='drag')return prefix+'CLICK AND HOLD a picture, MOVE it with your trackpad, then RELEASE in its matching spot.';
- return prefix+'Use TWO FINGERS to SCROLL down the page, then CLICK the animal shown above.'
+ if(w.type==='drag')return prefix+(s===0?'NEW SKILL! Practice slowly: PRESS AND HOLD the trackpad, SLIDE the picture, then LET GO in the dotted space.':'PRESS AND HOLD, SLIDE, and RELEASE each picture in its dotted space. Do not use arrow keys.');
+ return prefix+(s===0?'NEW SKILL! Put TWO FINGERS on your trackpad and SLIDE DOWN together to scroll the list. Then CLICK the animal.':'Use TWO FINGERS to SCROLL down the list, then CLICK the animal shown above.')
 }
 function renderGame(){
  const w=WORLDS[state.world],main=el('main','game-page');
@@ -199,6 +201,12 @@ function renderGame(){
  const h=el('h1','',w.icon+' '+w.name+' — Challenge '+(state.stage+1)+'/8');head.append(h);
  const back=el('button','','← Map');back.onclick=()=>setView('world');head.append(back);main.append(head);
  const box=el('div','directions'),txt=el('strong','',directions());box.append(txt);
+ // First lesson in each NEW skill map includes a non-blocking visual how-to.
+ if(state.stage===0&&(w.type==='drag'||w.type==='scroll')){
+  const coach=el('span','new-skill-guide',w.type==='drag'?'☝️ PRESS + HOLD  →  ➡️ SLIDE  →  ✋ RELEASE':'✌️ TWO FINGERS  →  ⬇️ SLIDE DOWN  →  🐾 FIND');
+  coach.setAttribute('aria-label',w.type==='drag'?'Hold the trackpad click, slide the picture, and release.':'Use two fingers together to scroll downward.');
+  box.append(coach);
+ }
  const say=el('button','','🔊 Hear Directions');say.onclick=()=>speak(directions());box.append(say);main.append(box);
  const board=el('section','playfield');board.dataset.theme=w.theme;board.id='game-board';board.tabIndex=0;board.append(el('div','field-deco'));
  const puzzle=el('div','interactive');puzzle.id='puzzle';board.append(puzzle);main.append(board);
@@ -211,9 +219,17 @@ function promptBadge(text){
  const b=el('div','question-bubble',text);document.getElementById('puzzle').append(b);return b
 }
 function animalChoices(want,stage,limit){
- const choices=[];let i=0;while(choices.length<limit){const a=ANIMALS[(stage*3+i)%ANIMALS.length];if(!choices.some(x=>x.name===a.name))choices.push(a);i++}
- want.forEach(a=>{if(!choices.some(x=>x.name===a.name))choices[choices.length-1-want.indexOf(a)%choices.length]=a});
- return choices
+ // Include EVERY required target first, then add distractors. Never replace
+ // a required target with another target (which made some levels impossible).
+ const choices=[];
+ for(const a of want)if(!choices.some(x=>x.name===a.name))choices.push(a);
+ for(let i=0;choices.length<limit&&i<ANIMALS.length*2;i++){
+  const a=ANIMALS[(stage*3+i)%ANIMALS.length];
+  if(!choices.some(x=>x.name===a.name))choices.push(a);
+ }
+ // Rotating the options between stages keeps the board from looking repetitive.
+ const rotation=stage%choices.length;
+ return choices.slice(rotation).concat(choices.slice(0,rotation));
 }
 function setupPuzzle(){
  const w=WORLDS[state.world],s=state.stage,puzzle=document.getElementById('puzzle');
@@ -251,7 +267,7 @@ function setupPuzzle(){
    pieces.push({id:i,emoji:icon,x:12,y,w:15,h:22,tx:70,ty:y,done:false})
   }
   run.pieces=pieces;run.selected=null;run.zone=zone;
-  run.badge=promptBadge(w.type==='drag'?'DRAG EACH PICTURE INTO ITS OUTLINE':'CLICK '+pieces[0].emoji+' AND MOVE WITH ARROWS');
+  run.badge=promptBadge(w.type==='drag'?(s===0?'HOLD · SLIDE · LET GO':'DRAG EACH PICTURE INTO ITS OUTLINE'):'CLICK '+pieces[0].emoji+' AND MOVE WITH ARROWS');
   pieces.forEach(p=>{const t=el('div','target');t.style.left=p.tx+'%';t.style.top=p.ty+'%';t.append(el('span','ghost',p.emoji));zone.append(t)});
   pieces.forEach(p=>{const item=el('div','draggy',p.emoji);item.dataset.id=p.id;zone.append(item);p.element=item;positionPiece(p);
    if(w.type==='drag')item.addEventListener('pointerdown',e=>dragStart(e,p));
@@ -259,9 +275,9 @@ function setupPuzzle(){
   });return
  }
  if(w.type==='scroll'){
-  const count=9+s, targetIndex=4+s,target=ANIMALS[(s*2+5)%ANIMALS.length];
+  const count=s===0?7:9+s, targetIndex=s===0?2:4+s,target=ANIMALS[(s*2+5)%ANIMALS.length];
   run.scrollTarget=targetIndex;
-  run.badge=promptBadge('SCROLL DOWN AND FIND '+target.icon+' '+target.name.toUpperCase());
+  run.badge=promptBadge((s===0?'✌️ TWO FINGERS DOWN · THEN CLICK ':'SCROLL DOWN · FIND ')+target.icon+' '+target.name.toUpperCase());
   const pane=el('div','scroll-case');run.scrollPane=pane;
   for(let i=0;i<count;i++){
    const a=i===targetIndex?target:ANIMALS[(i+s+3)%ANIMALS.length];const item=el('button','scroll-item');
