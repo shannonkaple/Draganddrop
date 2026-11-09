@@ -128,9 +128,9 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .game-animal-img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
 .pin-icon .game-animal-img{height:clamp(30px,3vw,49px);max-width:100%;margin:auto}
 .pin.level .pin-icon .game-animal-img{height:clamp(23px,2.7vw,40px)}
-.tap-item .game-animal-img{width:87%;height:87%;margin:auto}
-.draggy .game-animal-img,.target .game-animal-img{width:92%;height:92%;margin:auto}
-.scroll-item .game-animal-img{width:48px;height:48px}
+.tap-item .game-animal-img{width:94%;height:94%;margin:auto}
+.draggy .game-animal-img,.target .game-animal-img{width:96%;height:96%;margin:auto}
+.scroll-item .game-animal-img{width:clamp(64px,6vw,82px);height:clamp(64px,6vw,82px)}
 .modal-card .friend{min-height:112px;display:grid;place-items:center}
 .modal-card .friend .game-animal-img{width:min(230px,50vw);height:min(230px,29vh)}
 .friends-gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
@@ -231,8 +231,8 @@ const seqLengths=[1,1,2,2,3,3,3,4];
 const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null};
 let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
-const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly'});
-const EMOJI_ANIMAL_PNG=Object.freeze({'🐒':'monkey','🦜':'parrot','🦓':'zebra','🐘':'elephant','🦒':'giraffe','🦦':'otter','🦁':'lion','🐸':'frog','🦋':'butterfly'});
+const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly',Turtle:'turtle',Hippo:'hippo',Lizard:'lizard',Ladybug:'ladybug',Crab:'crab',Fish:'fish',TropicalFish:'tropical-fish'});
+const EMOJI_ANIMAL_PNG=Object.freeze({'🐒':'monkey','🦜':'parrot','🦓':'zebra','🐘':'elephant','🦒':'giraffe','🦦':'otter','🦁':'lion','🐸':'frog','🦋':'butterfly','🐢':'turtle','🦛':'hippo','🦎':'lizard','🐞':'ladybug','🦀':'crab','🐟':'fish','🐠':'tropical-fish'});
 function putAnimalArt(host,emoji,species=null){
  host.replaceChildren();
  const name=species?PNG_ANIMALS[species]:EMOJI_ANIMAL_PNG[emoji];
