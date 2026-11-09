@@ -13,7 +13,7 @@ const getCompleted=p=>[...(p?.completed||[]),...(p?.mapTwo?.completed||[])];
 const extraReward=id=>/-8$/.test(id)?10:1;
 function blank(p){
  return !p || (!getCompleted(p).length&&!(p.purchases||[]).length&&!(p.rescued||[]).length&&
- !(p.worldScene||[]).length&&!(p.stars>0));
+ !(p.worldScene||[]).length&&!(p.stars>0)&&!p.active&&!p.mapTwo?.active);
 }
 export function combineClassroomProgress(local,remote,getPrice=()=>0){
  if(!remote)return copy(local);
