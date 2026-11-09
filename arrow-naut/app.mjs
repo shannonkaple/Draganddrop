@@ -4,7 +4,7 @@ import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMissi
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=map-two-locked-r2';
 import {mountMapTwo} from './map-two.mjs?v=picture-first-steps-20261105';
-import {makeCloudSave} from './cloud-save.mjs?v=portable-cloud-20261109a';
+import {makeCloudSave} from './cloud-save.mjs?v=teacher-paired-classroom-sync-20261109b';
 const root=document.getElementById('app');
 let disposeMapTwo=null;
 const $=selector=>root.querySelector(selector);
@@ -50,7 +50,7 @@ function header(){
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
  return `<header class="topbar" id="main-header"><div class="brand"><img class="astronaut-corner" src="../arrow-naut-jr/assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div class="brand-title"><strong>ARROW-NAUT SPACE ADVENTURE</strong><small>SECOND GRADE · CLICK · MOVE · RESIZE · FIT${hasStudent?' · '+esc(studentText):''}</small></div></div>
  <nav class="center-controls" aria-label="Game controls">${hasStudent?
-  `<button class="nav-home-button" data-action="home">🏠 Home Map</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">🌌 Map Two</button>`:''}<button data-action="shop">⭐ Star Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Save Code</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
+  `<button class="nav-home-button" data-action="home">🏠 Home Map</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">🌌 Map Two</button>`:''}<button data-action="shop">⭐ Star Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Classroom Sync</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">❓ How to Play</button><button data-action="teacher">Teacher</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
 function entry(){
@@ -298,9 +298,9 @@ function syncFinaleClock(){
  },delay);
 }
 function applyPurchase(id){const item=SPACE_SHOP.find(x=>x.id===id);if(!item)return;const result=purchase(state.progress,item);if(!result.ok){notify(result.reason,true);return}if(persist(result.progress)){state.message='You bought '+item.name+'!';state.error='';render();}}
-function openStudent(number){cloud.reset();state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';const brandNew=localStorage.getItem(state.key)===null;let loaded;
+function openStudent(number){cloud.reset();state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';let loaded;
  try{loaded=validatedSave(localStorage.getItem(state.key))}catch(e){state.dataError=e.message;state.error=e.message;state.view='error';render();return}
- state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach().then(()=>{if(brandNew&&!cloud.hasCode())cloud.open()});}
+ state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach().then(ok=>{if(!ok)cloud.open()});}
 function logOut(){cloud.reset();state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
 function onAction(action){
  switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
