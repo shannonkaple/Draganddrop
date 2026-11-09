@@ -131,6 +131,7 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .tap-item .game-animal-img{width:94%;height:94%;margin:auto}
 .draggy .game-animal-img,.target .game-animal-img{width:96%;height:96%;margin:auto}
 .scroll-item .game-animal-img{width:clamp(64px,6vw,82px);height:clamp(64px,6vw,82px)}
+.maze-cell .game-animal-img{width:90%;height:90%;max-width:100%;max-height:100%;margin:auto}
 .modal-card .friend{min-height:112px;display:grid;place-items:center}
 .modal-card .friend .game-animal-img{width:min(230px,50vw);height:min(230px,29vh)}
 .friends-gallery{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
@@ -233,12 +234,20 @@ let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly',Turtle:'turtle',Hippo:'hippo',Lizard:'lizard',Ladybug:'ladybug',Crab:'crab',Fish:'fish',TropicalFish:'tropical-fish'});
 const EMOJI_ANIMAL_PNG=Object.freeze({'🐒':'monkey','🦜':'parrot','🦓':'zebra','🐘':'elephant','🦒':'giraffe','🦦':'otter','🦁':'lion','🐸':'frog','🦋':'butterfly','🐢':'turtle','🦛':'hippo','🦎':'lizard','🐞':'ladybug','🦀':'crab','🐟':'fish','🐠':'tropical-fish'});
+// Original individual transparent PNGs, reused consistently across every safari skill.
+const SAFARI_PIECE_PNG=Object.freeze({'🎒':'backpack','🧭':'compass','📷':'camera','🔭':'telescope','BINOCULARS':'binoculars','🗺️':'safari-map','⛺':'tent','🪣':'bucket','🚙':'jeep','🔑':'key'});
 function putAnimalArt(host,emoji,species=null){
  host.replaceChildren();
- const name=species?PNG_ANIMALS[species]:EMOJI_ANIMAL_PNG[emoji];
- if(!name){host.textContent=emoji;return host;}
- const im=document.createElement('img');im.className='game-animal-img';im.src='./assets/animals/'+name+'.png';
- im.alt=species||name;im.draggable=false;im.onerror=()=>{if(im.isConnected)host.textContent=emoji};host.append(im);
+ const animal=species?PNG_ANIMALS[species]:EMOJI_ANIMAL_PNG[emoji];
+ const piece=SAFARI_PIECE_PNG[emoji];
+ if(!animal&&!piece){host.textContent=emoji;return host;}
+ const im=document.createElement('img');
+ im.className='game-animal-img';
+ im.src=animal?'./assets/animals/'+animal+'.png':'./assets/pieces/'+piece+'.png';
+ im.alt=species||animal||piece.replace(/-/g,' ');
+ im.draggable=false;
+ im.onerror=()=>{if(im.isConnected)host.textContent=emoji};
+ host.append(im);
  return host;
 }
 function safariArt(emoji,cls='',species=null){return putAnimalArt(el('span',cls),emoji,species)}
@@ -713,7 +722,7 @@ const SCROLL_GAMES=[
  {title:'Find the Hidden Lion',help:'NEW SKILL! Use TWO FINGERS to SCROLL down and find the LION!',total:12,targets:[['🦁',5]]},
  {title:'River Animal Search',help:'SCROLL down the list to find the OTTER, then find the FISH!',total:15,targets:[['🦦',6],['🐟',11]]},
  {title:'Fruit Trail Finder',help:'SCROLL down and find BANANA, COCONUT, and PINEAPPLE in order!',total:19,targets:[['🍌',5],['🥥',10],['🍍',15]]},
- {title:'Ranger Clue Hunt',help:'SCROLL and find the PAW, BINOCULARS, and SAFARI MAP!',total:20,targets:[['🐾',5],['🔭',11],['🗺️',16]]},
+ {title:'Ranger Clue Hunt',help:'SCROLL and find the PAW, BINOCULARS, and SAFARI MAP!',total:20,targets:[['🐾',5],['BINOCULARS',11],['🗺️',16]]},
  {title:'Up and Down Safari',help:'SCROLL DOWN for a STAR, back UP for a COMPASS, then DOWN for a GEM!',total:22,targets:[['⭐',16],['🧭',1],['💎',19]]},
  {title:'Ranger Supply Search',help:'SCROLL down the supply list to find FOUR lost safari supplies!',total:25,targets:[['⛺',5],['🪣',11],['📷',17],['🎒',22]]},
  {title:'Scroll Scavenger Sprint',help:'FIND FIVE hidden pictures by SCROLLING before the timer runs out!',total:27,targets:[['🦋',5],['🐒',10],['🐘',15],['🦒',20],['🪶',24]],seconds:90},
@@ -767,11 +776,11 @@ function paintMaze(){
   const cell=el('div','maze-cell'),pickedIndex=run.checkpoints.findIndex((p,i)=>p[0]===x&&p[1]===y&&!run.picked.includes(i));
   if(run.rocks.some(p=>p[0]===x&&p[1]===y)){cell.classList.add('rock');cell.textContent='🪨'}
   else if(run.position[0]===x&&run.position[1]===y){
-   cell.classList.add('player');if(run.selected)cell.classList.add('chosen');cell.textContent='🚙';
+   cell.classList.add('player');if(run.selected)cell.classList.add('chosen');putAnimalArt(cell,'🚙');
    cell.onclick=()=>{run.selected=true;feedback('Now use the keyboard ARROW keys!');paintMaze();document.getElementById('game-board').focus({preventScroll:true})};
   }
-  else if(pickedIndex>=0){cell.classList.add('arrow-pickup');cell.textContent=run.spec.decor}
-  else if(run.goal[0]===x&&run.goal[1]===y){cell.classList.add('goal');cell.textContent='⛺'}
+  else if(pickedIndex>=0){cell.classList.add('arrow-pickup');putAnimalArt(cell,run.spec.decor)}
+  else if(run.goal[0]===x&&run.goal[1]===y){cell.classList.add('goal');putAnimalArt(cell,'⛺')}
   grid.append(cell);
  }
  const remaining=run.checkpoints.length-run.picked.length;
