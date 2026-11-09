@@ -1,10 +1,12 @@
-name: Verify Arrow-Naut private classroom cloud saves
+name: Verify Arrow-Naut automatic cloud saves
 on:
   push:
     branches: [main]
     paths:
       - 'arrow-naut/cloud-save.mjs'
       - 'arrow-naut/cloud-save.test.mjs'
+      - 'arrow-naut/app.mjs'
+      - 'arrow-naut-jr/app.mjs'
       - '.github/workflows/arrownaut-cloud-smoke.yml'
   workflow_dispatch:
 permissions:
@@ -13,7 +15,7 @@ concurrency:
   group: arrownaut-cloud-smoke
   cancel-in-progress: true
 jobs:
-  verify-protection:
+  verify-auto-saves:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -21,52 +23,41 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Confirm student cloud client compiles
+      - name: Check automatic cloud client syntax
         run: node --check arrow-naut/cloud-save.mjs
-      - name: Run automatic classroom cloud-save client regression tests
+      - name: Test automatic progress sync across Chromebooks
         run: node --test arrow-naut/cloud-save.test.mjs
-      - name: Verify public browsers cannot read or change unpaired student records
+      - name: Check live cloud API using synthetic class 99 only
         shell: bash
         run: |
           node --input-type=module <<'NODE'
           import assert from 'node:assert/strict';
           const url='https://vcjyhcnsuiwdeqqbiwgx.supabase.co/functions/v1/arrownaut-save';
+          const scope={game:'naut',teacher:'class-99',student:30};
           const send=async data=>{
             const response=await fetch(url,{method:'POST',headers:{
-             'Content-Type':'application/json','Origin':'https://shannonkaple.github.io'
+              'Content-Type':'application/json','Origin':'https://shannonkaple.github.io'
             },body:JSON.stringify(data)});
             return {status:response.status,body:await response.json()};
           };
-          const scope={game:'naut',teacher:'class-99',student:30};
-          const noPair=await send({...scope,action:'load'});
-          assert.equal(noPair.status,401,'An unpaired Chromebook must not read progress');
-          const badPair=await send({action:'pair',pairingCode:'AAAAAAAAAAAAAAAAAAAAAAAA'});
-          assert.equal(badPair.status,403,'A guessed teacher code must not pair a device');
-          const noOverwrite=await send({...scope,action:'save',revision:0,
-            progress:{version:1,completed:[],purchases:[],rescued:[],stars:0}});
-          assert.equal(noOverwrite.status,401,'A public visitor must never overwrite classroom work');
-          console.log('PASS: unpaired data is confidential, pairing rejects guesses, anonymous writes blocked');
-          // This token is intentionally restricted in the database to the
-          // synthetic grade2-99 test classroom, never a real student class.
-          const testDeviceToken='966955bd7bdaaaf500bdb8a2b847fa77596685fe19514d7276b5976d4b1c4ba3';
-          const testScope={...scope,deviceToken:testDeviceToken};
-          const initial=await send({...testScope,action:'load'});
+          const initial=await send({...scope,action:'load'});
           assert.equal(initial.status,200,JSON.stringify(initial));
-          const next={version:1,completed:['synthetic-ci-1','synthetic-ci-2'],
-           purchases:[],rescued:[],stars:2,active:null};
-          const saved=await send({...testScope,action:'save',
-           revision:initial.body.revision,progress:next});
+          const prior=initial.body.progress||{version:1,completed:[],purchases:[],rescued:[],stars:0};
+          const upgraded={...prior,
+            completed:[...new Set([...prior.completed,'synthetic-autosave-20261109'])],
+            stars:Math.max(prior.stars||0,3),
+            purchases:prior.purchases||[],rescued:prior.rescued||[]};
+          const saved=await send({...scope,action:'save',
+            revision:initial.body.revision,progress:upgraded});
           assert.equal(saved.status,200,JSON.stringify(saved));
-          const reloaded=await send({...testScope,action:'load'});
+          const reloaded=await send({...scope,action:'load'});
           assert.equal(reloaded.status,200,JSON.stringify(reloaded));
-          assert.deepEqual(reloaded.body.progress,next);
+          assert.deepEqual(reloaded.body.progress,upgraded);
           assert.equal(reloaded.body.revision,saved.body.revision);
-          const conflict=await send({...testScope,action:'save',
-           revision:initial.body.revision,progress:next});
-          assert.equal(conflict.status,409,'Old Chromebooks must not overwrite newer saves');
-          const realClassDenied=await send({...testScope,teacher:'grade2-01',action:'load'});
-          assert.equal(realClassDenied.status,403,
-           'A synthetic test browser cannot read real classroom progress');
-          console.log('PASS: cloud load, save, reload, conflict protection, and isolated test-device scope');
-
+          const stale=await send({...scope,action:'save',
+            revision:initial.body.revision,progress:upgraded});
+          assert.equal(stale.status,409,'Stale Chromebooks may not overwrite newer records');
+          const invalid=await send({...scope,student:31,action:'load'});
+          assert.equal(invalid.status,400,'Student numbers outside 1-30 are invalid');
+          console.log('PASS: no-code load, save, re-open, revision safety and student-number checks');
           NODE
