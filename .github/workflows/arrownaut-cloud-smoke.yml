@@ -37,7 +37,7 @@ jobs:
             },body:JSON.stringify(data)});
             return {status:response.status,body:await response.json()};
           };
-          const scope={game:'naut',teacher:'grade2-99',student:30};
+          const scope={game:'naut',teacher:'class-99',student:30};
           const noPair=await send({...scope,action:'load'});
           assert.equal(noPair.status,401,'An unpaired Chromebook must not read progress');
           const badPair=await send({action:'pair',pairingCode:'AAAAAAAAAAAAAAAAAAAAAAAA'});
