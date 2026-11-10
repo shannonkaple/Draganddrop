@@ -287,6 +287,12 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .stuff-backdrop-choice span{font-size:11px;line-height:1.1}
 .stuff-backdrop-choice[aria-pressed="true"]{background:#e0f7b9;border:3px solid #559765}
 @media(max-width:720px){.shop-backgrounds-grid{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}.stuff-background-choice .stuff-backdrop-choice{width:132px}.stuff-backdrop-choice .background-choice-preview{width:119px;height:62px}}
+/* World-specific souvenirs stay in a compact four-card collection. */
+.shop-world-tabs{display:flex;gap:5px;overflow-x:auto;padding:4px 0;scrollbar-width:thin}
+.shop-world-tabs button{flex:0 0 auto;min-height:36px;font-size:clamp(10px,.92vw,13px);white-space:nowrap;padding:4px 8px}
+.shop-world-tabs button[aria-pressed="true"]{background:#f8e8b2;border-color:#a67829}
+.shop-level-items{grid-template-columns:repeat(auto-fit,minmax(156px,1fr))}
+.shop-level-tag{font:700 11px/1.18 Arial,sans-serif;color:#406747;min-height:26px}
 </style>
 </head>
 <body><div id="app"></div>
@@ -317,7 +323,7 @@ const MAZE_ROCKS=[
  [[2,2],[3,2],[4,2],[5,2],[3,1],[5,3]]
 ];
 const seqLengths=[1,1,2,2,3,3,3,4];
-const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null,stuff:{purchases:[],placed:[],backgrounds:{},world:0},stuffPending:null,stuffCategory:'earned'};
+const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null,stuff:{purchases:[],placed:[],backgrounds:{},world:0},stuffPending:null,stuffCategory:'earned',shopWorld:0};
 let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly',Turtle:'turtle',Hippo:'hippo',Lizard:'lizard',Ladybug:'ladybug',Crab:'crab',Fish:'fish',TropicalFish:'tropical-fish'});
@@ -513,7 +519,26 @@ const SHOP_ITEMS=[
 // who already bought old "Trail Map" cards retain their purchases.
 const SHOP_BACKGROUNDS=WORLDS.map((w,i)=>({id:'background:'+i,name:w.name+' Game Background',price:12,
  world:i,kind:'background',image:'./assets/scenes/'+SCENE_ART[i]}));
-const SHOP_CATALOG=[...SHOP_ITEMS,...SHOP_BACKGROUNDS];
+// Four illustrated, level-specific souvenirs in each of the eight safari worlds.
+// They appear in the shop after the matching level is finished and are usable
+// in EVERY unlocked My Stuff scene; unlike earned rewards these cost stars.
+const WORLD_LEVEL_STOCK=[
+ [['feather','Toucan Feather'],['nest','Tree Nest'],['hatching-egg','Baby Bird Egg'],['tropical-leaf','Canopy Leaf']],
+ [['banana','Monkey Banana Bunch'],['coconut','Monkey Coconut'],['wooden-crate','Jungle Supply Crate'],['balloon','Monkey Celebration Balloon']],
+ [['egg','Parrot Egg'],['megaphone','Jungle Signal Horn'],['feather','Rainbow Parrot Feather'],['pink-flower','Jungle Blossom']],
+ [['grass','Savanna Grass'],['clover','Zebra Clover'],['pineapple','Plains Pineapple'],['sunflower','Golden Plains Sunflower']],
+ [['rock','Trail Boulder'],['wooden-log','River Crossing Log'],['bucket','Waterhole Bucket'],['key','Expedition Golden Key']],
+ [['palm-tree','Lookout Palm'],['binoculars','Giraffe Binoculars'],['white-flower','Lookout Blossom'],['telescope','Tall Lookout Spyglass']],
+ [['seashell','River Shell'],['fish','Blue River Fish'],['tropical-fish','Colorful River Fish'],['picnic-basket','River Picnic Basket']],
+ [['paw-print','Lion Paw Track'],['firefly','Savanna Firefly'],['gem','Sunset Gem'],['medal','Safari Champion Medal']]
+];
+const LEVEL_SHOP_ITEMS=WORLD_LEVEL_STOCK.flatMap((items,world)=>items.map(([asset,name],index)=>{
+ const level=index*2+1;
+ return {id:'levelshop:'+world+':'+level,name,price:[3,4,5,7][index],world,level,
+  image:(asset==='fish'||asset==='tropical-fish'?'./assets/animals/':'./assets/pieces/')+asset+'.png',
+  kind:'piece',levelSpecific:true};
+}));
+const SHOP_CATALOG=[...SHOP_ITEMS,...LEVEL_SHOP_ITEMS,...SHOP_BACKGROUNDS];
 const WORLD_REWARDS=[
  ['feather','binoculars','tropical-leaf','camera','nest','gold-star','picnic-basket','medal'],
  ['banana','apple','coconut','pineapple','grapes','wooden-crate','treasure-chest','medal'],
@@ -559,6 +584,7 @@ function shopNotice(main,msg){const p=el('p','shop-notice',msg);p.setAttribute('
 function buyItem(item){
  if(!item||state.stuff.purchases.includes(item.id))return;
  if(item.kind==='background'&&!worldSceneUnlocked(item.world))return;
+ if(item.levelSpecific&&!state.preview&&!done(item.world,item.level))return;
  if(spendableStars()<item.price){alert('Play more levels to earn stars!');return}
  const before=state.stuff.purchases.slice();
  state.stuff.purchases.push(item.id);
@@ -578,8 +604,12 @@ function renderShop(){
    const tile=el('article','shop-tile'+(item.kind==='background'?' shop-background':''));
    tile.append(shopImage(item.image,item.name));
    tile.append(el('strong','',item.name));
-   const bought=state.stuff.purchases.includes(item.id),locked=item.kind==='background'&&!worldSceneUnlocked(item.world);
-   const buy=el('button','',bought?'OWNED ✓':locked?'FINISH WORLD FIRST':'BUY ⭐ '+item.price);
+   const bought=state.stuff.purchases.includes(item.id);
+   const locked=(item.kind==='background'&&!worldSceneUnlocked(item.world))||
+    (item.levelSpecific&&!state.preview&&!done(item.world,item.level));
+   const lockLabel=item.levelSpecific?'FINISH LEVEL '+(item.level+1):'FINISH WORLD FIRST';
+   if(item.levelSpecific)tile.append(el('span','shop-level-tag',WORLDS[item.world].name+' · LEVEL '+(item.level+1)));
+   const buy=el('button','',bought?'OWNED ✓':locked?lockLabel:'BUY ⭐ '+item.price);
    buy.disabled=bought||locked||spendableStars()<item.price;
    buy.onclick=()=>buyItem(item);tile.append(buy);grid.append(tile);
   });
@@ -587,6 +617,17 @@ function renderShop(){
  };
  main.append(el('h2','shop-section-title','SAFARI DECORATIONS'));
  addTiles(SHOP_ITEMS,'shop-items-grid');
+ main.append(el('h2','shop-section-title','WORLD TREASURES — UNLOCK BY LEVEL'));
+ shopNotice(main,'Complete levels 2, 4, 6 and 8 in each world to unlock new items in the shop. Buy them for ANY unlocked My Stuff scene.');
+ const worldTabs=el('div','shop-world-tabs');
+ WORLDS.forEach((world,i)=>{
+  const tab=el('button','',world.name);tab.type='button';
+  tab.setAttribute('aria-pressed',String(state.shopWorld===i));
+  tab.onclick=()=>{state.shopWorld=i;renderShop()};
+  worldTabs.append(tab);
+ });
+ main.append(worldTabs);
+ addTiles(LEVEL_SHOP_ITEMS.filter(x=>x.world===state.shopWorld),'shop-level-items');
  main.append(el('h2','shop-section-title','GAME BACKGROUNDS — NO LEVEL NUMBERS'));
  shopNotice(main,'These are the clean backgrounds from the eight safari games. Buy one to use it when decorating any unlocked world.');
  addTiles(SHOP_BACKGROUNDS,'shop-backgrounds-grid');
@@ -607,7 +648,7 @@ function earnedInventory(){
 }
 function availableStuff(world){
  return [...earnedInventory().filter(item=>item.kind==='friend'||item.world===world),
-  ...SHOP_ITEMS.filter(item=>state.preview||state.stuff.purchases.includes(item.id))];
+  ...[...SHOP_ITEMS,...LEVEL_SHOP_ITEMS].filter(item=>state.preview||state.stuff.purchases.includes(item.id))];
 }
 function sceneBackground(world){
  // Original game scene is free for the student's unlocked world.
