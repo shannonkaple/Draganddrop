@@ -99,23 +99,17 @@ function pieceHtml(piece){
 
 /** Read-aloud directions use what children can SEE, never item vocabulary. */
 function kidDirections(m){
- const active=m.pieces.filter(p=>p.goal);
- const extra=active.some(p=>p.resize);
- const stars=(m.pickups||[]).length;
- const collect=stars?' Get '+(stars===1?'the star':'all the stars')+'.':'';
- const bad=(m.hazards||[]).length?' Stay away from the moving bad guys.':'';
- if(m.kind==='final-maze')return '1. Click your space friend. 2. Use arrow keys to find EXIT. 3. Stay away from bad guys. SPACE can zap them.';
- if(m.kind==='arrow-sequence')return 'Look at the big arrow. Press that same arrow key. Keep going!';
- if(m.kind==='precision'){
-  const target=m.pieces.find(p=>p.id===m.clickTarget);
-  const hue=target?.color&&['pink','blue','purple','mint'].includes(target.color)?target.color.toUpperCase()+' ':'';
-  return '1. Click the '+hue+'picture.'+' 2. Use the arrow keys.'+collect+' 3. Move it to the SAME faded picture.'+(extra?' 4. Click each little tile. Drag its yellow handle to fit.':'')+bad;
- }
- if(m.kind==='fit')return '1. Click a shape. 2. Use the arrow keys. 3. Move it to the SAME faded shape. Do both!'+(extra?' Make the little tiles fit, too.':'');
- if(m.kind==='resize')return '1. Click the picture. 2. Drag a yellow handle. 3. Make it fit the faded picture.'+bad;
- if(m.kind==='move')return '1. Click your picture. 2. Move with the arrow keys.'+collect+' 3. Go to the SAME faded picture.'+(extra?' Drag a yellow handle to make it fit.':'')+bad;
- if(m.kind==='mixed'||m.kind==='place')return '1. Click one picture. 2. Use arrow keys to move it. 3. Match the SAME faded picture. '+(extra?'If it is too small, drag a yellow handle. ':'')+'Do all the pictures.'+bad;
- return 'Click the picture. Use arrow keys. Go to the SAME faded picture.';
+ const stars=(m.pickups||[]).length?' Get the stars.':'';
+ const bad=(m.hazards||[]).length?' Avoid bad guys.':'';
+ if(m.kind==='final-maze')return '1. Click your explorer. 2. Arrows to EXIT. 3. Avoid bad guys. SPACE zaps.';
+ if(m.kind==='arrow-sequence')return 'Press the arrow key shown.';
+ if(m.kind==='click')return 'Click the matching picture.';
+ if(m.kind==='resize')return '1. Click a picture. 2. Drag a yellow corner to fit.';
+ if(m.kind==='fit')return '1. Click each shape. 2. Arrows to its matching outline.';
+ if(m.kind==='precision')return '1. Click the matching picture. 2. Arrows to its outline.'+stars+bad;
+ if(m.kind==='move')return '1. Click the picture. 2. Arrows to the outline.'+stars+bad;
+ if(m.kind==='mixed'||m.kind==='place')return '1. Click each picture. 2. Arrows to match. 3. Drag corners if needed.'+bad;
+ return '1. Click a picture. 2. Arrows to the outline.';
 }
 function finalePage(){
  const m=state.mission,run=state.run,z=100/GRID.columns,h=100/GRID.rows;
@@ -151,7 +145,7 @@ function missionPage(){
  const obstacles=(m.obstacles||[]).map(([x,y],i)=>`<div aria-hidden="true" class="obstacle" style="left:${x/12*100}%;top:${y/7*100}%;width:${100/12}%;height:${100/7}%">${art(enemyPortrait(m.planetIndex+i),'Space bad guy','obstacle-enemy')}</div>`).join('');
  const patrols=(run.hazards||[]).map((enemy,i)=>`<div aria-hidden="true" class="moving-hazard" style="left:${enemy.x/GRID.columns*100}%;top:${enemy.y/GRID.rows*100}%;width:${100/GRID.columns}%;height:${100/GRID.rows}%">${art(enemyPortrait(m.planetIndex+i+2),'Moving space bad guy','moving-hazard-image')}</div>`).join('');
  return `<main class="main playing"><div class="mission-head"><h1>${esc(m.planet.name)} · Level ${m.stage+1}: ${esc(m.title)}</h1><span class="mode-label">${(m.pickups||[]).length?`Stars: ${run.collected?.length||0}/${m.pickups.length} · `:''}${run.selected?`Selected: ${esc(run.pieces.find(p=>p.id===run.selected)?.name)}`:'Click the MIDDLE to select'}</span><button class="back" data-action="planet">Back to ${esc(m.planet.name)} Map</button></div>
- <section class="mission-frame" aria-label="Arrow-key computer skills game"><div class="directions-bar"><p>${esc(m.directions)}</p><button class="speak" data-action="listen" aria-label="Read directions aloud" title="Read directions aloud">🔊</button></div>
+ <section class="mission-frame" aria-label="Arrow-key computer skills game"><div class="directions-bar"><p>${esc(kidDirections(m))}</p><button class="speak" data-action="listen" aria-label="Read directions aloud" title="Read directions aloud">🔊</button></div>
  <div class="board-frame"><div class="space-board" id="space-board" style="--world-hue:${m.planet.hue}" tabindex="0" role="group" aria-label="Space puzzle. Click inside to select, arrows move, and dragging handles with the trackpad changes size."><img class="mission-scenery" src="${planetImage(m.planetIndex)}" alt="" aria-hidden="true" draggable="false"><div class="grid-lines"></div>${boardTargets}${obstacles}${patrols}${pickups}${run.pieces.map(pieceHtml).join('')}<div class="space-helper" aria-hidden="true">${art(playerPortrait(state.progress.playerId),'','space-helper-art')}</div><div class="rescue-preview" aria-label="Friend to rescue: ${esc(m.planet.friend)}">${art(friendPortrait(m.planetIndex),m.planet.friend,'rescue-preview-art')}<small>RESCUE</small></div></div></div></section>
  <div class="feedback${state.error?' error':''}" role="status" id="live-status">${esc(state.message||'Click an object inside its border, then use your arrow keys.')}</div></main>`;
 }
@@ -182,13 +176,12 @@ function stuff(){
 }
 function errorPage(){return `<main class="main"><section class="entry" role="alert"><h1>Saved student record needs help</h1><p>${esc(state.dataError)}</p><p>This record has NOT been overwritten. Ask your teacher before trying again.</p><button data-action="students">↩️ Choose Another Number</button></section></main>`}
 function help(){return `<main class="main"><section class="entry how-to"><h1>HOW TO PLAY</h1>
- <p><strong>1. CLICK</strong> a picture with your trackpad.</p>
- <p><strong>2. MOVE</strong> it with the keyboard arrow keys: ↑ ↓ ← →.</p>
- <p><strong>3. MATCH</strong> the SAME faded picture.</p>
- <p><strong>4. MAKE IT FIT</strong> when needed: click the picture, then drag a small yellow square.</p>
- <p><strong>5. GET STARS</strong> when you see them. Stay away from the bad guys.</p>
- <p><strong>RESCUE:</strong> Follow the arrows to EXIT. Press SPACE to zap a bad guy.</p>
- <p><strong>Need help?</strong> Click the speaker to hear the steps.</p>
+ <p><strong>CLICK:</strong> Tap the trackpad.</p>
+ <p><strong>MOVE:</strong> Use arrow keys ↑ ↓ ← →.</p>
+ <p><strong>RESIZE:</strong> Drag a yellow corner.</p>
+ <p><strong>ROTATE:</strong> Drag the curved arrow on Map Two.</p>
+ <p><strong>FINISH:</strong> Match the pictures or reach EXIT.</p>
+ <p>Click <strong>Listen</strong> to hear directions.</p>
  <button data-action="home">Back to My Planets</button></section></main>`}
 function modalHtml(){const modal=state.modal;if(!modal)return '';
  let content='';
@@ -258,7 +251,7 @@ function startMission(stage){if(!Number.isInteger(stage)||stage<0||stage>7||(!st
   }
  }
  if(!resume||migrate){if(!persist({...state.progress,active:clone(run)}))return;}
- state.mission=m;state.run=run;state.view='mission';state.message=m.kind==='final-maze'?'Use arrow keys to dodge the moving bad guys and reach EXIT!':'Click INSIDE to select. Arrows MOVE; hold and DRAG a resize handle to STRETCH.';state.error='';render();}
+ state.mission=m;state.run=run;state.view='mission';state.message='';state.error='';render();}
 function saveMissionAction(nextRun,message){if(state.teacherPreview){state.run=nextRun;state.message=nextRun.complete?'Preview complete! No stars or progress changed.':message;state.error='';render();return}
  const next={...state.progress,active:clone(nextRun)};if(!persist(next))return;
  state.run=nextRun;state.message=message;state.error='';if(nextRun.complete){award();return}render();}
@@ -304,12 +297,42 @@ function syncFinaleClock(){
  },delay);
 }
 function applyPurchase(id){const item=SPACE_SHOP.find(x=>x.id===id);if(!item)return;const result=purchase(state.progress,item);if(!result.ok){notify(result.reason,true);return}if(persist(result.progress)){state.message='You bought '+item.name+'!';state.error='';render();}}
+/** Cloud-first teacher access for one student. Never invent earned rewards. */
+async function teacherAdvance({teacher,student,map,world,stage}){
+ if(state.teacherPreview)throw Error('End preview before editing a student.');
+ const same=teacher===state.teacher&&student===state.student;
+ if(same&&!await cloud.flush())throw Error('This student is still syncing. Open Auto Save and try again.');
+ const key=saveKey(teacher,student);
+ let local;
+ try{local=validatedSave(localStorage.getItem(key))}
+ catch(error){throw Error('Damaged local student save: '+error.message)}
+ const verified=await updateClassroomStudent({game:'naut',teacher,student,
+  mutate:record=>grantTeacherLevel(record,{map,world,stage}),
+  validate:record=>validatedSave(record===null?null:JSON.stringify(record)),
+  getPrice:id=>SPACE_SHOP.find(x=>x.id===id)?.price||0,local});
+ const json=JSON.stringify(verified),previous=localStorage.getItem(key);
+ if(previous!==json){
+  if(previous!==null){
+   const backup='arrownaut-before-teacher-level:'+key+':'+Date.now();
+   localStorage.setItem(backup,previous);
+   if(localStorage.getItem(backup)!==previous)throw Error('Level saved online, but local backup failed.');
+  }
+  localStorage.setItem(key,json);
+  if(localStorage.getItem(key)!==json)throw Error('Level saved online, but local storage failed.');
+ }
+ if(same){
+  cloud.reset();state.progress=verified;state.mission=null;state.run=null;state.modal=null;
+  state.view=map==='one'?'planet':'map-two';state.planet=world;state.message='';
+  render();void cloud.attach();
+ }
+ return 'SAVED ONLINE: Student #'+student+' may open '+(map==='one'?PLANETS[world].name:LOST_WORLDS[world].name)+' Level '+(stage+1)+' and all earlier levels. No stars or friends were awarded.';
+}
 function openStudent(number){cloud.reset();state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';let loaded;
  try{loaded=validatedSave(localStorage.getItem(state.key))}catch(e){state.dataError=e.message;state.error=e.message;state.view='error';render();return}
  state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach();}
 function logOut(){cloud.reset();state.teacherPreview=false;state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
 function onAction(action){
- switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onPreview:()=>{state.teacherPreview=true;if(!state.progress)state.progress=createProgress();state.modal=null;state.mission=null;state.run=null;state.view='teacher-preview';render()},onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
+ switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onAdvance:teacherAdvance,mapOneWorlds:PLANETS.map(w=>w.name),mapTwoWorlds:LOST_WORLDS.map(w=>w.name),onPreview:()=>{state.teacherPreview=true;if(!state.progress)state.progress=createProgress();state.modal=null;state.mission=null;state.run=null;state.view='teacher-preview';render()},onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
  case 'teacher-menu':if(state.teacherPreview){state.view='teacher-preview';state.modal=null;state.mission=null;state.run=null;render()}break;
  case 'teacher-end':if(state.teacherPreview){state.teacherPreview=false;state.modal=null;state.mission=null;state.run=null;if(!state.student)state.progress=null;state.view=state.student?'home':'teachers';render()}break;
  case 'teachers':cloud.reset();state.view='teachers';render();break;
