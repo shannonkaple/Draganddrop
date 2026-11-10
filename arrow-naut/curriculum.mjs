@@ -3,6 +3,7 @@
  * Illustrations in the prototype are temporary, not final approved art.
  */
 import {makeFinalMaze} from './finale-maze.mjs?v=all-boss-safe-lasers-20261102';
+import {teacherCanOpen} from './teacher-progress.mjs';
 export const GRID={columns:12,rows:7};
 export const PLANETS=[
   // IMPORTANT: legacy internal IDs stay intact to protect saved progress.
@@ -218,7 +219,7 @@ export function allBonusMissions(){return PLANETS.flatMap((_,pi)=>Array.from({le
 export function createProgress(){return {version:1,completed:[],stars:0,seenIntros:[],rescued:[],purchases:[],worldScene:[],active:null,playerId:'astro-pup'}}
 export function completedCount(progress,planetIndex){const id=PLANETS[planetIndex].id;return (progress.completed||[]).filter(level=>Array.from({length:8},(_,n)=>id+'-'+(n+1)).includes(level)).length}
 export function bonusCompletedCount(progress,planetIndex){const id=PLANETS[planetIndex].id+'-bonus-';return (progress.completed||[]).filter(level=>Array.from({length:BONUS_STAGES},(_,n)=>id+(n+1)).includes(level)).length}
-export function planetUnlocked(progress,index){return index===0||PLANETS.slice(0,index).every((_,i)=>completedCount(progress,i)===8)}
+export function planetUnlocked(progress,index){return index===0||teacherCanOpen(progress,'one',index,0)||PLANETS.slice(0,index).every((_,i)=>completedCount(progress,i)===8)}
 export const sceneUnlocked=(progress,index)=>Number.isInteger(index)&&index>=0&&index<PLANETS.length&&!!progress?.completed?.includes(PLANETS[index].id+'-8');
 export function stageUnlocked(progress,pi,stage){
  if(!planetUnlocked(progress,pi))return false;
@@ -226,7 +227,7 @@ export function stageUnlocked(progress,pi,stage){
   const base=PLANETS[pi].id;
   return (progress.completed||[]).includes(stage===8?base+'-8':base+'-bonus-'+(stage-8));
  }
- return stage===0||((progress.completed||[]).includes(`${PLANETS[pi].id}-${stage}`));
+ return stage===0||teacherCanOpen(progress,'one',pi,stage)||((progress.completed||[]).includes(`${PLANETS[pi].id}-${stage}`));
 }
 export const SPACE_SHOP=[
  {id:'telescope',name:'Starlight Telescope',price:6},

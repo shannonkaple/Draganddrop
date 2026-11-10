@@ -13,7 +13,8 @@ const getCompleted=p=>[...(p?.completed||[]),...(p?.mapTwo?.completed||[])];
 const extraReward=id=>/-8$/.test(id)?10:1;
 function blank(p){
  return !p || (!getCompleted(p).length&&!(p.purchases||[]).length&&!(p.rescued||[]).length&&
- !(p.worldScene||[]).length&&!(p.stars>0)&&!p.active&&!p.mapTwo?.active);
+ !(p.worldScene||[]).length&&!(p.stars>0)&&!p.active&&!p.mapTwo?.active&&
+ !Number.isInteger(p.teacherUnlockThrough));
 }
 export function combineClassroomProgress(local,remote,getPrice=()=>0){
  if(!remote)return copy(local);
@@ -37,6 +38,7 @@ export function combineClassroomProgress(local,remote,getPrice=()=>0){
   purchases:union(remote.purchases,local.purchases),
   worldScene:[...scene.values()],
   stars:Math.max(leftBalance,rightBalance),
+  teacherUnlockThrough:Math.max(Number.isInteger(local.teacherUnlockThrough)?local.teacherUnlockThrough:-1,Number.isInteger(remote.teacherUnlockThrough)?remote.teacherUnlockThrough:-1),
   active:local.active||remote.active||null};
  if(local.mapTwo||remote.mapTwo){
   const a=remote.mapTwo||{},b=local.mapTwo||{};
@@ -56,6 +58,32 @@ async function post(data){
   error.status=res.status;throw error;
  }
  return result;
+}
+
+/** Cloud-first teacher update for a specifically selected student.
+ * Always load the latest remote record and confirm the persisted override. */
+export async function updateClassroomStudent({game,teacher,student,mutate,validate,getPrice=()=>0,local=null}){
+ if(!teacher||!Number.isInteger(student)||student<1||student>30)throw Error('Choose a teacher and student number.');
+ const id={game,teacher,student};
+ let conflict=null;
+ for(let attempt=0;attempt<5;attempt++){
+  const latest=await post({...id,action:'load'});
+  const remote=latest.progress?validate(latest.progress):null;
+  const base=remote&&local?combineClassroomProgress(local,remote,getPrice):(remote||local||validate(null));
+  const next=mutate(copy(base));
+  try{
+   await post({...id,action:'save',revision:latest.revision,progress:next});
+   const check=await post({...id,action:'load'});
+   const verified=check.progress?validate(check.progress):null;
+   if(!verified||(verified.teacherUnlockThrough??-1)<next.teacherUnlockThrough)
+    throw Error('Cloud did not confirm the unlocked level. Please try again.');
+   return verified;
+  }catch(error){
+   if(error.status!==409)throw error;
+   conflict=error;
+  }
+ }
+ throw conflict||Error('This student was edited on another device. Try again.');
 }
 export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice,getPrice=()=>0}){
  let revision=null,epoch=0,ready=false,dirty=false,busy=false,status='idle',queue=Promise.resolve(),panel=null;
@@ -194,5 +222,5 @@ export function makeCloudSave({game,getIdentity,getProgress,applyProgress,notice
  if(typeof window!=='undefined')window.addEventListener('online',()=>{
   if(identity()&&status==='error')void attach();
  });
- return {attach,enqueue,open,update,reset};
+ return {attach,enqueue,open,update,reset,flush:async()=>{await queue;return status==='saved'}};
 }

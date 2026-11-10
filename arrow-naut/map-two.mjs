@@ -1,3 +1,4 @@
+import {teacherCanOpen} from './teacher-progress.mjs';
 /** Arrow-Naut Map Two: The Lost Worlds.
  * Separate 16-mission curriculum; original 64 missions and storage keys untouched.
  * Trackpad dragging is Map Two only. No touchscreen gameplay, no CSS/SVG sprites.
@@ -57,9 +58,10 @@ export function mapTwoData(progress){
 export const mapTwoId=(world,stage)=>LOST_WORLDS[world]?.id+'-'+(stage+1);
 export const mapTwoCount=(progress,world)=>Array.from({length:8},(_,i)=>mapTwoId(world,i))
  .filter(id=>mapTwoData(progress).completed.includes(id)).length;
-export const mapTwoWorldUnlocked=(progress,world)=>world===0||(world===1&&mapTwoCount(progress,0)===8);
+export const mapTwoWorldUnlocked=(progress,world)=>world===0||(world===1&&mapTwoCount(progress,0)===8)||
+ (world>=0&&world<LOST_WORLDS.length&&teacherCanOpen(progress,'two',world,0));
 export const mapTwoStageUnlocked=(progress,world,stage)=>mapTwoWorldUnlocked(progress,world)&&
- (stage===0||mapTwoData(progress).completed.includes(mapTwoId(world,stage-1)));
+ (stage===0||teacherCanOpen(progress,'two',world,stage)||mapTwoData(progress).completed.includes(mapTwoId(world,stage-1)));
 export function createMapTwoMission(world,stage){
  if(!Number.isInteger(world)||world<0||world>1||!Number.isInteger(stage)||stage<0||stage>7)
   throw Error('Unknown Map Two mission');
