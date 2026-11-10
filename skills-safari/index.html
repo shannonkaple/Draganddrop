@@ -385,6 +385,15 @@ body:has(.game-page) .safari-character-switch .current-explorer-thumb{height:24p
 .scroll-item .scroll-found-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:clamp(26px,3vw,39px)}
 .scroll-item.found{border-color:#4d9f65}
 @media(max-height:650px){.scroll-item{min-height:105px}.scroll-item .game-animal-img{width:clamp(84px,9vw,120px);height:clamp(84px,9vw,120px)}}
+
+/* A gentle coming-soon label on the untaught drag-and-drop map.
+   Large objects and lesson graphics are deliberately unchanged. */
+.map-hotspot.world-hit .world-coming-soon{
+ position:absolute;top:calc(98% + 22px);left:50%;transform:translateX(-50%);
+ white-space:nowrap;pointer-events:none;border:1px solid #9b8140;border-radius:7px;
+ padding:3px 5px;background:#fff5b6;color:#664f19;
+ font:800 clamp(9px,.78vw,12px)/1 Arial,sans-serif
+}
 </style>
 </head>
 <body><div id="app"></div>
@@ -415,6 +424,9 @@ const WORLD_SPOTS=[[16.2,33.9],[38.5,33.1],[62,33.1],[85,33.7],[13.6,65.3],[38.9
 const LEVEL_SPOTS=[[28.8,33.5],[46,33.5],[63,33.5],[80.1,33.5],[26.4,64.3],[44,64.3],[61.5,64.3],[79,64.3]];
 const MAP_ART=['01-toucan-treetops.jpg','02-monkey-mischief.jpg','03-parrot-letter-jungle.jpg','04-zebra-number-plains.jpg','05-elephant-arrow-trails.jpg','06-giraffe-lookout.jpg','07-otter-river-delivery.jpg','08-lion-scroll-savannah.jpg'];
 const SCENE_ART=['01-click-forest.jpg','02-double-click-canopy.jpg','03-letter-jungle.jpg','04-number-plains.jpg','05-arrow-trail.jpg','06-select-move-lookout.jpg','07-drag-river.jpg','08-scroll-savannah.jpg'];
+// The Otter (drag-and-drop) lessons are ready to teach later, but are not
+// assigned to first graders before the drag skill has been introduced.
+const DRAG_WORLD_READY=false;
 const LETTER_KEYS=[['A'],['S','M'],['T','B'],['R','L','D'],['P','C','F'],['G','H','K'],['W','Y','N','V'],['Z','Q','J','X']];
 const NUMBER_KEYS=[['5'],['2'],['7','1'],['0','9'],['3','6'],['4','8'],['2','7','5'],['1','0','9','6']];
 const MAZE_ROCKS=[
@@ -571,8 +583,15 @@ function loadProgress(){state.done=[];try{const raw=JSON.parse(localStorage.getI
 function persist(){if(state.preview||!state.teacher||!state.number)return true;try{localStorage.setItem(saveKey(),JSON.stringify(state.done));queueCloudSave();return true}catch(e){feedback('Your work could not save on this Chromebook. Please tell your teacher.',true);return false}}
 function done(w,s){return state.done.includes(w*8+s)}
 function count(w){return state.done.filter(i=>Math.floor(i/8)===w).length}
-function unlocked(w){return state.preview||w===0||count(w-1)===8}
-function stageUnlocked(w,s){return state.preview||s===0||done(w,s-1)}
+function unlocked(w){
+ if(state.preview)return true;
+ if(w===6&&!DRAG_WORLD_READY)return false;
+ // Lion two-finger scrolling follows Giraffe selection/movement until
+ // the Otter drag-and-drop lessons are introduced.
+ if(w===7&&!DRAG_WORLD_READY)return count(5)===8;
+ return w===0||count(w-1)===8;
+}
+function stageUnlocked(w,s){return state.preview||(unlocked(w)&&(s===0||done(w,s-1)))}
 function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
 // Extras unlock only when all eight levels in ALL eight worlds are complete.
 function safariExtrasUnlocked(){return state.preview||WORLDS.every((_,i)=>count(i)===8)}
@@ -580,6 +599,7 @@ function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);clearIn
 function setView(v){
  clearTimeout(advanceTimer);stopTapTimers();
  // Do not open hidden extras through an old button, saved state, or direct call.
+ if((v==='game'||v==='world')&&state.world===6&&!DRAG_WORLD_READY&&!state.preview)v='home';
  state.view=(v==='shop'||v==='stuff')&&!safariExtrasUnlocked()?'home':v;
  run=null;render();
 }
@@ -603,7 +623,7 @@ function screenNarration(){
  }
  if(state.view==='teachers')return 'Welcome to Skills Safari. Who is your teacher? Choose your teacher from the buttons below.';
  if(state.view==='numbers')return 'What is your classroom number? Choose your number to load your saved Safari adventure.';
- if(state.view==='home')return 'Welcome to the Great Skills Safari! Choose an unlocked safari world. Finish all eight challenges in a world to unlock the next world.';
+ if(state.view==='home')return 'Welcome to the Great Skills Safari! Choose an unlocked safari world. Complete Giraffe Lookout to open Lion Scroll Savannah. Otter River Delivery is coming later.';
  if(state.view==='world')return WORLDS[state.world].name+'. '+WORLDS[state.world].skill+'. Choose an unlocked challenge. Complete the challenges in order.';
  if(state.view==='game')return directions()+'. '+(document.getElementById('guide-command')?.textContent||'')+'. '+(document.getElementById('guide-status')?.textContent||'');
  if(state.view==='shop')return 'Welcome to the Star Shop! Complete challenges to earn stars. Buy decorations and unlocked backgrounds for My Stuff.';
@@ -1066,19 +1086,20 @@ function renderHome(){
  stage.setAttribute('aria-label','Skills Safari world selection map');
  mapBackground(stage,'savanna','00-safari-world-map.jpg');
  const heading=el('div','map-heading','THE GREAT SKILLS SAFARI');
- heading.append(el('div','map-sub','Choose a safari world · Finish eight levels to unlock the next'));stage.append(heading);
+ heading.append(el('div','map-sub','Choose a safari world · Finish eight levels to unlock more'));stage.append(heading);
  const mapListen=listenButton(screenNarration,'Hear Safari world map directions');mapListen.classList.add('map-listen');stage.append(mapListen);
  WORLDS.forEach((world,i)=>{
   const b=el('button','map-hotspot world-hit'),finished=count(i)===8;
   b.type='button';b.style.left=WORLD_SPOTS[i][0]+'%';b.style.top=WORLD_SPOTS[i][1]+'%';
   b.disabled=!unlocked(i);b.dataset.finished=String(finished);
-  b.dataset.hint=world.name+' · '+count(i)+'/8 complete';
-  b.setAttribute('aria-label',world.name+', '+count(i)+' of 8 complete'+(b.disabled?', locked':''));
+  b.dataset.hint=i===6&&!DRAG_WORLD_READY&&!state.preview?'Coming later: Drag and Drop':world.name+' · '+count(i)+'/8 complete';
+  b.setAttribute('aria-label',world.name+(i===6&&!DRAG_WORLD_READY&&!state.preview?', coming soon':', '+count(i)+' of 8 complete'+(b.disabled?', locked':'')));
   b.title=world.name+' — '+count(i)+'/8 completed';
   b.append(el('span','world-name',world.name));
+  if(i===6&&!DRAG_WORLD_READY&&!state.preview)b.append(el('span','world-coming-soon','COMING SOON'));
   b.onclick=()=>{state.world=i;setView('world')};stage.append(b);
  });
- stage.append(el('div','map-foot','Finish all 8 levels in a world to unlock the next safari world.'));
+ stage.append(el('div','map-foot','The Otter drag-and-drop world opens after we learn that skill.'));
  main.append(stage);app.append(main);
 }
 function missionTitle(world,stage){
