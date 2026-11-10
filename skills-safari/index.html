@@ -331,8 +331,117 @@ function safariArt(emoji,cls='',species=null){return putAnimalArt(el('span',cls)
 function node(html){const wrapper=document.createElement('div');wrapper.innerHTML=html;return wrapper.firstElementChild}
 function clamp(n,low,high){return Math.max(low,Math.min(high,n))}
 function saveKey(){return 'skills-safari-v1:'+state.teacher.id+':'+state.number}
+
+const SAFARI_CLOUD_URL='https://vcjyhcnsuiwdeqqbiwgx.supabase.co/functions/v1/skills-safari-save';
+let cloudRevision=0,cloudReady=false,cloudBusy=false,cloudDirty=false,cloudStatus='local',cloudSession=0;
+function safariProgress(){return {version:1,done:state.done.slice(),stuff:JSON.parse(JSON.stringify(state.stuff))}}
+function mergeSafari(remote,preferRemoteStuff=true){
+ if(!remote||remote.version!==1||!Array.isArray(remote.done))return;
+ state.done=[...new Set([...state.done,...remote.done].filter(n=>Number.isInteger(n)&&n>=0&&n<64))].sort((a,b)=>a-b);
+ const rs=remote.stuff;
+ if(rs&&Array.isArray(rs.purchases)){
+  const local=state.stuff;
+  const purchases=[...new Set([...local.purchases,...rs.purchases])].filter(id=>SHOP_CATALOG.some(x=>x.id===id));
+  state.stuff={
+   purchases,
+   placed:preferRemoteStuff&&Array.isArray(rs.placed)?rs.placed:local.placed,
+   backgrounds:{...local.backgrounds,...(rs.backgrounds||{})},
+   world:preferRemoteStuff&&Number.isInteger(rs.world)?rs.world:local.world
+  };
+ }
+}
+function updateCloudStatus(status){
+ cloudStatus=status;
+ const indicator=document.getElementById('safari-cloud-indicator');
+ if(indicator)indicator.textContent=cloudStatus==='saved'?'☁ Saved online':cloudStatus==='saving'?'☁ Saving…':cloudStatus==='loading'?'☁ Loading…':'⚠ Local save only';
+}
+async function cloudRequest(payload){
+ const res=await fetch(SAFARI_CLOUD_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});
+ const body=await res.json().catch(()=>({}));
+ if(!res.ok){const err=new Error(body.error||'Cloud save unavailable');err.status=res.status;throw err}
+ return body;
+}
+function saveLocalSnapshot(){
+ try{localStorage.setItem(saveKey(),JSON.stringify(state.done));localStorage.setItem(saveKey()+':my-stuff-v1',JSON.stringify(state.stuff))}
+ catch(e){updateCloudStatus('local')}
+}
+async function enterSafariStudent(n){
+ state.number=n;state.preview=false;loadProgress();
+ const session=++cloudSession;
+ cloudReady=false;cloudRevision=0;cloudDirty=false;
+ updateCloudStatus('loading');
+ const choices=document.querySelectorAll('.choices.numbers button');
+ choices.forEach(b=>b.disabled=true);
+ try{
+  const reply=await cloudRequest({action:'load',teacher:state.teacher.id,student:n});
+  if(session!==cloudSession)return;
+  cloudRevision=reply.revision;
+  const before=JSON.stringify(safariProgress());
+  mergeSafari(reply.progress,!!reply.progress);
+  saveLocalSnapshot();
+  cloudReady=true;
+  setView('home');
+  if(!reply.progress||before!==JSON.stringify(safariProgress()))queueCloudSave();
+  else updateCloudStatus('saved');
+ }catch(e){
+  if(session!==cloudSession)return;
+  cloudReady=false;updateCloudStatus('local');setView('home');
+  alert('Online progress could not load. This Chromebook can still save locally, but progress will not follow the student to another computer until the cloud reconnects.');
+ }
+}
+async function reconnectSafariCloud(){
+ if(!state.teacher||!state.number||state.preview||cloudReady)return;
+ const teacher=state.teacher.id,student=state.number,session=cloudSession;
+ updateCloudStatus('loading');
+ try{
+  const reply=await cloudRequest({action:'load',teacher,student});
+  if(session!==cloudSession)return;
+  cloudRevision=reply.revision;
+  mergeSafari(reply.progress,true);saveLocalSnapshot();
+  cloudReady=true;
+  render();queueCloudSave();
+ }catch(e){if(session===cloudSession){updateCloudStatus('local');alert('Online storage is still unavailable. Local progress remains on this Chromebook.')}}
+}
+
+function queueCloudSave(){
+ if(state.preview||!state.teacher||!state.number)return;
+ if(!cloudReady){updateCloudStatus('local');return}
+ cloudDirty=true;updateCloudStatus('saving');
+ if(cloudBusy)return;
+ cloudBusy=true;
+ const session=cloudSession,teacher=state.teacher.id,student=state.number;
+ (async()=>{
+  try{
+   while(cloudDirty&&session===cloudSession){
+    cloudDirty=false;
+    let payload=safariProgress();
+    for(let attempt=0;attempt<4;attempt++){
+     try{
+      const reply=await cloudRequest({action:'save',teacher,student,revision:cloudRevision,progress:payload});
+      if(session!==cloudSession)return;
+      cloudRevision=reply.revision;
+      break;
+     }catch(e){
+      if(session!==cloudSession)return;
+      if(e.status!==409||attempt===3)throw e;
+      const fresh=await cloudRequest({action:'load',teacher,student});
+      if(session!==cloudSession)return;
+      cloudRevision=fresh.revision;
+      mergeSafari(fresh.progress,true);
+      saveLocalSnapshot();payload=safariProgress();
+      cloudDirty=true;
+     }
+    }
+   }
+   if(session===cloudSession)updateCloudStatus('saved');
+  }catch(e){
+   if(session===cloudSession){cloudReady=false;updateCloudStatus('local');console.error('Skills Safari cloud save:',e)}
+  }finally{if(session===cloudSession){cloudBusy=false;if(cloudDirty&&cloudReady)queueCloudSave()}}
+ })();
+}
+
 function loadProgress(){state.done=[];try{const raw=JSON.parse(localStorage.getItem(saveKey())||'[]');if(Array.isArray(raw))state.done=[...new Set(raw.filter(x=>Number.isInteger(x)&&x>=0&&x<64))].sort((a,b)=>a-b)}catch(e){state.done=[]}loadStuff();}
-function persist(){if(state.preview||!state.teacher||!state.number)return true;try{localStorage.setItem(saveKey(),JSON.stringify(state.done));return true}catch(e){feedback('Your work could not save on this Chromebook. Please tell your teacher.',true);return false}}
+function persist(){if(state.preview||!state.teacher||!state.number)return true;try{localStorage.setItem(saveKey(),JSON.stringify(state.done));queueCloudSave();return true}catch(e){feedback('Your work could not save on this Chromebook. Please tell your teacher.',true);return false}}
 function done(w,s){return state.done.includes(w*8+s)}
 function count(w){return state.done.filter(i=>Math.floor(i/8)===w).length}
 function unlocked(w){return state.preview||w===0||count(w-1)===8}
@@ -364,7 +473,8 @@ function header(){
  const right=el('nav','nav right');
  if(state.teacher||state.preview){
   right.append(el('span','pill',state.preview?'TEACHER PREVIEW':'⭐ '+spendableStars()+' Stars'));
-  const switcher=el('button','','Change Student');switcher.onclick=()=>{state.teacher=null;state.number=null;state.preview=false;setView('teachers')};right.append(switcher);
+  if(!state.preview){const cloud=el('button','',cloudStatus==='saved'?'☁ Saved online':cloudStatus==='saving'?'☁ Saving…':'⚠ Local save only');cloud.id='safari-cloud-indicator';cloud.title='Click to reconnect online progress';cloud.onclick=async()=>{if(cloudReady)return;await reconnectSafariCloud()};right.append(cloud)}
+  const switcher=el('button','','Change Student');switcher.onclick=()=>{cloudSession++;cloudReady=false;state.teacher=null;state.number=null;state.preview=false;setView('teachers')};right.append(switcher);
  }else{right.append(el('span','pill','8 MAPS · 64 CHALLENGES'))}
  header.append(right);return header
 }
@@ -418,7 +528,7 @@ function loadStuff(){
 }
 function persistStuff(){
  if(state.preview||!state.teacher||!state.number)return true;
- try{localStorage.setItem(saveKey()+':my-stuff-v1',JSON.stringify(state.stuff));return true}
+ try{localStorage.setItem(saveKey()+':my-stuff-v1',JSON.stringify(state.stuff));queueCloudSave();return true}
  catch(e){alert('Your My Stuff could not save on this Chromebook. Please tell your teacher.');return false}
 }
 function spendableStars(){
@@ -601,11 +711,11 @@ function renderEntry(){
  box.append(el('p','',state.view==='teachers'?'Click your first-grade teacher. No typing!':'Click your classroom number to start your safari.'));
  const grid=el('div','choices'+(state.view==='numbers'?' numbers':''));
  if(state.view==='teachers')TEACHERS.forEach(t=>{const b=el('button','',t.name);b.onclick=()=>{state.teacher=t;setView('numbers')};grid.append(b)});
- else for(let n=1;n<=30;n++){const b=el('button','',String(n));b.onclick=()=>{state.number=n;state.preview=false;loadProgress();setView('home')};grid.append(b)}
+ else for(let n=1;n<=30;n++){const b=el('button','',String(n));b.onclick=()=>enterSafariStudent(n);grid.append(b)}
  box.append(grid);
  if(state.view==='numbers'){const back=el('button','','← Choose Different Teacher');back.onclick=()=>setView('teachers');box.append(back)}
  if(state.view==='teachers'){const preview=el('button','','👩‍🏫 Teacher Preview: Open Every Map & Level');preview.onclick=()=>{const pin=window.prompt('Teacher Mode is locked. Enter the 4-digit PIN:');if(pin===null)return;if(pin!=='8714'){window.alert('Incorrect teacher PIN.');return;}state.teacher=null;state.number=null;state.preview=true;state.done=[];setView('home')};box.append(preview);
-  box.append(el('p','small-note','Teacher preview does not overwrite student progress. Student work saves on each Chromebook browser.'))}
+  box.append(el('p','small-note','Teacher preview does not overwrite student progress. Student work is saved online when connected.'))}
  main.append(box);app.append(main);
 }
 function mapBackground(stage,theme,file){
