@@ -265,6 +265,16 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .modal-card .level-success-star{width:clamp(105px,15vw,165px);height:clamp(105px,15vw,165px);object-fit:contain;display:block;margin:4px auto 11px}
 .modal-card button{margin:5px;min-height:48px}
 .modal-card .continue-safari{background:#e3f5be;border:3px solid #589a48;font-size:clamp(16px,2vw,23px);min-height:58px;padding:9px 17px}
+
+/* Keep the eight earned items, saved friends and purchases on separate shelves,
+   so first graders don't need to hunt through one long scrolling list. */
+.stuff-category-tabs{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+.stuff-category-tabs button{min-height:32px;padding:3px 9px;font-size:clamp(11px,.95vw,14px)}
+.stuff-category-tabs button[aria-pressed="true"]{background:#fff0ad;border-color:#b88721}
+.stuff-inventory{flex-wrap:wrap;justify-content:center;overflow-x:visible;min-height:78px}
+.stuff-shelf-item{flex:0 0 87px;min-height:84px}
+.stuff-shelf-item img{width:58px;height:55px}
+@media(max-height:675px){.stuff-shelf-item{flex-basis:76px;min-height:71px}.stuff-shelf-item img{height:43px}}
 </style>
 </head>
 <body><div id="app"></div>
@@ -295,7 +305,7 @@ const MAZE_ROCKS=[
  [[2,2],[3,2],[4,2],[5,2],[3,1],[5,3]]
 ];
 const seqLengths=[1,1,2,2,3,3,3,4];
-const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null,stuff:{purchases:[],placed:[],backgrounds:{},world:0},stuffPending:null};
+const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null,stuff:{purchases:[],placed:[],backgrounds:{},world:0},stuffPending:null,stuffCategory:'earned'};
 let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly',Turtle:'turtle',Hippo:'hippo',Lizard:'lizard',Ladybug:'ladybug',Crab:'crab',Fish:'fish',TropicalFish:'tropical-fish'});
@@ -353,7 +363,7 @@ function header(){
  header.append(nav);
  const right=el('nav','nav right');
  if(state.teacher||state.preview){
-  right.append(el('span','pill','⭐ '+spendableStars()+' Stars'));
+  right.append(el('span','pill',state.preview?'TEACHER PREVIEW':'⭐ '+spendableStars()+' Stars'));
   const switcher=el('button','','Change Student');switcher.onclick=()=>{state.teacher=null;state.number=null;state.preview=false;setView('teachers')};right.append(switcher);
  }else{right.append(el('span','pill','8 MAPS · 64 CHALLENGES'))}
  header.append(right);return header
@@ -564,8 +574,15 @@ function renderStuff(){
   board.append(block);
  });
  main.append(board);
+ const categories=el('div','stuff-category-tabs');
+ for(const [kind,label] of [['earned','⭐ EARNED'],['friend','🐾 FRIENDS'],['piece','🎒 BOUGHT']]){
+  const btn=el('button','',label);btn.type='button';
+  btn.setAttribute('aria-pressed',String(state.stuffCategory===kind));
+  btn.onclick=()=>{state.stuffCategory=kind;render()};categories.append(btn);
+ }
+ main.append(categories);
  const shelf=el('div','stuff-inventory');
- inventory.forEach(item=>{
+ inventory.filter(item=>item.kind===state.stuffCategory).forEach(item=>{
   const b=el('button','stuff-shelf-item');
   b.type='button';b.classList.toggle('chosen',state.stuffPending===item.id);
   b.append(shopImage(item.image,item.name));
