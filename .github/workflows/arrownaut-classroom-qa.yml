@@ -31,13 +31,17 @@ jobs:
         run: node --test arrow-naut/solvability.test.mjs
       - name: Test 64 first-grade missions and keyboard-only controls
         run: node --test arrow-naut-jr/routes.test.mjs
-      - name: Verify each student's own explorer can be placed, resized and replaced in both games
+      - name: Verify second-grade earned-only characters and first-grade avatars
         run: node --test arrow-naut/my-stuff-avatar.test.mjs
+      - name: Check teacher saved-level access and earned-only characters
+        run: node --test arrow-naut/teacher-progress.test.mjs
       - name: Verify Map Two, app, and teacher preview JavaScript syntax
         run: |
           node --check arrow-naut/app.mjs
           node --check arrow-naut/map-two.mjs
           node --check arrow-naut/teacher-tools.mjs
+          node --check arrow-naut/cloud-save.mjs
+          node --check arrow-naut/teacher-progress.mjs
       - name: Test all 16 implemented Map Two missions and saved progress
         run: node --test arrow-naut/map-two.test.mjs
       - name: Validate 144 levels, enemy spawns, pictures, and map references

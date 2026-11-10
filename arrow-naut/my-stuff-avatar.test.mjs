@@ -1,5 +1,5 @@
-/** Regression: an explorer is a free, placeable My Stuff item in both grades.
- * Placement ID must remain stable when the student changes characters.
+/** Regression: second-grade ownership requires earned rescues; first-grade avatars unchanged.
+ * Existing student layout IDs remain saved even when legacy free characters are hidden.
  * Run: node --test arrow-naut/my-stuff-avatar.test.mjs
  */
 import test from 'node:test';
@@ -14,32 +14,35 @@ function renderFunction(source,helperName,endMark,dependencies){
  const code=source.slice(begin,end)+'\nreturn stuff;';
  return new Function(...Object.keys(dependencies),code)(...Object.values(dependencies));
 }
-test('Second grade: students can place their own character without buying it, change character without losing placement',()=>{
- const state={progress:{scenePlanet:0,playerId:'one',purchases:[],rescued:[],
-  worldScene:[{id:'avatar:self',planet:0,x:42,y:58,scale:1.4}]},scenePending:null};
+test('Second grade: only genuinely rescued characters appear in My Stuff',()=>{
+ const state={progress:{scenePlanet:0,playerId:'astro-pup',purchases:[],rescued:[],
+  mapTwo:{rescued:[]},worldScene:[{id:'avatar:self',planet:0,x:42,y:58,scale:1.4},
+  {id:'friend:launch',planet:0,x:33,y:50,scale:2},
+  {id:'lostfriend:lost-aurora',planet:0,x:72,y:48,scale:2}]},scenePending:null};
  const source=read('./app.mjs');
  const render=renderFunction(source,'activeScenePlanet','function errorPage()',{
-  state,PLANETS:[{id:'candy',name:'Candy Moon',friend:'Bunny'},{id:'rocket',name:'Rocket Launch',friend:'Turtle'}],
+  state,PLANETS:[{id:'launch',name:'Candy Moon',friend:'Stella'},{id:'moon',name:'Rocket Launch',friend:'Turtle'}],
+  LOST_WORLDS:[{id:'lost-aurora',name:'Aurora Garden',friend:'Lumi',friendImage:'/lumi.png'}],
   sceneUnlocked:(_progress,index)=>index===0,SPACE_SHOP:[],SHOP_SPRITES:{},
-  earnedItems:()=>[],friendPortrait:()=>'',planetImage:()=>'/planet.jpg',
-  playerPortrait:id=>id==='one'?'/hero-one.png':'/hero-two.png',
+  earnedItems:()=>[],friendPortrait:()=>'/earned-bunny.png',planetImage:()=>'/planet.jpg',
   art:picture,esc:String
  });
+ const previous=JSON.stringify(state.progress.worldScene);
  let html=render();
- assert.match(html,/data-place-item="avatar:self"/);
- assert.match(html,/data-move-scene="avatar:self"/);
- assert.match(html,/MY CHARACTER/);
- assert.match(html,/hero-one\.png/);
- assert.match(html,/--scene-scale:1\.4/);
- const original=JSON.stringify(state.progress.worldScene);
- state.progress.playerId='two';
+ assert.doesNotMatch(html,/data-place-item="avatar:self"/);
+ assert.doesNotMatch(html,/data-move-scene="avatar:self"/);
+ assert.doesNotMatch(html,/data-place-item="friend:launch"/);
+ assert.doesNotMatch(html,/data-place-item="lostfriend:lost-aurora"/);
+ state.progress.rescued=['launch'];
  html=render();
- assert.match(html,/hero-two\.png/);
- assert.doesNotMatch(html,/hero-one\.png/);
- assert.match(html,/--scene-scale:1\.4/);
- assert.equal(JSON.stringify(state.progress.worldScene),original);
- state.progress.scenePlanet=1; // locked: still render and save in the visible world 0
- assert.match(render(),/data-move-scene="avatar:self"/);
+ assert.match(html,/data-place-item="friend:launch"/);
+ assert.match(html,/data-move-scene="friend:launch"/);
+ assert.doesNotMatch(html,/data-place-item="lostfriend:lost-aurora"/);
+ state.progress.mapTwo.rescued=['lost-aurora'];
+ html=render();
+ assert.match(html,/data-place-item="lostfriend:lost-aurora"/);
+ assert.match(html,/data-move-scene="lostfriend:lost-aurora"/);
+ assert.equal(JSON.stringify(state.progress.worldScene),previous,'Old layout records must be retained unchanged');
  assert.match(source,/const planet=activeScenePlanet\(\)/);
  assert.match(source,/const world=activeScenePlanet\(\)/);
 });

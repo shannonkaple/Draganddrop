@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeCloudSave,combineClassroomProgress} from './cloud-save.mjs';
+import {makeCloudSave,combineClassroomProgress,updateClassroomStudent} from './cloud-save.mjs';
 
 const duplicate=x=>JSON.parse(JSON.stringify(x));
 const progress=(completed=[],details={})=>({
@@ -134,4 +134,37 @@ test('public game client does not contain teacher pairing codes or secret databa
  assert.doesNotMatch(s,/pairingCode|deviceToken|teacher-pair/);
  assert.doesNotMatch(s,/FMRBHMSTAEQ35D7HGJC78HWJ|sb_secret_/);
  assert.doesNotMatch(s,/\.from\(['"]arrownaut_cloud_saves/);
+});
+
+test('teacher advancement saves to the correct remote student and restores on another Chromebook',async()=>{
+ const old=progress(['launch-1','launch-2'],{stars:12,rescued:['launch'],purchases:['moon-buggy'],
+  worldScene:[{planet:0,id:'friend:launch',x:50,y:45}]});
+ const a=harness({remote:old,local:progress()});
+ const changed=await updateClassroomStudent({game:'naut',teacher:'class-01',student:11,
+  local:progress(),validate:value=>value||progress(),
+  mutate:value=>({...value,teacherUnlockThrough:27,teacherTarget:{map:'one',world:3,stage:3}})});
+ assert.equal(changed.teacherUnlockThrough,27);
+ assert.deepEqual(a.server.progress.completed,old.completed);
+ assert.deepEqual(a.server.progress.rescued,old.rescued);
+ assert.deepEqual(a.server.progress.purchases,old.purchases);
+ assert.equal(a.server.progress.stars,12);
+ assert.deepEqual(a.requests.map(r=>r.action),['load','save','load']);
+ const b=harness({server:a.server,local:progress()});
+ assert.equal(await b.client.attach(),true);
+ assert.equal(b.progress().teacherUnlockThrough,27);
+ assert.equal(b.progress().stars,12);
+});
+test('teacher level overrides cannot be lost when old Chromebooks merge',()=>{
+ const newer=progress(['launch-1'],{teacherUnlockThrough:71});
+ const old=progress(['launch-1','launch-2'],{teacherUnlockThrough:10});
+ assert.equal(combineClassroomProgress(old,newer).teacherUnlockThrough,71);
+ assert.equal(combineClassroomProgress(newer,old).teacherUnlockThrough,71);
+ assert.equal(combineClassroomProgress(progress(),newer).teacherUnlockThrough,71);
+});
+test('teacher advancement fails offline without changing existing cloud progress',async()=>{
+ const a=harness({remote:progress(['launch-1'],{stars:1})});
+ a.disconnect();
+ await assert.rejects(updateClassroomStudent({game:'naut',teacher:'class-01',student:11,
+  local:progress(),validate:v=>v||progress(),mutate:v=>({...v,teacherUnlockThrough:33})}),/offline/);
+ assert.equal(a.server.progress.teacherUnlockThrough,undefined);
 });
