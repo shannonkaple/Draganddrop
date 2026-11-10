@@ -73,3 +73,21 @@ export const earnedItems=progress=>EARNABLES.filter(item=>{
  const ids=['launch','moon','robot','crystal','slime','ice','jungle','core'];
  return progress?.completed?.includes(ids[item.planet]+'-'+item.level);
 });
+
+/** Only the free starter and friends genuinely rescued by this student may be selected.
+ * Legacy free-choice player IDs are not ownership records. */
+const MAP_ONE_FRIEND_IDS=['launch','moon','robot','crystal','slime','ice','jungle','core'];
+const MAP_ONE_FRIEND_NAMES=['Stella Space Bunny','Zippy Space Turtle','Orbit Otter','Cosmic Koala','Pixel Space Pup','Nova Space Panda','Comet Space Kitty','Starbot Explorer'];
+const MAP_TWO_RESCUE_FRIENDS=[
+ {id:'lost-aurora',name:'Lumi the Star Deer',image:'./assets/map-two/lumi-star-deer.png'},
+ {id:'lost-clockwork',name:'Tiko the Gear Gecko',image:'./assets/map-two/tiko-gear-gecko.png'}
+];
+export function earnedCharacterChoices(progress){
+ const first=[{id:'astro-pup',name:'Starter Explorer',image:PLAYERS[0].image,starter:true}];
+ const mapOne=MAP_ONE_FRIEND_IDS.flatMap((id,index)=>(progress?.rescued||[]).includes(id)
+  ?[{id:'friend:'+id,name:MAP_ONE_FRIEND_NAMES[index],image:friendPortrait(index)}]:[]);
+ const mapTwo=MAP_TWO_RESCUE_FRIENDS.filter(v=>(progress?.mapTwo?.rescued||[]).includes(v.id))
+  .map(v=>({...v,id:'lostfriend:'+v.id}));
+ return [...first,...mapOne,...mapTwo];
+}
+export const earnedCharacterPortrait=progress=>earnedCharacterChoices(progress).find(v=>v.id===progress?.playerId)?.image||PLAYERS[0].image;
