@@ -377,6 +377,14 @@ body:has(.game-page) .safari-character-switch .current-explorer-thumb{height:24p
 .stuff-placed{width:clamp(68px,8.5vw,128px);height:clamp(68px,8.5vw,128px)}
 @media(max-height:675px){.stuff-board{width:min(100%,1520px,calc(77dvh * 16 / 9));max-height:none!important}}
 @media(max-width:650px){.map-listen{top:auto;bottom:1.5%;right:1.5%;min-height:34px}.stuff-placed{width:clamp(50px,14vw,82px);height:clamp(50px,14vw,82px)}}
+
+/* Picture-first scroll lessons: one visual clue in the guide and illustrations in the list.
+   Keep the successful large interactive picture size. */
+.scroll-item{position:relative;min-height:118px;justify-content:center;gap:0}
+.scroll-item .game-animal-img{width:clamp(90px,10vw,134px);height:clamp(90px,10vw,134px);object-fit:contain}
+.scroll-item .scroll-found-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:clamp(26px,3vw,39px)}
+.scroll-item.found{border-color:#4d9f65}
+@media(max-height:650px){.scroll-item{min-height:105px}.scroll-item .game-animal-img{width:clamp(84px,9vw,120px);height:clamp(84px,9vw,120px)}}
 </style>
 </head>
 <body><div id="app"></div>
@@ -1162,7 +1170,7 @@ function updateGuide(){
   action=type==='drag'?'HOLD + DRAG '+goal:'CLICK → ARROWS '+goal;
  }else if(type==='scroll'){
   goal=run.spec?.targets?.length||1;value=run.scrollStep||0;
-  target=run.spec?.targets?.[value]?.[0];action='SCROLL → FIND '+goal;
+  target=run.spec?.targets?.[value]?.[0];action='TWO-FINGER SCROLL → FIND';
  }
  cmd.textContent=action||'PLAY';
  img.replaceChildren();
@@ -1405,21 +1413,21 @@ function startArrowGame(stage,puzzle){
 const SELECT_GAMES=[
  {title:'Giraffe Finds Home',help:'CLICK the giraffe first, then use ARROW KEYS to guide it home!',icons:['🦒'],kind:'dock'},
  {title:'Lost Zebra Search',help:'Find and SELECT the ZEBRA, not the other animals. Use ARROW KEYS to rescue it!',icons:['🦓'],decoys:['🐘','🦁'],kind:'find'},
- {title:'Safari Animal Taxi',help:'SELECT TWO animals, one at a time, and use ARROWS to bring each home!',icons:['🐒','🦓'],kind:'multi'},
- {title:'Switching Safari Stops',help:'SELECT each animal and use ARROWS to SWAP its starting side!',icons:['🐘','🦒'],kind:'swap',reverse:true},
- {title:'Golden Checkpoint Chase',help:'SELECT the frog. Use ARROWS to collect TWO GOLDEN STARS before docking!',icons:['🐸'],kind:'checkpoint',beacons:[[38,53],[56,53]]},
- {title:'Habitat Shuffle',help:'SELECT and MOVE THREE animals into their matching faded pictures!',icons:['🦓','🦒','🐘'],kind:'shuffle',reverse:true},
- {title:'Lookout Delivery Race',help:'SELECT and MOVE THREE animals and collect a star before time runs out!',icons:['🐒','🦓','🐸'],kind:'race',beacons:[[42,50]],seconds:85},
- {title:'Rescue the Giraffe',help:'RESCUE THE GIRAFFE! SELECT and MOVE FOUR animals, collect TWO badges!',icons:['🦒','🦁','🐘','🦓'],kind:'rescue',beacons:[[40,48],[58,68]],seconds:115}
+ {title:'Move Monkey and Zebra Home',help:'SELECT TWO animals, one at a time, and use ARROWS to bring each home!',icons:['🐒','🦓'],kind:'multi'},
+ {title:'Swap Elephant and Giraffe',help:'Click the elephant and giraffe. Use arrows to move each one to its matching picture!',icons:['🐘','🦒'],kind:'swap',reverse:true},
+ {title:'Frog Collects Two Stars',help:'SELECT the frog. Use ARROWS to collect TWO GOLDEN STARS before docking!',icons:['🐸'],kind:'checkpoint',beacons:[[38,53],[56,53]]},
+ {title:'Move Zebra, Giraffe and Elephant',help:'Click each animal. Use the arrow keys to match its picture.',icons:['🦓','🦒','🐘'],kind:'shuffle',reverse:true},
+ {title:'Race Monkey, Zebra and Frog',help:'Click the monkey, zebra and frog. Use arrows to move them home and collect the star!',icons:['🐒','🦓','🐸'],kind:'race',beacons:[[42,50]],seconds:85},
+ {title:'Rescue Four Safari Animals',help:'Rescue the giraffe, lion, elephant and zebra. Use arrows and collect two badges!',icons:['🦒','🦁','🐘','🦓'],kind:'rescue',beacons:[[40,48],[58,68]],seconds:115}
 ];
 const DRAG_GAMES=[
  {title:'Banana Basket',help:'Click and hold the banana. Drag it to the basket, then let go!',icons:['🍌'],kind:'basket',shared:true},
  {title:'River Fish Rescue',help:'CLICK AND HOLD, then DRAG TWO fish into their own matching outlines!',icons:['🐟','🐠'],kind:'matching'},
  {title:'Otter Picnic',help:'DRAG THREE picnic foods into the one picnic basket!',icons:['🍎','🍌','🍇'],kind:'basket',shared:true},
- {title:'Safari Supply Sort',help:'DRAG THREE different safari supplies into their matching spots!',icons:['🎒','🔭','📷'],kind:'matching'},
- {title:'Floating River Raft',help:'DRAG TWO animals onto the SLOWLY MOVING rafts!',icons:['🐸','🐢'],kind:'moving',moving:true},
- {title:'Jungle Picnic Pickup',help:'COLLECT FOUR picnic things with drag-and-drop into the picnic basket!',icons:['🥥','🍎','🍌','🍍'],kind:'basket',shared:true},
- {title:'River Delivery Dash',help:'DRAG THREE supplies into their matching spots before time runs out!',icons:['🎒','🐟','🧭'],kind:'race',seconds:85},
+ {title:'Match Backpack, Telescope and Camera',help:'DRAG THREE different safari supplies into their matching spots!',icons:['🎒','🔭','📷'],kind:'matching'},
+ {title:'Move Frog and Turtle to the Rafts',help:'Drag the frog and turtle onto the moving rafts!',icons:['🐸','🐢'],kind:'moving',moving:true},
+ {title:'Fill the Picnic Basket',help:'Drag the coconut, apple, banana and pineapple into the picnic basket!',icons:['🥥','🍎','🍌','🍍'],kind:'basket',shared:true},
+ {title:'Deliver Backpack, Fish and Compass',help:'Drag the backpack, fish and compass to their matching pictures!',icons:['🎒','🐟','🧭'],kind:'race',seconds:85},
  {title:'Rescue the Otter',help:'RESCUE THE OTTER! DRAG FOUR river supplies into their matching spots!',icons:['🐟','🦀','🪣','🐚'],kind:'rescue',seconds:115}
 ];
 function startMoveGame(type,stage,puzzle){
@@ -1513,11 +1521,11 @@ const SCROLL_GAMES=[
  {title:'Find the Hidden Lion',help:'Use two fingers to scroll down and find the lion!',total:12,targets:[['🦁',5]]},
  {title:'River Animal Search',help:'SCROLL down the list to find the OTTER, then find the FISH!',total:15,targets:[['🦦',6],['🐟',11]]},
  {title:'Fruit Trail Finder',help:'SCROLL down and find BANANA, COCONUT, and PINEAPPLE in order!',total:19,targets:[['🍌',5],['🥥',10],['🍍',15]]},
- {title:'Ranger Clue Hunt',help:'SCROLL and find the PAW, BINOCULARS, and SAFARI MAP!',total:20,targets:[['🐾',5],['BINOCULARS',11],['🗺️',16]]},
+ {title:'Find Paw Print, Binoculars and Map',help:'Scroll down and find the paw print, binoculars and safari map!',total:20,targets:[['🐾',5],['BINOCULARS',11],['🗺️',16]]},
  {title:'Up and Down Safari',help:'SCROLL DOWN for a STAR, back UP for a COMPASS, then DOWN for a GEM!',total:22,targets:[['⭐',16],['🧭',1],['💎',19]]},
  {title:'Ranger Supply Search',help:'SCROLL down the supply list to find FOUR lost safari supplies!',total:25,targets:[['⛺',5],['🪣',11],['📷',17],['🎒',22]]},
  {title:'Scroll Scavenger Sprint',help:'FIND FIVE hidden pictures by SCROLLING before the timer runs out!',total:27,targets:[['🦋',5],['🐒',10],['🐘',15],['🦒',20],['🪶',24]],seconds:90},
- {title:'Rescue the Lion',help:'RESCUE THE LION! SCROLL UP AND DOWN and find SIX rescue badges!',total:30,targets:[['🏅',5],['🦁',12],['🔑',18],['🦋',24],['🧭',2],['🏆',28]],seconds:120}
+ {title:'Rescue the Lion',help:'Find the medal, lion, key, butterfly, compass and star. Scroll up and down!',total:30,targets:[['🏅',5],['🦁',12],['🔑',18],['🦋',24],['🧭',2],['⭐',28]],seconds:120}
 ];
 function startScrollGame(stage,puzzle){
  const spec=SCROLL_GAMES[stage];
@@ -1529,16 +1537,18 @@ function startScrollGame(stage,puzzle){
  for(let i=0;i<spec.total;i++){
   const goal=goalIndex.get(i),symbol=goal?.icon||filler[i%filler.length];
   const b=el('button','scroll-item');b.type='button';b.dataset.row=i;
-  b.append(safariArt(symbol));b.append(el('strong','',goal?'SAFARI CLUE':'SAFARI TRAIL'));
+  b.append(safariArt(symbol));
+  b.setAttribute('aria-label','Safari picture '+(i+1));
+  if(goal)b.classList.add('scroll-target-picture');
   b.onclick=()=>{
    if(!run||run.complete||run.active===false||state.view!=='game')return;
    const next=spec.targets[run.scrollStep];
    if(!goal||goal.step!==run.scrollStep){
-    feedback('Find '+next[0]+' by scrolling. Look carefully!',true);return
+    feedback('Find the picture shown above. Keep scrolling!',true);return
    }
    if(i>3&&pane.scrollTop<25){feedback('Scroll down with TWO fingers first!',true);return}
-   b.disabled=true;b.classList.add('found');b.querySelector('strong').textContent='FOUND! ⭐';
-   run.scrollStep++;feedback('Great scrolling! '+run.scrollStep+' / '+spec.targets.length+' clues found! ⭐');
+   b.disabled=true;b.classList.add('found');b.append(el('span','scroll-found-icon','⭐'));
+   run.scrollStep++;feedback('Found it! ⭐');
    if(run.scrollStep===spec.targets.length){completeLevel();return}
    run.badge.textContent='SCROLL TO FIND '+spec.targets[run.scrollStep][0]+' · '+spec.title.toUpperCase();
    updateScrollProgress()
