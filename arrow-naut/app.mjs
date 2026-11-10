@@ -4,7 +4,7 @@ import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,b
 import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=naut-easy-feedback-r1';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
 import {SHOP_SPRITES,PUZZLE_SPRITES,friendPortrait,enemyPortrait,earnedItems,earnedCharacterChoices,earnedCharacterPortrait} from './sprite-assets.mjs?v=earned-only-20261110';
-import {mountMapTwo,LOST_WORLDS} from './map-two.mjs?v=teacher-levels-20261110';
+import {mountMapTwo,LOST_WORLDS} from './map-two.mjs?v=puzzle-playfields-20261110';
 import {makeCloudSave,updateClassroomStudent} from './cloud-save.mjs?v=teacher-levels-20261110';
 const root=document.getElementById('app');
 let disposeMapTwo=null;

@@ -4,25 +4,38 @@ import {teacherCanOpen} from './teacher-progress.mjs';
  * Trackpad dragging is Map Two only. No touchscreen gameplay, no CSS/SVG sprites.
  * All placement and rewards use the parent app's verified student-save callback.
  */
+/** Separate, original 1672x941 JPEG playfields for every Map Two theme.
+ * Keep illustrated navigation maps (scene) unchanged. Every puzzle in each
+ * world uses its own clean playfield; unbuilt worlds remain locked. */
+export const MAP_TWO_PUZZLE_SCENES=Object.freeze([
+ './assets/map-two/aurora-garden-puzzle.jpg',
+ './assets/map-two/clockwork-comet-puzzle.jpg',
+ './assets/map-two/prism-reef-puzzle.jpg',
+ './assets/map-two/cloud-carnival-puzzle.jpg',
+ './assets/map-two/crystal-caverns-puzzle.jpg',
+ './assets/map-two/nebula-library-puzzle.jpg',
+ './assets/map-two/ember-workshop-puzzle.jpg',
+ './assets/map-two/moonlight-jungle-puzzle.jpg'
+]);
 export const LOST_WORLDS = Object.freeze([
   {id:'lost-aurora',name:'Aurora Garden',friend:'Lumi the Star Deer',
-    scene:'./assets/map-two/aurora-garden.jpg',friendImage:'./assets/map-two/lumi-star-deer.png',color:'#73d9c6',
+    scene:'./assets/map-two/aurora-garden.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[0],friendImage:'./assets/map-two/lumi-star-deer.png',color:'#73d9c6',
     story:'Find the lost garden signals and rescue Lumi!'},
   {id:'lost-clockwork',name:'Clockwork Comet',friend:'Tiko the Gear Gecko',
-    scene:'./assets/map-two/clockwork-comet.jpg',friendImage:'./assets/map-two/tiko-gear-gecko.png',color:'#efa45d',
+    scene:'./assets/map-two/clockwork-comet.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[1],friendImage:'./assets/map-two/tiko-gear-gecko.png',color:'#efa45d',
     story:'Repair the comet workshop and rescue Tiko!'}
 ]);
 // Map Two uses its OWN eight-theme galaxy map, never the original eight planets.
 // Worlds 3–8 remain visibly unplayable until their new original missions and art exist.
 export const MAP_TWO_THEMES = Object.freeze([
- {name:'Aurora Garden',scene:'./assets/map-two/aurora-garden.jpg',active:true},
- {name:'Clockwork Comet',scene:'./assets/map-two/clockwork-comet.jpg',active:true},
- {name:'Prism Reef',scene:'./assets/map-two/prism-reef.jpg',active:false},
- {name:'Cloud Carnival',scene:'./assets/map-two/cloud-carnival.jpg',active:false},
- {name:'Crystal Caverns',scene:'./assets/map-two/crystal-caverns.jpg',active:false},
- {name:'Nebula Library',scene:'./assets/map-two/nebula-library.jpg',active:false},
- {name:'Ember Workshop',scene:'./assets/map-two/ember-workshop.jpg',active:false},
- {name:'Moonlight Jungle',scene:'./assets/map-two/moonlight-jungle.jpg',active:false}
+ {name:'Aurora Garden',scene:'./assets/map-two/aurora-garden.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[0],active:true},
+ {name:'Clockwork Comet',scene:'./assets/map-two/clockwork-comet.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[1],active:true},
+ {name:'Prism Reef',scene:'./assets/map-two/prism-reef.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[2],active:false},
+ {name:'Cloud Carnival',scene:'./assets/map-two/cloud-carnival.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[3],active:false},
+ {name:'Crystal Caverns',scene:'./assets/map-two/crystal-caverns.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[4],active:false},
+ {name:'Nebula Library',scene:'./assets/map-two/nebula-library.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[5],active:false},
+ {name:'Ember Workshop',scene:'./assets/map-two/ember-workshop.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[6],active:false},
+ {name:'Moonlight Jungle',scene:'./assets/map-two/moonlight-jungle.jpg',puzzleScene:MAP_TWO_PUZZLE_SCENES[7],active:false}
 ]);
 export const MAP_TWO_STOPS = Object.freeze([
  {x:17,y:39},{x:38,y:39},{x:62,y:39},{x:86,y:39},
@@ -67,7 +80,7 @@ export function createMapTwoMission(world,stage){
   throw Error('Unknown Map Two mission');
  const type=LOST_STAGE_TYPES[world][stage],label=LOST_STAGE_TITLES[world][stage];
  const base={id:mapTwoId(world,stage),world,stage,title:label,type,layoutVersion:stage===5?2:1,
-  worldInfo:LOST_WORLDS[world],pieces:[],targetId:null};
+  worldInfo:LOST_WORLDS[world],puzzleScene:MAP_TWO_PUZZLE_SCENES[world],pieces:[],targetId:null};
  const alternate=world===1;
  if(type==='select'){
   const target=alternate?'gear':'beacon';
@@ -238,7 +251,7 @@ export function mountMapTwo(node,{read,save,exit,teacherPreview=false,initialWor
  const boardPanel=()=>{const m=createMapTwoMission(world,stage);return `<div class="m2-game-head"><button data-m2-back="world">← ${esc(m.worldInfo.name)} Map</button><h1>Level ${stage+1}: ${esc(m.title)}</h1><span>${esc(m.type.toUpperCase())}</span></div>
   <div class="m2-instruction">${m.type==='select'?graphic(m.pieces.find(p=>p.id===m.targetId).art,'Find this picture','m2-target-cue'):''}<p>${esc(mapTwoKidDirections(m))}</p><button type="button" data-m2-speak="1" aria-label="Read directions aloud">🔊 Listen</button></div>
   <div class="m2-board-wrap"><div class="m2-board" id="m2-board" role="group" aria-label="Space puzzle. Use trackpad and keyboard arrows as instructed.">
-   ${graphic(m.worldInfo.scene,'','m2-backdrop')}<div class="m2-soft-grid"></div>
+   ${graphic(m.puzzleScene,'','m2-backdrop')}<div class="m2-soft-grid"></div>
    ${run.pieces.filter(p=>p.goal).map(p=>`<div class="m2-goal" style="${rectCSS(p.goal)}" aria-label="${esc(p.label)} target"><div class="m2-goal-inner">${graphic(p.art,'','m2-goal-image').replace('<img ','<img style="transform:rotate('+(p.goal.rotation||0)+'deg)" ')}<small>SAME PICTURE</small></div></div>`).join('')}
    ${run.pieces.map(p=>`<div class="m2-piece ${run.selected===p.id?'selected':''} ${p.tool==='drag'?'draggable':''}" style="${rectCSS(p)}" data-m2-piece="${esc(p.id)}" data-m2-drag="${p.tool==='drag'?'yes':'no'}" role="button" tabindex="0" aria-label="${esc(p.label)}: ${p.tool}">${graphic(p.art,p.label,'m2-object-image').replace('<img ','<img style="transform:rotate('+(p.rotation||0)+'deg)" ')}<b>${p.tool==='drag'?'DRAG':p.tool==='resize'?'MAKE BIGGER':p.tool==='move'?'ARROWS':''}</b>${run.selected===p.id&&p.tool==='resize'?['nw','n','ne','e','se','s','sw','w'].map(h=>`<span class="m2-handle m2-handle-${h}" data-m2-handle="${h}" data-m2-for="${esc(p.id)}" role="button" aria-label="Hold and drag ${h} resize handle"></span>`).join(''):''}${run.selected===p.id&&['rotate','move-rotate'].includes(p.tool)?`<span class="m2-rotate-handle" data-m2-rotate="${esc(p.id)}" role="button" aria-label="Hold and drag curved arrow sideways to rotate box">↻</span>`:''}</div>`).join('')}
   </div></div><div class="m2-feedback" id="m2-feedback" role="status">${esc(notice||'Carefully follow the directions above.')}</div>`};

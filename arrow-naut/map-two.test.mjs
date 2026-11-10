@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {LOST_WORLDS,LOST_STAGE_TYPES,createMapTwoMission,initialMapTwoRun,chooseMapTwo,moveMapTwo,dropMapTwo,resizeMapTwo,rotateMapTwo,finishMapTwo,mapTwoData,mapTwoStageUnlocked,mapTwoWorldUnlocked,mapTwoCount} from './map-two.mjs';
+import {readFileSync} from 'node:fs';
+import {MAP_TWO_PUZZLE_SCENES,MAP_TWO_THEMES,LOST_WORLDS,LOST_STAGE_TYPES,createMapTwoMission,initialMapTwoRun,chooseMapTwo,moveMapTwo,dropMapTwo,resizeMapTwo,rotateMapTwo,finishMapTwo,mapTwoData,mapTwoStageUnlocked,mapTwoWorldUnlocked,mapTwoCount} from './map-two.mjs';
 const base=()=>({version:1,completed:[],stars:17,rescued:['launch'],purchases:['telescope'],worldScene:[{id:'shop:telescope',planet:0,x:40,y:40}],active:{id:'launch-2'},mapTwo:undefined});
 const repeat=(fn,num,first)=>{let s=first;for(let i=0;i<num;i++){const r=fn(s);assert.equal(r.ok,true,r.reason);s=r.run}return s};
 function complete(m){let run=initialMapTwoRun(m);
@@ -74,4 +75,26 @@ test('Map Two remains sequentially locked unless the teacher uses preview mode',
  assert.equal(mapTwoWorldUnlocked(progress,1),false);
  assert.equal(mapTwoStageUnlocked(progress,0,0),true);
  assert.equal(mapTwoStageUnlocked(progress,0,1),false);
+});
+
+test('all eight themed puzzle backdrops are committed real JPEGs and each active mission uses its world image',()=>{
+ assert.equal(MAP_TWO_PUZZLE_SCENES.length,8);
+ assert.equal(new Set(MAP_TWO_PUZZLE_SCENES).size,8);
+ for(let world=0;world<8;world++){
+  const src=MAP_TWO_PUZZLE_SCENES[world];
+  assert.equal(MAP_TWO_THEMES[world].puzzleScene,src);
+  assert.ok(src.endsWith('.jpg'),src);
+  const bytes=readFileSync(new URL(src.replace(/^\.\//,''),import.meta.url));
+  assert.ok(bytes.byteLength>100000,src+' must be a full-resolution background');
+  assert.equal(bytes[0],255,src+' must be a JPEG');
+  assert.equal(bytes[1],216,src+' must be a JPEG');
+ }
+ for(let world=0;world<LOST_WORLDS.length;world++){
+  assert.equal(LOST_WORLDS[world].puzzleScene,MAP_TWO_PUZZLE_SCENES[world]);
+  for(let stage=0;stage<8;stage++){
+   const mission=createMapTwoMission(world,stage);
+   assert.equal(mission.puzzleScene,MAP_TWO_PUZZLE_SCENES[world]);
+   assert.notEqual(mission.puzzleScene,mission.worldInfo.scene,'puzzle art must differ from map art');
+  }
+ }
 });

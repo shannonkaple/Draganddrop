@@ -29,3 +29,27 @@
 - Map Two presents its own eight-theme illustrated map, not the old planet map or a bottom row on its old world screens.
 - Each new world should have eight genuinely varied missions; a rescue at the eighth mission. Mixed selecting, moving with arrows, mouse/trackpad dragging, resizing for second grade; moving bad guys on appropriate levels.
 - Do not expose incomplete worlds as playable. Publish small complete batches and test the Chrome browser behavior.
+
+## New original puzzle-only JPEG artwork — installed 2026-11-10
+
+These images are **not** world selection maps. They are clean, open-space playfields
+for selecting, dragging, arrow-key movement, resizing and rotation. All eight are
+individually generated 1672 × 941 JPEG files, committed under `arrow-naut/assets/map-two/`.
+
+| World | Actual puzzle JPEG |
+|---|---|
+| Aurora Garden | `aurora-garden-puzzle.jpg` |
+| Clockwork Comet | `clockwork-comet-puzzle.jpg` |
+| Prism Reef | `prism-reef-puzzle.jpg` |
+| Cloud Carnival | `cloud-carnival-puzzle.jpg` |
+| Crystal Caverns | `crystal-caverns-puzzle.jpg` |
+| Nebula Library | `nebula-library-puzzle.jpg` |
+| Ember Workshop | `ember-workshop-puzzle.jpg` |
+| Moonlight Jungle | `moonlight-jungle-puzzle.jpg` |
+
+`MAP_TWO_PUZZLE_SCENES` in `map-two.mjs` is the single authoritative
+mapping. Every **playable puzzle level** of Aurora Garden and Clockwork Comet
+now renders its matching puzzle JPEG; the original world-map art is unchanged.
+The six future world themes already reference their individual puzzle JPEGs,
+but remain **locked until new original lessons and rescued-friend artwork exist**.
+Map One, saved progress, stars and teacher unlocks remain unaffected.
