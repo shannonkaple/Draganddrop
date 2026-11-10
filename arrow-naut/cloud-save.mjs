@@ -39,7 +39,7 @@ export function combineClassroomProgress(local,remote,getPrice=()=>0){
   worldScene:[...scene.values()],
   stars:Math.max(leftBalance,rightBalance),
   teacherUnlockThrough:Math.max(Number.isInteger(local.teacherUnlockThrough)?local.teacherUnlockThrough:-1,Number.isInteger(remote.teacherUnlockThrough)?remote.teacherUnlockThrough:-1),
-  teacherTarget:(Number.isInteger(remote.teacherUnlockThrough)?remote.teacherUnlockThrough:-1)>(Number.isInteger(local.teacherUnlockThrough)?local.teacherUnlockThrough:-1)
+  teacherTarget:((Number.isInteger(remote.teacherUnlockThrough)?remote.teacherUnlockThrough:-1)>(Number.isInteger(local.teacherUnlockThrough)?local.teacherUnlockThrough:-1)
    ?remote.teacherTarget:local.teacherTarget||remote.teacherTarget)||null,
   active:local.active||remote.active||null};
  if(local.mapTwo||remote.mapTwo){
