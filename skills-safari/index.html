@@ -306,6 +306,64 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .character-option:disabled{opacity:.55}
 .character-picker-close{min-width:140px}
 @media(max-width:600px){.character-picker-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Chromebook play layout: keep the game box as the largest object on screen.
+   1366×768 / 1280×720 / 1024×600, no scrolling needed during play. */
+body:has(.game-page){overflow:hidden}
+body:has(.game-page) #app{height:100dvh;min-height:0;overflow:hidden}
+body:has(.game-page) .topbar{
+ flex:0 0 auto;min-height:50px;padding:3px 9px;gap:4px 7px;
+ grid-template-columns:minmax(130px,.8fr) minmax(0,2.4fr) minmax(188px,1.15fr)
+}
+body:has(.game-page) .logo{font-size:clamp(18px,1.55vw,24px)}
+body:has(.game-page) .logo small{font-size:9px;margin-top:2px}
+body:has(.game-page) .nav{gap:3px}
+body:has(.game-page) .nav button{font-size:clamp(9px,.78vw,12px);min-height:30px;padding:3px 5px;border-radius:10px}
+body:has(.game-page) .pill{font-size:11px;padding:4px 7px}
+body:has(.game-page) .safari-character-switch .current-explorer-thumb{height:24px;width:24px}
+.game-page{flex:1 1 0;height:0;min-height:0;width:100%;padding:4px 7px 8px;gap:4px;overflow:hidden}
+.game-page .game-head{flex:0 0 auto;min-height:30px;gap:6px}
+.game-page .game-head h1{font-size:clamp(15px,1.32vw,20px);line-height:1.08;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-page .game-head button{min-height:30px;padding:3px 8px;font-size:12px;flex:0 0 auto}
+.game-page .directions.guide-bar{flex:0 0 auto;min-height:45px;padding:3px 8px;gap:5px;border-radius:10px;border-width:2px}
+.game-page .guide-command{font-size:clamp(16px,1.65vw,23px)!important}
+.game-page .guide-picture{height:38px;min-width:38px}
+.game-page .guide-picture .game-animal-img{height:38px;width:38px}
+.game-page .guide-progress{font-size:clamp(15px,1.4vw,20px);padding:3px 7px}
+.game-page .guide-listen{font-size:22px;min-height:35px;min-width:38px;padding:2px}
+.game-page .guide-status{font-size:12px;flex:0 1 auto}
+.game-page .playfield{flex:1 1 0;min-height:0!important;max-height:none!important;height:auto;width:100%;border-width:4px;border-radius:16px;overflow:hidden}
+.game-page .tap-zone{top:8px;bottom:8px;left:4%;right:4%}
+.game-page .tap-item{width:clamp(72px,8.5vw,112px);height:clamp(72px,8.5vw,112px)}
+.game-page .key-stage{padding-top:3px;gap:5px}
+.game-page .key-stage .keycap{font-size:clamp(73px,12vw,145px)}
+.game-page .key-scenery .game-animal-img{width:clamp(48px,5.5vw,76px);height:clamp(48px,5.5vw,76px)}
+.game-page .maze-stack{height:100%;padding-top:4px;gap:4px}
+.game-page .maze{width:min(94%,880px);height:min(65dvh,455px)}
+.game-page .maze-cell .game-animal-img{width:94%;height:94%}
+.game-page .scroll-case{width:min(96%,760px);height:94%;margin-top:0}
+.game-page .card-grid{max-width:1200px;padding-top:0;gap:clamp(8px,1.8vw,20px)}
+.game-page .animal-card{width:clamp(100px,14vw,170px);height:clamp(108px,20vh,165px)}
+.game-page .status{flex:0 0 auto;padding:0 5px;line-height:1;font-size:10px}
+@media(max-width:1100px){
+ body:has(.game-page) .topbar{grid-template-columns:minmax(100px,.6fr) minmax(0,2fr) minmax(150px,.9fr);padding:2px 5px}
+ body:has(.game-page) .logo small{display:none}
+ body:has(.game-page) .nav button{font-size:10px;min-height:29px;padding:2px 4px}
+ .game-page .directions.guide-bar{gap:4px}
+ .game-page .guide-status{flex-basis:100%;line-height:1.05}
+}
+@media(max-height:650px){
+ body:has(.game-page) .topbar{min-height:42px}
+ .game-page{padding:2px 5px 5px;gap:3px}
+ .game-page .game-head{min-height:25px}
+ .game-page .game-head h1{font-size:15px}
+ .game-page .game-head button{min-height:25px}
+ .game-page .directions.guide-bar{min-height:38px;padding:2px 5px}
+ .game-page .guide-picture,.game-page .guide-picture .game-animal-img{width:32px;height:32px}
+ .game-page .guide-listen{min-height:31px}
+ .game-page .maze{height:min(62dvh,390px)}
+}
+
 </style>
 </head>
 <body><div id="app"></div>
@@ -641,7 +699,7 @@ function renderShop(){
  top.append(el('strong','wallet','⭐ '+(state.preview?'TEACHER PREVIEW':spendableStars()+' STARS LEFT')));
  const mine=el('button','','🎒 MY STUFF');mine.onclick=()=>setView('stuff');top.append(mine);
  main.append(top);
- shopNotice(main,'Play a new level to earn 1 star. Rescue a friend at level 8 to earn 10. Replays do not earn extra stars.');
+ shopNotice(main,'Earn stars by finishing levels. Spend them on safari decorations and backgrounds.');
  const addTiles=(catalog,cssClass)=>{
   const grid=el('div','shop-grid '+cssClass);
   catalog.forEach(item=>{
@@ -672,8 +730,8 @@ function renderShop(){
  });
  main.append(worldTabs);
  addTiles(LEVEL_SHOP_ITEMS.filter(x=>x.world===state.shopWorld),'shop-level-items');
- main.append(el('h2','shop-section-title','GAME BACKGROUNDS — NO LEVEL NUMBERS'));
- shopNotice(main,'These are the clean backgrounds from the eight safari games. Buy one to use it when decorating any unlocked world.');
+ main.append(el('h2','shop-section-title','SAFARI BACKGROUNDS'));
+ shopNotice(main,'Choose a safari background for any world you have unlocked.');
  addTiles(SHOP_BACKGROUNDS,'shop-backgrounds-grid');
  app.append(main)
 }
@@ -788,7 +846,7 @@ function renderStuff(){
   preview.onclick=()=>{state.stuff.backgrounds[world]='scene:'+item.world;persistStuff();render()};
   alternatives.append(preview);
  });
- main.append(el('p','background-picker-caption','GAME BACKGROUNDS — NO NUMBERS OR LEVEL SPOTS'));
+ main.append(el('p','background-picker-caption','CHOOSE A BACKGROUND'));
  main.append(alternatives);
  const inventory=availableStuff(world);
  const placed=state.stuff.placed.filter(p=>p.world===world&&inventory.some(i=>i.id===p.id));
@@ -873,7 +931,7 @@ function renderStuff(){
 function renderEntry(){
  const main=el('main','main'),box=el('section','picker');box.append(el('div','mascot','🦁 🌴 🦒'));
  box.append(el('h1','',state.view==='teachers'?'WHO IS YOUR TEACHER?':'WHAT IS YOUR NUMBER?'));
- box.append(el('p','',state.view==='teachers'?'Click your first-grade teacher. No typing!':'Click your classroom number to start your safari.'));
+ box.append(el('p','',state.view==='teachers'?'Choose your teacher.':'Choose your classroom number to begin.'));
  const grid=el('div','choices'+(state.view==='numbers'?' numbers':''));
  if(state.view==='teachers')TEACHERS.forEach(t=>{const b=el('button','',t.name);b.onclick=()=>{state.teacher=t;setView('numbers')};grid.append(b)});
  else for(let n=1;n<=30;n++){const b=el('button','',String(n));b.onclick=()=>enterSafariStudent(n);grid.append(b)}
@@ -927,7 +985,7 @@ function renderWorld(){
   b.onclick=()=>{state.stage=i;setView('game')};stage.append(b);
  });
  const back=el('button','map-back','← Safari Worlds');back.onclick=()=>setView('home');stage.append(back);
- stage.append(el('div','map-foot','Level 8 rescues '+w.friend+' · Teacher Preview can open every level'));
+ stage.append(el('div','map-foot','Finish Level 8 to rescue '+w.friend+'!'));
  main.append(stage);app.append(main);
 }
 function directions(){
@@ -1245,7 +1303,7 @@ const SELECT_GAMES=[
  {title:'Rescue the Giraffe',help:'RESCUE THE GIRAFFE! SELECT and MOVE FOUR animals, collect TWO badges!',icons:['🦒','🦁','🐘','🦓'],kind:'rescue',beacons:[[40,48],[58,68]],seconds:115}
 ];
 const DRAG_GAMES=[
- {title:'Banana Basket',help:'NEW SKILL! CLICK, HOLD, SLIDE, RELEASE the banana into the big basket!',icons:['🍌'],kind:'basket',shared:true},
+ {title:'Banana Basket',help:'Click and hold the banana. Drag it to the basket, then let go!',icons:['🍌'],kind:'basket',shared:true},
  {title:'River Fish Rescue',help:'CLICK AND HOLD, then DRAG TWO fish into their own matching outlines!',icons:['🐟','🐠'],kind:'matching'},
  {title:'Otter Picnic',help:'DRAG THREE picnic foods into the one picnic basket!',icons:['🍎','🍌','🍇'],kind:'basket',shared:true},
  {title:'Safari Supply Sort',help:'DRAG THREE different safari supplies into their matching spots!',icons:['🎒','🔭','📷'],kind:'matching'},
@@ -1342,7 +1400,7 @@ function targetPosition(p){
 
 
 const SCROLL_GAMES=[
- {title:'Find the Hidden Lion',help:'NEW SKILL! Use TWO FINGERS to SCROLL down and find the LION!',total:12,targets:[['🦁',5]]},
+ {title:'Find the Hidden Lion',help:'Use two fingers to scroll down and find the lion!',total:12,targets:[['🦁',5]]},
  {title:'River Animal Search',help:'SCROLL down the list to find the OTTER, then find the FISH!',total:15,targets:[['🦦',6],['🐟',11]]},
  {title:'Fruit Trail Finder',help:'SCROLL down and find BANANA, COCONUT, and PINEAPPLE in order!',total:19,targets:[['🍌',5],['🥥',10],['🍍',15]]},
  {title:'Ranger Clue Hunt',help:'SCROLL and find the PAW, BINOCULARS, and SAFARI MAP!',total:20,targets:[['🐾',5],['BINOCULARS',11],['🗺️',16]]},
