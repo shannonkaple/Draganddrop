@@ -364,6 +364,19 @@ body:has(.game-page) .safari-character-switch .current-explorer-thumb{height:24p
  .game-page .maze{height:min(62dvh,390px)}
 }
 
+
+/* Bigger decorating canvas and Chromebook-friendly controls. */
+.safari-home-button{display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.home-picture{display:block;width:25px;height:25px;flex:none}
+.listen-action{background:#fff2bf;border-color:#a77b31;color:#30573e;white-space:nowrap}
+.header-listen{font-size:19px;min-width:32px;min-height:31px;padding:3px}
+.fullscreen-toggle{white-space:nowrap}
+.map-listen{position:absolute;right:1.4%;top:1.4%;z-index:10;font-size:clamp(12px,1vw,16px);padding:5px 9px;min-height:38px}
+.safari-stuff{width:min(99%,1540px)}
+.stuff-board{width:min(100%,1520px,calc(82dvh * 16 / 9));max-height:none!important}
+.stuff-placed{width:clamp(68px,8.5vw,128px);height:clamp(68px,8.5vw,128px)}
+@media(max-height:675px){.stuff-board{width:min(100%,1520px,calc(77dvh * 16 / 9));max-height:none!important}}
+@media(max-width:650px){.map-listen{top:auto;bottom:1.5%;right:1.5%;min-height:34px}.stuff-placed{width:clamp(50px,14vw,82px);height:clamp(50px,14vw,82px)}}
 </style>
 </head>
 <body><div id="app"></div>
@@ -555,7 +568,85 @@ function stageUnlocked(w,s){return state.preview||s===0||done(w,s-1)}
 function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
 function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);clearInterval(missionClock);tapClock=null;tapDrift=null;missionClock=null;}
 function setView(v){clearTimeout(advanceTimer);stopTapTimers();state.view=v;run=null;render()}
-function speak(text){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.82;u.pitch=1.05;window.speechSynthesis.speak(u)}
+function speak(text){
+ if(!('speechSynthesis' in window))return;
+ window.speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(String(text||''));
+ u.rate=.82;u.pitch=1.05;window.speechSynthesis.speak(u)
+}
+function listenButton(words,label='Hear directions',compact=false){
+ const b=el('button','listen-action'+(compact?' header-listen':''),compact?'🔊':'🔊 LISTEN');
+ b.type='button';b.setAttribute('aria-label',label);b.title=label;
+ b.onclick=e=>{e.stopPropagation();speak(typeof words==='function'?words():words)};
+ return b;
+}
+function screenNarration(){
+ const modal=document.querySelector('.modal');
+ if(modal){
+  const messages=[...modal.querySelectorAll('h2,p')].map(n=>n.textContent.trim()).filter(Boolean);
+  if(messages.length)return messages.join('. ');
+ }
+ if(state.view==='teachers')return 'Welcome to Skills Safari. Who is your teacher? Choose your teacher from the buttons below.';
+ if(state.view==='numbers')return 'What is your classroom number? Choose your number to load your saved Safari adventure.';
+ if(state.view==='home')return 'Welcome to the Great Skills Safari! Choose an unlocked safari world. Finish all eight challenges in a world to unlock the next world.';
+ if(state.view==='world')return WORLDS[state.world].name+'. '+WORLDS[state.world].skill+'. Choose an unlocked challenge. Complete the challenges in order.';
+ if(state.view==='game')return directions()+'. '+(document.getElementById('guide-command')?.textContent||'')+'. '+(document.getElementById('guide-status')?.textContent||'');
+ if(state.view==='shop')return 'Welcome to the Star Shop! Complete challenges to earn stars. Buy decorations and unlocked backgrounds for My Stuff.';
+ if(state.view==='stuff')return (WORLDS[state.stuff.world]?.name||'Safari')+'. My Stuff. '+(state.stuffPending?'Click the big picture to place the selected item.':'Choose a background. Click an item below, then click the big picture to place it. Drag with the trackpad to move items. Use plus or minus to resize.');
+ return 'Welcome to Skills Safari.';
+}
+function safariHomePicture(){
+ const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');
+ svg.setAttribute('viewBox','0 0 40 40');svg.setAttribute('class','home-picture');
+ svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
+ const shape=(tag,attrs)=>{const node=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);svg.append(node)};
+ shape('path',{d:'M5 19L20 5l15 14v17H5Z',fill:'#fff5d8',stroke:'#2b704f','stroke-width':'2.6','stroke-linejoin':'round'});
+ shape('path',{d:'M2 19L20 3l18 16',fill:'none',stroke:'#bd742e','stroke-width':'5','stroke-linecap':'round','stroke-linejoin':'round'});
+ shape('rect',{x:'16',y:'23',width:'9',height:'13',rx:'1',fill:'#b67a40',stroke:'#2b704f','stroke-width':'1.5'});
+ shape('circle',{cx:'23',cy:'30',r:'1',fill:'#fff5d8'});
+ return svg;
+}
+function updateFullscreenButton(){
+ const b=document.getElementById('safari-fullscreen');
+ if(!b)return;
+ const active=!!document.fullscreenElement;
+ b.textContent=active?'✕ EXIT FULL SCREEN':'⛶ FULL SCREEN';
+ b.setAttribute('aria-label',active?'Exit full screen':'Enter full screen');
+ b.setAttribute('aria-pressed',String(active));
+}
+async function toggleSafariFullscreen(){
+ try{
+  if(document.fullscreenElement)await document.exitFullscreen();
+  else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();
+  else alert('Full screen is not available in this browser.');
+ }catch(err){alert('Your browser blocked full screen. Open Skills Safari in its own tab.')}
+ updateFullscreenButton();
+}
+document.addEventListener('fullscreenchange',updateFullscreenButton);
+/* Stop touchscreen taps, drags, and synthetic clicks in ALL challenge boards.
+   Trackpad, keyboard and two-finger trackpad scrolling remain enabled. */
+let safariLastChallengeTouch=0;
+function stopChallengeTouch(e){
+ if(state.view!=='game'||!(e.target instanceof Element)||!e.target.closest('#game-board'))return;
+ safariLastChallengeTouch=Date.now();
+ if(e.cancelable)e.preventDefault();
+ e.stopImmediatePropagation();
+}
+for(const type of ['touchstart','touchmove','touchend','touchcancel']){
+ document.addEventListener(type,stopChallengeTouch,{capture:true,passive:false});
+}
+for(const type of ['pointerdown','pointermove','pointerup','pointercancel']){
+ document.addEventListener(type,e=>{if(e.pointerType==='touch')stopChallengeTouch(e)},true);
+}
+for(const type of ['mousedown','mouseup','click','dblclick','contextmenu']){
+ document.addEventListener(type,e=>{
+  if(state.view!=='game'||!(e.target instanceof Element)||!e.target.closest('#game-board'))return;
+  if(e.pointerType==='touch'||e.sourceCapabilities?.firesTouchEvents||(safariLastChallengeTouch&&Date.now()-safariLastChallengeTouch<900)){
+   if(e.cancelable)e.preventDefault();
+   e.stopImmediatePropagation();
+  }
+ },true);
+}
 function feedback(message,error){
  const f=document.getElementById('guide-status')||document.getElementById('feedback');
  if(!f)return;
@@ -570,7 +661,8 @@ function header(){
  branding.append(el('small','',state.teacher&&state.number?state.teacher.name+' · STUDENT #'+state.number:'FIRST GRADE COMPUTER ADVENTURE'));header.append(branding);
  const nav=el('nav','nav');
  if(state.teacher||state.preview){
-  const home=el('button','','🌿 Safari Map');home.onclick=()=>setView('home');nav.append(home);
+  const home=el('button','safari-home-button');home.type='button';home.setAttribute('aria-label','HOME — Safari world map');
+  home.append(safariHomePicture(),el('span','','HOME'));home.onclick=()=>setView('home');nav.append(home);
   const shop=el('button','','⭐ Star Shop');shop.onclick=()=>setView('shop');nav.append(shop);
   const stuff=el('button','','🎒 My Stuff');stuff.onclick=()=>{state.stuffPending=null;setView('stuff')};nav.append(stuff);
   const avatar=el('button','safari-character-switch');avatar.type='button';
@@ -583,6 +675,9 @@ function header(){
  }
  header.append(nav);
  const right=el('nav','nav right');
+ right.append(listenButton(screenNarration,'Hear this screen',true));
+ const full=el('button','fullscreen-toggle');full.id='safari-fullscreen';full.type='button';
+ full.onclick=toggleSafariFullscreen;right.append(full);
  if(state.teacher||state.preview){
   right.append(el('span','pill',state.preview?'TEACHER PREVIEW':'⭐ '+spendableStars()+' Stars'));
   if(!state.preview){const cloud=el('button','',cloudStatus==='saved'?'☁ Saved online':cloudStatus==='saving'?'☁ Saving…':'⚠ Local save only');cloud.id='safari-cloud-indicator';cloud.title='Click to reconnect online progress';cloud.onclick=async()=>{if(cloudReady)return;await reconnectSafariCloud()};right.append(cloud)}
@@ -590,7 +685,7 @@ function header(){
  }else{right.append(el('span','pill','8 MAPS · 64 CHALLENGES'))}
  header.append(right);return header
 }
-function render(){app.replaceChildren(header());
+function render(){app.replaceChildren(header());updateFullscreenButton();
  if(state.view==='teachers'||state.view==='numbers'){renderEntry();return}
  if(state.view==='home'){renderHome();return}
  if(state.view==='world'){renderWorld();return}
