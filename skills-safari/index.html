@@ -604,7 +604,7 @@ function renderEntry(){
  else for(let n=1;n<=30;n++){const b=el('button','',String(n));b.onclick=()=>{state.number=n;state.preview=false;loadProgress();setView('home')};grid.append(b)}
  box.append(grid);
  if(state.view==='numbers'){const back=el('button','','← Choose Different Teacher');back.onclick=()=>setView('teachers');box.append(back)}
- if(state.view==='teachers'){const preview=el('button','','👩‍🏫 Teacher Preview: Open Every Map & Level');preview.onclick=()=>{state.teacher=null;state.number=null;state.preview=true;state.done=[];setView('home')};box.append(preview);
+ if(state.view==='teachers'){const preview=el('button','','👩‍🏫 Teacher Preview: Open Every Map & Level');preview.onclick=()=>{const pin=window.prompt('Teacher Mode is locked. Enter the 4-digit PIN:');if(pin===null)return;if(pin!=='8714'){window.alert('Incorrect teacher PIN.');return;}state.teacher=null;state.number=null;state.preview=true;state.done=[];setView('home')};box.append(preview);
   box.append(el('p','small-note','Teacher preview does not overwrite student progress. Student work saves on each Chromebook browser.'))}
  main.append(box);app.append(main);
 }
