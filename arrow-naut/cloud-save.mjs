@@ -14,7 +14,7 @@ const extraReward=id=>/-8$/.test(id)?10:1;
 function blank(p){
  return !p || (!getCompleted(p).length&&!(p.purchases||[]).length&&!(p.rescued||[]).length&&
  !(p.worldScene||[]).length&&!(p.stars>0)&&!p.active&&!p.mapTwo?.active&&
- !Number.isInteger(p.teacherUnlockThrough));
+ !(Number.isInteger(p.teacherUnlockThrough)&&p.teacherUnlockThrough>=0));
 }
 export function combineClassroomProgress(local,remote,getPrice=()=>0){
  if(!remote)return copy(local);
@@ -39,6 +39,8 @@ export function combineClassroomProgress(local,remote,getPrice=()=>0){
   worldScene:[...scene.values()],
   stars:Math.max(leftBalance,rightBalance),
   teacherUnlockThrough:Math.max(Number.isInteger(local.teacherUnlockThrough)?local.teacherUnlockThrough:-1,Number.isInteger(remote.teacherUnlockThrough)?remote.teacherUnlockThrough:-1),
+  teacherTarget:(Number.isInteger(remote.teacherUnlockThrough)?remote.teacherUnlockThrough:-1)>(Number.isInteger(local.teacherUnlockThrough)?local.teacherUnlockThrough:-1)
+   ?remote.teacherTarget:local.teacherTarget||remote.teacherTarget)||null,
   active:local.active||remote.active||null};
  if(local.mapTwo||remote.mapTwo){
   const a=remote.mapTwo||{},b=local.mapTwo||{};

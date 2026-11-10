@@ -45,6 +45,8 @@ jobs:
           const prior=initial.body.progress||{version:1,completed:[],purchases:[],rescued:[],stars:0};
           const upgraded={...prior,
             completed:[...new Set([...prior.completed,'synthetic-autosave-20261109'])],
+            teacherUnlockThrough:Math.max(prior.teacherUnlockThrough||-1,74),
+            teacherTarget:{map:'two',world:1,stage:2},
             stars:Math.max(prior.stars||0,3),
             purchases:prior.purchases||[],rescued:prior.rescued||[]};
           const saved=await send({...scope,action:'save',

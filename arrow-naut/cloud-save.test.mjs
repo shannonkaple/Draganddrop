@@ -160,6 +160,9 @@ test('teacher level overrides cannot be lost when old Chromebooks merge',()=>{
  assert.equal(combineClassroomProgress(old,newer).teacherUnlockThrough,71);
  assert.equal(combineClassroomProgress(newer,old).teacherUnlockThrough,71);
  assert.equal(combineClassroomProgress(progress(),newer).teacherUnlockThrough,71);
+ const remote=progress(['launch-1'],{teacherUnlockThrough:72,teacherTarget:{map:'two',world:1,stage:0}});
+ const stale=progress(['launch-1'],{teacherUnlockThrough:7,teacherTarget:{map:'one',world:0,stage:7}});
+ assert.deepEqual(combineClassroomProgress(stale,remote).teacherTarget,remote.teacherTarget);
 });
 test('teacher advancement fails offline without changing existing cloud progress',async()=>{
  const a=harness({remote:progress(['launch-1'],{stars:1})});
