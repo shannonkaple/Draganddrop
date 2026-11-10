@@ -202,6 +202,31 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .playfield.has-scene .tap-meter,
 .playfield.has-scene .scroll-score,
 .playfield.has-scene .key-progress{background:#fffdf2;}
+
+/* Single visual lesson instruction, answer count, speech, and status bar. */
+.game-page{gap:5px}
+.directions.guide-bar{width:100%;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;padding:6px 10px;min-height:59px;text-align:center;background:#fffdf0;border:3px solid #78a87d}
+.guide-command{font-size:clamp(18px,2.2vw,27px)!important;color:#235d3d;line-height:1.05}
+.guide-picture{display:grid;place-items:center;min-width:43px;height:47px;font:700 28px Arial,sans-serif}
+.guide-picture .game-animal-img{width:46px;height:46px;object-fit:contain}
+.guide-progress{padding:5px 10px;border-radius:12px;background:#dff4d3;color:#205e38;font-size:clamp(16px,1.7vw,22px);white-space:nowrap}
+.guide-clock{font-size:clamp(13px,1.35vw,18px);white-space:nowrap;color:#9b5722;font-weight:bold}
+.guide-clock:empty{display:none}
+.guide-status{font:700 clamp(12px,1vw,15px)/1.15 Arial,sans-serif;color:#34604b;min-width:0}
+.guide-status.error{color:#ad452b}
+.guide-listen{min-width:46px;min-height:42px;font-size:25px;padding:3px}
+.new-skill-guide{font-size:clamp(11px,.9vw,13px);padding:3px 6px}
+.question-bubble,.tap-meter,.scroll-score,.key-progress,.mission-timer,.maze-stack>.small-note{display:none!important}
+.tap-zone{top:10px;bottom:10px}
+.card-grid{padding-top:10px}
+.key-stage{padding-top:10px}
+.maze-stack{padding-top:8px}
+.scroll-case{margin-top:3px;height:90%}
+.map-hotspot.level-hit .level-title{position:absolute;display:block;left:50%;top:99%;transform:translateX(-50%);width:145%;max-width:155px;padding:3px 5px;border:1px solid #9d7d49;border-radius:7px;background:#fff9e8ed;color:#4c361e;font:700 clamp(9px,.85vw,12px)/1.07 VAG,Arial,sans-serif;text-align:center;white-space:normal;text-shadow:0 1px #fff;pointer-events:none;box-shadow:0 2px 4px #0003}
+.map-hotspot.level-hit:disabled .level-title{color:#4d5347;background:#e8e7d6ec}
+.map-hotspot.level-hit:disabled::after{content:''!important;position:absolute;left:50%;top:45%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:48%;height:65%;min-width:34px;min-height:38px;background:url('./assets/pieces/padlock.png') center / contain no-repeat;filter:drop-shadow(0 3px 4px #0008);opacity:1}
+.map-hotspot.world-hit:disabled::after{content:''!important;position:absolute;left:50%;top:45%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:45%;height:58%;background:url('./assets/pieces/padlock.png') center / contain no-repeat;filter:drop-shadow(0 3px 3px #0007)}
+@media(max-width:850px){.guide-status{flex-basis:100%;text-align:center}.map-hotspot.level-hit .level-title{font-size:9px;max-width:98px}}
 </style>
 </head>
 <body><div id="app"></div>
@@ -268,7 +293,14 @@ function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
 function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);clearInterval(missionClock);tapClock=null;tapDrift=null;missionClock=null;}
 function setView(v){clearTimeout(advanceTimer);stopTapTimers();state.view=v;run=null;render()}
 function speak(text){if(!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.82;u.pitch=1.05;window.speechSynthesis.speak(u)}
-function feedback(message,error){const f=document.getElementById('feedback');if(!f)return;f.textContent=message;f.classList.toggle('error',!!error)}
+function feedback(message,error){
+ const f=document.getElementById('guide-status')||document.getElementById('feedback');
+ if(!f)return;
+ const safe=String(message??'').replace(/\bundefined\b/gi,'').trim();
+ f.textContent=safe||'Keep going!';
+ f.classList.toggle('error',!!error);
+ updateGuide();
+}
 function header(){
  const header=el('header','topbar');
  const branding=el('div','logo','SKILLS SAFARI');
@@ -345,6 +377,7 @@ function renderWorld(){
   b.dataset.hint='Level '+(i+1)+': '+missionTitle(state.world,i);
   b.setAttribute('aria-label','Level '+(i+1)+', '+missionTitle(state.world,i)+(finished?', complete':b.disabled?', locked':', ready'));
   b.title='Level '+(i+1)+' — '+missionTitle(state.world,i);
+  b.append(el('span','level-title',(i+1)+'. '+missionTitle(state.world,i)));
   b.onclick=()=>{state.stage=i;setView('game')};stage.append(b);
  });
  const back=el('button','map-back','← Safari Worlds');back.onclick=()=>setView('home');stage.append(back);
@@ -367,23 +400,63 @@ function renderGame(){
  const head=el('div','game-head');
  const h=el('h1','',w.icon+' '+w.name+' — '+missionTitle(state.world,state.stage)+' ('+(state.stage+1)+'/8)');head.append(h);
  const back=el('button','','← Map');back.onclick=()=>setView('world');head.append(back);main.append(head);
- const box=el('div','directions'),txt=el('strong','',directions());box.append(txt);
+ const box=el('div','directions guide-bar');
+ const txt=el('strong','guide-command','');txt.id='guide-command';box.append(txt);
+ const picture=el('span','guide-picture');picture.id='guide-picture';box.append(picture);
+ const progress=el('span','guide-progress','');progress.id='guide-progress';box.append(progress);
+ const clock=el('span','guide-clock','');clock.id='guide-clock';box.append(clock);
  // First lesson in each NEW skill map includes a non-blocking visual how-to.
  if(state.stage===0&&(w.type==='drag'||w.type==='scroll')){
   const coach=el('span','new-skill-guide',w.type==='drag'?'☝️ PRESS + HOLD  →  ➡️ SLIDE  →  ✋ RELEASE':'✌️ TWO FINGERS  →  ⬇️ SLIDE DOWN  →  🐾 FIND');
   coach.setAttribute('aria-label',w.type==='drag'?'Hold the trackpad click, slide the picture, and release.':'Use two fingers together to scroll downward.');
   box.append(coach);
  }
- const say=el('button','','🔊 Hear Directions');say.onclick=()=>speak(directions());box.append(say);main.append(box);
+ const say=el('button','guide-listen','🔊');say.type='button';say.setAttribute('aria-label','Hear the full directions');say.title='Hear directions';say.onclick=()=>speak(directions());box.append(say);
+ const inlineStatus=el('span','guide-status','');inlineStatus.id='guide-status';inlineStatus.setAttribute('role','status');box.append(inlineStatus);main.append(box);
  const board=el('section','playfield');board.dataset.theme=w.theme;board.id='game-board';board.tabIndex=0;board.classList.add('has-scene');board.style.setProperty('--safari-scene-image','url("./assets/scenes/'+SCENE_ART[state.world]+'")');board.append(el('div','field-deco'));
  const puzzle=el('div','interactive');puzzle.id='puzzle';board.append(puzzle);main.append(board);
- const bottom=el('div','feedback','Complete the challenge to earn a star!');bottom.id='feedback';main.append(bottom);
+ // Feedback and progress belong to the single illustrated guide bar.
  if(state.preview)main.append(el('div','status','TEACHER PREVIEW — challenges do not save stars.'));
  app.append(main);
- setupPuzzle();board.focus({preventScroll:true});
+ setupPuzzle();updateGuide();board.focus({preventScroll:true});
 }
 function promptBadge(text){
- const b=el('div','question-bubble',text);document.getElementById('puzzle').append(b);return b
+ // Internal handle: the visual prompt is displayed in the single guide strip.
+ const b=el('div','question-bubble',text||'');document.getElementById('puzzle').append(b);return b;
+}
+function updateGuide(){
+ const cmd=document.getElementById('guide-command'),img=document.getElementById('guide-picture');
+ if(!cmd||!run||state.view!=='game')return;
+ const type=run.type;
+ let action='',target='',goal=1,value=0;
+ if(type==='click'||type==='double'){
+  const c=run.config;if(!c)return;
+  goal=c.goal||1;value=run.taps||0;
+  target=c.mode==='sequence'?run.clueOrder?.[value]:run.collectOrder?.[value]||(c.mode==='collect'?c.items?.[value%c.items.length]:c.icon);
+  action=(type==='double'?'DOUBLE-CLICK ':'CLICK ')+(c.mode==='sequence'?'THIS':goal);
+ }else if(type==='letter'||type==='number'){
+  goal=run.keys?.length||1;value=run.step||0;
+  const next=run.keys?.[value];
+  target=run.spec?.kind==='count'?run.spec?.decor:next;
+  action=run.spec?.kind==='count'?'COUNT → PRESS NUMBER':'FIND KEY';
+ }else if(type==='arrows'){
+  goal=run.checkpoints?.length||1;value=run.picked?.length||0;
+  target=run.spec?.decor;action=run.selected?'ARROWS → CAMP':'CLICK JEEP → ARROWS';
+ }else if(type==='selectmove'||type==='drag'){
+  goal=run.pieces?.length||1;value=run.pieces?.filter(p=>p.done).length||0;
+  target=run.pieces?.find(p=>!p.done)?.emoji;
+  action=type==='drag'?'HOLD + DRAG '+goal:'CLICK → ARROWS '+goal;
+ }else if(type==='scroll'){
+  goal=run.spec?.targets?.length||1;value=run.scrollStep||0;
+  target=run.spec?.targets?.[value]?.[0];action='SCROLL → FIND '+goal;
+ }
+ cmd.textContent=action||'PLAY';
+ img.replaceChildren();
+ if(target!==undefined&&target!==null&&target!=='')putAnimalArt(img,target);
+ const progress=document.getElementById('guide-progress');
+ if(progress)progress.textContent=value+' / '+goal;
+ const timer=document.getElementById('guide-clock');
+ if(timer)timer.textContent=Number.isFinite(run.secondsRemaining)?'⏱ '+Math.max(0,run.secondsRemaining)+'s':'';
 }
 function shuffled(values){const a=values.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const previousSafariClues=new Map();
@@ -449,8 +522,9 @@ function startTapGame(type,stage,puzzle){
   count.textContent='⭐ '+run.taps+' / '+config.goal;
   timeLabel.textContent=config.seconds?'⏱ '+time+' SECONDS':'';
   timeLabel.classList.toggle('urgent',config.seconds&&time<=12);
-  if(config.mode==='sequence')label.textContent=action+' '+run.clueOrder[run.taps]+' · '+config.name.toUpperCase();
-  else if(run.collectOrder)label.textContent=action+' '+run.collectOrder[run.taps]+' · '+config.name.toUpperCase();
+  if(config.mode==='sequence')label.textContent=action+' '+(run.clueOrder[run.taps]||'DONE');
+  else if(run.collectOrder)label.textContent=action+' '+(run.collectOrder[run.taps]||'DONE');
+  run.secondsRemaining=config.seconds?time:null;updateGuide();
  }
  function icons(){
   if(config.mode==='collect')return shuffled(config.items);
@@ -561,11 +635,11 @@ const ARROW_GAMES=[
 ];
 function showMissionClock(seconds){
  if(!seconds)return;
- let remaining=seconds;const timer=el('div','mission-timer','⏱ '+remaining+'s'),board=document.getElementById('game-board');
+ let remaining=seconds;run.secondsRemaining=remaining;updateGuide();const timer=el('div','mission-timer','⏱ '+remaining+'s'),board=document.getElementById('game-board');
  board.append(timer);
  missionClock=setInterval(()=>{
   if(state.view!=='game'||!run||run.complete){clearInterval(missionClock);return}
-  remaining--;timer.textContent='⏱ '+remaining+'s';timer.classList.toggle('urgent',remaining<=15);
+  remaining--;timer.textContent='⏱ '+remaining+'s';timer.classList.toggle('urgent',remaining<=15);run.secondsRemaining=remaining;updateGuide();
   if(remaining>0)return;
   stopTapTimers();
   if(run)run.active=false;
@@ -593,7 +667,7 @@ function updateKeyGame(){
  if(!spec||key===undefined)return;
  const suffix=spec.kind==='count'?'HOW MANY?':'FIND THIS KEY';
  run.keycap.textContent=spec.kind==='count'?'?':key;
- run.keyDots.textContent=suffix+' · '+(step+1)+' / '+run.keys.length+' · '+spec.title.toUpperCase();
+ run.keyDots.textContent=suffix+' · '+(step+1)+' / '+run.keys.length;updateGuide();
  if(spec.kind==='count')run.scenery.replaceChildren(...Array.from({length:Number(key)},()=>safariArt(spec.decor)));
  else if(spec.kind==='egg')run.scenery.replaceChildren(...Array.from({length:run.keys.length-step},()=>safariArt(spec.decor)));
  else if(spec.kind==='code')run.scenery.replaceChildren(...Array.from({length:run.keys.length},(_,i)=>safariArt(i<step?'🔓':'🔒')));
@@ -759,7 +833,7 @@ function startScrollGame(stage,puzzle){
  }
  puzzle.append(pane);
  const hud=el('div','scroll-score','FIND 0 / '+spec.targets.length);run.scrollHud=hud;puzzle.append(hud);
- function updateScrollProgress(){hud.textContent='FIND '+run.scrollStep+' / '+spec.targets.length}
+ function updateScrollProgress(){hud.textContent='FIND '+run.scrollStep+' / '+spec.targets.length;updateGuide()}
  if(spec.seconds)showMissionClock(spec.seconds);
 }
 
@@ -787,7 +861,7 @@ function paintMaze(){
   grid.append(cell);
  }
  const remaining=run.checkpoints.length-run.picked.length;
- run.arrowHint.textContent=remaining?'Collect '+remaining+' more '+run.spec.decor+' before camp ⛺.':'All supplies collected! Drive to camp ⛺!';
+ run.arrowHint.textContent=remaining?'Collect '+remaining+' more '+run.spec.decor+' before camp ⛺.':'All supplies collected! Drive to camp ⛺!';updateGuide();
 }
 function dragStart(e,p){
  if(e.pointerType==='touch'||!run||run.complete||run.active===false||p.done)return;
