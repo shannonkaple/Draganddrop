@@ -105,16 +105,16 @@ export function createMapTwoMission(world,stage){
 /** Show tiny action steps; no student must identify equipment by its name. */
 export function mapTwoKidDirections(m){
  switch(m.type){
-  case 'select':return 'Look at the picture by the directions. Click the SAME picture below!';
-  case 'move':return '1. Click the picture. 2. Use arrow keys. 3. Move to the SAME faded picture.';
-  case 'drag':return '1. Click and HOLD. 2. Drag the picture to the SAME faded picture. 3. Let go.';
-  case 'resize':return '1. Click the picture. 2. Drag a small handle. 3. Make it fit the faded picture.';
-  case 'sort':return 'Drag BOTH pictures to the SAME faded pictures. Let go!';
-  case 'move-resize':return '1. Click the picture. 2. Move with arrow keys. 3. Drag a handle to make it fit.';
-  case 'rotate':return '1. Click the box. 2. Hold the CURVED ARROW above it. 3. Drag sideways to turn it and match the faded box.';
-  case 'move-rotate':return '1. Click the box. 2. Move with arrow keys. 3. Drag the CURVED ARROW sideways to turn the box.';
-  case 'mixed':return '1. Click the top picture and move with arrows. 2. Drag the other picture. 3. Match both!';
-  case 'rescue':return '1. Move the first picture with arrows. 2. Make it fit using a handle. 3. Drag the other picture to the faded picture. Rescue your friend!';
+  case 'select':return 'Click the same picture.';
+  case 'move':return '1. Click the picture. 2. Arrows to the outline.';
+  case 'drag':return 'Hold and drag the picture to the outline.';
+  case 'resize':return 'Click the picture. Drag a corner to fit.';
+  case 'sort':return 'Drag each picture to its outline.';
+  case 'move-resize':return '1. Arrows to move. 2. Drag a corner to fit.';
+  case 'rotate':return '1. Click the box. 2. Drag ↻ sideways to turn it.';
+  case 'move-rotate':return '1. Arrows to move. 2. Drag ↻ to turn.';
+  case 'mixed':return 'Move one with arrows. Drag the other to match.';
+  case 'rescue':return 'Move, resize, then drag to the outlines. Rescue your friend!';
   default:return 'Match the pictures!';
  }
 }
