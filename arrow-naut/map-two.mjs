@@ -201,8 +201,9 @@ export function finishMapTwo(progress,mission,run){
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 const graphic=(path,alt,cls='')=>`<img class="${cls}" src="${esc(path)}" alt="${esc(alt)}" draggable="false">`;
 const rectCSS=p=>`left:${p.x/12*100}%;top:${p.y/7*100}%;width:${p.w/12*100}%;height:${p.h/7*100}%;`;
-export function mountMapTwo(node,{read,save,exit,teacherPreview=false}){
- let screen='map',world=0,stage=0,run=null,notice='',modal=null,drag=null,lastDragTime=0;
+export function mountMapTwo(node,{read,save,exit,teacherPreview=false,initialWorld=null,initialStage=null}){
+ const assigned=Number.isInteger(initialWorld)&&initialWorld>=0&&initialWorld<LOST_WORLDS.length&&Number.isInteger(initialStage)&&initialStage>=0&&initialStage<8;
+ let screen=assigned?'world':'map',world=assigned?initialWorld:0,stage=assigned?initialStage:0,run=null,notice='',modal=null,drag=null,lastDragTime=0;
  const progress=()=>read(),dataset=()=>mapTwoData(progress());
  function commit(nextRun){
   if(teacherPreview){run=nextRun;notice=nextRun.complete?'Preview complete. No student progress or stars changed.':'TEACHER PREVIEW — nothing is saved.';draw();return true}
@@ -313,7 +314,8 @@ export function mountMapTwo(node,{read,save,exit,teacherPreview=false}){
  node.addEventListener('click',handleClick);node.addEventListener('pointerdown',onPointerDown);
  node.addEventListener('pointermove',onPointerMove);node.addEventListener('pointerup',onPointerUp);
  node.addEventListener('pointercancel',onPointerCancel);window.addEventListener('keydown',onKey);
- draw();return ()=>{node.removeEventListener('click',handleClick);node.removeEventListener('pointerdown',onPointerDown);
+ draw();if(assigned&&!teacherPreview)enterStage(initialStage);
+ return ()=>{node.removeEventListener('click',handleClick);node.removeEventListener('pointerdown',onPointerDown);
   node.removeEventListener('pointermove',onPointerMove);node.removeEventListener('pointerup',onPointerUp);
   node.removeEventListener('pointercancel',onPointerCancel);window.removeEventListener('keydown',onKey)};
 }

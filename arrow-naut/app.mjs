@@ -10,7 +10,7 @@ const root=document.getElementById('app');
 let disposeMapTwo=null;
 const $=selector=>root.querySelector(selector);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const state={teacher:null,student:null,teachers:[],progress:null,teacherPreview:false,view:'teachers',planet:0,mission:null,run:null,modal:null,message:'',error:'',dataError:'',key:null,scenePending:null};
+const state={teacher:null,student:null,teachers:[],progress:null,teacherPreview:false,view:'teachers',planet:0,mission:null,run:null,modal:null,message:'',error:'',dataError:'',key:null,scenePending:null,teacherLaunch:null};
 const saveKey=(teacher,number)=>`mskaple-arrownaut-v1:${teacher}:${number}`;
 const idOf=mission=>mission.id;
 /* The cloud link is scoped to the existing teacher and student-number save.
@@ -205,10 +205,13 @@ function render(){
   disposeMapTwo=mountMapTwo($('#map-two-root'),{
    read:()=>state.progress,
    save:next=>state.teacherPreview?false:persist(next),
-    teacherPreview:state.teacherPreview,
+   teacherPreview:state.teacherPreview,
+   initialWorld:state.teacherLaunch?.map==='two'?state.teacherLaunch.world:null,
+   initialStage:state.teacherLaunch?.map==='two'?state.teacherLaunch.stage:null,
    exit:()=>{state.view=state.teacherPreview?'teacher-preview':'home';state.modal=null;render()}
   });
  }
+ state.teacherLaunch=null;
  scheduleFit();syncFinaleClock();cloud.update()
 }
 function scheduleFit(){requestAnimationFrame(()=>{const header=$('#main-header');const board=$('#space-board');if(!header)return;const height=Math.round(header.getBoundingClientRect().height);root.style.setProperty('--bar-height',height+'px');if(!board)return;const frame=$('.board-frame');if(!frame)return;const rect=frame.getBoundingClientRect();const w=Math.max(100,Math.min(rect.width-6,(rect.height-6)*1672/941));root.style.setProperty('--board-width',Math.floor(w)+'px')})}
@@ -323,13 +326,28 @@ async function teacherAdvance({teacher,student,map,world,stage}){
  if(same){
   cloud.reset();state.progress=verified;state.mission=null;state.run=null;state.modal=null;
   state.view=map==='one'?'planet':'map-two';state.planet=world;state.message='';
+  if(map==='two')state.teacherLaunch={map,world,stage};
   render();void cloud.attach();
  }
  return 'SAVED ONLINE: Student #'+student+' may open '+(map==='one'?PLANETS[world].name:LOST_WORLDS[world].name)+' Level '+(stage+1)+' and all earlier levels. No stars or friends were awarded.';
 }
 function openStudent(number){cloud.reset();state.student=number;state.key=saveKey(state.teacher,number);state.dataError='';let loaded;
  try{loaded=validatedSave(localStorage.getItem(state.key))}catch(e){state.dataError=e.message;state.error=e.message;state.view='error';render();return}
- state.progress=loaded;state.view='home';state.message='';state.error='';render();void cloud.attach();}
+ state.progress=loaded;state.view='home';state.message='';state.error='';render();
+ const openingKey=state.key;
+ void cloud.attach().then(()=>{
+  if(state.key!==openingKey||state.teacherPreview||state.dataError)return;
+  const target=state.progress?.teacherTarget;
+  if(!target)return;
+  try{if(!teacherCanOpen(state.progress,target.map,target.world,target.stage))return}catch{return}
+  const completed=target.map==='one'
+   ?state.progress.completed.includes(PLANETS[target.world].id+'-'+(target.stage+1))
+   :(state.progress.mapTwo?.completed||[]).includes(LOST_WORLDS[target.world].id+'-'+(target.stage+1));
+  if(completed||state.view!=='home')return;
+  if(target.map==='one'){state.planet=target.world;startMission(target.stage);}
+  else{state.teacherLaunch=target;state.view='map-two';render()}
+ });
+}
 function logOut(){cloud.reset();state.teacherPreview=false;state.teacher=null;state.student=null;state.progress=null;state.key=null;state.view='teachers';state.modal=null;state.mission=null;state.run=null;state.dataError='';render()}
 function onAction(action){
  switch(action){case 'teacher':openTeacherTools({teachers:state.teachers,teacherId:state.teacher,prefix:'mskaple-arrownaut-v1:',onAdvance:teacherAdvance,mapOneWorlds:PLANETS.map(w=>w.name),mapTwoWorlds:LOST_WORLDS.map(w=>w.name),onPreview:()=>{state.teacherPreview=true;if(!state.progress)state.progress=createProgress();state.modal=null;state.mission=null;state.run=null;state.view='teacher-preview';render()},onReset:(id,nums)=>{if(id===state.teacher&&nums.includes(state.student))window.location.reload()}});break;
