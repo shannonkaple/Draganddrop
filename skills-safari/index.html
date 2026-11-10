@@ -293,6 +293,19 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .shop-world-tabs button[aria-pressed="true"]{background:#f8e8b2;border-color:#a67829}
 .shop-level-items{grid-template-columns:repeat(auto-fit,minmax(156px,1fr))}
 .shop-level-tag{font:700 11px/1.18 Arial,sans-serif;color:#406747;min-height:26px}
+/* Changing avatars never removes the old portrait from My Stuff or from a decorated scene. */
+.safari-character-switch{display:flex;align-items:center;justify-content:center;gap:4px}
+.safari-character-switch .current-explorer-thumb{width:29px;height:29px;object-fit:contain}
+.safari-character-picker{max-width:min(95vw,750px);max-height:90dvh;overflow-y:auto}
+.character-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px auto}
+.character-option{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 3px;background:#fffbe8;min-width:0}
+.character-option .character-option-image{width:clamp(55px,7vw,93px);height:clamp(55px,7vw,93px);object-fit:contain}
+.character-option strong{font-size:clamp(11px,1.2vw,15px);line-height:1.1}
+.character-option small{font:700 10px/1.1 Arial,sans-serif;color:#486e55}
+.character-option[aria-pressed="true"]{border:4px solid #deaa32;background:#fff0b9}
+.character-option:disabled{opacity:.55}
+.character-picker-close{min-width:140px}
+@media(max-width:600px){.character-picker-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 </head>
 <body><div id="app"></div>
@@ -310,6 +323,14 @@ const WORLDS=[
  {name:'Giraffe Lookout',skill:'Select & Move',type:'selectmove',icon:'🦒',friend:'Giraffe',friendIcon:'🦒',theme:'savanna'},
  {name:'Otter River Delivery',skill:'Click & Drag',type:'drag',icon:'🦦',friend:'Otter',friendIcon:'🦦',theme:'river'},
  {name:'Lion Scroll Savannah',skill:'Two-Finger Scroll',type:'scroll',icon:'🦁',friend:'Lion',friendIcon:'🦁',theme:'savanna'}
+];
+// Existing original animal PNGs are the playable explorer portraits.
+const SAFARI_CHARACTERS=[
+ {id:'frog',name:'Frog Explorer',starter:true},
+ {id:'butterfly',name:'Butterfly Explorer',starter:true},
+ {id:'turtle',name:'Turtle Explorer',starter:true},
+ {id:'hippo',name:'Hippo Explorer',starter:true},
+ ...WORLDS.map((world,i)=>({id:world.friend.toLowerCase(),name:world.friend,world:i,starter:false}))
 ];
 const WORLD_SPOTS=[[16.2,33.9],[38.5,33.1],[62,33.1],[85,33.7],[13.6,65.3],[38.9,65.2],[61.1,65.3],[90,65.2]];
 const LEVEL_SPOTS=[[28.8,33.5],[46,33.5],[63,33.5],[80.1,33.5],[26.4,64.3],[44,64.3],[61.5,64.3],[79,64.3]];
@@ -360,11 +381,21 @@ function mergeSafari(remote,preferRemoteStuff=true){
  if(rs&&Array.isArray(rs.purchases)){
   const local=state.stuff;
   const purchases=[...new Set([...local.purchases,...rs.purchases])].filter(id=>SHOP_CATALOG.some(x=>x.id===id));
+  const validCharacter=id=>SAFARI_CHARACTERS.some(c=>c.id===id);
+  const remoteCharacter=validCharacter(rs.character)?rs.character:null;
+  const character=preferRemoteStuff&&remoteCharacter?remoteCharacter:local.character;
+  const ownedCharacters=[...new Set([
+   ...(Array.isArray(local.ownedCharacters)?local.ownedCharacters:[]),
+   ...(Array.isArray(rs.ownedCharacters)?rs.ownedCharacters:[]),
+   local.character,remoteCharacter,character
+  ].filter(id=>id&&validCharacter(id)))];
   state.stuff={
    purchases,
    placed:preferRemoteStuff&&Array.isArray(rs.placed)?rs.placed:local.placed,
    backgrounds:{...local.backgrounds,...(rs.backgrounds||{})},
-   world:preferRemoteStuff&&Number.isInteger(rs.world)?rs.world:local.world
+   world:preferRemoteStuff&&Number.isInteger(rs.world)?rs.world:local.world,
+   character:character||'frog',
+   ownedCharacters
   };
  }
 }
@@ -484,6 +515,12 @@ function header(){
   const home=el('button','','🌿 Safari Map');home.onclick=()=>setView('home');nav.append(home);
   const shop=el('button','','⭐ Star Shop');shop.onclick=()=>setView('shop');nav.append(shop);
   const stuff=el('button','','🎒 My Stuff');stuff.onclick=()=>{state.stuffPending=null;setView('stuff')};nav.append(stuff);
+  const avatar=el('button','safari-character-switch');avatar.type='button';
+  avatar.append(shopImage('./assets/animals/'+(state.stuff.character||'frog')+'.png','Current explorer','current-explorer-thumb'));
+  avatar.append(el('span','','Change Character'));
+  avatar.disabled=state.view==='game';
+  avatar.title=state.view==='game'?'Return to a map to change your character':'Choose a Safari explorer. Old characters stay in My Stuff.';
+  avatar.onclick=showCharacterPicker;nav.append(avatar);
   const friends=el('button','','🐾 Friends '+WORLDS.filter((w,i)=>count(i)===8).length+'/8');friends.onclick=showFriends;nav.append(friends);
  }
  header.append(nav);
@@ -550,7 +587,7 @@ const WORLD_REWARDS=[
  ['paw-print','gold-star','gem','binoculars','firefly','safari-map','treasure-chest','medal']
 ];
 function safeStuff(){
- return {purchases:[],placed:[],backgrounds:{},world:0};
+ return {purchases:[],placed:[],backgrounds:{},world:0,character:'frog',ownedCharacters:['frog']};
 }
 function loadStuff(){
  state.stuff=safeStuff();state.stuffPending=null;
@@ -564,6 +601,13 @@ function loadStuff(){
    Object.entries(raw.backgrounds).filter(([k,v])=>/^[0-7]$/.test(k)&&(v==='map'||/^scene:[0-7]$/.test(v)))
    .map(([k,v])=>[k,v==='map'?'scene:'+k:v]));
   if(Number.isInteger(raw.world)&&raw.world>=0&&raw.world<8)state.stuff.world=raw.world;
+  const validCharacter=id=>SAFARI_CHARACTERS.some(c=>c.id===id);
+  if(validCharacter(raw.character))state.stuff.character=raw.character;
+  if(Array.isArray(raw.ownedCharacters)){
+   state.stuff.ownedCharacters=[...new Set([
+    ...raw.ownedCharacters.filter(validCharacter),state.stuff.character
+   ])];
+  }else state.stuff.ownedCharacters=[...new Set(['frog',state.stuff.character])];
  }catch(e){state.stuff=safeStuff()}
 }
 function persistStuff(){
@@ -646,8 +690,16 @@ function earnedInventory(){
  }
  return items;
 }
+function characterInventory(){
+ const owned=[...new Set([...(state.stuff.ownedCharacters||[]),state.stuff.character||'frog'])];
+ return owned.map(id=>SAFARI_CHARACTERS.find(c=>c.id===id)).filter(Boolean).map(char=>({
+  id:'character:'+char.id,name:char.name+(char.id===state.stuff.character?' · MY EXPLORER':''),
+  image:'./assets/animals/'+char.id+'.png',kind:'character'
+ }));
+}
 function availableStuff(world){
- return [...earnedInventory().filter(item=>item.kind==='friend'||item.world===world),
+ return [...characterInventory(),
+  ...earnedInventory().filter(item=>item.kind==='friend'||item.world===world),
   ...[...SHOP_ITEMS,...LEVEL_SHOP_ITEMS].filter(item=>state.preview||state.stuff.purchases.includes(item.id))];
 }
 function sceneBackground(world){
@@ -666,10 +718,45 @@ function changeStuffPlacement(world,id,patch){
  all[index]={...old,...patch};
  if(!persistStuff())all[index]=old;
 }
+function showCharacterPicker(){
+ if(document.querySelector('.modal'))return;
+ const modal=el('div','modal'),box=el('section','modal-card safari-character-picker');
+ box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+ box.setAttribute('aria-label','Choose your Safari character');
+ box.append(el('h2','','CHOOSE YOUR SAFARI CHARACTER'));
+ box.append(el('p','','Change your explorer! Every character you choose stays in My Stuff.'));
+ const grid=el('div','character-picker-grid');
+ SAFARI_CHARACTERS.forEach(char=>{
+  const unlocked=char.starter||state.preview||worldSceneUnlocked(char.world)||(state.stuff.ownedCharacters||[]).includes(char.id);
+  const current=state.stuff.character===char.id;
+  const btn=el('button','character-option');btn.type='button';
+  btn.disabled=!unlocked;
+  btn.setAttribute('aria-pressed',String(current));
+  btn.append(shopImage('./assets/animals/'+char.id+'.png',char.name,'character-option-image'));
+  btn.append(el('strong','',char.name));
+  btn.append(el('small','',current?'CURRENT EXPLORER':unlocked?'CHOOSE':'RESCUE '+WORLDS[char.world].friend.toUpperCase()+' FIRST'));
+  btn.onclick=()=>{
+   if(!unlocked||current){modal.remove();return}
+   const oldCharacter=state.stuff.character||'frog';
+   const previousOwned=(state.stuff.ownedCharacters||[]).slice();
+   state.stuff.character=char.id;
+   state.stuff.ownedCharacters=[...new Set([...previousOwned,oldCharacter,char.id])];
+   if(!persistStuff()){
+    state.stuff.character=oldCharacter;state.stuff.ownedCharacters=previousOwned;return;
+   }
+   modal.remove();render();
+  };
+  grid.append(btn);
+ });
+ box.append(grid);
+ const close=el('button','character-picker-close','DONE');close.onclick=()=>modal.remove();box.append(close);
+ modal.append(box);document.body.append(modal);
+}
 function renderStuff(){
  const main=el('main','safari-stuff');
  const top=el('div','stuff-head');top.append(el('h1','','🎒 MY STUFF'));
  const shop=el('button','','⭐ STAR SHOP');shop.onclick=()=>setView('shop');top.append(shop);
+ const character=el('button','safari-stuff-change','🐾 CHANGE CHARACTER');character.onclick=showCharacterPicker;top.append(character);
  top.append(el('strong','wallet','⭐ '+(state.preview?'PREVIEW':spendableStars()+' LEFT')));
  main.append(top);
  const tabs=el('div','stuff-tabs');let world=state.stuff.world;
@@ -763,7 +850,7 @@ function renderStuff(){
  });
  main.append(board);
  const categories=el('div','stuff-category-tabs');
- for(const [kind,label] of [['earned','⭐ EARNED'],['friend','🐾 FRIENDS'],['piece','🎒 BOUGHT']]){
+ for(const [kind,label] of [['earned','⭐ EARNED'],['friend','🐾 FRIENDS'],['piece','🎒 BOUGHT'],['character','🦁 CHARACTERS']]){
   const btn=el('button','',label);btn.type='button';
   btn.setAttribute('aria-pressed',String(state.stuffCategory===kind));
   btn.onclick=()=>{state.stuffCategory=kind;render()};categories.append(btn);
