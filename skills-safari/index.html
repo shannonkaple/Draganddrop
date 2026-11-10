@@ -227,6 +227,39 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .map-hotspot.level-hit:disabled::after{content:''!important;position:absolute;left:50%;top:45%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:48%;height:65%;min-width:34px;min-height:38px;background:url('./assets/pieces/padlock.png') center / contain no-repeat;filter:drop-shadow(0 3px 4px #0008);opacity:1}
 .map-hotspot.world-hit:disabled::after{content:''!important;position:absolute;left:50%;top:45%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:45%;height:58%;background:url('./assets/pieces/padlock.png') center / contain no-repeat;filter:drop-shadow(0 3px 3px #0007)}
 @media(max-width:850px){.guide-status{flex-basis:100%;text-align:center}.map-hotspot.level-hit .level-title{font-size:9px;max-width:98px}}
+
+/* My Stuff mirrors Arrow-Nauts' world-by-world decorating with independent safari art. */
+.safari-store,.safari-stuff{width:min(98%,1350px);margin:auto;padding:10px 12px 25px;display:flex;flex-direction:column;gap:9px}
+.stuff-head{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.stuff-head h1{font-size:clamp(23px,2.7vw,32px);margin:4px 0;color:#2e714b}
+.wallet{background:#fff6cf;padding:8px 12px;border:2px solid #ddb35d;border-radius:18px}
+.shop-notice{font-size:clamp(12px,1.1vw,16px);margin:3px 0}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+.shop-tile{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:7px;text-align:center;background:#fffbea;border:2px solid #91bb80;border-radius:17px;padding:10px}
+.shop-tile img{width:118px;height:112px;max-width:100%;object-fit:contain}
+.shop-tile strong{font-size:clamp(12px,1vw,15px)}.shop-tile button{width:100%;font-size:12px}
+.stuff-tabs{display:flex;gap:5px;overflow-x:auto;padding:4px;scrollbar-width:thin}
+.stuff-tabs button{font-size:clamp(10px,.8vw,12px);min-width:max-content;padding:4px 8px}
+.stuff-tabs button[aria-pressed="true"],.stuff-background-choice button[aria-pressed="true"]{background:#d0f7b8;border-color:#459565}
+.stuff-locked{background:#fffbea;border:3px solid #8ab988;border-radius:22px;text-align:center;padding:30px}
+.stuff-background-choice{display:flex;justify-content:center;flex-wrap:wrap;gap:7px}
+.stuff-background-choice button{font-size:12px;padding:5px 10px}
+.stuff-board{width:min(100%,calc((100dvh - 300px)*16/9));max-height:52dvh;min-height:190px;aspect-ratio:16/9;position:relative;overflow:hidden;margin:0 auto;border:4px solid #fff7e8;border-radius:17px;background:#d0e7be;box-shadow:0 6px 17px #20472b49;cursor:crosshair}
+.stuff-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+.stuff-instructions{margin:0;text-align:center;font-size:clamp(11px,1.1vw,15px);color:#356447}
+.stuff-placed{position:absolute;z-index:5;transform:translate(-50%,-50%);width:clamp(50px,7vw,90px);height:clamp(50px,7vw,90px);cursor:grab;touch-action:none;display:grid;place-items:center}
+.stuff-placed:active{cursor:grabbing}
+.stuff-placed-visual{display:block;width:100%;height:100%;transform:scale(var(--stuff-scale,1));transform-origin:center}
+.stuff-placed-visual img{width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 3px #112b266b)}
+.stuff-placed-controls{position:absolute;left:50%;top:90%;display:flex;gap:2px;transform:translateX(-50%);z-index:8;background:#fffbdcee;border-radius:18px;padding:2px}
+.stuff-placed-controls button{min-width:24px;width:26px;height:26px;min-height:24px;border:1px solid #74956e;border-radius:50%;font:900 16px Arial,sans-serif;padding:0;background:#fff}
+.stuff-placed-controls .stuff-remove{color:#b53e38}
+.stuff-inventory{display:flex;align-items:stretch;gap:7px;overflow-x:auto;min-height:103px;padding:4px 0 8px}
+.stuff-shelf-item{flex:0 0 100px;display:flex;align-items:center;flex-direction:column;justify-content:center;min-height:98px;gap:2px;padding:4px;background:#fffbe8}
+.stuff-shelf-item img{width:62px;height:60px;object-fit:contain}
+.stuff-shelf-item span{font:700 10px/1.1 Arial,sans-serif}
+.stuff-shelf-item.chosen{border:4px solid #f2b72f;background:#fff0ae}
+@media(max-height:675px){.stuff-board{max-height:45dvh}.stuff-inventory{min-height:80px}.stuff-shelf-item{flex-basis:82px;min-height:74px}.stuff-shelf-item img{height:45px}}
 </style>
 </head>
 <body><div id="app"></div>
@@ -257,7 +290,7 @@ const MAZE_ROCKS=[
  [[2,2],[3,2],[4,2],[5,2],[3,1],[5,3]]
 ];
 const seqLengths=[1,1,2,2,3,3,3,4];
-const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null};
+const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null,stuff:{purchases:[],placed:[],backgrounds:{},world:0},stuffPending:null};
 let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly',Turtle:'turtle',Hippo:'hippo',Lizard:'lizard',Ladybug:'ladybug',Crab:'crab',Fish:'fish',TropicalFish:'tropical-fish'});
@@ -283,7 +316,7 @@ function safariArt(emoji,cls='',species=null){return putAnimalArt(el('span',cls)
 function node(html){const wrapper=document.createElement('div');wrapper.innerHTML=html;return wrapper.firstElementChild}
 function clamp(n,low,high){return Math.max(low,Math.min(high,n))}
 function saveKey(){return 'skills-safari-v1:'+state.teacher.id+':'+state.number}
-function loadProgress(){state.done=[];try{const raw=JSON.parse(localStorage.getItem(saveKey())||'[]');if(Array.isArray(raw))state.done=[...new Set(raw.filter(x=>Number.isInteger(x)&&x>=0&&x<64))].sort((a,b)=>a-b)}catch(e){state.done=[]}}
+function loadProgress(){state.done=[];try{const raw=JSON.parse(localStorage.getItem(saveKey())||'[]');if(Array.isArray(raw))state.done=[...new Set(raw.filter(x=>Number.isInteger(x)&&x>=0&&x<64))].sort((a,b)=>a-b)}catch(e){state.done=[]}loadStuff();}
 function persist(){if(state.preview||!state.teacher||!state.number)return true;try{localStorage.setItem(saveKey(),JSON.stringify(state.done));return true}catch(e){feedback('Your work could not save on this Chromebook. Please tell your teacher.',true);return false}}
 function done(w,s){return state.done.includes(w*8+s)}
 function count(w){return state.done.filter(i=>Math.floor(i/8)===w).length}
@@ -308,12 +341,14 @@ function header(){
  const nav=el('nav','nav');
  if(state.teacher||state.preview){
   const home=el('button','','🌿 Safari Map');home.onclick=()=>setView('home');nav.append(home);
+  const shop=el('button','','⭐ Star Shop');shop.onclick=()=>setView('shop');nav.append(shop);
+  const stuff=el('button','','🎒 My Stuff');stuff.onclick=()=>{state.stuffPending=null;setView('stuff')};nav.append(stuff);
   const friends=el('button','','🐾 Friends '+WORLDS.filter((w,i)=>count(i)===8).length+'/8');friends.onclick=showFriends;nav.append(friends);
  }
  header.append(nav);
  const right=el('nav','nav right');
  if(state.teacher||state.preview){
-  right.append(el('span','pill','⭐ '+totalStars()+' Stars'));
+  right.append(el('span','pill','⭐ '+spendableStars()+' Stars'));
   const switcher=el('button','','Change Student');switcher.onclick=()=>{state.teacher=null;state.number=null;state.preview=false;setView('teachers')};right.append(switcher);
  }else{right.append(el('span','pill','8 MAPS · 64 CHALLENGES'))}
  header.append(right);return header
@@ -323,7 +358,221 @@ function render(){app.replaceChildren(header());
  if(state.view==='home'){renderHome();return}
  if(state.view==='world'){renderWorld();return}
  if(state.view==='game'){renderGame();return}
+ if(state.view==='shop'){renderShop();return}
+ if(state.view==='stuff'){renderStuff();return}
 }
+
+/* My Stuff is an independent Skills Safari student record. Arrow-Nauts storage stays untouched. */
+const SHOP_ITEMS=[
+ ['jeep','Safari Jeep',10],['tent','Camping Tent',6],['backpack','Explorer Backpack',6],
+ ['camera','Safari Camera',5],['binoculars','Binoculars',5],['compass','Compass',4],
+ ['safari-map','Explorer Map',6],['picnic-basket','Picnic Basket',7],
+ ['treasure-chest','Treasure Chest',9],['telescope','Telescope',7],['balloon','Balloon',4],
+ ['gem','Purple Gem',5],['gold-star','Golden Star',5],['paw-print','Paw Print',4],
+ ['palm-tree','Palm Tree',7],['red-rose','Red Rose',5],['firefly','Firefly',5],
+ ['sunflower','Sunflower',5],['wooden-log','Log',4],['bucket','Bucket',4],
+ ['medal','Safari Medal',9],['key','Golden Key',5]
+].map(([id,name,price])=>({id:'item:'+id,name,price,image:'./assets/pieces/'+id+'.png',kind:'piece'}));
+const SHOP_BACKGROUNDS=WORLDS.map((w,i)=>({id:'background:'+i,name:w.name+' Trail Map',price:12,
+ world:i,kind:'background',image:'./assets/maps/'+MAP_ART[i]}));
+const SHOP_CATALOG=[...SHOP_ITEMS,...SHOP_BACKGROUNDS];
+const WORLD_REWARDS=[
+ ['feather','binoculars','tropical-leaf','camera','nest','gold-star','picnic-basket','medal'],
+ ['banana','apple','coconut','pineapple','grapes','wooden-crate','treasure-chest','medal'],
+ ['feather','safari-map','tropical-leaf','megaphone','egg','padlock','hatching-egg','medal'],
+ ['coconut','banana','grapes','apple','pineapple','bucket','clover','medal'],
+ ['key','rock','camera','bucket','backpack','wooden-log','tent','medal'],
+ ['palm-tree','sunflower','compass','telescope','pink-flower','paw-print','binoculars','medal'],
+ ['fish','seashell','bucket','tropical-leaf','picnic-basket','coconut','safari-map','medal'],
+ ['paw-print','gold-star','gem','binoculars','firefly','safari-map','treasure-chest','medal']
+];
+function safeStuff(){
+ return {purchases:[],placed:[],backgrounds:{},world:0};
+}
+function loadStuff(){
+ state.stuff=safeStuff();state.stuffPending=null;
+ if(state.preview||!state.teacher||!state.number)return;
+ try{
+  const raw=JSON.parse(localStorage.getItem(saveKey()+':my-stuff-v1')||'null');
+  if(!raw||typeof raw!=='object')return;
+  if(Array.isArray(raw.purchases))state.stuff.purchases=[...new Set(raw.purchases.filter(id=>SHOP_CATALOG.some(item=>item.id===id)))];
+  if(Array.isArray(raw.placed))state.stuff.placed=raw.placed.filter(p=>p&&Number.isInteger(p.world)&&p.world>=0&&p.world<8&&typeof p.id==='string'&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&Number.isFinite(p.scale)).slice(0,200);
+  if(raw.backgrounds&&typeof raw.backgrounds==='object')state.stuff.backgrounds=Object.fromEntries(Object.entries(raw.backgrounds).filter(([k,v])=>/^[0-7]$/.test(k)&&v==='map'));
+  if(Number.isInteger(raw.world)&&raw.world>=0&&raw.world<8)state.stuff.world=raw.world;
+ }catch(e){state.stuff=safeStuff()}
+}
+function persistStuff(){
+ if(state.preview||!state.teacher||!state.number)return true;
+ try{localStorage.setItem(saveKey()+':my-stuff-v1',JSON.stringify(state.stuff));return true}
+ catch(e){alert('Your My Stuff could not save on this Chromebook. Please tell your teacher.');return false}
+}
+function spendableStars(){
+ if(state.preview)return 999;
+ const spent=state.stuff.purchases.reduce((n,id)=>n+(SHOP_CATALOG.find(x=>x.id===id)?.price||0),0);
+ return Math.max(0,totalStars()-spent);
+}
+function worldSceneUnlocked(i){return state.preview||count(i)===8}
+function shopImage(src,alt,cls='shop-art'){
+ const im=document.createElement('img');im.src=src;im.alt=alt;im.className=cls;im.draggable=false;return im;
+}
+function shopNotice(main,msg){const p=el('p','shop-notice',msg);p.setAttribute('role','status');main.append(p)}
+function buyItem(item){
+ if(!item||state.stuff.purchases.includes(item.id))return;
+ if(item.kind==='background'&&!worldSceneUnlocked(item.world))return;
+ if(spendableStars()<item.price){alert('Play more levels to earn stars!');return}
+ const before=state.stuff.purchases.slice();
+ state.stuff.purchases.push(item.id);
+ if(!persistStuff()){state.stuff.purchases=before;return}
+ setView('shop');
+}
+function renderShop(){
+ const main=el('main','safari-store');
+ const top=el('div','stuff-head');top.append(el('h1','','⭐ STAR SHOP'));
+ top.append(el('strong','wallet','⭐ '+(state.preview?'TEACHER PREVIEW':spendableStars()+' STARS LEFT')));
+ const mine=el('button','','🎒 MY STUFF');mine.onclick=()=>setView('stuff');top.append(mine);
+ main.append(top);
+ shopNotice(main,'Play a new level to earn 1 star. Rescue a friend at level 8 to earn 10. Replays do not earn extra stars.');
+ const grid=el('div','shop-grid');
+ SHOP_CATALOG.forEach(item=>{
+  const tile=el('article','shop-tile');tile.append(shopImage(item.image,item.name));
+  tile.append(el('strong','',item.name));
+  const bought=state.stuff.purchases.includes(item.id),locked=item.kind==='background'&&!worldSceneUnlocked(item.world);
+  const buy=el('button','',bought?'OWNED ✓':locked?'FINISH WORLD FIRST':'BUY ⭐ '+item.price);
+  buy.disabled=bought||locked||spendableStars()<item.price;
+  buy.onclick=()=>buyItem(item);tile.append(buy);grid.append(tile);
+ });
+ main.append(grid);app.append(main)
+}
+function earnedInventory(){
+ const items=[];
+ for(let w=0;w<8;w++){
+  for(let s=0;s<8;s++)if(done(w,s)||state.preview){
+   const id=WORLD_REWARDS[w][s];
+   items.push({id:'earned:'+w+':'+s,name:WORLDS[w].name+' '+id.replace(/-/g,' '),
+    image:id==='fish'?'./assets/animals/fish.png':'./assets/pieces/'+id+'.png',world:w,kind:'earned'});
+  }
+  if(count(w)===8||state.preview)items.push({id:'friend:'+w,name:WORLDS[w].friend,
+   image:'./assets/animals/'+PNG_ANIMALS[WORLDS[w].friend]+'.png',kind:'friend'});
+ }
+ return items;
+}
+function availableStuff(world){
+ return [...earnedInventory().filter(item=>item.kind==='friend'||item.world===world),
+  ...SHOP_ITEMS.filter(item=>state.preview||state.stuff.purchases.includes(item.id))];
+}
+function sceneBackground(world){
+ const purchased=state.stuff.purchases.includes('background:'+world);
+ return state.stuff.backgrounds[world]==='map'&&purchased?'./assets/maps/'+MAP_ART[world]:'./assets/scenes/'+SCENE_ART[world];
+}
+function changeStuffPlacement(world,id,patch){
+ const all=state.stuff.placed;
+ const index=all.findIndex(p=>p.world===world&&p.id===id);
+ if(index<0)return;
+ const old={...all[index]};
+ all[index]={...old,...patch};
+ if(!persistStuff())all[index]=old;
+}
+function renderStuff(){
+ const main=el('main','safari-stuff');
+ const top=el('div','stuff-head');top.append(el('h1','','🎒 MY STUFF'));
+ const shop=el('button','','⭐ STAR SHOP');shop.onclick=()=>setView('shop');top.append(shop);
+ top.append(el('strong','wallet','⭐ '+(state.preview?'PREVIEW':spendableStars()+' LEFT')));
+ main.append(top);
+ const tabs=el('div','stuff-tabs');let world=state.stuff.world;
+ for(let i=0;i<8;i++){
+  const b=el('button','',WORLDS[i].name+(worldSceneUnlocked(i)?'':' 🔒'));
+  b.type='button';b.disabled=!worldSceneUnlocked(i);b.setAttribute('aria-pressed',String(world===i));
+  b.onclick=()=>{state.stuff.world=i;state.stuffPending=null;persistStuff();render()};tabs.append(b);
+ }
+ main.append(tabs);
+ if(!worldSceneUnlocked(world)){
+  const prompt=el('section','stuff-locked');prompt.append(el('h2','','RESCUE YOUR FIRST SAFARI FRIEND'));
+  prompt.append(el('p','','Finish all eight Toucan Treetops levels to earn your first world background!'));
+  const back=el('button','','GO TO THE SAFARI MAP');back.onclick=()=>setView('home');prompt.append(back);
+  main.append(prompt);app.append(main);return;
+ }
+ const alternatives=el('div','stuff-background-choice');
+ const scenery=el('button','','MY WORLD BACKGROUND');scenery.setAttribute('aria-pressed',String(state.stuff.backgrounds[world]!=='map'));
+ scenery.onclick=()=>{delete state.stuff.backgrounds[world];persistStuff();render()};alternatives.append(scenery);
+ const trail=el('button','','TRAIL MAP BACKGROUND');
+ const allowed=state.preview||state.stuff.purchases.includes('background:'+world);
+ trail.disabled=!allowed;trail.setAttribute('aria-pressed',String(state.stuff.backgrounds[world]==='map'));
+ trail.title=allowed?'Change to this world’s trail map':'Buy this trail map in the Star Shop';
+ trail.onclick=()=>{state.stuff.backgrounds[world]='map';persistStuff();render()};alternatives.append(trail);
+ main.append(alternatives);
+ const inventory=availableStuff(world);
+ const placed=state.stuff.placed.filter(p=>p.world===world&&inventory.some(i=>i.id===p.id));
+ const board=el('div','stuff-board');board.setAttribute('role','group');board.setAttribute('aria-label','My decorated '+WORLDS[world].name);
+ board.append(shopImage(sceneBackground(world),WORLDS[world].name+' background','stuff-backdrop'));
+ const add=el('p','stuff-instructions',state.stuffPending?'CLICK THE PICTURE TO PLACE YOUR ITEM':'CLICK AN ITEM BELOW, THEN CLICK THE PICTURE. DRAG TO MOVE. USE + OR − TO RESIZE.');
+ main.append(add);
+ board.onclick=e=>{
+  if(!state.stuffPending||e.target.closest('.stuff-placed'))return;
+  const rect=board.getBoundingClientRect();
+  const x=clamp((e.clientX-rect.left)/rect.width*100,7,93);
+  const y=clamp((e.clientY-rect.top)/rect.height*100,10,90);
+  const id=state.stuffPending;
+  const existing=state.stuff.placed.find(p=>p.world===world&&p.id===id);
+  if(existing){changeStuffPlacement(world,id,{x,y})}
+  else{
+   state.stuff.placed.push({world,id,x,y,scale:1});
+   if(!persistStuff())state.stuff.placed.pop();
+  }
+  state.stuffPending=null;render();
+ };
+ placed.forEach(p=>{
+  const item=inventory.find(i=>i.id===p.id);if(!item)return;
+  const block=el('div','stuff-placed');
+  block.style.left=clamp(p.x,7,93)+'%';block.style.top=clamp(p.y,10,90)+'%';
+  const visual=el('span','stuff-placed-visual');visual.style.setProperty('--stuff-scale',String(clamp(p.scale,.6,3)));
+  visual.append(shopImage(item.image,item.name));block.append(visual);
+  block.setAttribute('aria-label',item.name+' draggable decoration');
+  const controls=el('span','stuff-placed-controls');
+  for(const [sign,delta,spoken] of [['−',-.2,'smaller'],['+',.2,'bigger']]){
+   const btn=el('button','',sign);btn.type='button';btn.setAttribute('aria-label','Make '+item.name+' '+spoken);
+   btn.onclick=e=>{e.stopPropagation();changeStuffPlacement(world,p.id,{scale:Math.round(clamp(p.scale+delta,.6,3)*10)/10});render()};
+   controls.append(btn)
+  }
+  const remove=el('button','stuff-remove','×');remove.type='button';remove.setAttribute('aria-label','Put away '+item.name);
+  remove.onclick=e=>{e.stopPropagation();state.stuff.placed=state.stuff.placed.filter(z=>!(z.world===world&&z.id===p.id));persistStuff();render()};
+  controls.append(remove);block.append(controls);
+  block.onpointerdown=e=>{
+   if(e.pointerType==='touch'||e.button!==0||e.target.closest('button'))return;
+   e.preventDefault();e.stopPropagation();
+   const rect=board.getBoundingClientRect(),fromX=e.clientX,fromY=e.clientY,origX=p.x,origY=p.y;
+   let moved=false,dx=origX,dy=origY;
+   block.setPointerCapture(e.pointerId);
+   block.onpointermove=ev=>{
+    if(ev.pointerId!==e.pointerId)return;
+    dx=clamp(origX+(ev.clientX-fromX)/rect.width*100,7,93);
+    dy=clamp(origY+(ev.clientY-fromY)/rect.height*100,10,90);
+    block.style.left=dx+'%';block.style.top=dy+'%';
+    if(Math.abs(dx-origX)+Math.abs(dy-origY)>.4)moved=true;
+   };
+   block.onpointerup=ev=>{
+    if(ev.pointerId!==e.pointerId)return;
+    block.onpointermove=null;block.onpointerup=null;block.onpointercancel=null;
+    if(moved){changeStuffPlacement(world,p.id,{x:Math.round(dx*10)/10,y:Math.round(dy*10)/10});render()}
+   };
+   block.onpointercancel=()=>{block.onpointermove=null;block.onpointerup=null;block.style.left=origX+'%';block.style.top=origY+'%'};
+  };
+  board.append(block);
+ });
+ main.append(board);
+ const shelf=el('div','stuff-inventory');
+ inventory.forEach(item=>{
+  const b=el('button','stuff-shelf-item');
+  b.type='button';b.classList.toggle('chosen',state.stuffPending===item.id);
+  b.append(shopImage(item.image,item.name));
+  b.append(el('span','',item.name));
+  b.onclick=()=>{state.stuffPending=item.id;render()};
+  shelf.append(b);
+ });
+ main.append(shelf);
+ if(!inventory.length)shopNotice(main,'Complete levels to earn treasures, rescue friends, and shop for decorations.');
+ app.append(main);
+}
+
 function renderEntry(){
  const main=el('main','main'),box=el('section','picker');box.append(el('div','mascot','🦁 🌴 🦒'));
  box.append(el('h1','',state.view==='teachers'?'WHO IS YOUR TEACHER?':'WHAT IS YOUR NUMBER?'));
