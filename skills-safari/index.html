@@ -368,7 +368,7 @@ function saveLocalSnapshot(){
 async function enterSafariStudent(n){
  state.number=n;state.preview=false;loadProgress();
  const session=++cloudSession;
- cloudReady=false;cloudRevision=0;cloudDirty=false;
+ cloudReady=false;cloudRevision=0;cloudDirty=false;cloudBusy=false;
  updateCloudStatus('loading');
  const choices=document.querySelectorAll('.choices.numbers button');
  choices.forEach(b=>b.disabled=true);
@@ -376,12 +376,11 @@ async function enterSafariStudent(n){
   const reply=await cloudRequest({action:'load',teacher:state.teacher.id,student:n});
   if(session!==cloudSession)return;
   cloudRevision=reply.revision;
-  const before=JSON.stringify(safariProgress());
   mergeSafari(reply.progress,!!reply.progress);
   saveLocalSnapshot();
   cloudReady=true;
   setView('home');
-  if(!reply.progress||before!==JSON.stringify(safariProgress()))queueCloudSave();
+  if(!reply.progress||JSON.stringify(reply.progress)!==JSON.stringify(safariProgress()))queueCloudSave();
   else updateCloudStatus('saved');
  }catch(e){
   if(session!==cloudSession)return;
