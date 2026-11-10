@@ -275,6 +275,18 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .stuff-shelf-item{flex:0 0 87px;min-height:84px}
 .stuff-shelf-item img{width:58px;height:55px}
 @media(max-height:675px){.stuff-shelf-item{flex-basis:76px;min-height:71px}.stuff-shelf-item img{height:43px}}
+/* Landscape JPEG scenery stays landscape; transparent object PNGs stay transparent. */
+.shop-section-title{font-size:clamp(18px,1.8vw,23px);color:#2c6d4b;margin:10px 0 2px}
+.shop-backgrounds-grid{grid-template-columns:repeat(auto-fit,minmax(205px,1fr))}
+.shop-background .shop-art{width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;border-radius:9px;border:1px solid #93b882;background:#d7edcb}
+.shop-background strong{font-size:clamp(13px,1.15vw,17px)}
+.background-picker-caption{text-align:center;margin:0;font-size:clamp(12px,1vw,15px);font-weight:900;color:#276649}
+.stuff-background-choice{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding:5px 2px;gap:7px;scrollbar-width:thin}
+.stuff-background-choice .stuff-backdrop-choice{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:150px;min-height:77px;padding:5px 7px;font-size:11px;white-space:normal}
+.stuff-backdrop-choice .background-choice-preview{display:block;width:134px;height:68px;object-fit:contain;border-radius:7px;background:#e1edda}
+.stuff-backdrop-choice span{font-size:11px;line-height:1.1}
+.stuff-backdrop-choice[aria-pressed="true"]{background:#e0f7b9;border:3px solid #559765}
+@media(max-width:720px){.shop-backgrounds-grid{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}.stuff-background-choice .stuff-backdrop-choice{width:132px}.stuff-backdrop-choice .background-choice-preview{width:119px;height:62px}}
 </style>
 </head>
 <body><div id="app"></div>
@@ -497,8 +509,10 @@ const SHOP_ITEMS=[
  ['sunflower','Sunflower',5],['wooden-log','Log',4],['bucket','Bucket',4],
  ['medal','Safari Medal',9],['key','Golden Key',5]
 ].map(([id,name,price])=>({id:'item:'+id,name,price,image:'./assets/pieces/'+id+'.png',kind:'piece'}));
-const SHOP_BACKGROUNDS=WORLDS.map((w,i)=>({id:'background:'+i,name:w.name+' Trail Map',price:12,
- world:i,kind:'background',image:'./assets/maps/'+MAP_ART[i]}));
+// Shop offers ONLY number-free game scenery. Keep stable IDs so students
+// who already bought old "Trail Map" cards retain their purchases.
+const SHOP_BACKGROUNDS=WORLDS.map((w,i)=>({id:'background:'+i,name:w.name+' Game Background',price:12,
+ world:i,kind:'background',image:'./assets/scenes/'+SCENE_ART[i]}));
 const SHOP_CATALOG=[...SHOP_ITEMS,...SHOP_BACKGROUNDS];
 const WORLD_REWARDS=[
  ['feather','binoculars','tropical-leaf','camera','nest','gold-star','picnic-basket','medal'],
@@ -521,7 +535,9 @@ function loadStuff(){
   if(!raw||typeof raw!=='object')return;
   if(Array.isArray(raw.purchases))state.stuff.purchases=[...new Set(raw.purchases.filter(id=>SHOP_CATALOG.some(item=>item.id===id)))];
   if(Array.isArray(raw.placed))state.stuff.placed=raw.placed.filter(p=>p&&Number.isInteger(p.world)&&p.world>=0&&p.world<8&&typeof p.id==='string'&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&Number.isFinite(p.scale)).slice(0,200);
-  if(raw.backgrounds&&typeof raw.backgrounds==='object')state.stuff.backgrounds=Object.fromEntries(Object.entries(raw.backgrounds).filter(([k,v])=>/^[0-7]$/.test(k)&&v==='map'));
+  if(raw.backgrounds&&typeof raw.backgrounds==='object')state.stuff.backgrounds=Object.fromEntries(
+   Object.entries(raw.backgrounds).filter(([k,v])=>/^[0-7]$/.test(k)&&(v==='map'||/^scene:[0-7]$/.test(v)))
+   .map(([k,v])=>[k,v==='map'?'scene:'+k:v]));
   if(Number.isInteger(raw.world)&&raw.world>=0&&raw.world<8)state.stuff.world=raw.world;
  }catch(e){state.stuff=safeStuff()}
 }
@@ -556,16 +572,25 @@ function renderShop(){
  const mine=el('button','','🎒 MY STUFF');mine.onclick=()=>setView('stuff');top.append(mine);
  main.append(top);
  shopNotice(main,'Play a new level to earn 1 star. Rescue a friend at level 8 to earn 10. Replays do not earn extra stars.');
- const grid=el('div','shop-grid');
- SHOP_CATALOG.forEach(item=>{
-  const tile=el('article','shop-tile');tile.append(shopImage(item.image,item.name));
-  tile.append(el('strong','',item.name));
-  const bought=state.stuff.purchases.includes(item.id),locked=item.kind==='background'&&!worldSceneUnlocked(item.world);
-  const buy=el('button','',bought?'OWNED ✓':locked?'FINISH WORLD FIRST':'BUY ⭐ '+item.price);
-  buy.disabled=bought||locked||spendableStars()<item.price;
-  buy.onclick=()=>buyItem(item);tile.append(buy);grid.append(tile);
- });
- main.append(grid);app.append(main)
+ const addTiles=(catalog,cssClass)=>{
+  const grid=el('div','shop-grid '+cssClass);
+  catalog.forEach(item=>{
+   const tile=el('article','shop-tile'+(item.kind==='background'?' shop-background':''));
+   tile.append(shopImage(item.image,item.name));
+   tile.append(el('strong','',item.name));
+   const bought=state.stuff.purchases.includes(item.id),locked=item.kind==='background'&&!worldSceneUnlocked(item.world);
+   const buy=el('button','',bought?'OWNED ✓':locked?'FINISH WORLD FIRST':'BUY ⭐ '+item.price);
+   buy.disabled=bought||locked||spendableStars()<item.price;
+   buy.onclick=()=>buyItem(item);tile.append(buy);grid.append(tile);
+  });
+  main.append(grid);
+ };
+ main.append(el('h2','shop-section-title','SAFARI DECORATIONS'));
+ addTiles(SHOP_ITEMS,'shop-items-grid');
+ main.append(el('h2','shop-section-title','GAME BACKGROUNDS — NO LEVEL NUMBERS'));
+ shopNotice(main,'These are the clean backgrounds from the eight safari games. Buy one to use it when decorating any unlocked world.');
+ addTiles(SHOP_BACKGROUNDS,'shop-backgrounds-grid');
+ app.append(main)
 }
 function earnedInventory(){
  const items=[];
@@ -585,8 +610,12 @@ function availableStuff(world){
   ...SHOP_ITEMS.filter(item=>state.preview||state.stuff.purchases.includes(item.id))];
 }
 function sceneBackground(world){
- const purchased=state.stuff.purchases.includes('background:'+world);
- return state.stuff.backgrounds[world]==='map'&&(purchased||state.preview)?'./assets/maps/'+MAP_ART[world]:'./assets/scenes/'+SCENE_ART[world];
+ // Original game scene is free for the student's unlocked world.
+ // Bought game backgrounds can decorate ANY unlocked world, not just their source world.
+ const chosen=state.stuff.backgrounds[world];
+ const idx=chosen==='map'?world:/^scene:[0-7]$/.test(chosen||'')?Number(chosen.slice(6)):world;
+ const owned=state.preview||state.stuff.purchases.includes('background:'+idx);
+ return './assets/scenes/'+SCENE_ART[owned?idx:world];
 }
 function changeStuffPlacement(world,id,patch){
  const all=state.stuff.placed;
@@ -616,13 +645,22 @@ function renderStuff(){
   main.append(prompt);app.append(main);return;
  }
  const alternatives=el('div','stuff-background-choice');
- const scenery=el('button','','MY WORLD BACKGROUND');scenery.setAttribute('aria-pressed',String(state.stuff.backgrounds[world]!=='map'));
- scenery.onclick=()=>{delete state.stuff.backgrounds[world];persistStuff();render()};alternatives.append(scenery);
- const trail=el('button','','TRAIL MAP BACKGROUND');
- const allowed=state.preview||state.stuff.purchases.includes('background:'+world);
- trail.disabled=!allowed;trail.setAttribute('aria-pressed',String(state.stuff.backgrounds[world]==='map'));
- trail.title=allowed?'Change to this world’s trail map':'Buy this trail map in the Star Shop';
- trail.onclick=()=>{state.stuff.backgrounds[world]='map';persistStuff();render()};alternatives.append(trail);
+ const scenery=el('button','stuff-backdrop-choice','ORIGINAL '+WORLDS[world].name.toUpperCase());
+ scenery.setAttribute('aria-pressed',String(!state.stuff.backgrounds[world]));
+ scenery.title='Use the original number-free game background for this world';
+ scenery.onclick=()=>{delete state.stuff.backgrounds[world];persistStuff();render()};
+ alternatives.append(scenery);
+ SHOP_BACKGROUNDS.filter(item=>state.preview||state.stuff.purchases.includes(item.id)).forEach(item=>{
+  const preview=el('button','stuff-backdrop-choice');
+  preview.type='button';
+  preview.append(shopImage(item.image,item.name+' game background','background-choice-preview'));
+  preview.append(el('span','',WORLDS[item.world].name));
+  preview.setAttribute('aria-pressed',String(state.stuff.backgrounds[world]==='scene:'+item.world||(state.stuff.backgrounds[world]==='map'&&item.world===world)));
+  preview.title='Use the '+WORLDS[item.world].name+' gameplay background';
+  preview.onclick=()=>{state.stuff.backgrounds[world]='scene:'+item.world;persistStuff();render()};
+  alternatives.append(preview);
+ });
+ main.append(el('p','background-picker-caption','GAME BACKGROUNDS — NO NUMBERS OR LEVEL SPOTS'));
  main.append(alternatives);
  const inventory=availableStuff(world);
  const placed=state.stuff.placed.filter(p=>p.world===world&&inventory.some(i=>i.id===p.id));
