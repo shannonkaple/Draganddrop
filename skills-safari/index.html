@@ -791,6 +791,7 @@ function buyItem(item){
 function renderShop(){
  const main=el('main','safari-store');
  const top=el('div','stuff-head');top.append(el('h1','','⭐ STAR SHOP'));
+ top.append(listenButton(screenNarration,'Hear shop instructions'));
  top.append(el('strong','wallet','⭐ '+(state.preview?'TEACHER PREVIEW':spendableStars()+' STARS LEFT')));
  const mine=el('button','','🎒 MY STUFF');mine.onclick=()=>setView('stuff');top.append(mine);
  main.append(top);
@@ -902,12 +903,14 @@ function showCharacterPicker(){
   grid.append(btn);
  });
  box.append(grid);
+ box.append(listenButton(screenNarration,'Hear character directions'));
  const close=el('button','character-picker-close','DONE');close.onclick=()=>modal.remove();box.append(close);
  modal.append(box);document.body.append(modal);
 }
 function renderStuff(){
  const main=el('main','safari-stuff');
  const top=el('div','stuff-head');top.append(el('h1','','🎒 MY STUFF'));
+ top.append(listenButton(screenNarration,'Hear My Stuff instructions'));
  const shop=el('button','','⭐ STAR SHOP');shop.onclick=()=>setView('shop');top.append(shop);
  const character=el('button','safari-stuff-change','🐾 CHANGE CHARACTER');character.onclick=showCharacterPicker;top.append(character);
  top.append(el('strong','wallet','⭐ '+(state.preview?'PREVIEW':spendableStars()+' LEFT')));
@@ -1027,6 +1030,7 @@ function renderEntry(){
  const main=el('main','main'),box=el('section','picker');box.append(el('div','mascot','🦁 🌴 🦒'));
  box.append(el('h1','',state.view==='teachers'?'WHO IS YOUR TEACHER?':'WHAT IS YOUR NUMBER?'));
  box.append(el('p','',state.view==='teachers'?'Choose your teacher.':'Choose your classroom number to begin.'));
+ box.append(listenButton(screenNarration,'Hear how to begin'));
  const grid=el('div','choices'+(state.view==='numbers'?' numbers':''));
  if(state.view==='teachers')TEACHERS.forEach(t=>{const b=el('button','',t.name);b.onclick=()=>{state.teacher=t;setView('numbers')};grid.append(b)});
  else for(let n=1;n<=30;n++){const b=el('button','',String(n));b.onclick=()=>enterSafariStudent(n);grid.append(b)}
@@ -1046,6 +1050,7 @@ function renderHome(){
  mapBackground(stage,'savanna','00-safari-world-map.jpg');
  const heading=el('div','map-heading','THE GREAT SKILLS SAFARI');
  heading.append(el('div','map-sub','Choose a safari world · Finish eight levels to unlock the next'));stage.append(heading);
+ const mapListen=listenButton(screenNarration,'Hear Safari world map directions');mapListen.classList.add('map-listen');stage.append(mapListen);
  WORLDS.forEach((world,i)=>{
   const b=el('button','map-hotspot world-hit'),finished=count(i)===8;
   b.type='button';b.style.left=WORLD_SPOTS[i][0]+'%';b.style.top=WORLD_SPOTS[i][1]+'%';
@@ -1069,6 +1074,7 @@ function renderWorld(){
  stage.setAttribute('aria-label',w.name+', eight numbered levels');
  const heading=el('div','map-heading',w.icon+' '+w.name.toUpperCase());
  heading.append(el('div','map-sub',w.skill.toUpperCase()+' · '+count(state.world)+'/8 COMPLETED'));stage.append(heading);
+ const mapListen=listenButton(screenNarration,'Hear challenge map directions');mapListen.classList.add('map-listen');stage.append(mapListen);
  LEVEL_SPOTS.forEach((pos,i)=>{
   const b=el('button','map-hotspot level-hit'),finished=done(state.world,i);
   b.type='button';b.style.left=pos[0]+'%';b.style.top=pos[1]+'%';
@@ -1621,6 +1627,7 @@ function showLevelComplete(world,stage,firstTime){
  box.append(el('h2','','LEVEL '+(stage+1)+' COMPLETE!'));
  box.append(shopImage('./assets/pieces/gold-star.png','Safari gold star','level-success-star'));
  box.append(el('p','',state.preview?'TEACHER PREVIEW — NO STARS SAVED':firstTime?'YOU EARNED 1 STAR AND A NEW ITEM!':'GREAT PRACTICE! YOUR STAR IS SAFE.'));
+ box.append(listenButton(screenNarration,'Hear level completion'));
  const next=el('button','continue-safari','NEXT LEVEL '+(stage+2)+' ▶');
  next.onclick=()=>{modal.remove();state.stage=stage+1;setView('game')};
  box.append(next);
@@ -1634,6 +1641,7 @@ function showRescue(){
  box.append(safariArt(w.friendIcon,'friend',w.friend));
  box.append(el('h2','','WORLD COMPLETE!'));
  box.append(el('p','',state.preview?'TEACHER PREVIEW — NO STARS SAVED':'YOU RESCUED '+w.friend.toUpperCase()+'! +10 STARS! YOUR NEW BACKGROUND IS READY.'));
+ box.append(listenButton(screenNarration,'Hear rescue celebration'));
  const mine=el('button','continue-safari','🎒 MY STUFF');
  mine.onclick=()=>{modal.remove();state.stuff.world=state.world;state.stuffPending=null;setView('stuff')};box.append(mine);
  const home=el('button','','NEXT SAFARI WORLD ▶');
@@ -1647,6 +1655,7 @@ function showFriends(){
  completed.forEach(w=>{const tile=el('div','friend-tile');tile.append(safariArt(w.friendIcon,'',w.friend),el('span','',w.friend));gallery.append(tile)});
  box.append(gallery);
  box.append(el('p','','Rescue a new friend at challenge 8 of each safari region.'));
+ box.append(listenButton(screenNarration,'Hear friends information'));
  const close=el('button','','Close');close.onclick=()=>modal.remove();box.append(close);modal.append(box);document.body.append(modal)
 }
 window.addEventListener('keydown',e=>{
