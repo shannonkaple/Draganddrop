@@ -1,10 +1,11 @@
-import {openTeacherTools} from './teacher-tools.mjs?v=teacher-preview-20261109a';
+import {openTeacherTools} from './teacher-tools.mjs?v=teacher-levels-20261110';
+import {grantTeacherLevel,teacherCanOpen} from './teacher-progress.mjs';
 import {GRID,PLANETS,MISSION_NAMES,createMission,createProgress,completedCount,bonusCompletedCount,BONUS_STAGES,planetUnlocked,stageUnlocked,sceneUnlocked,SPACE_SHOP} from './curriculum.mjs?v=classroom-qa-20261105a';
 import {clone,initialMission,selectObject,arrowAction,resizeByHandle,finishMission,purchase,validatedSave,occupiedCells,mazeEnemyTick,fireLaser} from './mechanics.mjs?v=naut-easy-feedback-r1';
 import {GALAXY_MAP,GALAXY_STOPS,LEVEL_STOPS,planetImage} from './art-assets.mjs';
-import {PLAYERS,SHOP_SPRITES,PUZZLE_SPRITES,playerPortrait,friendPortrait,enemyPortrait,earnedItems} from './sprite-assets.mjs?v=map-two-locked-r2';
-import {mountMapTwo} from './map-two.mjs?v=rotate-and-preview-20261109b';
-import {makeCloudSave} from './cloud-save.mjs?v=automatic-progress-by-number-20261109a';
+import {SHOP_SPRITES,PUZZLE_SPRITES,friendPortrait,enemyPortrait,earnedItems,earnedCharacterChoices,earnedCharacterPortrait} from './sprite-assets.mjs?v=earned-only-20261110';
+import {mountMapTwo,LOST_WORLDS} from './map-two.mjs?v=teacher-levels-20261110';
+import {makeCloudSave,updateClassroomStudent} from './cloud-save.mjs?v=teacher-levels-20261110';
 const root=document.getElementById('app');
 let disposeMapTwo=null;
 const $=selector=>root.querySelector(selector);
@@ -42,17 +43,17 @@ function persist(next){
  }catch(error){notify('NOT SAVED. Your previous work is safe. Tell your teacher and try again.',true);return false}
 }
 // All 64 original Map One missions, not eight levels from one planet.
-const mapTwoUnlocked=()=>!!state.progress&&PLANETS.every((_,i)=>completedCount(state.progress,i)===8);
+const mapTwoUnlocked=()=>!!state.progress&&(teacherCanOpen(state.progress,'two',0,0)||PLANETS.every((_,i)=>completedCount(state.progress,i)===8));
 const progressText=()=>state.progress?`${state.progress.stars} stars`:'0 stars';
 /** Render the ENTIRE transparent PNG. Never use atlas background-position cropping. */
 const art=(src,alt,cls='asset-image')=>`<img class="asset-image ${cls}" src="${esc(src||'./assets/standalone/pickup_star.png')}" alt="${esc(alt)}" draggable="false" loading="eager">`;
-const playerImg=()=>art(playerPortrait(state.progress?.playerId),'Your chosen Arrow-Naut','header-player-img');
+const playerImg=()=>art(earnedCharacterPortrait(state.progress),'Your Arrow-Naut','header-player-img');
 function header(){
  const hasStudent=!!state.student&&!!state.progress;
  const studentText=hasStudent?`${state.teachers.find(t=>t.id===state.teacher)?.name||'Teacher'} · #${state.student}`:'';
  return `<header class="topbar" id="main-header"><div class="brand"><img class="astronaut-corner" src="../arrow-naut-jr/assets/explorers/space_panda.png" alt="Nova Panda astronaut game logo" draggable="false"><div class="brand-title"><strong>ARROW-NAUT SPACE ADVENTURE</strong><small>SECOND GRADE · CLICK · MOVE · RESIZE · FIT${hasStudent?' · '+esc(studentText):''}</small></div></div>
  <nav class="center-controls" aria-label="Game controls">${state.teacherPreview?`<button data-action="teacher-menu">Teacher Preview Menu</button><button data-action="teacher-end">End Preview</button>`:hasStudent?
-  `<button class="nav-home-button" data-action="home">🏠 Home Map</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">🌌 Map Two</button>`:''}<button data-action="shop">⭐ Star Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Auto Save</button><button data-action="player" class="choose-player-button">${playerImg()}<span>Change Character</span></button>`:''}</nav>
+  `<button class="nav-home-button" data-action="home">🏠 Home Map</button>${mapTwoUnlocked()?`<button data-action="map-two" class="map-two-entry">🌌 Map Two</button>`:''}<button data-action="shop">⭐ Star Shop · ${state.progress.stars}</button><button data-action="stuff">🎒 My Stuff</button><button type="button" data-action="cloud">☁️ Auto Save</button>${earnedCharacterChoices(state.progress).length>1?`<button data-action="player" class="choose-player-button">${playerImg()}<span>Earned Characters</span></button>`:`<span class="starter-player-label">${playerImg()} Starter</span>`}`:''}</nav>
  <nav class="right-controls" aria-label="Help and student controls"><button type="button" data-action="fullscreen" aria-label="Toggle full screen">Full Screen</button><button data-action="help">❓ How to Play</button><button data-action="teacher">Teacher</button>${hasStudent?'<button data-action="logout">Change Student</button>':''}</nav></header>`;
 }
 function entry(){
@@ -120,7 +121,7 @@ function finalePage(){
  const m=state.mission,run=state.run,z=100/GRID.columns,h=100/GRID.rows;
  const walls=m.walls.map(([x,y])=>`<div class="finale-wall" aria-hidden="true" style="left:${x*z}%;top:${y*h}%;width:${z}%;height:${h}%"></div>`).join('');
  const creatures=run.maze.enemies.map((e,i)=>`<div class="finale-enemy" aria-label="Moving space bad guy ${i+1}" role="img" style="left:${e.x*z}%;top:${e.y*h}%;width:${z}%;height:${h}%">${art(enemyPortrait(m.planetIndex*3+i),'Bad guy '+(i+1),'finale-enemy-pic')}</div>`).join('');
- const player=`<div class="finale-player" aria-label="Your space explorer" style="left:${run.maze.x*z}%;top:${run.maze.y*h}%;width:${z}%;height:${h}%">${art(playerPortrait(state.progress.playerId),'Your character','finale-player-pic')}</div>`;
+ const player=`<div class="finale-player" aria-label="Your space explorer" style="left:${run.maze.x*z}%;top:${run.maze.y*h}%;width:${z}%;height:${h}%">${art(earnedCharacterPortrait(state.progress),'Your character','finale-player-pic')}</div>`;
  const goal=`<div class="finale-goal" role="img" aria-label="Rescue finish" style="left:${m.mazeGoal.x*z}%;top:${m.mazeGoal.y*h}%;width:${z}%;height:${h}%">${art(friendPortrait(m.planetIndex),'Rescue '+m.planet.friend,'finale-rescue-art')}<span>EXIT</span></div>`;
  const shot=run.maze.shot;
  const beam=shot?(()=>{
@@ -167,18 +168,17 @@ function stuff(){
  const collected=earnedItems(state.progress);
  const owned=state.progress.purchases.map(id=>SPACE_SHOP.find(x=>x.id===id)).filter(Boolean);
  const rescued=state.progress.rescued.map(id=>PLANETS.findIndex(p=>p.id===id)).filter(i=>i>=0);
- // Stable inventory key means the chosen explorer stays in each scene when
- // students change portraits; only its artwork changes, never its location.
- const avatar={id:'avatar:self',name:'MY CHARACTER',image:playerPortrait(state.progress.playerId)};
+ // Only rescued characters belong in My Stuff. Preserve legacy avatar placements in save data, but hide them.
+ const mapTwoFriends=LOST_WORLDS.filter(w=>(state.progress.mapTwo?.rescued||[]).includes(w.id));
  const inventory=[
-  avatar,
   ...owned.map(x=>({id:'shop:'+x.id,name:x.name,image:SHOP_SPRITES[x.id]})),
   ...rescued.map(i=>({id:'friend:'+PLANETS[i].id,name:PLANETS[i].friend,image:friendPortrait(i)})),
+  ...mapTwoFriends.map(w=>({id:'lostfriend:'+w.id,name:w.friend,image:w.friendImage})),
   ...collected.map(x=>({id:'earned:'+x.id,name:x.name,image:x.image}))
  ];
  const arranged=(Array.isArray(state.progress.worldScene)?state.progress.worldScene:[])
   .filter(e=>e.planet===sceneWorld&&inventory.some(i=>i.id===e.id));
- return `<main class="main"><div class="page-head"><div><h1>🎒 My Stuff</h1><p>Everything you earned, rescued, or bought is here. Your stars and progress are safe.</p></div><div class="kid-page-actions"><button type="button" data-action="shop">⭐ Star Shop</button><button type="button" class="kid-home-button" data-action="home">🏠 Home Map</button></div></div><div class="space-world-tabs">${PLANETS.map((w,i)=>`<button type="button" data-scene-world="${i}" ${sceneUnlocked(state.progress,i)?'':'disabled title="Beat all eight levels of this world first"'} aria-pressed="${sceneWorld===i}">${esc(w.name)} ${sceneUnlocked(state.progress,i)?'':'· LOCKED'}</button>`).join("")}</div><section class="scene space-scene"><div class="space-arrange-surface" data-scene-board="true" aria-label="Your decorated space world"><img class="space-arrange-background" src="${planetImage(sceneWorld)}" alt="${esc(PLANETS[sceneWorld].name)}" draggable="false">${arranged.map(e=>{const item=inventory.find(i=>i.id===e.id);return `<div class="space-placed" data-move-scene="${esc(e.id)}" style="left:${Math.max(7,Math.min(93,e.x))}%;top:${Math.max(10,Math.min(90,e.y))}%;--scene-scale:${Math.max(.5,Math.min(5,Number(e.scale)||1))}"><span class="scene-resizable-art">${art(item.image,item.name,'space-placed-image')}</span><button type="button" data-put-away="${esc(e.id)}" title="Put away ${esc(item.name)}">×</button><div class="scene-scale-buttons" aria-label="Resize ${esc(item.name)}"><button type="button" data-scene-scale="smaller" data-scene-id="${esc(e.id)}" aria-label="Make ${esc(item.name)} smaller">−</button><button type="button" data-scene-scale="bigger" data-scene-id="${esc(e.id)}" aria-label="Make ${esc(item.name)} bigger">+</button></div></div>`}).join('')}</div><p class="arrange-instructions" role="status">${state.scenePending?'Click an empty place in the picture to put down your selected item.':'Click an item to place it. Drag to move it. Use its + and − buttons to change its size.'}</p><div class="scene-objects"><button type="button" class="scene-object scene-avatar" data-place-item="avatar:self">${art(avatar.image,avatar.name,'scene-object-image')}<small>MY CHARACTER</small></button>${owned.map(item=>`<button type="button" class="scene-object" data-place-item="shop:${esc(item.id)}">${art(SHOP_SPRITES[item.id],item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')}${rescued.map(i=>`<button type="button" class="scene-object rescued-friend" data-place-item="friend:${esc(PLANETS[i].id)}">${art(friendPortrait(i),PLANETS[i].friend,'scene-object-image')}<small>${esc(PLANETS[i].friend)}</small></button>`).join('')}${collected.map(item=>`<button type="button" class="scene-object collected-object" data-place-item="earned:${esc(item.id)}">${art(item.image,item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')||'<p>Complete missions to rescue friends, collect treasures, and shop for decorations.</p>'}</div></section></main>`
+ return `<main class="main"><div class="page-head"><div><h1>🎒 My Stuff</h1><p>Everything you earned, rescued, or bought is here. Your stars and progress are safe.</p></div><div class="kid-page-actions"><button type="button" data-action="shop">⭐ Star Shop</button><button type="button" class="kid-home-button" data-action="home">🏠 Home Map</button></div></div><div class="space-world-tabs">${PLANETS.map((w,i)=>`<button type="button" data-scene-world="${i}" ${sceneUnlocked(state.progress,i)?'':'disabled title="Beat all eight levels of this world first"'} aria-pressed="${sceneWorld===i}">${esc(w.name)} ${sceneUnlocked(state.progress,i)?'':'· LOCKED'}</button>`).join("")}</div><section class="scene space-scene"><div class="space-arrange-surface" data-scene-board="true" aria-label="Your decorated space world"><img class="space-arrange-background" src="${planetImage(sceneWorld)}" alt="${esc(PLANETS[sceneWorld].name)}" draggable="false">${arranged.map(e=>{const item=inventory.find(i=>i.id===e.id);return `<div class="space-placed" data-move-scene="${esc(e.id)}" style="left:${Math.max(7,Math.min(93,e.x))}%;top:${Math.max(10,Math.min(90,e.y))}%;--scene-scale:${Math.max(.5,Math.min(5,Number(e.scale)||1))}"><span class="scene-resizable-art">${art(item.image,item.name,'space-placed-image')}</span><button type="button" data-put-away="${esc(e.id)}" title="Put away ${esc(item.name)}">×</button><div class="scene-scale-buttons" aria-label="Resize ${esc(item.name)}"><button type="button" data-scene-scale="smaller" data-scene-id="${esc(e.id)}" aria-label="Make ${esc(item.name)} smaller">−</button><button type="button" data-scene-scale="bigger" data-scene-id="${esc(e.id)}" aria-label="Make ${esc(item.name)} bigger">+</button></div></div>`}).join('')}</div><p class="arrange-instructions" role="status">${state.scenePending?'Click an empty place in the picture to put down your selected item.':'Click an item to place it. Drag to move it. Use its + and − buttons to change its size.'}</p><div class="scene-objects">${owned.map(item=>`<button type="button" class="scene-object" data-place-item="shop:${esc(item.id)}">${art(SHOP_SPRITES[item.id],item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')}${rescued.map(i=>`<button type="button" class="scene-object rescued-friend" data-place-item="friend:${esc(PLANETS[i].id)}">${art(friendPortrait(i),PLANETS[i].friend,'scene-object-image')}<small>${esc(PLANETS[i].friend)}</small></button>`).join('')}${mapTwoFriends.map(w=>`<button type="button" class="scene-object rescued-friend" data-place-item="lostfriend:${esc(w.id)}">${art(w.friendImage,w.friend,'scene-object-image')}<small>${esc(w.friend)}</small></button>`).join('')}${collected.map(item=>`<button type="button" class="scene-object collected-object" data-place-item="earned:${esc(item.id)}">${art(item.image,item.name,'scene-object-image')}<small>${esc(item.name)}</small></button>`).join('')||'<p>Complete missions to rescue friends, collect treasures, and shop for decorations.</p>'}</div></section></main>`
 }
 function errorPage(){return `<main class="main"><section class="entry" role="alert"><h1>Saved student record needs help</h1><p>${esc(state.dataError)}</p><p>This record has NOT been overwritten. Ask your teacher before trying again.</p><button data-action="students">↩️ Choose Another Number</button></section></main>`}
 function help(){return `<main class="main"><section class="entry how-to"><h1>HOW TO PLAY</h1>
@@ -199,7 +199,7 @@ function modalHtml(){const modal=state.modal;if(!modal)return '';
   const planetIndex=PLANETS.findIndex(p=>p.friend===modal.friend);
   content=`<h2>${modal.friend?'YOU DID IT!':'Mission Complete!'}</h2>${modal.friend?`${art(friendPortrait(planetIndex),modal.friend,'friend-portrait')}<p>You've rescued <strong>${esc(modal.friend)}</strong>!</p>`:''}<div class="big-reward">${modal.stars?"+"+modal.stars+" stars":"Practice replay · No new stars"}</div><button data-action="reward-ok">OK</button>`;
  }else if(modal.kind==='player'){
-  content=`<h2>Choose Your Arrow-Naut</h2><p>Click your space explorer!</p><div class="player-pick-grid">${PLAYERS.map(player=>`<button type="button" data-player="${esc(player.id)}" ${state.progress?.playerId===player.id?'aria-pressed="true"':''}>${art(player.image,player.name,'player-choice-art')}<strong>${esc(player.name)}</strong></button>`).join('')}</div><button data-action="player-close">OK</button>`;
+  content=`<h2>Your Earned Characters</h2><p>Rescue friends to unlock more characters.</p><div class="player-pick-grid">${earnedCharacterChoices(state.progress).map(player=>`<button type="button" data-player="${esc(player.id)}" ${state.progress?.playerId===player.id?'aria-pressed="true"':''}>${art(player.image,player.name,'player-choice-art')}<strong>${esc(player.name)}</strong></button>`).join('')}</div><button data-action="player-close">OK</button>`;
  }
  return `<div class="dialog-scrim"><section class="dialog-panel ${modal.kind==='player'?'player-selection-dialog':''}" role="dialog" aria-modal="true" aria-label="${modal.kind==='intro'?'Meet your rescue friend':modal.kind==='player'?'Choose your Arrow-Naut':'Mission complete'}">${content}${state.error?`<p class="error-banner" role="alert">${esc(state.error)}</p>`:''}</section></div>`;
 }
@@ -320,7 +320,7 @@ function onAction(action){
   case 'map-two':if(state.teacherPreview||mapTwoUnlocked()){state.view='map-two';state.modal=null;state.mission=null;state.run=null;render()}break;
  case 'planet':showPlanet(state.planet);break;
  case 'shop':if(state.progress){state.view='shop';state.modal=null;render()}break;
- case 'player':if(state.progress){state.modal={kind:'player'};render()}break;
+ case 'player':if(state.progress&&earnedCharacterChoices(state.progress).length>1){state.modal={kind:'player'};render()}break;
  case 'player-close':state.modal=null;render();break;
  case 'stuff':if(state.progress){state.view='stuff';state.modal=null;render()}break;
  case 'help':state.view='help';state.modal=null;render();break;
@@ -365,7 +365,15 @@ root.addEventListener('click',event=>{
  if(el.dataset.planet){showPlanet(Number(el.dataset.planet));return}
  if(el.dataset.level!==undefined){startMission(Number(el.dataset.level));return}
  if(el.dataset.sceneWorld!==undefined){const i=Number(el.dataset.sceneWorld);if(sceneUnlocked(state.progress,i)&&persist({...state.progress,scenePlanet:i})){state.error='';render()}return}
- if(el.dataset.placeItem){state.scenePending=el.dataset.placeItem;state.error='';render();return}
+ if(el.dataset.placeItem){
+  const id=el.dataset.placeItem;
+  const allowed=state.progress&&(id.startsWith('shop:')?state.progress.purchases.includes(id.slice(5)):
+   id.startsWith('friend:')?state.progress.rescued.includes(id.slice(7)):
+   id.startsWith('lostfriend:')?(state.progress.mapTwo?.rescued||[]).includes(id.slice(11)):
+   id.startsWith('earned:')?earnedItems(state.progress).some(x=>x.id===id.slice(7)):false);
+  if(!allowed){notify('Rescue or earn this item first.',true);return}
+  state.scenePending=id;state.error='';render();return
+ }
  if(el.dataset.sceneScale&&el.dataset.sceneId){
   const planet=activeScenePlanet();
   const current=Array.isArray(state.progress.worldScene)?state.progress.worldScene:[];
@@ -381,7 +389,7 @@ root.addEventListener('click',event=>{
   if(persist({...state.progress,worldScene:current.filter(x=>!(x.id===el.dataset.putAway&&x.planet===planet))})){state.error='';render()}return;
  }
  if(el.dataset.buy){applyPurchase(el.dataset.buy);return}
- if(el.dataset.player){if(state.progress&&PLAYERS.some(p=>p.id===el.dataset.player)){if(persist({...state.progress,playerId:el.dataset.player})){state.error='';state.modal=null;render()}}return}
+ if(el.dataset.player){if(state.progress&&earnedCharacterChoices(state.progress).some(p=>p.id===el.dataset.player)){if(persist({...state.progress,playerId:el.dataset.player})){state.error='';state.modal=null;render()}}return}
  if(el.dataset.resize){return}
  if(el.dataset.select){chooseObject(el.dataset.select,'move');return}
  if(el.dataset.boundary){notify('Click INSIDE the box, or click its corner handle to resize.',true);return}
