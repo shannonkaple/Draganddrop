@@ -566,8 +566,15 @@ function count(w){return state.done.filter(i=>Math.floor(i/8)===w).length}
 function unlocked(w){return state.preview||w===0||count(w-1)===8}
 function stageUnlocked(w,s){return state.preview||s===0||done(w,s-1)}
 function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
+// Extras unlock only when all eight levels in ALL eight worlds are complete.
+function safariExtrasUnlocked(){return state.preview||WORLDS.every((_,i)=>count(i)===8)}
 function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);clearInterval(missionClock);tapClock=null;tapDrift=null;missionClock=null;}
-function setView(v){clearTimeout(advanceTimer);stopTapTimers();state.view=v;run=null;render()}
+function setView(v){
+ clearTimeout(advanceTimer);stopTapTimers();
+ // Do not open hidden extras through an old button, saved state, or direct call.
+ state.view=(v==='shop'||v==='stuff')&&!safariExtrasUnlocked()?'home':v;
+ run=null;render();
+}
 function speak(text){
  if(!('speechSynthesis' in window))return;
  window.speechSynthesis.cancel();
@@ -663,8 +670,10 @@ function header(){
  if(state.teacher||state.preview){
   const home=el('button','safari-home-button');home.type='button';home.setAttribute('aria-label','HOME — Safari world map');
   home.append(safariHomePicture(),el('span','','HOME'));home.onclick=()=>setView('home');nav.append(home);
-  const shop=el('button','','⭐ Star Shop');shop.onclick=()=>setView('shop');nav.append(shop);
-  const stuff=el('button','','🎒 My Stuff');stuff.onclick=()=>{state.stuffPending=null;setView('stuff')};nav.append(stuff);
+  if(safariExtrasUnlocked()){
+   const shop=el('button','','⭐ Star Shop');shop.onclick=()=>setView('shop');nav.append(shop);
+   const stuff=el('button','','🎒 My Stuff');stuff.onclick=()=>{state.stuffPending=null;setView('stuff')};nav.append(stuff);
+  }
   const avatar=el('button','safari-character-switch');avatar.type='button';
   avatar.append(shopImage('./assets/animals/'+(state.stuff.character||'frog')+'.png','Current explorer','current-explorer-thumb'));
   avatar.append(el('span','','Change Character'));
@@ -690,8 +699,8 @@ function render(){app.replaceChildren(header());updateFullscreenButton();
  if(state.view==='home'){renderHome();return}
  if(state.view==='world'){renderWorld();return}
  if(state.view==='game'){renderGame();return}
- if(state.view==='shop'){renderShop();return}
- if(state.view==='stuff'){renderStuff();return}
+ if(state.view==='shop'){if(safariExtrasUnlocked())renderShop();else setView('home');return}
+ if(state.view==='stuff'){if(safariExtrasUnlocked())renderStuff();else setView('home');return}
 }
 
 /* My Stuff is an independent Skills Safari student record. Arrow-Nauts storage stays untouched. */
@@ -779,7 +788,7 @@ function shopImage(src,alt,cls='shop-art'){
 }
 function shopNotice(main,msg){const p=el('p','shop-notice',msg);p.setAttribute('role','status');main.append(p)}
 function buyItem(item){
- if(!item||state.stuff.purchases.includes(item.id))return;
+ if(!safariExtrasUnlocked()||!item||state.stuff.purchases.includes(item.id))return;
  if(item.kind==='background'&&!worldSceneUnlocked(item.world))return;
  if(item.levelSpecific&&!state.preview&&!done(item.world,item.level))return;
  if(spendableStars()<item.price){alert('Play more levels to earn stars!');return}
@@ -1626,7 +1635,7 @@ function showLevelComplete(world,stage,firstTime){
  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
  box.append(el('h2','','LEVEL '+(stage+1)+' COMPLETE!'));
  box.append(shopImage('./assets/pieces/gold-star.png','Safari gold star','level-success-star'));
- box.append(el('p','',state.preview?'TEACHER PREVIEW — NO STARS SAVED':firstTime?'YOU EARNED 1 STAR AND A NEW ITEM!':'GREAT PRACTICE! YOUR STAR IS SAFE.'));
+ box.append(el('p','',state.preview?'TEACHER PREVIEW — NO STARS SAVED':firstTime?'YOU EARNED A STAR! KEEP EXPLORING!':'GREAT PRACTICE! YOUR STAR IS SAFE.'));
  box.append(listenButton(screenNarration,'Hear level completion'));
  const next=el('button','continue-safari','NEXT LEVEL '+(stage+2)+' ▶');
  next.onclick=()=>{modal.remove();state.stage=stage+1;setView('game')};
@@ -1640,11 +1649,18 @@ function showRescue(){
  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
  box.append(safariArt(w.friendIcon,'friend',w.friend));
  box.append(el('h2','','WORLD COMPLETE!'));
- box.append(el('p','',state.preview?'TEACHER PREVIEW — NO STARS SAVED':'YOU RESCUED '+w.friend.toUpperCase()+'! +10 STARS! YOUR NEW BACKGROUND IS READY.'));
+ const unlockedExtras=safariExtrasUnlocked();
+ box.append(el('p','',state.preview?'TEACHER PREVIEW — NO STARS SAVED':
+  unlockedExtras?'YOU RESCUED '+w.friend.toUpperCase()+'! ALL 64 LEVELS COMPLETE! YOUR STAR SHOP AND MY STUFF ARE UNLOCKED!':
+  'YOU RESCUED '+w.friend.toUpperCase()+'! +10 STARS! KEEP EXPLORING!'));
  box.append(listenButton(screenNarration,'Hear rescue celebration'));
- const mine=el('button','continue-safari','🎒 MY STUFF');
- mine.onclick=()=>{modal.remove();state.stuff.world=state.world;state.stuffPending=null;setView('stuff')};box.append(mine);
- const home=el('button','','NEXT SAFARI WORLD ▶');
+ if(unlockedExtras){
+  const mine=el('button','continue-safari','🎒 MY STUFF');
+  mine.onclick=()=>{modal.remove();state.stuff.world=state.world;state.stuffPending=null;setView('stuff')};box.append(mine);
+  const shop=el('button','','⭐ STAR SHOP');
+  shop.onclick=()=>{modal.remove();setView('shop')};box.append(shop);
+ }
+ const home=el('button','',unlockedExtras?'BACK TO SAFARI MAP':'NEXT SAFARI WORLD ▶');
  home.onclick=()=>{modal.remove();setView('home')};box.append(home);
  modal.append(box);document.body.append(modal);
 }
