@@ -86,7 +86,7 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 @media(max-width:780px){.topbar{grid-template-columns:1fr auto}.nav{grid-column:1 / -1;order:3}.nav.right{grid-column:2;grid-row:1;order:0}.map-stage{min-height:300px}.choices.numbers{grid-template-columns:repeat(6,1fr)}.pin{width:70px;min-height:67px}.pin.level{width:58px}.map-heading{top:1%}}
 @media(max-height:650px){.topbar{min-height:58px}.game-page{gap:4px}.directions{padding:4px}.playfield{max-height:calc(100dvh - 165px)}}
 
-/* Safari mini-games — floating objects, collecting, timed hunts and double-click rescue. */
+/* Safari mini-games — floating objects, collecting, untimed hunts and double-click rescue. */
 .tap-zone{position:absolute;top:72px;left:6%;right:6%;bottom:12px;z-index:5}
 .tap-item{position:absolute;display:grid;place-items:center;width:clamp(62px,7.5vw,96px);height:clamp(62px,7.5vw,96px);font-size:clamp(34px,4.4vw,57px);line-height:1;transform:translate(-50%,-50%);border:3px solid #468458;border-radius:21px;background:#fffae9ec;box-shadow:0 5px 0 #8bb48d7a;touch-action:manipulation;transition:left .65s ease,top .65s ease}
 .tap-item.float{animation:safari-float 1.8s ease-in-out infinite alternate}
@@ -109,8 +109,6 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .key-stage .keycap{font:clamp(67px,11vw,120px)/1 VAG,Arial,sans-serif;color:#305c4a;background:#fffbe7;border:4px solid #7fba87;border-radius:20px;min-width:135px;padding:12px 20px;text-align:center}
 .key-scenery{font-size:clamp(27px,4vw,54px);letter-spacing:8px;min-height:52px;text-align:center}
 .key-progress{background:#fffdf3ed;padding:7px 15px;border-radius:30px;font-size:clamp(13px,1.3vw,19px);text-align:center}
-.mission-timer{position:absolute;right:12px;top:11px;z-index:9;background:#fff8c3;border:2px solid #c9a852;border-radius:24px;padding:5px 12px;font-size:16px}
-.mission-timer.urgent{color:#b72828}
 .arrow-pickup{background:#eaf6c8!important;border:2px dashed #b49d4f}
 
 
@@ -210,13 +208,11 @@ h1,h2,h3,.title-font{font-family:Homebody,VAG,Arial,sans-serif;letter-spacing:.0
 .guide-picture{display:grid;place-items:center;min-width:43px;height:47px;font:700 28px Arial,sans-serif}
 .guide-picture .game-animal-img{width:46px;height:46px;object-fit:contain}
 .guide-progress{padding:5px 10px;border-radius:12px;background:#dff4d3;color:#205e38;font-size:clamp(16px,1.7vw,22px);white-space:nowrap}
-.guide-clock{font-size:clamp(13px,1.35vw,18px);white-space:nowrap;color:#9b5722;font-weight:bold}
-.guide-clock:empty{display:none}
 .guide-status{font:700 clamp(12px,1vw,15px)/1.15 Arial,sans-serif;color:#34604b;min-width:0}
 .guide-status.error{color:#ad452b}
 .guide-listen{min-width:46px;min-height:42px;font-size:25px;padding:3px}
 .new-skill-guide{font-size:clamp(11px,.9vw,13px);padding:3px 6px}
-.question-bubble,.tap-meter,.scroll-score,.key-progress,.mission-timer,.maze-stack>.small-note{display:none!important}
+.question-bubble,.tap-meter,.scroll-score,.key-progress,.maze-stack>.small-note{display:none!important}
 .tap-zone{top:10px;bottom:10px}
 .card-grid{padding-top:10px}
 .key-stage{padding-top:10px}
@@ -436,7 +432,7 @@ const MAZE_ROCKS=[
 ];
 const seqLengths=[1,1,2,2,3,3,3,4];
 const state={view:'teachers',teacher:null,number:null,world:0,stage:0,done:[],preview:false,session:null,stuff:{purchases:[],placed:[],backgrounds:{},world:0},stuffPending:null,stuffCategory:'earned',shopWorld:0};
-let run=null,advanceTimer=null,tapClock=null,tapDrift=null,missionClock=null;
+let run=null,advanceTimer=null,tapDrift=null;
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 const PNG_ANIMALS=Object.freeze({Toucan:'toucan',Monkey:'monkey',Parrot:'parrot',Zebra:'zebra',Elephant:'elephant',Giraffe:'giraffe',Otter:'otter',Lion:'lion',Frog:'frog',Butterfly:'butterfly',Turtle:'turtle',Hippo:'hippo',Lizard:'lizard',Ladybug:'ladybug',Crab:'crab',Fish:'fish',TropicalFish:'tropical-fish'});
 const EMOJI_ANIMAL_PNG=Object.freeze({'🐒':'monkey','🦜':'parrot','🦓':'zebra','🐘':'elephant','🦒':'giraffe','🦦':'otter','🦁':'lion','🐸':'frog','🦋':'butterfly','🐢':'turtle','🦛':'hippo','🦎':'lizard','🐞':'ladybug','🦀':'crab','🐟':'fish','🐠':'tropical-fish'});
@@ -595,9 +591,9 @@ function stageUnlocked(w,s){return state.preview||(unlocked(w)&&(s===0||done(w,s
 function totalStars(){return state.done.reduce((t,id)=>t+(id%8===7?10:1),0)}
 // Extras unlock only when all eight levels in ALL eight worlds are complete.
 function safariExtrasUnlocked(){return state.preview||WORLDS.every((_,i)=>count(i)===8)}
-function stopTapTimers(){clearInterval(tapClock);clearInterval(tapDrift);clearInterval(missionClock);tapClock=null;tapDrift=null;missionClock=null;}
+function stopGameMotion(){clearInterval(tapDrift);tapDrift=null;}
 function setView(v){
- clearTimeout(advanceTimer);stopTapTimers();
+ clearTimeout(advanceTimer);stopGameMotion();
  // Do not open hidden extras through an old button, saved state, or direct call.
  if((v==='game'||v==='world')&&state.world===6&&!DRAG_WORLD_READY&&!state.preview)v='home';
  state.view=(v==='shop'||v==='stuff')&&!safariExtrasUnlocked()?'home':v;
@@ -1147,7 +1143,6 @@ function renderGame(){
  const txt=el('strong','guide-command','');txt.id='guide-command';box.append(txt);
  const picture=el('span','guide-picture');picture.id='guide-picture';box.append(picture);
  const progress=el('span','guide-progress','');progress.id='guide-progress';box.append(progress);
- const clock=el('span','guide-clock','');clock.id='guide-clock';box.append(clock);
  // First lesson in each NEW skill map includes a non-blocking visual how-to.
  if(state.stage===0&&(w.type==='drag'||w.type==='scroll')){
   const coach=el('span','new-skill-guide',w.type==='drag'?'☝️ PRESS + HOLD  →  ➡️ SLIDE  →  ✋ RELEASE':'✌️ TWO FINGERS  →  ⬇️ SLIDE DOWN  →  🐾 FIND');
@@ -1198,8 +1193,6 @@ function updateGuide(){
  if(target!==undefined&&target!==null&&target!=='')putAnimalArt(img,target);
  const progress=document.getElementById('guide-progress');
  if(progress)progress.textContent=value+' / '+goal;
- const timer=document.getElementById('guide-clock');
- if(timer)timer.textContent=Number.isFinite(run.secondsRemaining)?'⏱ '+Math.max(0,run.secondsRemaining)+'s':'';
 }
 function shuffled(values){const a=values.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const previousSafariClues=new Map();
@@ -1232,13 +1225,13 @@ function animalChoices(want,stage,limit){
 
 const CLICK_GAMES=[
  {name:'Safari Supply Search',help:'CLICK FOUR safari supplies to pack your explorer bag!',mode:'collect',items:['🎒','🧭','📷','🔭'],goal:4},
- {name:'Butterfly Catch',help:'CLICK SIX floating butterflies before they fly away!',mode:'hunt',icon:'🦋',other:['🌿','🌼','🐞'],goal:6,slots:7,moving:true},
+ {name:'Butterfly Catch',help:'CLICK SIX floating butterflies to collect them!',mode:'hunt',icon:'🦋',other:['🌿','🌼','🐞'],goal:6,slots:7,moving:true},
  {name:'Banana Bonanza',help:'CLICK SEVEN BANANAS. Leave the other fruit alone!',mode:'hunt',icon:'🍌',other:['🍎','🥥','🍍'],goal:7,slots:9},
  {name:'Camouflage Finder',help:'Find and CLICK the animal shown in the clue. The clue changes!',mode:'sequence',order:['🐸','🦎','🐒','🦓','🦜'],other:['🐘','🦁','🦋'],goal:5,slots:8},
  {name:'Firefly Flash',help:'CLICK EIGHT floating FIREFLIES in the jungle!',mode:'hunt',icon:'✨',other:['🍃','🌸','⭐'],goal:8,slots:9,moving:true,fast:true},
  {name:'Safari Photo Hunt',help:'Follow SIX different animal clues and CLICK the moving animals!',mode:'sequence',order:['🦒','🐘','🦓','🦁','🐒','🦜'],other:['🐢','🦋','🐸'],goal:6,slots:10,moving:true},
- {name:'Jungle Click Rush',help:'CLICK TEN floating STARS in 21 seconds!',mode:'hunt',icon:'⭐',other:['🌿','🌸','🍃'],goal:10,slots:10,moving:true,fast:true,seconds:21},
- {name:'Rescue the Toucan',help:'RESCUE THE TOUCAN! CLICK TWELVE floating FEATHERS in 32 seconds!',mode:'hunt',icon:'🪶',other:['🍃','🦋','🌼'],goal:12,slots:10,moving:true,fast:true,seconds:32}
+ {name:'Jungle Click Rush',help:'CLICK TEN floating STARS to finish the jungle hunt!',mode:'hunt',icon:'⭐',other:['🌿','🌸','🍃'],goal:10,slots:10,moving:true,fast:true},
+ {name:'Rescue the Toucan',help:'RESCUE THE TOUCAN! CLICK TWELVE floating FEATHERS!',mode:'hunt',icon:'🪶',other:['🍃','🦋','🌼'],goal:12,slots:10,moving:true,fast:true}
 ];
 const DOUBLE_GAMES=[
  {name:'Open Supply Crates',help:'DOUBLE-CLICK FOUR crates to unpack them!',mode:'collect',items:['📦','📦','📦','📦'],goal:4},
@@ -1247,8 +1240,8 @@ const DOUBLE_GAMES=[
  {name:'Unlock the Gates',help:'DOUBLE-CLICK the six LOCKS. Ignore the other objects!',mode:'hunt',icon:'🔒',other:['🪵','🌿','🌼'],goal:6,slots:8},
  {name:'Monkey Snack Time',help:'DOUBLE-CLICK SEVEN moving BANANAS for the monkeys!',mode:'hunt',icon:'🍌',other:['🥥','🍎','🍍'],goal:7,slots:9,moving:true},
  {name:'Secret Jungle Nests',help:'DOUBLE-CLICK the animal nest clue. Find SIX clues in order!',mode:'sequence',order:['🪺','🥚','🐣','🪺','🥚','🐣'],other:['🍃','🌼','🐸'],goal:6,slots:9,moving:true},
- {name:'Double-Click Dash',help:'DOUBLE-CLICK EIGHT floating stars in 28 seconds!',mode:'hunt',icon:'⭐',other:['🌼','🍃','🦋'],goal:8,slots:10,moving:true,fast:true,seconds:28},
- {name:'Monkey Rescue Race',help:'RESCUE THE MONKEY! DOUBLE-CLICK TEN GATES in 35 seconds!',mode:'hunt',icon:'🔒',other:['🌿','🪵','🌼'],goal:10,slots:10,moving:true,fast:true,seconds:35}
+ {name:'Double-Click Dash',help:'DOUBLE-CLICK EIGHT floating stars!',mode:'hunt',icon:'⭐',other:['🌼','🍃','🦋'],goal:8,slots:10,moving:true,fast:true},
+ {name:'Monkey Rescue Race',help:'RESCUE THE MONKEY! DOUBLE-CLICK TEN GATES!',mode:'hunt',icon:'🔒',other:['🌿','🪵','🌼'],goal:10,slots:10,moving:true,fast:true}
 ];
 function startTapGame(type,stage,puzzle){
  const twice=type==='double',config=(twice?DOUBLE_GAMES:CLICK_GAMES)[stage],action=twice?'DOUBLE-CLICK':'CLICK';
@@ -1257,17 +1250,14 @@ function startTapGame(type,stage,puzzle){
  run.collectOrder=config.mode==='collect'&&new Set(config.items).size>1?freshPromptOrder(config.items,'collect:'+type+':'+stage):null;
  const label=promptBadge(config.name.toUpperCase()+' · '+action);
  const zone=el('div','tap-zone');puzzle.append(zone);
- const meter=el('div','tap-meter'),count=el('span',''),timeLabel=el('span','tap-clock');
- meter.append(count,timeLabel);puzzle.append(meter);
- let time=config.seconds||0;
+ const meter=el('div','tap-meter'),count=el('span','');
+ meter.append(count);puzzle.append(meter);
  const number=config.slots||config.items.length, buttons=[];
  function refresh(){
   count.textContent='⭐ '+run.taps+' / '+config.goal;
-  timeLabel.textContent=config.seconds?'⏱ '+time+' SECONDS':'';
-  timeLabel.classList.toggle('urgent',config.seconds&&time<=12);
   if(config.mode==='sequence')label.textContent=action+' '+(run.clueOrder[run.taps]||'DONE');
   else if(run.collectOrder)label.textContent=action+' '+(run.collectOrder[run.taps]||'DONE');
-  run.secondsRemaining=config.seconds?time:null;updateGuide();
+  updateGuide();
  }
  function icons(){
   if(config.mode==='collect')return shuffled(config.items);
@@ -1301,7 +1291,7 @@ function startTapGame(type,stage,puzzle){
    }
   },250);
   feedback('Great '+(twice?'double-click':'click')+'! ⭐ '+run.taps+' / '+config.goal);
-  if(run.taps===config.goal){run.active=false;stopTapTimers();completeLevel();return}
+  if(run.taps===config.goal){run.active=false;stopGameMotion();completeLevel();return}
   if(config.mode==='hunt'){
    setTimeout(()=>{
     if(!run||run.complete||!run.active||state.view!=='game')return;
@@ -1334,15 +1324,6 @@ function startTapGame(type,stage,puzzle){
    const x=a.style.left,y=a.style.top;a.style.left=b.style.left;a.style.top=b.style.top;b.style.left=x;b.style.top=y;
   },3600);
  }
- if(config.seconds)tapClock=setInterval(()=>{
-  if(!run||run.complete||state.view!=='game'){stopTapTimers();return}
-  time--;refresh();if(time>0)return;
-  run.active=false;stopTapTimers();
-  const retry=el('div','tap-again');retry.append(el('h2','','TIME IS UP!'));
-  retry.append(el('p','','You caught '+run.taps+' of '+config.goal+'. Try again!'));
-  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>setView('game');
-  retry.append(button);puzzle.append(retry);
- },1000);
 }
 
 
@@ -1353,8 +1334,8 @@ const LETTER_GAMES=[
  {title:'Treasure Letter Code',help:'Unlock the treasure chest with FIVE letter keys!',keys:['K','L','D','R','P'],kind:'code',decor:'🗝️'},
  {title:'Egg Rescue',help:'Press the letters to save SIX parrot eggs!',keys:['E','N','B','T','M','G'],kind:'egg',decor:'🥚'},
  {title:'Parrot Echo',help:'Copy SEVEN letter calls with your keyboard!',keys:['W','Y','N','V','S','D','J'],kind:'echo',decor:'🎵'},
- {title:'Letter Sky Race',help:'Catch SEVEN letter clues using the keyboard before the timer ends!',keys:['R','M','F','P','K','H','Z'],kind:'race',decor:'✨',seconds:50},
- {title:'Rescue the Parrot',help:'RESCUE THE PARROT! Press EIGHT letter clues before time runs out!',keys:['Z','Q','J','X','P','R','A','T'],kind:'rescue',decor:'🦜',seconds:65}
+ {title:'Letter Sky Race',help:'Find SEVEN letter clues using your keyboard!',keys:['R','M','F','P','K','H','Z'],kind:'race',decor:'✨'},
+ {title:'Rescue the Parrot',help:'RESCUE THE PARROT! Press EIGHT letter clues!',keys:['Z','Q','J','X','P','R','A','T'],kind:'rescue',decor:'🦜'}
 ];
 const NUMBER_GAMES=[
  {title:'Zebra Number Finder',help:'Find 5, 2 and 7 on your REAL keyboard!',keys:['5','2','7'],kind:'find',decor:'🦓'},
@@ -1363,8 +1344,8 @@ const NUMBER_GAMES=[
  {title:'Number Treasure Lock',help:'Unlock the treasure using the FOUR-number code!',keys:['9','0','3','6'],kind:'code',decor:'🔐'},
  {title:'Fruit Basket Numbers',help:'COUNT each basket of fruit and press the number!',keys:['3','5','7','2','4'],kind:'count',decor:'🍌'},
  {title:'Zebra Stripe Signals',help:'Press the numbers in the order they appear!',keys:['8','2','5','0','7','1'],kind:'signal',decor:'🦓'},
- {title:'Number Sprint',help:'Press SEVEN number clues before the clock runs out!',keys:['5','9','1','6','0','3','8'],kind:'race',decor:'⭐',seconds:48},
- {title:'Rescue the Zebra',help:'RESCUE THE ZEBRA! Find EIGHT number keys before time runs out!',keys:['7','2','9','0','4','8','1','6'],kind:'rescue',decor:'🦓',seconds:65}
+ {title:'Number Sprint',help:'Press SEVEN number clues on your keyboard!',keys:['5','9','1','6','0','3','8'],kind:'race',decor:'⭐'},
+ {title:'Rescue the Zebra',help:'RESCUE THE ZEBRA! Find EIGHT number keys!',keys:['7','2','9','0','4','8','1','6'],kind:'rescue',decor:'🦓'}
 ];
 const ARROW_GAMES=[
  {title:'Drive to Camp',help:'CLICK the jeep, then steer with keyboard ARROWS to the camp!',points:[],rocks:[],decor:'⛺'},
@@ -1373,25 +1354,9 @@ const ARROW_GAMES=[
  {title:'Rocky River Crossing',help:'Steer around rocks, collect the key and reach camp!',points:[[3,0]],rocks:[[2,1],[2,2],[4,3]],decor:'🔑'},
  {title:'Waterhole Explorer',help:'Collect TWO water buckets before returning to camp!',points:[[1,0],[6,4]],rocks:[[1,2],[3,2],[5,2]],decor:'🪣'},
  {title:'Elephant Supply Trail',help:'Pick up supplies from TWO camps and finish the trail!',points:[[1,4],[6,0]],rocks:[[2,1],[2,2],[2,3],[4,2]],decor:'🎒'},
- {title:'Arrow-Key Safari Race',help:'Collect BOTH checkpoint stars and reach camp before time runs out!',points:[[1,4],[6,0]],rocks:[[2,1],[2,2],[2,3],[4,2]],decor:'⭐',seconds:80},
- {title:'Rescue the Elephant',help:'RESCUE THE ELEPHANT! Collect THREE rescue badges and reach camp!',points:[[1,4],[4,4],[6,0]],rocks:[[2,2],[3,2],[4,2],[5,2],[3,1],[5,3]],decor:'🏅',seconds:100}
+ {title:'Arrow-Key Safari Race',help:'Collect BOTH checkpoint stars and reach camp!',points:[[1,4],[6,0]],rocks:[[2,1],[2,2],[2,3],[4,2]],decor:'⭐'},
+ {title:'Rescue the Elephant',help:'RESCUE THE ELEPHANT! Collect THREE rescue badges and reach camp!',points:[[1,4],[4,4],[6,0]],rocks:[[2,2],[3,2],[4,2],[5,2],[3,1],[5,3]],decor:'🏅'}
 ];
-function showMissionClock(seconds){
- if(!seconds)return;
- let remaining=seconds;run.secondsRemaining=remaining;updateGuide();const timer=el('div','mission-timer','⏱ '+remaining+'s'),board=document.getElementById('game-board');
- board.append(timer);
- missionClock=setInterval(()=>{
-  if(state.view!=='game'||!run||run.complete){clearInterval(missionClock);return}
-  remaining--;timer.textContent='⏱ '+remaining+'s';timer.classList.toggle('urgent',remaining<=15);run.secondsRemaining=remaining;updateGuide();
-  if(remaining>0)return;
-  stopTapTimers();
-  if(run)run.active=false;
-  const again=el('div','tap-again');again.append(el('h2','','TIME IS UP!'));
-  again.append(el('p','','Try the same challenge again. Your finished levels are safe.'));
-  const button=el('button','','↻ TRY AGAIN');button.onclick=()=>setView('game');
-  again.append(button);board.append(again);
- },1000);
-}
 function startKeyGame(type,stage,puzzle){
  const spec=(type==='letter'?LETTER_GAMES:NUMBER_GAMES)[stage];
  run.keys=freshPromptOrder(spec.keys,'keyboard:'+type+':'+stage);run.step=0;run.active=true;run.spec=spec;
@@ -1402,7 +1367,6 @@ function startKeyGame(type,stage,puzzle){
  run.keyDots=el('div','key-progress','');stack.append(run.keyDots);
  puzzle.append(stack);
  updateKeyGame();
- showMissionClock(spec.seconds);
 }
 function updateKeyGame(){
  if(!run||run.complete)return;
@@ -1427,7 +1391,6 @@ function startArrowGame(stage,puzzle){
  run.grid=el('div','maze');wrap.append(run.grid);
  run.arrowHint=el('div','small-note','Click the jeep. Collect every '+spec.decor+' before camp ⛺.');wrap.append(run.arrowHint);
  puzzle.append(wrap);paintMaze();
- showMissionClock(spec.seconds);
 }
 
 
@@ -1438,8 +1401,8 @@ const SELECT_GAMES=[
  {title:'Swap Elephant and Giraffe',help:'Click the elephant and giraffe. Use arrows to move each one to its matching picture!',icons:['🐘','🦒'],kind:'swap',reverse:true},
  {title:'Frog Collects Two Stars',help:'SELECT the frog. Use ARROWS to collect TWO GOLDEN STARS before docking!',icons:['🐸'],kind:'checkpoint',beacons:[[38,53],[56,53]]},
  {title:'Move Zebra, Giraffe and Elephant',help:'Click each animal. Use the arrow keys to match its picture.',icons:['🦓','🦒','🐘'],kind:'shuffle',reverse:true},
- {title:'Race Monkey, Zebra and Frog',help:'Click the monkey, zebra and frog. Use arrows to move them home and collect the star!',icons:['🐒','🦓','🐸'],kind:'race',beacons:[[42,50]],seconds:85},
- {title:'Rescue Four Safari Animals',help:'Rescue the giraffe, lion, elephant and zebra. Use arrows and collect two badges!',icons:['🦒','🦁','🐘','🦓'],kind:'rescue',beacons:[[40,48],[58,68]],seconds:115}
+ {title:'Race Monkey, Zebra and Frog',help:'Click the monkey, zebra and frog. Use arrows to move them home and collect the star!',icons:['🐒','🦓','🐸'],kind:'race',beacons:[[42,50]]},
+ {title:'Rescue Four Safari Animals',help:'Rescue the giraffe, lion, elephant and zebra. Use arrows and collect two badges!',icons:['🦒','🦁','🐘','🦓'],kind:'rescue',beacons:[[40,48],[58,68]]}
 ];
 const DRAG_GAMES=[
  {title:'Banana Basket',help:'Click and hold the banana. Drag it to the basket, then let go!',icons:['🍌'],kind:'basket',shared:true},
@@ -1448,8 +1411,8 @@ const DRAG_GAMES=[
  {title:'Match Backpack, Telescope and Camera',help:'DRAG THREE different safari supplies into their matching spots!',icons:['🎒','🔭','📷'],kind:'matching'},
  {title:'Move Frog and Turtle to the Rafts',help:'Drag the frog and turtle onto the moving rafts!',icons:['🐸','🐢'],kind:'moving',moving:true},
  {title:'Fill the Picnic Basket',help:'Drag the coconut, apple, banana and pineapple into the picnic basket!',icons:['🥥','🍎','🍌','🍍'],kind:'basket',shared:true},
- {title:'Deliver Backpack, Fish and Compass',help:'Drag the backpack, fish and compass to their matching pictures!',icons:['🎒','🐟','🧭'],kind:'race',seconds:85},
- {title:'Rescue the Otter',help:'RESCUE THE OTTER! DRAG FOUR river supplies into their matching spots!',icons:['🐟','🦀','🪣','🐚'],kind:'rescue',seconds:115}
+ {title:'Deliver Backpack, Fish and Compass',help:'Drag the backpack, fish and compass to their matching pictures!',icons:['🎒','🐟','🧭'],kind:'race'},
+ {title:'Rescue the Otter',help:'RESCUE THE OTTER! DRAG FOUR river supplies into their matching spots!',icons:['🐟','🦀','🪣','🐚'],kind:'rescue'}
 ];
 function startMoveGame(type,stage,puzzle){
  const dragging=type==='drag',spec=(dragging?DRAG_GAMES:SELECT_GAMES)[stage];
@@ -1508,7 +1471,6 @@ function startMoveGame(type,stage,puzzle){
    item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectPiece()}});
   }
  });
- if(spec.seconds)showMissionClock(spec.seconds);
 }
 function checkMoveCheckpoints(p){
  if(!run?.beacons?.length)return;
@@ -1545,8 +1507,8 @@ const SCROLL_GAMES=[
  {title:'Find Paw Print, Binoculars and Map',help:'Scroll down and find the paw print, binoculars and safari map!',total:20,targets:[['🐾',5],['BINOCULARS',11],['🗺️',16]]},
  {title:'Up and Down Safari',help:'SCROLL DOWN for a STAR, back UP for a COMPASS, then DOWN for a GEM!',total:22,targets:[['⭐',16],['🧭',1],['💎',19]]},
  {title:'Ranger Supply Search',help:'SCROLL down the supply list to find FOUR lost safari supplies!',total:25,targets:[['⛺',5],['🪣',11],['📷',17],['🎒',22]]},
- {title:'Scroll Scavenger Sprint',help:'FIND FIVE hidden pictures by SCROLLING before the timer runs out!',total:27,targets:[['🦋',5],['🐒',10],['🐘',15],['🦒',20],['🪶',24]],seconds:90},
- {title:'Rescue the Lion',help:'Find the medal, lion, key, butterfly, compass and star. Scroll up and down!',total:30,targets:[['🏅',5],['🦁',12],['🔑',18],['🦋',24],['🧭',2],['⭐',28]],seconds:120}
+ {title:'Scroll Scavenger Sprint',help:'FIND FIVE hidden pictures by SCROLLING!',total:27,targets:[['🦋',5],['🐒',10],['🐘',15],['🦒',20],['🪶',24]]},
+ {title:'Rescue the Lion',help:'Find the medal, lion, key, butterfly, compass and star. Scroll up and down!',total:30,targets:[['🏅',5],['🦁',12],['🔑',18],['🦋',24],['🧭',2],['⭐',28]]}
 ];
 function startScrollGame(stage,puzzle){
  const spec=SCROLL_GAMES[stage];
@@ -1579,7 +1541,6 @@ function startScrollGame(stage,puzzle){
  puzzle.append(pane);
  const hud=el('div','scroll-score','FIND 0 / '+spec.targets.length);run.scrollHud=hud;puzzle.append(hud);
  function updateScrollProgress(){hud.textContent='FIND '+run.scrollStep+' / '+spec.targets.length;updateGuide()}
- if(spec.seconds)showMissionClock(spec.seconds);
 }
 
 function setupPuzzle(){
@@ -1643,7 +1604,7 @@ function dragStart(e,p){
 }
 function completeLevel(){
  if(!run||run.complete)return;
- stopTapTimers();
+ stopGameMotion();
  run.complete=true;run.active=false;
  const world=state.world,stage=state.stage,firstTime=!done(world,stage);
  if(!state.preview&&firstTime){
