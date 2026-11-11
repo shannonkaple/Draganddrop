@@ -60,7 +60,7 @@ button,.choice,.pill,.btn,.welcome-sub,.sub,.mission-text small{font-family:"VAG
   <section class="info-row"><div><div class="skill" id="skill">Skill: Select by clicking</div><div class="bottom-note" id="footerhint">Click an object to see its purple selection box. Use the corner handles to resize.</div></div><div class="nav"><button class="btn" id="prev">← Back</button><button class="btn primary" id="next" disabled>Next ➜</button></div></section>
   <div class="footer">Your stars are saved for this student on this Chromebook.</div>
 </main>
-<div class="help-modal hidden" id="help-modal" role="dialog" aria-modal="true" aria-label="How to play"><div class="help-box"><h2>How to Play 🎮</h2><ol><li><b>SELECT:</b> Click the middle of an item. A purple box and little square handles will appear.</li><li><b>MOVE:</b> Use your keyboard <b>arrow keys</b>, or click and drag the middle of the item.</li><li><b>RESIZE:</b> Drag a <b>corner handle</b> to make the selected item bigger or smaller.</li><li><b>ROTATE:</b> Click an object, then drag the <b>round curved-arrow handle above it</b> to tilt it like in Google Slides.</li><li><b>MATCH:</b> Make your item fit the dotted outline. Items turn green when placed correctly.</li></ol><p style="font-size:13px;color:#617086">For students: no typing. This game uses mouse/trackpad and keyboard arrows, not touch controls.</p><button class="btn primary" id="helpclose">Got it!</button><button class="btn" id="clearprogress" style="float:right">Teacher: Reset this student</button></div></div>
+<div class="help-modal hidden" id="help-modal" role="dialog" aria-modal="true" aria-label="How to play"><div class="help-box"><h2>How to Play 🎮</h2><ol><li><b>SELECT:</b> Click the middle of an item. A purple box and little square handles will appear.</li><li><b>MOVE:</b> Use your keyboard <b>arrow keys</b>, or click and drag the middle of the item.</li><li><b>RESIZE:</b> Drag a <b>corner handle</b> to make the selected item bigger or smaller.</li><li><b>ROTATE:</b> Click an object, then drag the <b>round curved-arrow handle above it</b> to tilt it like in Google Slides.</li><li><b>MATCH:</b> Make your item fit the dotted outline. Items turn green when placed correctly.</li></ol><p style="font-size:13px;color:#617086">Students: use the Chromebook trackpad and keyboard arrows. Touching or dragging on the screen cannot complete challenges.</p><button class="btn primary" id="helpclose">Got it!</button><button class="btn" id="clearprogress" style="float:right">Teacher: Reset this student</button></div></div>
 <script>
 'use strict';
 // Positions are percentages in a 900×475 logical play area. Each puzzle is independent.
@@ -79,6 +79,42 @@ const levels=[
  {name:'Ultimate Space Rescue',desc:'FINAL CHALLENGE! SELECT, MOVE, RESIZE and ROTATE FIVE pictures!',icon:'🏆',theme:'space',type:'mix',pieces:[tilt(item('ship','🛸',5,54,11,20,10,13,18,33),25),tilt(item('rocket','🚀',76,61,11,21,70,13,18,33),-22),item('star','⭐',42,8,10,17,44,12,17,30),item('planet','🪐',69,10,10,20,13,53,17,30),item('comet','☄️',18,15,12,21,71,55,16,28)]}
 ];
 const stage=document.getElementById('stage'), overlay=document.getElementById('overlay');
+// BEGIN TRACKPAD INPUT GUARD
+// Chromebook trackpads send pointerType "mouse". Touchscreens and styluses do not.
+// Touch devices may also emit a delayed compatibility mouse event after a finger tap,
+// so reject mouse-like input for a short period after any screen contact.
+const TOUCH_MOUSE_SUPPRESSION_MS=1500;
+let lastScreenContactAt=-Infinity, lastTouchWarningAt=-Infinity;
+function noteScreenContact(now=performance.now()){lastScreenContactAt=now;}
+function isTrackpadPointer(ev,now=performance.now()){
+ return ev.pointerType==='mouse' && ev.isPrimary===true &&
+   now-lastScreenContactAt>TOUCH_MOUSE_SUPPRESSION_MS;
+}
+// END TRACKPAD INPUT GUARD
+function rejectScreenContact(ev){
+ noteScreenContact();
+ if(ev.cancelable)ev.preventDefault();
+ ev.stopPropagation();
+ const now=performance.now();
+ if(now-lastTouchWarningAt>1800){
+  lastTouchWarningAt=now;
+  showToast('Use the Chromebook trackpad and keyboard, not the touchscreen.',true);
+ }
+}
+// Capture non-mouse pointer events BEFORE they can select, move, resize, or rotate.
+// Prevent touch compatibility clicks even if a future interaction adds click handlers.
+stage.addEventListener('pointerdown',ev=>{
+ if(ev.pointerType!=='mouse')rejectScreenContact(ev);
+},true);
+for(const name of ['touchstart','touchmove','touchend','touchcancel']){
+ stage.addEventListener(name,rejectScreenContact,{capture:true,passive:false});
+}
+stage.addEventListener('click',ev=>{
+ if(performance.now()-lastScreenContactAt<=TOUCH_MOUSE_SUPPRESSION_MS){
+  if(ev.cancelable)ev.preventDefault();
+  ev.stopImmediatePropagation();
+ }
+},true);
 // Exact second-grade teacher roster from Arrow-Naut's teachers-grade2.json.
 const teachers=["Campbell","Dupuy","Ensminger","Flotte","Gremillion","Jeansonne","Johnson","Lord","Mansur","Monte","Satterwhite","Thomas","Toler","Tucker","Homeroom 15","Sims","Juvenal","Rizzutto"];
 let index=0, pieces=[],selected=null,step=0,drag=null,progress=[],toastTimer=null,currentTeacher=null,currentNumber=null,chosenTeacher=null;
@@ -124,8 +160,8 @@ function draw(){clearTimeout(completionTimer);clearTimeout(advanceTimer);const l
 function getEl(p){return Array.from(stage.querySelectorAll('.obj')).find(x=>x.dataset.id===p.id)}
 function choose(p){if(p.done)return;selected=p;for(let q of pieces){let el=getEl(q);el.classList.toggle('selected',q===p);el.querySelectorAll('.handle,.rotator,.tag').forEach(h=>h.remove());}let e=getEl(p),l=levels[index];if(l.type!=='select'){if(l.type==='resize'||l.type==='mix')for(let corner of ['nw','ne','sw','se']){let h=document.createElement('div');h.className='handle '+corner;h.dataset.corner=corner;e.append(h);}if(l.type==='rotate'||l.type==='mix'&&p.targetAngle){let r=document.createElement('div');r.className='rotator';r.title='Drag to rotate';r.textContent='↻';r.setAttribute('aria-label','Drag to rotate');e.append(r);}if(l.type!=='rotate'){let tag=document.createElement('div');tag.className='tag';tag.textContent='CLICKED!';e.append(tag);}}}
 function selectOnly(p){const l=levels[index];if(p.id!==l.order[step]){showToast('Try another picture!',true);return;}p.done=true;getEl(p).classList.add('done');step++;showToast('Yes! ⭐');if(step>=l.order.length){finish();}}
-function startPointer(ev,p,el){if(ev.pointerType==='touch')return;if(p.done||levels[index].type==='select'&&p.done)return;ev.preventDefault();stage.focus({preventScroll:true});if(levels[index].type==='select'){selectOnly(p);return;}choose(p);let rect=stage.getBoundingClientRect();let corner=ev.target.closest('.handle')?.dataset.corner||null;let rotator=!!ev.target.closest('.rotator');let er=el.getBoundingClientRect();let cx=er.left+er.width/2,cy=er.top+er.height/2;drag={id:p.id,startX:ev.clientX,startY:ev.clientY,origX:p.x,origY:p.y,origW:p.w,origH:p.h,origAngle:p.angle||0,rotator,rotationOrigin:Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI,rotCenterX:cx,rotCenterY:cy,corner,rect,moved:false};try{el.setPointerCapture(ev.pointerId)}catch(e){};}
-function movePointer(ev){if(!drag||ev.pointerType==='touch')return;const l=levels[index];if(l.moveMode==='arrows'||(l.type==='resize'&&!drag.corner)||(l.type==='rotate'&&!drag.rotator))return;let p=pieces.find(p=>p.id===drag.id);if(!p)return;if(drag.rotator){let now=Math.atan2(ev.clientY-drag.rotCenterY,ev.clientX-drag.rotCenterX)*180/Math.PI;let change=((now-drag.rotationOrigin+540)%360)-180;p.angle=clamp(drag.origAngle+change,-80,80);drag.moved=true;setRect(getEl(p),p);return;}let dx=(ev.clientX-drag.startX)/drag.rect.width*100,dy=(ev.clientY-drag.startY)/drag.rect.height*100;if(Math.abs(dx)+Math.abs(dy)<.08)return;drag.moved=true;
+function startPointer(ev,p,el){if(!isTrackpadPointer(ev)||ev.button!==0)return;if(p.done||levels[index].type==='select'&&p.done)return;ev.preventDefault();stage.focus({preventScroll:true});if(levels[index].type==='select'){selectOnly(p);return;}choose(p);let rect=stage.getBoundingClientRect();let corner=ev.target.closest('.handle')?.dataset.corner||null;let rotator=!!ev.target.closest('.rotator');let er=el.getBoundingClientRect();let cx=er.left+er.width/2,cy=er.top+er.height/2;drag={id:p.id,pointerId:ev.pointerId,startX:ev.clientX,startY:ev.clientY,origX:p.x,origY:p.y,origW:p.w,origH:p.h,origAngle:p.angle||0,rotator,rotationOrigin:Math.atan2(ev.clientY-cy,ev.clientX-cx)*180/Math.PI,rotCenterX:cx,rotCenterY:cy,corner,rect,moved:false};try{el.setPointerCapture(ev.pointerId)}catch(e){};}
+function movePointer(ev){if(!drag||ev.pointerId!==drag.pointerId||!isTrackpadPointer(ev))return;const l=levels[index];if(l.moveMode==='arrows'||(l.type==='resize'&&!drag.corner)||(l.type==='rotate'&&!drag.rotator))return;let p=pieces.find(p=>p.id===drag.id);if(!p)return;if(drag.rotator){let now=Math.atan2(ev.clientY-drag.rotCenterY,ev.clientX-drag.rotCenterX)*180/Math.PI;let change=((now-drag.rotationOrigin+540)%360)-180;p.angle=clamp(drag.origAngle+change,-80,80);drag.moved=true;setRect(getEl(p),p);return;}let dx=(ev.clientX-drag.startX)/drag.rect.width*100,dy=(ev.clientY-drag.startY)/drag.rect.height*100;if(Math.abs(dx)+Math.abs(dy)<.08)return;drag.moved=true;
  if(drag.corner){const minW=6,minH=10;let x=drag.origX,y=drag.origY,w=drag.origW,h=drag.origH;if(drag.corner.includes('e'))w=clamp(drag.origW+dx,minW,43);else{w=clamp(drag.origW-dx,minW,43);x=drag.origX+drag.origW-w;}if(drag.corner.includes('s'))h=clamp(drag.origH+dy,minH,69);else{h=clamp(drag.origH-dy,minH,69);y=drag.origY+drag.origH-h;}p.x=clamp(x,0,100-w);p.y=clamp(y,0,100-h);p.w=w;p.h=h;}
  else {p.x=clamp(drag.origX+dx,0,100-p.w);p.y=clamp(drag.origY+dy,0,100-p.h);}setRect(getEl(p),p);
 }
@@ -166,8 +202,20 @@ function protectRemainingPictures(){
   }
  }
 }
+function cancelPointer(ev){
+ if(!drag||ev.pointerId!==drag.pointerId)return;
+ const previous=drag;
+ drag=null;
+ const p=pieces.find(piece=>piece.id===previous.id);
+ if(!p)return;
+ p.x=previous.origX;p.y=previous.origY;p.w=previous.origW;
+ p.h=previous.origH;p.angle=previous.origAngle;
+ const el=getEl(p);if(el)setRect(el,p);
+}
 function endPointer(ev){
- if(!drag)return;
+ if(!drag||ev.pointerId!==drag.pointerId)return;
+ // An interrupted, touch-influenced, or non-mouse pointer must NEVER verify a win.
+ if(!isTrackpadPointer(ev)){cancelPointer(ev);return;}
  let p=pieces.find(p=>p.id===drag.id);
  if(p){
   if(overlapsFinished(p)){
@@ -181,7 +229,7 @@ function endPointer(ev){
  }
  drag=null;
 }
-stage.addEventListener('pointermove',movePointer);stage.addEventListener('pointerup',endPointer);stage.addEventListener('pointercancel',endPointer);
+stage.addEventListener('pointermove',movePointer);stage.addEventListener('pointerup',endPointer);stage.addEventListener('pointercancel',cancelPointer);
 function verify(p){if(p.done)return;const l=levels[index];if(l.type==='select')return;let tx=p.tx,ty=p.ty,tw=p.tw,th=p.th;
 const positionOK=Math.abs(p.x-tx)<4.5&&Math.abs(p.y-ty)<6, sizeOK=Math.abs(p.w-tw)<4&&Math.abs(p.h-th)<6;const angleDiff=((p.angle-(p.targetAngle||0)+540)%360)-180;if((l.type==='rotate'||l.type==='mix')&&Math.abs(angleDiff)>9)return;
 if(l.type==='move'&&!positionOK)return;if(l.type==='resize'&&!sizeOK)return;if(l.type==='mix'&&!(positionOK&&sizeOK))return;
