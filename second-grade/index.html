@@ -138,7 +138,9 @@ function fitCrop(){
  if(!current||viewMode!=='crop')return;
  // Measured from Toy Theater's two-column desktop page (the teacher's screenshot).
  // Scale the original page, then clip EVERYTHING except the central game rectangle.
- const crop={left:236,top:88,width:628,height:562};
+ const crop=current.slug==='gummy-blocks'?
+  {left:240,top:90,width:596,height:547}:
+  {left:236,top:88,width:628,height:562};
  const scale=Math.min(viewport.clientWidth/crop.width,viewport.clientHeight/crop.height);
  frame.style.cssText='width:1380px;height:900px;max-width:none;position:absolute;left:'+(-crop.left*scale)+'px;top:'+(-crop.top*scale)+'px;transform-origin:top left;transform:scale('+scale+');';
 }
@@ -166,7 +168,9 @@ function openGame(slug){
  document.getElementById('direct').setAttribute('aria-label','Open '+game.name+' on Toy Theater; external site may contain ads');
  frame.title=game.name+' on Toy Theater';
  document.querySelector('.teacher-help').open=false;
- setGameView(gameOnly[slug]?'game':'crop');
+ // The cropped page is the most dependable default because it already
+ // worked in the classroom screenshot. Use the isolated game on demand.
+ setGameView('crop');
  history.replaceState({game:slug},'',location.pathname+location.search+'#'+encodeURIComponent(slug));
 }
 function goHome(){
