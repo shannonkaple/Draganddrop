@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#283b73">
+<meta name="description" content="Second grade Chromebook skill review with direct Toy Theater games.">
+<title>Second Grade Computer Skills Arcade | Ms. Kaple</title>
+<style>
+@font-face{font-family:Homebody;src:url('https://shannonkaple.github.io/Taskscreen/KAHomebodyClub.ttf') format('truetype');font-display:swap}
+@font-face{font-family:VAG;src:url('https://shannonkaple.github.io/Taskscreen/VAG-Rounded-Std-Black_47296.ttf') format('truetype');font-display:swap}
+:root{--ink:#273966;--muted:#586586;--outline:#2d3967;--soft:#faf7ff}
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{background:radial-gradient(circle at 9% 13%,#e1f3ff,transparent 29%),radial-gradient(circle at 94% 12%,#ffdfef,transparent 29%),#f8f7ff;color:var(--ink);font-family:VAG,"Arial Rounded MT Bold",Arial,sans-serif}
+button,a{font:inherit}button{cursor:pointer;color:inherit}
+button:focus-visible,a:focus-visible{outline:4px solid #ec9c29;outline-offset:3px}
+header{min-height:76px;background:#fff;border-bottom:4px solid var(--outline);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px clamp(15px,2.4vw,30px)}
+.brand{font:clamp(21px,2.3vw,33px)/1.05 Homebody,VAG,Arial,sans-serif;text-transform:uppercase}
+.brand span{display:block;font:12px/1.3 VAG,Arial,sans-serif;color:var(--muted);margin-top:4px;letter-spacing:.06em}
+.header-tools{display:flex;gap:8px}
+.tool{background:#fff;border:2px solid var(--outline);border-radius:13px;min-height:40px;padding:7px 13px;box-shadow:0 3px 0 #c5cce1;white-space:nowrap;font-size:14px}
+.tool:hover{background:#fff4c8}
+main{max-width:1370px;padding:18px clamp(13px,2.5vw,32px) 40px;margin:auto}
+.hero{text-align:center;margin:5px 0 15px}
+.hero h1{font:clamp(32px,4vw,54px)/1.06 Homebody,VAG,Arial,sans-serif;text-transform:uppercase;margin:4px 0 8px}
+.hero p{font:16px/1.45 Arial,sans-serif;color:var(--muted);margin:0}
+.filters{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:20px 0 23px}
+.filter{background:#fff;border:2px solid var(--outline);border-radius:30px;padding:9px 15px;font-size:14px}
+.filter[aria-pressed="true"]{background:var(--ink);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:17px}
+.game{border:3px solid var(--outline);border-radius:22px;min-height:206px;background:#fff;display:flex;flex-direction:column;gap:8px;text-align:left;padding:16px;box-shadow:0 6px 0 #ccd0e4}
+.game:hover{transform:translateY(-2px);box-shadow:0 8px 0 #ccd0e4}
+.game[data-skill="drag"]{background:#e6f4ff}.game[data-skill="click"]{background:#ffeaf4}
+.game[data-skill="double"]{background:#fff3cc}.game[data-skill="select"]{background:#eaf6e0}.game[data-skill="arrows"]{background:#f0e9ff}
+.game .icon{font-size:42px;line-height:1.05}
+.game strong{font:clamp(21px,2vw,27px)/1.1 Homebody,VAG,Arial,sans-serif;text-transform:uppercase}
+.game .pill{font:12px Arial,sans-serif;background:white;border:1px solid #a1aeca;border-radius:20px;width:max-content;padding:3px 9px}
+.game .desc{font:14px/1.4 Arial,sans-serif;color:#455274}
+.game .go{margin-top:auto;font-size:13px}
+.home-note{text-align:center;color:#69718a;font:12px/1.5 Arial,sans-serif;margin-top:26px}
+[hidden]{display:none!important}
+body.playing{height:100dvh;overflow:hidden}
+#player{height:calc(100dvh - 76px);display:flex;flex-direction:column;gap:7px;padding:8px 12px 11px}
+.player-toolbar{background:#fff;border:2px solid var(--outline);border-radius:13px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 9px}
+.player-title{text-align:center;flex:1;min-width:0}
+.player-title strong{display:block;font:clamp(18px,2vw,26px)/1.05 Homebody,VAG,Arial,sans-serif}
+.player-title small{display:block;font:12px/1.3 Arial,sans-serif;color:var(--muted);padding-top:3px}
+.stage{position:relative;flex:1;min-height:0;background:#fff;border:3px solid var(--outline);border-radius:18px;overflow:hidden}
+#gameFrame{width:100%;height:100%;display:block;border:0;background:#fff}
+.load-note{position:absolute;left:12px;right:12px;top:12px;margin:auto;z-index:2;max-width:570px;background:#ffffffef;box-shadow:0 4px 15px #27396633;border:2px solid #afc5ec;border-radius:12px;padding:11px;text-align:center;pointer-events:none;font:13px/1.4 Arial,sans-serif}
+.load-note strong{display:block}
+.fallback{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;font:12px Arial,sans-serif}
+.fallback a{background:#ffdf70;border:2px solid var(--outline);border-radius:10px;padding:7px 12px;text-decoration:none}
+.fallback a:hover{background:#ffefbb}
+.limit{font:11px/1.3 Arial,sans-serif;text-align:center;color:#6d738c;margin:0}
+@media(max-width:720px){header{min-height:65px}.brand{font-size:20px}.brand span{font-size:10px}.tool{font-size:12px;padding:7px 9px}.grid{grid-template-columns:repeat(auto-fill,minmax(173px,1fr));gap:11px}.game{padding:12px;min-height:192px}.game .icon{font-size:34px}.game strong{font-size:20px}#player{height:calc(100dvh - 65px)}.player-toolbar{flex-wrap:wrap;gap:7px}.player-title{order:3;flex-basis:100%}}
+@media(max-height:650px){header{min-height:55px;padding:4px 13px}.brand{font-size:20px}.brand span{font-size:9px}#player{height:calc(100dvh - 55px);padding:4px;gap:4px}.player-toolbar{padding:4px}.tool{min-height:30px;padding:5px 9px}.player-title small{display:none}.fallback,.limit{font-size:10px}}
+</style>
+</head>
+<body>
+<header>
+<div class="brand">Computer Skills Arcade<span>SECOND GRADE • MS. KAPLE</span></div>
+<div class="header-tools">
+<button id="topHome" class="tool" type="button" hidden>⌂ HOME</button>
+<button id="fullscreen" class="tool" type="button">⛶ FULL SCREEN</button>
+</div>
+</header>
+<main id="home">
+<section class="hero"><h1>Choose Your Skill!</h1><p>Practice what you've learned with your Chromebook trackpad and keyboard.</p></section>
+<nav class="filters" id="filters" aria-label="Filter by skill"></nav>
+<section class="grid" id="games" aria-label="Toy Theater practice games"></section>
+<p class="home-note">These activities link directly to Toy Theater. Choose a game, practice your skill, and return home for another.</p>
+</main>
+<section id="player" hidden aria-label="Toy Theater practice player">
+<div class="player-toolbar">
+<button class="tool" id="back" type="button">⌂ BACK TO GAMES</button>
+<div class="player-title"><strong id="title">Toy Theater</strong><small id="direction"></small></div>
+<button class="tool" id="restart" type="button">↻ RESTART</button>
+</div>
+<div class="stage">
+<div class="load-note" id="loadNote"><strong>Loading Toy Theater…</strong>If nothing appears, the game may block embedding. Use the direct game link below.</div>
+<iframe id="gameFrame" title="Toy Theater game" loading="eager" sandbox="allow-forms allow-pointer-lock allow-scripts allow-same-origin" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</div>
+<div class="fallback"><span>Game not showing?</span><a id="direct" target="_blank" rel="noopener noreferrer">OPEN DIRECTLY ON TOY THEATER</a></div>
+<p class="limit">Toy Theater controls the contents of its games. In-page navigation and touchscreen input cannot be fully blocked by this hub.</p>
+</section>
+<script>
+'use strict';
+const games=[{"slug":"block-puzzle","name":"Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🧩","description":"Drag pieces into the puzzle to finish the picture.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/block-puzzle/"},{"slug":"gummy-blocks","name":"Gummy Blocks","skillLabel":"Drag & Drop","skill":"drag","icon":"🍬","description":"Fit blocks together on the grid.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/gummy-blocks/"},{"slug":"pattern-block-puzzle","name":"Pattern Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🔷","description":"Place shapes into colorful picture puzzles.","direction":"Drag a shape from the tray onto the picture.","url":"https://toytheater.com/pattern-block-puzzle/"},{"slug":"pieces","name":"Pieces Shape Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🟨","description":"Fill a square by arranging different shapes.","direction":"Click, hold, and drag the shapes.","url":"https://toytheater.com/pieces/"},{"slug":"hidden-picture-grocery-store","name":"Grocery Store Search","skillLabel":"Single Click","skill":"click","icon":"🛒","description":"Find the hidden objects in the grocery store.","direction":"Find the object and click it once.","url":"https://toytheater.com/hidden-picture-grocery-store/"},{"slug":"find","name":"Find It!","skillLabel":"Single Click","skill":"click","icon":"🔎","description":"Search a busy picture for a matching object.","direction":"Use one trackpad click to select the object.","url":"https://toytheater.com/find/"},{"slug":"different","name":"Different Astronaut","skillLabel":"Single Click","skill":"click","icon":"🚀","description":"Choose the astronaut that looks different.","direction":"Look closely; click the different astronaut.","url":"https://toytheater.com/different/"},{"slug":"number-cards","name":"Number Cards","skillLabel":"Double Click","skill":"double","icon":"🔢","description":"Flip number cards after dragging them onto the board.","direction":"Drag a card out, then double-click to flip it.","url":"https://toytheater.com/number-cards/"},{"slug":"alphabet-cards","name":"Alphabet Cards","skillLabel":"Double Click","skill":"double","icon":"🔤","description":"Flip letter cards by clicking quickly twice.","direction":"Drag a card out, then double-click it.","url":"https://toytheater.com/alphabet-cards/"},{"slug":"digraph-cards","name":"Digraph Cards","skillLabel":"Double Click","skill":"double","icon":"🗂️","description":"Flip sound cards after placing them on the board.","direction":"Use two quick clicks on one card.","url":"https://toytheater.com/digraph-cards/"},{"slug":"find-me","name":"Find Me","skillLabel":"Select","skill":"select","icon":"🕵️","description":"Choose the matching character in a moving crowd.","direction":"Select the target character with one click.","url":"https://toytheater.com/find-me/"},{"slug":"sliding-puzzle","name":"Sliding Number Puzzle","skillLabel":"Select","skill":"select","icon":"🧠","description":"Select and slide tiles to put numbers in order.","direction":"Click a tile beside the empty space.","url":"https://toytheater.com/sliding-puzzle/"},{"slug":"tap-out","name":"Tap Out","skillLabel":"Select","skill":"select","icon":"↗️","description":"Select blocks and move them along their arrows.","direction":"Click blocks in a useful order to clear the board.","url":"https://toytheater.com/tap-out/"},{"slug":"maze","name":"Spaceship Maze","skillLabel":"Arrow Keys","skill":"arrows","icon":"🛸","description":"Steer a spaceship through the maze.","direction":"Click the game once, then use keyboard arrow keys.","url":"https://toytheater.com/maze/"},{"slug":"animal-slider","name":"Animal Slider","skillLabel":"Arrow Keys","skill":"arrows","icon":"🐼","description":"Use the arrow keys to move and merge animals.","direction":"Use keyboard arrow keys to slide the tiles.","url":"https://toytheater.com/animal-slider/"},{"slug":"line","name":"Line Game","skillLabel":"Arrow Keys","skill":"arrows","icon":"⭐","description":"Use arrows to steer the line and collect stars.","direction":"Use keyboard arrow keys; avoid hitting your line.","url":"https://toytheater.com/line/"}];
+const categories=[['all','ALL GAMES'],['drag','DRAG & DROP'],['click','CLICK'],['double','DOUBLE CLICK'],['select','SELECT'],['arrows','ARROW KEYS']];
+let current=null,selected='all';
+const home=document.getElementById('home'),player=document.getElementById('player'),frame=document.getElementById('gameFrame'),grid=document.getElementById('games'),filters=document.getElementById('filters'),topHome=document.getElementById('topHome');
+function renderFilters(){
+ filters.replaceChildren();
+ for(const [value,label] of categories){
+  const b=document.createElement('button');b.type='button';b.className='filter';b.textContent=label;b.dataset.category=value;b.setAttribute('aria-pressed',String(selected===value));
+  b.addEventListener('click',()=>{selected=value;renderFilters();renderCards();});
+  filters.append(b);
+ }
+}
+function renderCards(){
+ grid.replaceChildren();
+ for(const game of games.filter(g=>selected==='all'||g.skill===selected)){
+  const b=document.createElement('button');b.type='button';b.className='game';b.dataset.skill=game.skill;
+  const icon=document.createElement('span');icon.className='icon';icon.textContent=game.icon;icon.setAttribute('aria-hidden','true');
+  const tag=document.createElement('span');tag.className='pill';tag.textContent=game.skillLabel;
+  const title=document.createElement('strong');title.textContent=game.name;
+  const desc=document.createElement('span');desc.className='desc';desc.textContent=game.description;
+  const go=document.createElement('span');go.className='go';go.textContent='PLAY GAME ›';
+  b.append(icon,tag,title,desc,go);b.addEventListener('click',()=>openGame(game.slug));
+  grid.append(b);
+ }
+}
+function openGame(slug){
+ const game=games.find(g=>g.slug===slug);if(!game)return;
+ current=game;home.hidden=true;player.hidden=false;topHome.hidden=false;document.body.classList.add('playing');
+ document.getElementById('title').textContent=game.name;document.getElementById('direction').textContent=game.direction;
+ document.getElementById('direct').href=game.url;document.getElementById('direct').setAttribute('aria-label','Open '+game.name+' directly on Toy Theater');
+ document.getElementById('loadNote').hidden=false;
+ frame.title=game.name+' on Toy Theater';
+ frame.src=game.url;
+ history.replaceState({game:slug},'',location.pathname+location.search+'#'+encodeURIComponent(slug));
+}
+function goHome(){
+ current=null;frame.removeAttribute('src');home.hidden=false;player.hidden=true;topHome.hidden=true;document.body.classList.remove('playing');
+ history.replaceState(null,'',location.pathname+location.search);
+ window.scrollTo(0,0);
+}
+document.getElementById('back').addEventListener('click',goHome);
+topHome.addEventListener('click',goHome);
+document.getElementById('restart').addEventListener('click',()=>{if(current){frame.src=current.url;document.getElementById('loadNote').hidden=false;}});
+frame.addEventListener('load',()=>{document.getElementById('loadNote').hidden=true;});
+// A cross-origin iframe cannot be inspected here to confirm that the external game loaded successfully.
+document.getElementById('fullscreen').addEventListener('click',async()=>{
+ try{if(document.fullscreenElement){await document.exitFullscreen();}else{await document.documentElement.requestFullscreen();}}catch(e){alert('Full screen is unavailable in this browser.');}
+});
+document.addEventListener('fullscreenchange',()=>{document.getElementById('fullscreen').textContent=document.fullscreenElement?'⛶ EXIT FULL SCREEN':'⛶ FULL SCREEN';});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&current&&!document.fullscreenElement){goHome();}});
+window.addEventListener('hashchange',()=>{const slug=decodeURIComponent(location.hash.slice(1));if(slug&&games.some(g=>g.slug===slug)){if(!current||current.slug!==slug)openGame(slug);}else if(current){goHome();}});
+renderFilters();renderCards();
+if(location.hash){const slug=decodeURIComponent(location.hash.slice(1));if(games.some(g=>g.slug===slug))openGame(slug);}
+</script>
+</body>
+</html>
