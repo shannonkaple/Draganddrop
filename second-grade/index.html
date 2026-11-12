@@ -133,7 +133,7 @@ const home=document.getElementById('home'),player=document.getElementById('playe
 // Toy Theater artwork is fetched as metadata only, directly from Toy Theater.
 // The arcade doesn't copy or fabricate game images; the emoji art is a fallback.
 const artCache=new Map();
-const normalizeUrl=u=>String(u||'').replace(/\\/$/,'').toLowerCase();
+const normalizeUrl=u=>{const v=String(u||'').toLowerCase();return v.endsWith('/')?v.slice(0,-1):v;};
 async function retrieveArt(game){
  const params=new URLSearchParams({search:game.name,per_page:'15'});
  const res=await fetch('https://toytheater.com/wp-json/wp/v2/search?'+params,{mode:'cors',credentials:'omit'});
@@ -182,8 +182,8 @@ function renderCards(){
   // Show Toy Theater's own featured art when publicly exposed by its API.
   // If an image cannot be retrieved, retain the visible illustrated skill icon.
   const photo=document.createElement('img');photo.alt='';photo.loading='lazy';photo.decoding='async';photo.className='game-photo';photo.hidden=true;
-  media.append(photo);if(gameArtObserver)gameArtObserver.observe(photo);else loadGameArt(photo);
   photo.dataset.slug=game.slug;
+  media.append(photo);if(gameArtObserver)gameArtObserver.observe(photo);else loadGameArt(photo);
   const tag=document.createElement('span');tag.className='pill';tag.textContent=game.skillLabel;
   const title=document.createElement('strong');title.textContent=game.name.toUpperCase();
   const desc=document.createElement('span');desc.className='desc';desc.textContent=game.description;
@@ -223,7 +223,6 @@ const cropProfiles={
  'gummy-blocks':{left:242,top:86,width:700,height:780},
  'pattern-block-puzzle':{left:242,top:86,width:790,height:810},
  'pieces':{left:242,top:86,width:710,height:810},
- 'hidden-picture-grocery-store':{left:242,top:86,width:780,height:830},
  'find':{left:242,top:86,width:700,height:820},
  'digraph-cards':{left:242,top:86,width:750,height:850},
  'tap-out':{left:242,top:86,width:750,height:850},
