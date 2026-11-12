@@ -75,6 +75,9 @@ body.playing{height:100dvh;overflow:hidden}
 .teacher-help{display:inline-block;position:relative;text-align:left;font:12px Arial,sans-serif;color:#59617d}
 .teacher-help summary{cursor:pointer}
 .teacher-help[open]{background:#fff;border:1px solid #a9b4d6;border-radius:8px;padding:5px}
+.fit-tools{max-width:480px;display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:6px 0;padding:8px;background:#e9eef9;border-radius:8px}
+.fit-tools span{display:block;width:100%;font-size:11px;line-height:1.25}
+.fit-tools button{border:1px solid #62749b;border-radius:7px;background:white;padding:5px 8px;font:12px Arial,sans-serif;cursor:pointer}
 .teacher-help a{color:#354896}
 .fallback{min-height:26px}
 .fallback .tool{font-size:12px;min-height:28px;padding:4px 9px}
@@ -116,11 +119,15 @@ body.playing{height:100dvh;overflow:hidden}
 </div>
 <div class="stage">
 <div class="game-viewport" id="gameViewport"><div id="frameWindow" class="frame-window">
-<iframe id="gameFrame" title="Toy Theater game" loading="eager" scrolling="no" sandbox="allow-forms allow-pointer-lock allow-scripts allow-same-origin" allow="fullscreen; autoplay" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<iframe id="gameFrame" title="Toy Theater game" tabindex="0" loading="eager" scrolling="no" sandbox="allow-forms allow-pointer-lock allow-scripts allow-same-origin" allow="fullscreen; autoplay" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div></div>
 <div class="load-note" id="loadNote"><strong>Loading the game…</strong>If it does not display, try the other view below.</div>
 </div>
-<div class="fallback"><button class="tool" id="alternate" type="button" hidden>TRY THE OTHER VIEW</button><details class="teacher-help"><summary>Teacher help</summary><span>Original Toy Theater page (may contain ads): </span><a id="direct" target="_blank" rel="noopener noreferrer">Open original game page</a></details></div>
+<div class="fallback"><button class="tool" id="alternate" type="button" hidden>TRY THE OTHER VIEW</button><details class="teacher-help"><summary>Teacher help · game fit</summary>
+<div class="fit-tools"><span>Need to see more of a game? Adjust this game's crop. Changes save on this Chromebook.</span>
+<button type="button" id="moreBoard">− Zoom out</button><button type="button" id="lessBoard">+ Zoom in</button>
+<button type="button" id="fitLeft">←</button><button type="button" id="fitUp">↑</button><button type="button" id="fitDown">↓</button><button type="button" id="fitRight">→</button><button type="button" id="fitReset">Reset fit</button>
+</div><div>Original Toy Theater page (may contain ads): <a id="direct" target="_blank" rel="noopener noreferrer">Open original game page</a></div></details></div>
 <p class="limit">Game-only pages use their natural size; other games use a smaller, taller view to show the entire board. External game controls are managed by Toy Theater.</p>
 </section>
 <script>
@@ -149,10 +156,23 @@ async function retrieveArt(game){
   ||data?.yoast_head_json?.og_image?.[0]?.url
   ||null;
 }
+async function retrieveOfficialArt(game){
+ try{const url=await retrieveArt(game);if(url)return url;}catch(e){}
+ // Metadata fallback: retrieves the image identified by Toy Theater's own
+ // public Open Graph tags. Never substitutes unrelated stock art.
+ try{
+  const endpoint='https://api.microlink.io?url='+encodeURIComponent(game.url);
+  const res=await fetch(endpoint,{mode:'cors',credentials:'omit'});
+  if(!res.ok)return null;
+  const info=await res.json();
+  const img=info?.data?.image?.url;
+  return /^https:\/\//.test(img||'')?img:null;
+ }catch(e){return null}
+}
 function loadGameArt(img){
  const game=games.find(x=>x.slug===img.dataset.slug);
  if(!game)return;
- if(!artCache.has(game.slug))artCache.set(game.slug,retrieveArt(game).catch(()=>null));
+ if(!artCache.has(game.slug))artCache.set(game.slug,retrieveOfficialArt(game).catch(()=>null));
  artCache.get(game.slug).then(url=>{
   if(!url||!img.isConnected)return;
   img.onload=()=>{img.hidden=false;};
@@ -252,9 +272,21 @@ const cropProfiles={
  'hidden-picture-party':{left:232,top:85,width:730,height:825},
  'hidden-picture-monster-restaurant':{left:232,top:85,width:730,height:825}
 };
+const getFitChanges=()=>{
+ if(!current)return {zoom:0,x:0,y:0};
+ try{return JSON.parse(localStorage.getItem('tt-crop-v1:'+current.slug))||{zoom:0,x:0,y:0}}catch(e){return {zoom:0,x:0,y:0}}
+};
 function fitCrop(){
  if(!current||viewMode!=='crop')return;
- const crop=cropProfiles[current.slug]||{left:242,top:86,width:770,height:880};
+ const base=cropProfiles[current.slug]||{left:242,top:86,width:770,height:880};
+ const adjust=getFitChanges();
+ const extra=Math.max(-2,Math.min(9,adjust.zoom||0))*90;
+ const crop={
+  left:Math.max(0,base.left-(extra/3)+(adjust.x||0)),
+  top:Math.max(0,base.top-(extra/3)+(adjust.y||0)),
+  width:Math.max(350,base.width+extra),
+  height:Math.max(350,base.height+extra)
+ };
  // Keep at least a little room around the game and show ALL pieces, not
  // just the central portion of the board.
  const scale=Math.min(
@@ -309,8 +341,22 @@ document.getElementById('back').addEventListener('click',goHome);
 topHome.addEventListener('click',goHome);
 document.getElementById('restart').addEventListener('click',()=>{if(current){document.getElementById('loadNote').hidden=false;frame.src=viewMode==='game'?gameOnly[current.slug]:current.url;}});
 alternate.addEventListener('click',()=>{if(current&&gameOnly[current.slug])setGameView(viewMode==='game'?'crop':'game');});
+function updateCrop(patch){
+ if(!current)return;
+ const a={...getFitChanges()};
+ Object.assign(a,patch);
+ try{localStorage.setItem('tt-crop-v1:'+current.slug,JSON.stringify(a))}catch(e){}
+ if(viewMode!=='crop')setGameView('crop');else fitCrop();
+}
+document.getElementById('moreBoard').addEventListener('click',()=>updateCrop({zoom:(getFitChanges().zoom||0)+1}));
+document.getElementById('lessBoard').addEventListener('click',()=>updateCrop({zoom:(getFitChanges().zoom||0)-1}));
+document.getElementById('fitLeft').addEventListener('click',()=>updateCrop({x:(getFitChanges().x||0)-35}));
+document.getElementById('fitRight').addEventListener('click',()=>updateCrop({x:(getFitChanges().x||0)+35}));
+document.getElementById('fitUp').addEventListener('click',()=>updateCrop({y:(getFitChanges().y||0)-35}));
+document.getElementById('fitDown').addEventListener('click',()=>updateCrop({y:(getFitChanges().y||0)+35}));
+document.getElementById('fitReset').addEventListener('click',()=>updateCrop({zoom:0,x:0,y:0}));
 window.addEventListener('resize',fitCrop);
-frame.addEventListener('load',()=>{document.getElementById('loadNote').hidden=true;});
+frame.addEventListener('load',()=>{document.getElementById('loadNote').hidden=true;try{frame.focus({preventScroll:true})}catch(e){}});
 // A cross-origin iframe cannot be inspected here to confirm that the external game loaded successfully.
 document.getElementById('fullscreen').addEventListener('click',async()=>{
  try{if(document.fullscreenElement){await document.exitFullscreen();}else{await document.documentElement.requestFullscreen();}}catch(e){alert('Full screen is unavailable in this browser.');}
