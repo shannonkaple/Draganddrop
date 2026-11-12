@@ -46,8 +46,17 @@ body.playing{height:100dvh;overflow:hidden}
 .player-title{text-align:center;flex:1;min-width:0}
 .player-title strong{display:block;font:clamp(18px,2vw,26px)/1.05 Homebody,VAG,Arial,sans-serif}
 .player-title small{display:block;font:12px/1.3 Arial,sans-serif;color:var(--muted);padding-top:3px}
-.stage{position:relative;flex:1;min-height:0;background:#fff;border:3px solid var(--outline);border-radius:18px;overflow:hidden}
-#gameFrame{width:100%;height:100%;display:block;border:0;background:#fff}
+.stage{position:relative;flex:1;min-height:0;background:radial-gradient(ellipse at 50% 50%,#fff 15%,#dceafc 100%);border:3px solid var(--outline);border-radius:18px;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:5px}
+.game-viewport{position:relative;overflow:hidden;background:#fff;border-radius:12px;width:min(100%,900px,calc((100dvh - 202px) * 1.1174));aspect-ratio:628/562;max-height:100%;box-shadow:0 0 0 2px #ccd6ed}
+#gameFrame{width:100%;height:100%;display:block;border:0;background:white}
+.game-viewport.cropped #gameFrame{position:absolute;max-width:none}
+.teacher-help{display:inline-block;position:relative;text-align:left;font:12px Arial,sans-serif;color:#59617d}
+.teacher-help summary{cursor:pointer}
+.teacher-help[open]{background:#fff;border:1px solid #a9b4d6;border-radius:8px;padding:5px}
+.teacher-help a{color:#354896}
+.fallback{min-height:26px}
+.fallback .tool{font-size:12px;min-height:28px;padding:4px 9px}
+@media(max-height:650px){.game-viewport{width:min(100%,820px,calc((100dvh - 160px) * 1.1174))}}
 .load-note{position:absolute;left:12px;right:12px;top:12px;margin:auto;z-index:2;max-width:570px;background:#ffffffef;box-shadow:0 4px 15px #27396633;border:2px solid #afc5ec;border-radius:12px;padding:11px;text-align:center;pointer-events:none;font:13px/1.4 Arial,sans-serif}
 .load-note strong{display:block}
 .fallback{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;font:12px Arial,sans-serif}
@@ -79,11 +88,13 @@ body.playing{height:100dvh;overflow:hidden}
 <button class="tool" id="restart" type="button">↻ RESTART</button>
 </div>
 <div class="stage">
-<div class="load-note" id="loadNote"><strong>Loading Toy Theater…</strong>If nothing appears, the game may block embedding. Use the direct game link below.</div>
+<div class="game-viewport" id="gameViewport">
 <iframe id="gameFrame" title="Toy Theater game" loading="eager" sandbox="allow-forms allow-pointer-lock allow-scripts allow-same-origin" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 </div>
-<div class="fallback"><span>Game not showing?</span><a id="direct" target="_blank" rel="noopener noreferrer">OPEN DIRECTLY ON TOY THEATER</a></div>
-<p class="limit">Toy Theater controls the contents of its games. In-page navigation and touchscreen input cannot be fully blocked by this hub.</p>
+<div class="load-note" id="loadNote"><strong>Loading the game…</strong>If the screen is blank, try the alternate view below.</div>
+</div>
+<div class="fallback"><button class="tool" id="alternate" type="button" hidden>TRY THE OTHER VIEW</button><details class="teacher-help"><summary>Teacher help</summary><span>Original Toy Theater page (may contain ads): </span><a id="direct" target="_blank" rel="noopener noreferrer">Open original game page</a></details></div>
+<p class="limit">Game-only view when available; otherwise the page is cropped to the play area. Touchscreen use inside external games cannot be disabled here.</p>
 </section>
 <script>
 'use strict';
@@ -112,14 +123,50 @@ function renderCards(){
   grid.append(b);
  }
 }
+// Where Toy Theater publicly exposes an individual game iframe, load that
+// directly instead of showing its navigation and advertising columns.
+const gameOnly={
+ 'gummy-blocks':'https://toytheater.com/gummy-blocks.php',
+ 'block-puzzle':'https://toytheater.com/block-puzzle.php',
+ 'animal-slider':'https://toytheater.com/animal-slider.php',
+ 'find-me':'https://toytheater.com/find-me.php'
+};
+const viewport=document.getElementById('gameViewport');
+const alternate=document.getElementById('alternate');
+let viewMode='crop';
+function fitCrop(){
+ if(!current||viewMode!=='crop')return;
+ // Measured from Toy Theater's two-column desktop page (the teacher's screenshot).
+ // Scale the original page, then clip EVERYTHING except the central game rectangle.
+ const crop={left:236,top:88,width:628,height:562};
+ const scale=Math.min(viewport.clientWidth/crop.width,viewport.clientHeight/crop.height);
+ frame.style.cssText='width:1380px;height:900px;max-width:none;position:absolute;left:'+(-crop.left*scale)+'px;top:'+(-crop.top*scale)+'px;transform-origin:top left;transform:scale('+scale+');';
+}
+function setGameView(mode){
+ if(!current)return;
+ viewMode=mode;
+ viewport.classList.toggle('cropped',mode==='crop');
+ document.getElementById('loadNote').hidden=false;
+ frame.removeAttribute('src');
+ if(mode==='game'){
+  frame.style.cssText='';
+  frame.src=gameOnly[current.slug];
+ }else{
+  fitCrop();
+  frame.src=current.url;
+ }
+ alternate.hidden=!gameOnly[current.slug];
+ alternate.textContent=mode==='game'?'GAME BLANK? TRY PAGE VIEW':'TRY GAME-ONLY VIEW';
+}
 function openGame(slug){
  const game=games.find(g=>g.slug===slug);if(!game)return;
  current=game;home.hidden=true;player.hidden=false;topHome.hidden=false;document.body.classList.add('playing');
  document.getElementById('title').textContent=game.name;document.getElementById('direction').textContent=game.direction;
- document.getElementById('direct').href=game.url;document.getElementById('direct').setAttribute('aria-label','Open '+game.name+' directly on Toy Theater');
- document.getElementById('loadNote').hidden=false;
+ document.getElementById('direct').href=game.url;
+ document.getElementById('direct').setAttribute('aria-label','Open '+game.name+' on Toy Theater; external site may contain ads');
  frame.title=game.name+' on Toy Theater';
- frame.src=game.url;
+ document.querySelector('.teacher-help').open=false;
+ setGameView(gameOnly[slug]?'game':'crop');
  history.replaceState({game:slug},'',location.pathname+location.search+'#'+encodeURIComponent(slug));
 }
 function goHome(){
@@ -129,7 +176,9 @@ function goHome(){
 }
 document.getElementById('back').addEventListener('click',goHome);
 topHome.addEventListener('click',goHome);
-document.getElementById('restart').addEventListener('click',()=>{if(current){frame.src=current.url;document.getElementById('loadNote').hidden=false;}});
+document.getElementById('restart').addEventListener('click',()=>{if(current){document.getElementById('loadNote').hidden=false;frame.src=viewMode==='game'?gameOnly[current.slug]:current.url;}});
+alternate.addEventListener('click',()=>{if(current&&gameOnly[current.slug])setGameView(viewMode==='game'?'crop':'game');});
+window.addEventListener('resize',fitCrop);
 frame.addEventListener('load',()=>{document.getElementById('loadNote').hidden=true;});
 // A cross-origin iframe cannot be inspected here to confirm that the external game loaded successfully.
 document.getElementById('fullscreen').addEventListener('click',async()=>{
