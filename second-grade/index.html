@@ -288,7 +288,8 @@ async function retrieveOfficialArt(game){
  // Two original Toy Theater media URLs verified on the source website.
  const verified={
   'pieces':'https://toytheater.com/wp-content/uploads/pieces.gif',
-  'line':'https://toytheater.com/wp-content/uploads/line.gif'
+  'line':'https://toytheater.com/wp-content/uploads/line.gif',
+  'stack':'https://toytheater.com/wp-content/uploads/stack.gif'
  };
  if(verified[game.slug])return verified[game.slug];
  try{const url=await retrieveArt(game);if(url)return url;}catch(e){}
@@ -315,11 +316,23 @@ function loadGameArt(img){
   }).catch(()=>null));
  }
  artCache.get(game.slug).then(url=>{
-  if(!url||!img.isConnected)return;
+  if(!img.isConnected)return;
+  // Menu-image fallback: try exact game-named original assets directly
+  // from Toy Theater. Failed URLs are skipped, never substituted with
+  // random game artwork.
+  const slug=game.url.split('/').filter(Boolean).pop();
+  const base='https://toytheater.com/wp-content/uploads/'+slug;
+  const guesses=[base+'.gif',base+'.webp',base+'.png',base+'.jpg'];
+  const options=[url,...guesses].filter((x,i,arr)=>Boolean(x)&&arr.indexOf(x)===i);
+  let at=0;
   img.onload=()=>{img.hidden=false;};
-  img.onerror=()=>{img.hidden=true;};
+  img.onerror=()=>{
+   at++;
+   if(at<options.length)img.src=options[at];
+   else img.hidden=true;
+  };
   img.referrerPolicy='no-referrer';
-  img.src=url;
+  if(options.length)img.src=options[0];
  });
 }
 const gameArtObserver=typeof IntersectionObserver==='function'
