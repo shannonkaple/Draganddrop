@@ -63,6 +63,10 @@ body.playing{height:100dvh;overflow:hidden}
 #gameFrame{width:100%;height:100%;display:block;border:0;background:white;overflow:hidden;overscroll-behavior:none;scrollbar-width:none}
 .game-viewport.cropped #gameFrame{position:absolute;max-width:none}
 @media(max-height:650px){.game-viewport{width:100%}}
+
+/* The visible game window scales whole game areas; each game has its own fit. */
+.game-viewport,.frame-window{min-width:0;min-height:0}
+.game-viewport #frameWindow{flex:none}
 .teacher-help{display:inline-block;position:relative;text-align:left;font:12px Arial,sans-serif;color:#59617d}
 .teacher-help summary{cursor:pointer}
 .teacher-help[open]{background:#fff;border:1px solid #a9b4d6;border-radius:8px;padding:5px}
@@ -116,7 +120,7 @@ body.playing{height:100dvh;overflow:hidden}
 </section>
 <script>
 'use strict';
-const games=[{"slug":"maze","name":"Maze","skillLabel":"Arrow Keys","skill":"arrows","icon":"🛸","description":"Steer a spaceship through the maze.","direction":"Click the game once, then use keyboard arrow keys.","url":"https://toytheater.com/maze/"},{"slug":"disguise","name":"Disguise","skillLabel":"Select","skill":"select","icon":"🕵️","description":"Read the clues and click the correctly disguised spy.","direction":"Read the clues, then select the matching spy.","url":"https://toytheater.com/disguise/"},{"slug":"parking","name":"Parking","skillLabel":"Select","skill":"select","icon":"🚗","description":"Solve the parking lot puzzle and help the cars move.","direction":"Use your trackpad to select and move the vehicles.","url":"https://toytheater.com/parking/"},{"slug":"find-me","name":"Find Me","skillLabel":"Select","skill":"select","icon":"🕵️","description":"Choose the matching character in a moving crowd.","direction":"Select the target character with one click.","url":"https://toytheater.com/find-me/"},{"slug":"different","name":"Different","skillLabel":"Single Click","skill":"click","icon":"🚀","description":"Choose the astronaut that looks different.","direction":"Look closely; click the different astronaut.","url":"https://toytheater.com/different/"},{"slug":"going-nuts","name":"Going Nuts","skillLabel":"Single Click","skill":"click","icon":"🐿️","description":"Help the squirrel collect nuts and land in a basket.","direction":"Aim carefully and click to release the squirrel.","url":"https://toytheater.com/going-nuts/"},{"slug":"block-puzzle","name":"Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🧩","description":"Drag pieces into the puzzle to finish the picture.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/block-puzzle/"},{"slug":"gummy-blocks","name":"Gummy Blocks","skillLabel":"Drag & Drop","skill":"drag","icon":"🍬","description":"Fit blocks together on the grid.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/gummy-blocks/"},{"slug":"pattern-block-puzzle","name":"Pattern Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🔷","description":"Place shapes into colorful picture puzzles.","direction":"Drag a shape from the tray onto the picture.","url":"https://toytheater.com/pattern-block-puzzle/"},{"slug":"pieces","name":"Pieces Shape Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🟨","description":"Fill a square by arranging different shapes.","direction":"Click, hold, and drag the shapes.","url":"https://toytheater.com/pieces/"},{"slug":"hidden-picture-grocery-store","name":"Grocery Store Search","skillLabel":"Single Click","skill":"click","icon":"🛒","description":"Find the hidden objects in the grocery store.","direction":"Find the object and click it once.","url":"https://toytheater.com/hidden-picture-grocery-store/"},{"slug":"find","name":"Find It!","skillLabel":"Single Click","skill":"click","icon":"🔎","description":"Search a busy picture for a matching object.","direction":"Use one trackpad click to select the object.","url":"https://toytheater.com/find/"},{"slug":"number-cards","name":"Number Cards","skillLabel":"Double Click","skill":"double","icon":"🔢","description":"Flip number cards after dragging them onto the board.","direction":"Drag a card out, then double-click to flip it.","url":"https://toytheater.com/number-cards/"},{"slug":"alphabet-cards","name":"Alphabet Cards","skillLabel":"Double Click","skill":"double","icon":"🔤","description":"Flip letter cards by clicking quickly twice.","direction":"Drag a card out, then double-click it.","url":"https://toytheater.com/alphabet-cards/"},{"slug":"digraph-cards","name":"Digraph Cards","skillLabel":"Double Click","skill":"double","icon":"🗂️","description":"Flip sound cards after placing them on the board.","direction":"Use two quick clicks on one card.","url":"https://toytheater.com/digraph-cards/"},{"slug":"sliding-puzzle","name":"Sliding Number Puzzle","skillLabel":"Select","skill":"select","icon":"🧠","description":"Select and slide tiles to put numbers in order.","direction":"Click a tile beside the empty space.","url":"https://toytheater.com/sliding-puzzle/"},{"slug":"tap-out","name":"Tap Out","skillLabel":"Select","skill":"select","icon":"↗️","description":"Select blocks and move them along their arrows.","direction":"Click blocks in a useful order to clear the board.","url":"https://toytheater.com/tap-out/"},{"slug":"animal-slider","name":"Animal Slider","skillLabel":"Arrow Keys","skill":"arrows","icon":"🐼","description":"Use the arrow keys to move and merge animals.","direction":"Use keyboard arrow keys to slide the tiles.","url":"https://toytheater.com/animal-slider/"},{"slug":"line","name":"Line Game","skillLabel":"Arrow Keys","skill":"arrows","icon":"⭐","description":"Use arrows to steer the line and collect stars.","direction":"Use keyboard arrow keys; avoid hitting your line.","url":"https://toytheater.com/line/"}];
+const games=[{"slug":"maze","name":"Maze","skillLabel":"Arrow Keys","skill":"arrows","icon":"🛸","description":"Steer a spaceship through the maze.","direction":"Click the game once, then use keyboard arrow keys.","url":"https://toytheater.com/maze/"},{"slug":"disguise","name":"Disguise","skillLabel":"Select","skill":"select","icon":"🕵️","description":"Read the clues and click the correctly disguised spy.","direction":"Read the clues, then select the matching spy.","url":"https://toytheater.com/disguise/"},{"slug":"parking","name":"Parking","skillLabel":"Select","skill":"select","icon":"🚗","description":"Solve the parking lot puzzle and help the cars move.","direction":"Use your trackpad to select and move the vehicles.","url":"https://toytheater.com/parking/"},{"slug":"find-me","name":"Find Me","skillLabel":"Select","skill":"select","icon":"🕵️","description":"Choose the matching character in a moving crowd.","direction":"Select the target character with one click.","url":"https://toytheater.com/find-me/"},{"slug":"different","name":"Different","skillLabel":"Single Click","skill":"click","icon":"🚀","description":"Choose the astronaut that looks different.","direction":"Look closely; click the different astronaut.","url":"https://toytheater.com/different/"},{"slug":"going-nuts","name":"Going Nuts","skillLabel":"Single Click","skill":"click","icon":"🐿️","description":"Help the squirrel collect nuts and land in a basket.","direction":"Aim carefully and click to release the squirrel.","url":"https://toytheater.com/going-nuts/"},{"slug":"block-puzzle","name":"Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🧩","description":"Drag pieces into the puzzle to finish the picture.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/block-puzzle/"},{"slug":"gummy-blocks","name":"Gummy Blocks","skillLabel":"Drag & Drop","skill":"drag","icon":"🍬","description":"Fit blocks together on the grid.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/gummy-blocks/"},{"slug":"pattern-block-puzzle","name":"Pattern Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🔷","description":"Place shapes into colorful picture puzzles.","direction":"Drag a shape from the tray onto the picture.","url":"https://toytheater.com/pattern-block-puzzle/"},{"slug":"pieces","name":"Pieces Shape Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🟨","description":"Fill a square by arranging different shapes.","direction":"Click, hold, and drag the shapes.","url":"https://toytheater.com/pieces/"},{"slug":"hidden-picture-grocery-store","name":"Grocery Store Search","skillLabel":"Single Click","skill":"click","icon":"🛒","description":"Find the hidden objects in the grocery store.","direction":"Find the object and click it once.","url":"https://toytheater.com/hidden-picture-grocery-store/"},{"slug":"find","name":"Find It!","skillLabel":"Single Click","skill":"click","icon":"🔎","description":"Search a busy picture for a matching object.","direction":"Use one trackpad click to select the object.","url":"https://toytheater.com/find/"},{"slug":"digraph-cards","name":"Digraph Cards","skillLabel":"Double Click","skill":"double","icon":"🗂️","description":"Flip sound cards after placing them on the board.","direction":"Use two quick clicks on one card.","url":"https://toytheater.com/digraph-cards/"},{"slug":"tap-out","name":"Tap Out","skillLabel":"Select","skill":"select","icon":"↗️","description":"Select blocks and move them along their arrows.","direction":"Click blocks in a useful order to clear the board.","url":"https://toytheater.com/tap-out/"},{"slug":"animal-slider","name":"Animal Slider","skillLabel":"Arrow Keys","skill":"arrows","icon":"🐼","description":"Use the arrow keys to move and merge animals.","direction":"Use keyboard arrow keys to slide the tiles.","url":"https://toytheater.com/animal-slider/"},{"slug":"line","name":"Line Game","skillLabel":"Arrow Keys","skill":"arrows","icon":"⭐","description":"Use arrows to steer the line and collect stars.","direction":"Use keyboard arrow keys; avoid hitting your line.","url":"https://toytheater.com/line/"}];
 const featuredSlugs=["maze","disguise","parking","find-me","different","going-nuts"];
 const categories=[['all','ALL GAMES'],['drag','DRAG & DROP'],['click','CLICK'],['double','DOUBLE CLICK'],['select','SELECT'],['arrows','ARROW KEYS']];
 let current=null,selected='all';
@@ -152,26 +156,48 @@ const gameOnly={
  'find-me':'https://toytheater.com/find-me.php',
  'parking':'https://toytheater.com/parking.php',
  'going-nuts':'https://toytheater.com/going-nuts.php',
- 'tap-out':'https://toytheater.com/tap-out.php',
- 'sliding-puzzle':'https://toytheater.com/sliding-puzzle.php'
+ 'tap-out':'https://toytheater.com/tap-out.php'
 };
 const viewport=document.getElementById('gameViewport');
 const frameWindow=document.getElementById('frameWindow');
 const alternate=document.getElementById('alternate');
 let viewMode='game';
+// Per-game board bounds (in the iframe document's desktop coordinates).
+// Different, Maze, and other tall games need more of the actual board visible.
+// Never enlarge a fixed website crop; fit it within the Chromebook space.
+const cropProfiles={
+ 'maze':{left:242,top:86,width:660,height:740},
+ 'disguise':{left:242,top:86,width:690,height:850},
+ 'parking':{left:242,top:86,width:690,height:780},
+ 'find-me':{left:242,top:86,width:720,height:780},
+ 'different':{left:215,top:87,width:1220,height:1120},
+ 'going-nuts':{left:242,top:86,width:690,height:820},
+ 'block-puzzle':{left:242,top:86,width:700,height:820},
+ 'gummy-blocks':{left:242,top:86,width:700,height:780},
+ 'pattern-block-puzzle':{left:242,top:86,width:790,height:810},
+ 'pieces':{left:242,top:86,width:710,height:810},
+ 'hidden-picture-grocery-store':{left:242,top:86,width:780,height:830},
+ 'find':{left:242,top:86,width:700,height:820},
+ 'digraph-cards':{left:242,top:86,width:750,height:850},
+ 'tap-out':{left:242,top:86,width:750,height:850},
+ 'animal-slider':{left:242,top:86,width:720,height:780},
+ 'line':{left:242,top:86,width:720,height:850}
+};
 function fitCrop(){
  if(!current||viewMode!=='crop')return;
- // The full Toy Theater site is 1380px wide in this desktop viewport.
- // A taller crop allows the complete play board and bottom controls to fit.
- // The older 649px crop cut off larger games (especially Different).
- // Show a taller and wider source area at a smaller, uncropped scale.
- const crop=current.slug==='different'
-  ? {left:215,top:81,width:1050,height:890}
-  : {left:230,top:80,width:850,height:850};
- const scale=Math.min(viewport.clientWidth/crop.width,viewport.clientHeight/crop.height,1)*.94;
- frameWindow.style.width=Math.round(crop.width*scale)+'px';
- frameWindow.style.height=Math.round(crop.height*scale)+'px';
- frame.style.cssText='width:1380px;height:950px;max-width:none;position:absolute;left:'+(-crop.left*scale)+'px;top:'+(-crop.top*scale)+'px;transform-origin:top left;transform:scale('+scale+');';
+ const crop=cropProfiles[current.slug]||{left:242,top:86,width:770,height:880};
+ // Keep at least a little room around the game and show ALL pieces, not
+ // just the central portion of the board.
+ const scale=Math.min(
+  (viewport.clientWidth-14)/crop.width,
+  (viewport.clientHeight-14)/crop.height,
+  1
+ )*.96;
+ frameWindow.style.width=Math.floor(crop.width*scale)+'px';
+ frameWindow.style.height=Math.floor(crop.height*scale)+'px';
+ const documentWidth=Math.max(1380,crop.left+crop.width+60);
+ const documentHeight=Math.max(1000,crop.top+crop.height+70);
+ frame.style.cssText='width:'+documentWidth+'px;height:'+documentHeight+'px;max-width:none;position:absolute;left:'+(-crop.left*scale)+'px;top:'+(-crop.top*scale)+'px;transform-origin:top left;transform:scale('+scale+');';
 }
 function setGameView(mode){
  if(!current)return;
