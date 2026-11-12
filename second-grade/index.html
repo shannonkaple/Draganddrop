@@ -93,7 +93,7 @@ body.playing{height:100dvh;overflow:hidden}
 
 /* Skill-first arcade: consistent color for each type. */
 .skill-groups{display:flex;flex-direction:column;gap:26px}
-.skill-section{--group:#db3889;--pale:#ffe3f0;--outline-group:#aa2a68;background:var(--pale);border:3px solid var(--outline-group);border-radius:25px;padding:14px 15px 20px;box-shadow:0 6px 0 #c5cede}
+.skill-section{--group:#db3889;--pale:#ffe3f0;--outline-group:#aa2a68;background:linear-gradient(180deg,var(--pale),#fff);border:3px solid var(--outline-group);border-radius:25px;padding:14px 15px 20px;box-shadow:0 6px 0 #c5cede}
 .skill-section[data-skill="click"]{--group:#db3889;--pale:#ffe3f0;--outline-group:#aa2a68}
 .skill-section[data-skill="drag"]{--group:#287fc7;--pale:#e2f3ff;--outline-group:#2363a0}
 .skill-section[data-skill="double"]{--group:#ba810e;--pale:#fff2c9;--outline-group:#997013}
@@ -104,7 +104,7 @@ body.playing{height:100dvh;overflow:hidden}
 .skill-heading-copy p{font:13px/1.3 Arial,sans-serif;margin:4px 0 0}
 .skill-count{font:12px Arial,sans-serif;background:#ffffff36;border-radius:30px;padding:8px 10px;white-space:nowrap}
 .skill-grid{grid-template-columns:repeat(auto-fill,minmax(183px,1fr));gap:12px}
-.skill-section .game,.skill-section .game[data-skill]{border:2px solid var(--outline-group);background:#fff;min-height:0;border-radius:17px;padding:10px;gap:7px;box-shadow:0 4px 0 var(--outline-group);overflow:hidden}
+.skill-section .game,.skill-section .game[data-skill]{border:2px solid var(--outline-group);background:var(--pale);min-height:0;border-radius:17px;padding:10px;gap:7px;box-shadow:0 4px 0 var(--outline-group);overflow:hidden}
 .skill-section .game:hover{box-shadow:0 6px 0 var(--outline-group)}
 .skill-section .game strong{font:clamp(18px,1.7vw,22px)/1.05 Homebody,VAG,Arial,sans-serif!important;color:#273353}
 .skill-section .game .desc{font:12px/1.35 Arial,sans-serif;color:#58617b}
