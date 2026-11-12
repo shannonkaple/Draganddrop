@@ -163,8 +163,12 @@ function fitCrop(){
  if(!current||viewMode!=='crop')return;
  // The full Toy Theater site is 1380px wide in this desktop viewport.
  // A taller crop allows the complete play board and bottom controls to fit.
- const crop={left:242,top:77,width:649,height:715};
- const scale=Math.min(viewport.clientWidth/crop.width,viewport.clientHeight/crop.height,1)*.96;
+ // The older 649px crop cut off larger games (especially Different).
+ // Show a taller and wider source area at a smaller, uncropped scale.
+ const crop=current.slug==='different'
+  ? {left:215,top:81,width:1050,height:890}
+  : {left:230,top:80,width:850,height:850};
+ const scale=Math.min(viewport.clientWidth/crop.width,viewport.clientHeight/crop.height,1)*.94;
  frameWindow.style.width=Math.round(crop.width*scale)+'px';
  frameWindow.style.height=Math.round(crop.height*scale)+'px';
  frame.style.cssText='width:1380px;height:950px;max-width:none;position:absolute;left:'+(-crop.left*scale)+'px;top:'+(-crop.top*scale)+'px;transform-origin:top left;transform:scale('+scale+');';
