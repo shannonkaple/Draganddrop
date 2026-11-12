@@ -90,6 +90,36 @@ body.playing{height:100dvh;overflow:hidden}
 .limit{font:11px/1.3 Arial,sans-serif;text-align:center;color:#6d738c;margin:0}
 @media(max-width:720px){header{min-height:65px}.brand{font-size:20px}.brand span{font-size:10px}.tool{font-size:12px;padding:7px 9px}.grid{grid-template-columns:repeat(auto-fill,minmax(173px,1fr));gap:11px}.game{padding:12px;min-height:192px}.game .icon{font-size:34px}.game strong{font-size:20px}#player{height:calc(100dvh - 65px)}.player-toolbar{flex-wrap:wrap;gap:7px}.player-title{order:3;flex-basis:100%}}
 @media(max-height:650px){header{min-height:55px;padding:4px 13px}.brand{font-size:20px}.brand span{font-size:9px}#player{height:calc(100dvh - 55px);padding:4px;gap:4px}.player-toolbar{padding:4px}.tool{min-height:30px;padding:5px 9px}.player-title small{display:none}.fallback,.limit{font-size:10px}}
+
+/* Skill-first arcade: consistent color for each type. */
+.skill-groups{display:flex;flex-direction:column;gap:26px}
+.skill-section{--group:#db3889;--pale:#ffe3f0;--outline-group:#aa2a68;background:var(--pale);border:3px solid var(--outline-group);border-radius:25px;padding:14px 15px 20px;box-shadow:0 6px 0 #c5cede}
+.skill-section[data-skill="click"]{--group:#db3889;--pale:#ffe3f0;--outline-group:#aa2a68}
+.skill-section[data-skill="drag"]{--group:#287fc7;--pale:#e2f3ff;--outline-group:#2363a0}
+.skill-section[data-skill="double"]{--group:#ba810e;--pale:#fff2c9;--outline-group:#997013}
+.skill-section[data-skill="select"]{--group:#37884d;--pale:#e3f5de;--outline-group:#317547}
+.skill-section[data-skill="arrows"]{--group:#8053ba;--pale:#eee5ff;--outline-group:#654395}
+.skill-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;background:var(--group);color:white;padding:11px 15px;border-radius:15px;margin-bottom:14px}
+.skill-heading-copy h2{font:clamp(26px,2.9vw,35px)/1.05 Homebody,VAG,Arial,sans-serif;text-transform:uppercase;margin:0}
+.skill-heading-copy p{font:13px/1.3 Arial,sans-serif;margin:4px 0 0}
+.skill-count{font:12px Arial,sans-serif;background:#ffffff36;border-radius:30px;padding:8px 10px;white-space:nowrap}
+.skill-grid{grid-template-columns:repeat(auto-fill,minmax(183px,1fr));gap:12px}
+.skill-section .game,.skill-section .game[data-skill]{border:2px solid var(--outline-group);background:#fff;min-height:0;border-radius:17px;padding:10px;gap:7px;box-shadow:0 4px 0 var(--outline-group);overflow:hidden}
+.skill-section .game:hover{box-shadow:0 6px 0 var(--outline-group)}
+.skill-section .game strong{font:clamp(18px,1.7vw,22px)/1.05 Homebody,VAG,Arial,sans-serif!important;color:#273353}
+.skill-section .game .desc{font:12px/1.35 Arial,sans-serif;color:#58617b}
+.skill-section .game-media{height:130px;background:#fff;display:grid;place-items:center;overflow:hidden;border:1px solid #d5ddeb;border-radius:12px}
+.skill-section .game-media .game-photo{object-fit:contain;background:white}
+.art-fallback{font:clamp(18px,1.6vw,24px)/1.1 Homebody,VAG,Arial,sans-serif;text-align:center;max-width:88%;color:var(--group);letter-spacing:.02em}
+.filters{position:sticky;top:0;z-index:12;padding:9px 8px;background:#f8f7fff2;backdrop-filter:blur(8px);border-radius:15px}
+.filter{font:12px VAG,Arial,sans-serif!important}
+.filter[data-category="click"]{border-color:#aa2a68;background:#ffe3f0;color:#903063}
+.filter[data-category="drag"]{border-color:#2363a0;background:#e2f3ff;color:#2363a0}
+.filter[data-category="double"]{border-color:#997013;background:#fff2c9;color:#886018}
+.filter[data-category="select"]{border-color:#317547;background:#e3f5de;color:#2f7041}
+.filter[data-category="arrows"]{border-color:#654395;background:#eee5ff;color:#654395}
+.filter[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:white}
+@media(max-width:650px){.skill-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.skill-section{padding:10px}.skill-section .game-media{height:108px}.skill-heading{padding:9px}.skill-count{font-size:10px}.skill-heading-copy p{font-size:11px}}
 </style>
 </head>
 <body>
@@ -102,13 +132,8 @@ body.playing{height:100dvh;overflow:hidden}
 </header>
 <main id="home">
 <section class="hero"><h1>Choose Your Skill!</h1><p>Practice what you've learned with your Chromebook trackpad and keyboard.</p></section>
-<section id="featured" class="featured" aria-label="Our six favorite Toy Theater games">
-<h2>⭐ OUR GAMES</h2>
-<div id="featuredGrid" class="grid featured-grid"></div>
-</section>
-<h2 class="more-heading">MORE GAMES TO PRACTICE</h2>
-<nav class="filters" id="filters" aria-label="Filter by skill"></nav>
-<section class="grid" id="games" aria-label="Toy Theater practice games"></section>
+<nav class="filters" id="filters" aria-label="Choose a skill group"></nav>
+<div id="skillGroups" class="skill-groups" aria-label="Computer skills games grouped by skill"></div>
 <p class="home-note">These activities link directly to Toy Theater. Choose a game, practice your skill, and return home for another.</p>
 </main>
 <section id="player" hidden aria-label="Toy Theater practice player">
@@ -134,9 +159,16 @@ body.playing{height:100dvh;overflow:hidden}
 'use strict';
 const games=[{"slug":"maze","name":"Maze","skillLabel":"Arrow Keys","skill":"arrows","icon":"🛸","description":"Steer a spaceship through the maze.","direction":"Click the game once, then use keyboard arrow keys.","url":"https://toytheater.com/maze/"},{"slug":"disguise","name":"Disguise","skillLabel":"Select","skill":"select","icon":"🕵️","description":"Read the clues and click the correctly disguised spy.","direction":"Read the clues, then select the matching spy.","url":"https://toytheater.com/disguise/"},{"slug":"parking","name":"Parking","skillLabel":"Select","skill":"select","icon":"🚗","description":"Solve the parking lot puzzle and help the cars move.","direction":"Use your trackpad to select and move the vehicles.","url":"https://toytheater.com/parking/"},{"slug":"find-me","name":"Find Me","skillLabel":"Select","skill":"select","icon":"🕵️","description":"Choose the matching character in a moving crowd.","direction":"Select the target character with one click.","url":"https://toytheater.com/find-me/"},{"slug":"different","name":"Different","skillLabel":"Single Click","skill":"click","icon":"🚀","description":"Choose the astronaut that looks different.","direction":"Look closely; click the different astronaut.","url":"https://toytheater.com/different/"},{"slug":"going-nuts","name":"Going Nuts","skillLabel":"Single Click","skill":"click","icon":"🐿️","description":"Help the squirrel collect nuts and land in a basket.","direction":"Aim carefully and click to release the squirrel.","url":"https://toytheater.com/going-nuts/"},{"slug":"memory","name":"Supervillain Memory","skillLabel":"Single Click","skill":"click","icon":"🦸","description":"Turn over cards and match the supervillains.","direction":"Click two cards to look for a match.","url":"https://toytheater.com/memory/"},{"slug":"merge-fruit","name":"Merge Fruit","skillLabel":"Single Click","skill":"click","icon":"🍉","description":"Drop matching fruit to combine them.","direction":"Move with the trackpad, then click to drop.","url":"https://toytheater.com/merge-fruit/"},{"slug":"stack","name":"Stack","skillLabel":"Drag & Drop","skill":"drag","icon":"🧱","description":"Balance shapes and build the tallest stack.","direction":"Move and place pieces carefully.","url":"https://toytheater.com/stack/"},{"slug":"froggy-road","name":"Froggy Road","skillLabel":"Arrow Keys","skill":"arrows","icon":"🐸","description":"Help the frog cross roads and rivers.","direction":"Use arrow keys to move the frog.","url":"https://toytheater.com/froggy-road/"},{"slug":"quest","name":"Quest","skillLabel":"Arrow Keys","skill":"arrows","icon":"🏰","description":"Collect jewels and avoid trolls in a castle quest.","direction":"Use keyboard or trackpad controls shown in the game.","url":"https://toytheater.com/quest/"},{"slug":"hidden-picture-kayak","name":"Hidden Picture Kayak","skillLabel":"Single Click","skill":"click","icon":"🛶","description":"Find every hidden object in the kayak scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-kayak/"},{"slug":"hidden-picture-cafeteria","name":"Hidden Picture Cafeteria","skillLabel":"Single Click","skill":"click","icon":"🍽️","description":"Find every hidden object in the cafeteria scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-cafeteria/"},{"slug":"hidden-picture-grocery-store","name":"Hidden Picture Grocery Store","skillLabel":"Single Click","skill":"click","icon":"🛒","description":"Find hidden objects in a grocery store.","direction":"Find each listed object, then click it.","url":"https://toytheater.com/hidden-picture-grocery-store/"},{"slug":"hidden-picture-museum","name":"Hidden Picture Museum","skillLabel":"Single Click","skill":"click","icon":"🏛️","description":"Find every hidden object in the museum scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-museum/"},{"slug":"hidden-picture-library","name":"Hidden Picture Library","skillLabel":"Single Click","skill":"click","icon":"📚","description":"Find every hidden object in the library scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-library/"},{"slug":"hidden-picture-amazon","name":"Hidden Picture Amazon","skillLabel":"Single Click","skill":"click","icon":"🌳","description":"Find every hidden object in the amazon scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-amazon/"},{"slug":"hidden-picture-pirate-ship","name":"Hidden Picture Pirate Ship","skillLabel":"Single Click","skill":"click","icon":"🏴‍☠️","description":"Find every hidden object in the pirate ship scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-pirate-ship/"},{"slug":"hidden-picture-classroom","name":"Hidden Picture Classroom","skillLabel":"Single Click","skill":"click","icon":"✏️","description":"Find every hidden object in the classroom scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-classroom/"},{"slug":"hidden-picture-playground","name":"Hidden Picture Playground","skillLabel":"Single Click","skill":"click","icon":"🛝","description":"Find every hidden object in the playground scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-playground/"},{"slug":"hidden-picture-camping","name":"Hidden Picture Camping","skillLabel":"Single Click","skill":"click","icon":"🏕️","description":"Find every hidden object in the camping scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-camping/"},{"slug":"hidden-picture-space","name":"Hidden Picture Space","skillLabel":"Single Click","skill":"click","icon":"🚀","description":"Find every hidden object in the space scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-space/"},{"slug":"hidden-picture-beach","name":"Hidden Picture Beach","skillLabel":"Single Click","skill":"click","icon":"🏖️","description":"Find every hidden object in the beach scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/word-find-1/"},{"slug":"hidden-picture-dragon","name":"Hidden Picture Dragon","skillLabel":"Single Click","skill":"click","icon":"🐉","description":"Find every hidden object in the dragon scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/word-find-2/"},{"slug":"hidden-picture-farm","name":"Hidden Picture Farm","skillLabel":"Single Click","skill":"click","icon":"🚜","description":"Find every hidden object in the farm scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/word-find-3/"},{"slug":"hidden-picture-bus-stop","name":"Hidden Picture Bus Stop","skillLabel":"Single Click","skill":"click","icon":"🚌","description":"Find every hidden object in the bus stop scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/word-find-5/"},{"slug":"hidden-picture-snow","name":"Hidden Picture Snow","skillLabel":"Single Click","skill":"click","icon":"❄️","description":"Find every hidden object in the snow scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/word-find-4/"},{"slug":"hidden-picture-party","name":"Hidden Picture Party","skillLabel":"Single Click","skill":"click","icon":"🎉","description":"Find every hidden object in the party scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/word-find-6/"},{"slug":"hidden-picture-monster-restaurant","name":"Hidden Picture Monster Restaurant","skillLabel":"Single Click","skill":"click","icon":"👾","description":"Find every hidden object in the monster restaurant scene.","direction":"Look at the object list, then click each item you find.","url":"https://toytheater.com/hidden-picture-monster-restaurant/"},{"slug":"block-puzzle","name":"Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🧩","description":"Drag pieces into the puzzle to finish the picture.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/block-puzzle/"},{"slug":"gummy-blocks","name":"Gummy Blocks","skillLabel":"Drag & Drop","skill":"drag","icon":"🍬","description":"Fit blocks together on the grid.","direction":"Click, hold, drag, then release.","url":"https://toytheater.com/gummy-blocks/"},{"slug":"pattern-block-puzzle","name":"Pattern Block Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🔷","description":"Place shapes into colorful picture puzzles.","direction":"Drag a shape from the tray onto the picture.","url":"https://toytheater.com/pattern-block-puzzle/"},{"slug":"pieces","name":"Pieces Shape Puzzle","skillLabel":"Drag & Drop","skill":"drag","icon":"🟨","description":"Fill a square by arranging different shapes.","direction":"Click, hold, and drag the shapes.","url":"https://toytheater.com/pieces/"},{"slug":"find","name":"Find It!","skillLabel":"Single Click","skill":"click","icon":"🔎","description":"Search a busy picture for a matching object.","direction":"Use one trackpad click to select the object.","url":"https://toytheater.com/find/"},{"slug":"digraph-cards","name":"Digraph Cards","skillLabel":"Double Click","skill":"double","icon":"🗂️","description":"Flip sound cards after placing them on the board.","direction":"Use two quick clicks on one card.","url":"https://toytheater.com/digraph-cards/"},{"slug":"tap-out","name":"Tap Out","skillLabel":"Select","skill":"select","icon":"↗️","description":"Select blocks and move them along their arrows.","direction":"Click blocks in a useful order to clear the board.","url":"https://toytheater.com/tap-out/"},{"slug":"animal-slider","name":"Animal Slider","skillLabel":"Arrow Keys","skill":"arrows","icon":"🐼","description":"Use the arrow keys to move and merge animals.","direction":"Use keyboard arrow keys to slide the tiles.","url":"https://toytheater.com/animal-slider/"},{"slug":"line","name":"Line Game","skillLabel":"Arrow Keys","skill":"arrows","icon":"⭐","description":"Use arrows to steer the line and collect stars.","direction":"Use keyboard arrow keys; avoid hitting your line.","url":"https://toytheater.com/line/"}];
 const featuredSlugs=["maze","disguise","parking","find-me","different","going-nuts"];
-const categories=[['all','ALL GAMES'],['drag','DRAG & DROP'],['click','CLICK'],['double','DOUBLE CLICK'],['select','SELECT'],['arrows','ARROW KEYS']];
+const categories=[['all','ALL SKILLS'],['click','CLICK'],['drag','DRAG & DROP'],['double','DOUBLE CLICK'],['select','SELECT'],['arrows','ARROW KEYS']];
+const groupDescriptions={
+ click:'Practice finding objects and making one accurate trackpad click.',
+ drag:'Click, hold, drag and release pieces into place.',
+ double:'Practice two quick clicks in the same spot.',
+ select:'Choose the correct object, character or answer.',
+ arrows:'Use the arrow keys on your Chromebook to move and play.'
+};
 let current=null,selected='all';
-const home=document.getElementById('home'),player=document.getElementById('player'),frame=document.getElementById('gameFrame'),grid=document.getElementById('games'),featured=document.getElementById('featured'),featuredGrid=document.getElementById('featuredGrid'),filters=document.getElementById('filters'),topHome=document.getElementById('topHome');
+const home=document.getElementById('home'),player=document.getElementById('player'),frame=document.getElementById('gameFrame'),skillGroups=document.getElementById('skillGroups'),filters=document.getElementById('filters'),topHome=document.getElementById('topHome');
 // Toy Theater artwork is fetched as metadata only, directly from Toy Theater.
 // The arcade doesn't copy or fabricate game images; the emoji art is a fallback.
 const artCache=new Map();
@@ -186,30 +218,54 @@ const gameArtObserver=typeof IntersectionObserver==='function'
 function renderFilters(){
  filters.replaceChildren();
  for(const [value,label] of categories){
-  const b=document.createElement('button');b.type='button';b.className='filter';b.textContent=label;b.dataset.category=value;b.setAttribute('aria-pressed',String(selected===value));
-  b.addEventListener('click',()=>{selected=value;renderFilters();renderCards();});
+  const b=document.createElement('button');
+  b.type='button';b.className='filter';b.dataset.category=value;
+  b.textContent=label;
+  b.setAttribute('aria-pressed',String(selected===value));
+  b.addEventListener('click',()=>{selected=value;renderFilters();renderCards();window.scrollTo(0,0);});
   filters.append(b);
  }
 }
+function createGameCard(game){
+ const b=document.createElement('button');
+ b.type='button';b.className='game';b.dataset.skill=game.skill;
+ b.setAttribute('aria-label','Play '+game.name+' – '+game.skillLabel);
+ const media=document.createElement('span');media.className='game-media';
+ const fallback=document.createElement('span');
+ fallback.className='art-fallback';
+ fallback.textContent=game.name.toUpperCase();
+ media.append(fallback);
+ const photo=document.createElement('img');
+ photo.alt='';photo.loading='lazy';photo.decoding='async';photo.className='game-photo';
+ photo.hidden=true;photo.dataset.slug=game.slug;
+ media.append(photo);
+ const title=document.createElement('strong');title.textContent=game.name.toUpperCase();
+ const desc=document.createElement('span');desc.className='desc';desc.textContent=game.description;
+ b.append(media,title,desc);
+ b.addEventListener('click',()=>openGame(game.slug));
+ if(gameArtObserver)gameArtObserver.observe(photo);else loadGameArt(photo);
+ return b;
+}
 function renderCards(){
- grid.replaceChildren();featuredGrid.replaceChildren();
- featured.hidden=selected!=='all';
- for(const game of games.filter(g=>selected==='all'||g.skill===selected)){
-  const b=document.createElement('button');b.type='button';b.className='game';b.dataset.skill=game.skill;
-  const media=document.createElement('span');media.className='game-media';
-  const icon=document.createElement('span');icon.className='icon';icon.textContent=game.icon;icon.setAttribute('aria-hidden','true');
-  media.append(icon);
-  // Show Toy Theater's own featured art when publicly exposed by its API.
-  // If an image cannot be retrieved, retain the visible illustrated skill icon.
-  const photo=document.createElement('img');photo.alt='';photo.loading='lazy';photo.decoding='async';photo.className='game-photo';photo.hidden=true;
-  photo.dataset.slug=game.slug;
-  media.append(photo);if(gameArtObserver)gameArtObserver.observe(photo);else loadGameArt(photo);
-  const tag=document.createElement('span');tag.className='pill';tag.textContent=game.skillLabel;
-  const title=document.createElement('strong');title.textContent=game.name.toUpperCase();
-  const desc=document.createElement('span');desc.className='desc';desc.textContent=game.description;
-  const go=document.createElement('span');go.className='go';go.textContent='PLAY GAME ›';
-  b.append(media,tag,title,desc,go);b.addEventListener('click',()=>openGame(game.slug));
-  (selected==='all'&&featuredSlugs.includes(game.slug)?featuredGrid:grid).append(b);
+ skillGroups.replaceChildren();
+ for(const [skill,label] of categories.slice(1)){
+  if(selected!=='all'&&selected!==skill)continue;
+  const members=games.filter(g=>g.skill===skill);
+  if(!members.length)continue;
+  const section=document.createElement('section');
+  section.className='skill-section';section.dataset.skill=skill;
+  section.id='skill-'+skill;
+  const heading=document.createElement('div');heading.className='skill-heading';
+  const titleWrap=document.createElement('div');titleWrap.className='skill-heading-copy';
+  const h2=document.createElement('h2');h2.textContent=label;
+  const p=document.createElement('p');p.textContent=groupDescriptions[skill];
+  titleWrap.append(h2,p);
+  const counter=document.createElement('span');counter.className='skill-count';counter.textContent=members.length+(members.length===1?' GAME':' GAMES');
+  heading.append(titleWrap,counter);
+  const groupGrid=document.createElement('div');groupGrid.className='grid skill-grid';
+  members.forEach(game=>groupGrid.append(createGameCard(game)));
+  section.append(heading,groupGrid);
+  skillGroups.append(section);
  }
 }
 // Prefer the standalone playable game documents whenever Toy Theater has one.
