@@ -174,19 +174,35 @@ const home=document.getElementById('home'),player=document.getElementById('playe
 const artCache=new Map();
 const normalizeUrl=u=>{const v=String(u||'').toLowerCase();return v.endsWith('/')?v.slice(0,-1):v;};
 async function retrieveArt(game){
- const params=new URLSearchParams({search:game.name,per_page:'15'});
+ const slug=game.url.split('/').filter(Boolean).pop();
+ const getImage=x=>x?._embedded?.['wp:featuredmedia']?.[0]?.source_url
+  ||x?.yoast_head_json?.og_image?.[0]?.url
+  ||null;
+ // Pull the source image from the game page's original WordPress feature
+ // image when published, rather than copying a thumbnail from another game.
+ for(const type of ['pages','posts']){
+  try{
+   const endpoint='https://toytheater.com/wp-json/wp/v2/'+type+
+    '?slug='+encodeURIComponent(slug)+'&_embed=1';
+   const res=await fetch(endpoint,{mode:'cors',credentials:'omit'});
+   if(!res.ok)continue;
+   const data=await res.json();
+   const image=getImage(data?.[0]);
+   if(image)return image;
+  }catch(e){}
+ }
+ // Some older games have a different page slug from their menu title.
+ const query=slug.replace(/-/g,' ');
+ const params=new URLSearchParams({search:query,per_page:'40'});
  const res=await fetch('https://toytheater.com/wp-json/wp/v2/search?'+params,{mode:'cors',credentials:'omit'});
- if(!res.ok)throw Error('No public image metadata');
+ if(!res.ok)return null;
  const hits=await res.json();
  const hit=hits.find(x=>normalizeUrl(x.url)===normalizeUrl(game.url));
  if(!hit)return null;
  const type=hit.type==='page'?'pages':'posts';
  const detail=await fetch('https://toytheater.com/wp-json/wp/v2/'+type+'/'+hit.id+'?_embed=1',{mode:'cors',credentials:'omit'});
  if(!detail.ok)return null;
- const data=await detail.json();
- return data?._embedded?.['wp:featuredmedia']?.[0]?.source_url
-  ||data?.yoast_head_json?.og_image?.[0]?.url
-  ||null;
+ return getImage(await detail.json());
 }
 async function retrieveOfficialArt(game){
  try{const url=await retrieveArt(game);if(url)return url;}catch(e){}
@@ -204,11 +220,20 @@ async function retrieveOfficialArt(game){
 function loadGameArt(img){
  const game=games.find(x=>x.slug===img.dataset.slug);
  if(!game)return;
- if(!artCache.has(game.slug))artCache.set(game.slug,retrieveOfficialArt(game).catch(()=>null));
+ const cacheKey='tt-original-thumbnail-v2:'+game.slug;
+ let cached=null;
+ try{cached=sessionStorage.getItem(cacheKey)}catch(e){}
+ if(!artCache.has(game.slug)){
+  artCache.set(game.slug,cached?Promise.resolve(cached):retrieveOfficialArt(game).then(url=>{
+   if(url){try{sessionStorage.setItem(cacheKey,url)}catch(e){}}
+   return url;
+  }).catch(()=>null));
+ }
  artCache.get(game.slug).then(url=>{
   if(!url||!img.isConnected)return;
   img.onload=()=>{img.hidden=false;};
   img.onerror=()=>{img.hidden=true;};
+  img.referrerPolicy='no-referrer';
   img.src=url;
  });
 }
