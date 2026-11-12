@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#6f273c">
+<title>My Thanksgiving Parade | Balloon Parade Studio</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app" class="app">
+<header class="topbar">
+  <div class="brand"><div class="brand-badge" aria-hidden="true">★</div><div><div class="overline">THE LITTLE PARADE COMPANY</div><h1>My Thanksgiving Parade <span>Studio</span></h1></div></div>
+  <div class="top-actions"><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">? Help</button><button type="button" class="outline-btn" id="changeStudentBtn">↔ Student</button><button type="button" class="save-btn" id="saveBtn">✦ Save Parade</button></div>
+</header>
+<div class="body-layout">
+ <aside class="sidebar">
+   <div class="welcome-card">
+     <div class="eyebrow">YOUR PARADE STUDIO</div>
+     <div class="welcome-title" id="studentTitle">Make it magical!</div>
+     <p id="gradeDescription">Create a parade starring your favorite giant balloons and floats.</p>
+     <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+     <div class="countline"><b id="countText">0 of 5 chosen</b><span id="gradeTag">GRADE 1</span></div>
+   </div>
+   <div class="steps-label">CREATE YOUR PARADE</div>
+   <div class="step-list">
+    <button class="step selected" type="button" data-tab="balloons"><span class="step-icon">01</span><span><b>Choose balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
+    <button class="step" type="button" data-tab="floats"><span class="step-icon">02</span><span><b>Add fabulous floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
+    <button class="step" type="button" data-tab="decorate"><span class="step-icon">03</span><span><b>Make it yours</b><small>Colors, scenes &amp; music</small></span><span class="step-chevron">›</span></button>
+   </div>
+   <div class="tip-card"><span class="tip-star">✦</span><div><b>Parade director tip</b><p id="tipText">Start by choosing your favorite balloons. Click any picture to add it to your lineup!</p></div></div>
+ </aside>
+ <main class="main">
+   <section class="preview-panel" aria-label="Animated parade preview">
+    <div class="preview-head"><div><span class="eyebrow">LIVE PREVIEW</span><h2 id="stageHeading">Your own NYC parade</h2></div><div class="head-controls"><span class="scene-chip" id="sceneChip">Central Park West</span><button type="button" id="previewSceneNext" class="circle-btn" aria-label="Switch scene">↻</button></div></div>
+    <div id="stage" class="stage central-park" aria-label="Parade street background"><div id="stageScene" class="stage-scene"></div><div id="stageCharacters" class="stage-characters"></div><div class="stage-sign" id="stageSign">CENTRAL PARK WEST · NEW YORK CITY</div><div class="road-strip" aria-hidden="true"></div><div id="stageEmpty" class="stage-empty"><span class="empty-icon">✦</span><b>Your parade starts here!</b><span>Choose a balloon or float from below.</span></div></div>
+    <div class="preview-foot"><span class="preview-caption" id="previewCaption">Make your lineup, then watch it come to life.</span><div class="preview-actions"><button type="button" id="shuffleBtn" class="light-btn">✳ Surprise Me</button><button type="button" id="playBtn" class="play-btn"><span aria-hidden="true">▶</span> WATCH MY PARADE</button></div></div>
+   </section>
+   <section class="lineup-panel" aria-label="Parade lineup">
+     <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2>Put your parade in order <span class="muted" id="lineupCount">0 / 5</span></h2></div><div class="tiny-help">Use ◀ ▶ to move a piece</div></div>
+     <div class="lineup" id="lineup" role="list"></div>
+   </section>
+   <section class="library-panel" id="libraryPanel">
+    <div class="library-top"><div><span class="eyebrow" id="libraryEyebrow">BALLOON COLLECTION</span><h2 id="libraryTitle">Choose your favorite balloons</h2></div><div class="library-tools"><span id="libraryCount">27 choices</span><button type="button" class="arrow-btn" id="galleryBack" aria-label="Previous choices">‹</button><button type="button" class="arrow-btn" id="galleryForward" aria-label="Next choices">›</button></div></div>
+    <div id="gallery" class="gallery" aria-label="Available parade pieces"></div>
+    <div id="decoratePanel" class="decorate-panel hidden">
+      <div class="design-section"><b>Choose your New York scene</b><div class="scenes" id="scenes"></div></div>
+      <div class="design-section"><b>Parade banner color</b><div class="swatches" id="colors"></div></div>
+      <div class="design-section"><b>Pick your parade music</b><div class="music-options" id="musicOptions"></div></div>
+    </div>
+   </section>
+ </main>
+</div>
+<div class="footbar"><span>✦ DESIGNED BY YOU · MADE FOR LITTLE PARADE DIRECTORS ✦</span><span class="foot-note">No touching the screen needed • Chromebook &amp; trackpad friendly</span></div>
+</div>
+<div class="overlay" id="studentModal" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle">
+  <div class="modal-card student-card"><div class="modal-star">✦</div><div class="eyebrow">WELCOME, PARADE DIRECTOR!</div><h2 id="studentModalTitle">Let's make a parade!</h2><p>Tell us where to save your wonderful parade.</p>
+   <div class="modal-form"><label for="studentGrade">What grade are you in?</label><div class="grade-picks"><button type="button" class="grade-pick selected" data-grade="1">FIRST GRADE <small>5 parade stars</small></button><button type="button" class="grade-pick" data-grade="2">SECOND GRADE <small>10 parade stars</small></button></div><label for="classCode">Classroom code <small>(your teacher can choose one)</small></label><input type="text" id="classCode" maxlength="12" placeholder="Example: STEM" autocomplete="off" spellcheck="false" value="STEM"><label for="studentNumber">Your student number</label><input type="number" id="studentNumber" min="1" max="99" placeholder="1 to 99" inputmode="numeric"><span class="form-error" id="entryError" role="alert"></span><button type="button" class="start-btn" id="enterBtn">ENTER MY PARADE STUDIO <span>→</span></button></div>
+   <div class="privacy-note">Just your number and class code — no student names or email addresses.</div>
+  </div>
+</div>
+<div class="overlay hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal-card help-card"><button type="button" class="modal-close" id="helpClose" aria-label="Close help">×</button><div class="eyebrow">HOW TO PLAY</div><h2 id="helpTitle">You're the parade director!</h2><ol><li><b>Choose</b> five pieces in first grade or ten in second grade. Use balloons, floats, or both.</li><li><b>Arrange</b> your parade. Use the arrows to pick who goes first, second, and last.</li><li><b>Decorate</b> with a New York route, music, and your favorite color.</li><li><b>Save</b> with your classroom code and student number, then press <b>WATCH MY PARADE</b>.</li></ol><p>Press Escape or use the back button to leave the parade movie.</p><button type="button" class="start-btn" id="helpGotIt">I'M READY!</button></div></div>
+<div class="cinema hidden" id="cinema" aria-label="Your parade movie">
+ <div class="cinema-top"><div class="cinema-brand">★ YOUR THANKSGIVING PARADE <span id="movieSubtitle">New York City</span></div><div class="cinema-controls"><button type="button" id="soundBtn">♫ Sound On</button><button type="button" id="pauseBtn">Ⅱ Pause</button><button type="button" id="fullscreenBtn">⛶ Full Screen</button><button type="button" id="closeMovieBtn">✕ Back to Studio</button></div></div>
+ <div class="movie-scene" id="movieScene"><div class="movie-background" id="movieBackground"></div><div class="movie-crowd" aria-hidden="true"></div><div class="movie-road" aria-hidden="true"></div><div class="movie-characters" id="movieCharacters"></div><div class="movie-bottom-banner" id="movieLocation">CENTRAL PARK WEST • NEW YORK CITY</div><div class="confetti" id="confetti" aria-hidden="true"></div></div>
+ <div class="cinema-bottom"><div class="movie-status"><span class="live-dot"></span><span id="nowPlaying">The parade is beginning!</span></div><div class="timeline"><div class="timeline-fill" id="timelineFill"></div></div><button type="button" id="replayBtn">↻ Replay</button></div>
+</div>
+<script src="bundles/pieces-1.js" defer></script>
+<script src="bundles/pieces-2.js" defer></script>
+<script src="bundles/pieces-3.js" defer></script>
+<script src="bundles/pieces-4.js" defer></script>
+<script src="bundles/pieces-5.js" defer></script>
+<script src="bundles/pieces-6.js" defer></script>
+<script src="bundles/pieces-7.js" defer></script>
+<script src="bundles/pieces-8.js" defer></script>
+<script src="bundles/pieces-9.js" defer></script>
+<script src="bundles/pieces-10.js" defer></script>
+<script src="bundles/pieces-11.js" defer></script>
+<script src="bundles/pieces-12.js" defer></script>
+<script src="bundles/scene-central-park.js" defer></script>
+<script src="bundles/scene-columbus.js" defer></script>
+<script src="bundles/scene-herald-square.js" defer></script>
+<script src="bundles/scene-sixth-avenue.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
