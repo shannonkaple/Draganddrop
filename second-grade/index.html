@@ -168,6 +168,33 @@ main#home{display:block;height:calc(100dvh - 56px);overflow:hidden;max-width:non
  #home .skill-grid{gap:4px}
  #player{height:calc(100dvh - 46px)}
 }
+
+/* A single grid: filtering keeps all cards in place and dims unmatched skills. */
+#home .all-games-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:4px auto 0;width:100%;max-width:1520px}
+#home .all-games-grid .game,#home .all-games-grid .game[data-skill]{
+ display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+ gap:4px;min-width:0;width:100%;height:138px;min-height:0;overflow:hidden;
+ border:2px solid var(--card-border,#8795ac);border-radius:12px;
+ background:var(--card-bg,#fff);padding:5px;box-shadow:none;text-align:center;
+ transition:filter .18s ease,opacity .18s ease,transform .18s ease
+}
+#home .all-games-grid .game[data-skill="click"]{--card-bg:#ffe3f0;--card-border:#cf538b}
+#home .all-games-grid .game[data-skill="drag"]{--card-bg:#e2f3ff;--card-border:#458ec8}
+#home .all-games-grid .game[data-skill="select"]{--card-bg:#e3f5de;--card-border:#58a86b}
+#home .all-games-grid .game[data-skill="arrows"]{--card-bg:#eee5ff;--card-border:#9568c3}
+#home .all-games-grid .game[data-skill="double"]{--card-bg:#fff2c9;--card-border:#c5a032}
+#home .all-games-grid .game .game-media{width:100%;height:100px;flex:1;min-height:0;max-width:none;background:#fff;border-radius:8px;border:1px solid #ffffff88}
+#home .all-games-grid .game .game-photo{width:100%;height:100%;object-fit:contain;background:#fff}
+#home .all-games-grid .game strong{font:clamp(13px,1.2vw,18px)/1.06 Homebody,VAG,Arial,sans-serif!important;color:#26365a;display:grid;place-items:center;flex:0 0 auto;min-height:30px;overflow-wrap:anywhere}
+#home .all-games-grid .game .art-fallback{font:clamp(14px,1.25vw,19px)/1.05 Homebody,VAG,Arial,sans-serif;color:#586586}
+#home .all-games-grid .game.game-dimmed{filter:grayscale(1);opacity:.22;cursor:default;pointer-events:none}
+#home .all-games-grid .game:not(.game-dimmed):hover{transform:translateY(-2px);box-shadow:0 3px 0 var(--card-border)}
+#home .all-games-grid .game:focus-visible{outline:4px solid #eab653;outline-offset:1px}
+#home .filters{position:static;gap:7px;margin:5px 0 9px;padding:2px}
+#home .filter{min-height:30px;padding:5px 11px;font-size:11px!important}
+#home .hero h1{font-size:clamp(20px,2.1vw,27px)}
+@media(max-width:880px){#home .all-games-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}#home .all-games-grid .game{height:116px}}
+@media(max-height:710px){#home .all-games-grid .game,#home .all-games-grid .game[data-skill]{height:120px}}
 </style>
 </head>
 <body>
@@ -182,7 +209,7 @@ main#home{display:block;height:calc(100dvh - 56px);overflow:hidden;max-width:non
 <div id="menuBody" class="menu-body">
 <section class="hero"><h1>Choose Your Skill!</h1><p>Practice what you've learned with your Chromebook trackpad and keyboard.</p></section>
 <nav class="filters" id="filters" aria-label="Choose a skill group"></nav>
-<div id="skillGroups" class="skill-groups" aria-label="Computer skills games grouped by skill"></div>
+<div id="allGameGrid" class="all-games-grid" aria-label="All Toy Theater practice games"></div>
 </div>
 </main>
 <section id="player" hidden aria-label="Toy Theater practice player">
@@ -217,7 +244,7 @@ const groupDescriptions={
  arrows:'Use the arrow keys on your Chromebook to move and play.'
 };
 let current=null,selected='all';
-const home=document.getElementById('home'),player=document.getElementById('player'),frame=document.getElementById('gameFrame'),skillGroups=document.getElementById('skillGroups'),filters=document.getElementById('filters'),topHome=document.getElementById('topHome');
+const home=document.getElementById('home'),player=document.getElementById('player'),frame=document.getElementById('gameFrame'),allGameGrid=document.getElementById('allGameGrid'),filters=document.getElementById('filters'),topHome=document.getElementById('topHome');
 // Toy Theater artwork is fetched as metadata only, directly from Toy Theater.
 // The arcade doesn't copy or fabricate game images; the emoji art is a fallback.
 const artCache=new Map();
@@ -312,8 +339,22 @@ function renderFilters(){
   b.type='button';b.className='filter';b.dataset.category=value;
   b.textContent=label;
   b.setAttribute('aria-pressed',String(selected===value));
-  b.addEventListener('click',()=>{selected=value;renderFilters();renderCards();window.scrollTo(0,0);});
+  b.addEventListener('click',()=>{
+   selected=selected===value?'all':value;
+   updateFilterState();
+  });
   filters.append(b);
+ }
+}
+function updateFilterState(){
+ for(const filter of filters.querySelectorAll('button')){
+  filter.setAttribute('aria-pressed',String(selected===filter.dataset.category));
+ }
+ for(const card of allGameGrid.querySelectorAll('.game')){
+  const dimmed=selected!=='all'&&card.dataset.skill!==selected;
+  card.classList.toggle('game-dimmed',dimmed);
+  card.setAttribute('aria-disabled',String(dimmed));
+  card.tabIndex=dimmed?-1:0;
  }
 }
 function createGameCard(game){
@@ -330,33 +371,20 @@ function createGameCard(game){
  photo.hidden=true;photo.dataset.slug=game.slug;
  media.append(photo);
  const title=document.createElement('strong');title.textContent=game.name.toUpperCase();
- const desc=document.createElement('span');desc.className='desc';desc.textContent=game.description;
- b.append(media,title,desc);
- b.addEventListener('click',()=>openGame(game.slug));
+ b.append(media,title);
+ b.addEventListener('click',()=>{if(selected!=='all'&&game.skill!==selected)return;openGame(game.slug)});
  if(gameArtObserver)gameArtObserver.observe(photo);else loadGameArt(photo);
  return b;
 }
 function renderCards(){
- skillGroups.replaceChildren();
- for(const [skill,label] of categories.slice(1)){
-  if(selected!=='all'&&selected!==skill)continue;
-  const members=games.filter(g=>g.skill===skill);
-  if(!members.length)continue;
-  const section=document.createElement('section');
-  section.className='skill-section';section.dataset.skill=skill;
-  section.id='skill-'+skill;
-  const heading=document.createElement('div');heading.className='skill-heading';
-  const titleWrap=document.createElement('div');titleWrap.className='skill-heading-copy';
-  const h2=document.createElement('h2');h2.textContent=label;
-  const p=document.createElement('p');p.textContent=groupDescriptions[skill];
-  titleWrap.append(h2,p);
-  const counter=document.createElement('span');counter.className='skill-count';counter.textContent=members.length+(members.length===1?' GAME':' GAMES');
-  heading.append(titleWrap,counter);
-  const groupGrid=document.createElement('div');groupGrid.className='grid skill-grid';
-  members.forEach(game=>groupGrid.append(createGameCard(game)));
-  section.append(heading,groupGrid);
-  skillGroups.append(section);
+ allGameGrid.replaceChildren();
+ // Keep skill types together in the same uninterrupted grid, not separate pages.
+ for(const [skill] of categories.slice(1)){
+  for(const game of games.filter(x=>x.skill===skill)){
+   allGameGrid.append(createGameCard(game));
+  }
  }
+ updateFilterState();
  requestAnimationFrame(fitMenu);
 }
 // Prefer the standalone playable game documents whenever Toy Theater has one.
