@@ -438,7 +438,7 @@ let viewMode='game';
 // Different, Maze, and other tall games need more of the actual board visible.
 // Never enlarge a fixed website crop; fit it within the Chromebook space.
 const cropProfiles={
- 'maze':{left:242,top:86,width:660,height:740},
+ 'maze':{left:160,top:25,width:1120,height:1160},
  'disguise':{left:242,top:86,width:690,height:850},
  'parking':{left:242,top:86,width:690,height:780},
  'find-me':{left:242,top:86,width:720,height:780},
@@ -477,9 +477,11 @@ const cropProfiles={
  'hidden-picture-party':{left:232,top:85,width:730,height:825},
  'hidden-picture-monster-restaurant':{left:232,top:85,width:730,height:825}
 };
+// Maze gets a fresh fit preset so previously saved tight crops cannot override it.
+const fitStorageKey=()=>current?.slug==='maze'?'tt-crop-v2:maze':'tt-crop-v1:'+current.slug;
 const getFitChanges=()=>{
  if(!current)return {zoom:0,x:0,y:0};
- try{return JSON.parse(localStorage.getItem('tt-crop-v1:'+current.slug))||{zoom:0,x:0,y:0}}catch(e){return {zoom:0,x:0,y:0}}
+ try{return JSON.parse(localStorage.getItem(fitStorageKey()))||{zoom:0,x:0,y:0}}catch(e){return {zoom:0,x:0,y:0}}
 };
 function fitCrop(){
  if(!current||viewMode!=='crop')return;
@@ -557,7 +559,7 @@ function updateCrop(patch){
  if(!current)return;
  const a={...getFitChanges()};
  Object.assign(a,patch);
- try{localStorage.setItem('tt-crop-v1:'+current.slug,JSON.stringify(a))}catch(e){}
+ try{localStorage.setItem(fitStorageKey(),JSON.stringify(a))}catch(e){}
  if(viewMode!=='crop')setGameView('crop');else fitCrop();
 }
 document.getElementById('moreBoard').addEventListener('click',()=>updateCrop({zoom:(getFitChanges().zoom||0)+1}));
