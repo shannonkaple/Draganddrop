@@ -27,7 +27,7 @@
   const $=id=>document.getElementById(id);
   function imageReady(){return bodyImage.complete&&bodyImage.naturalWidth&&featureImage.complete&&featureImage.naturalWidth}
   function loadReady(){if(imageReady()){
-    ready=true;cache.clear();draw();
+    ready=true;cache.clear();pickBase();categoryTabs();options();draw();
     if(typeof renderAll==='function')renderAll();
   }}
   bodyImage.onload=loadReady;featureImage.onload=loadReady;
