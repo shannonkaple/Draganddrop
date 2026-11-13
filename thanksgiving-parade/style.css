@@ -56,3 +56,44 @@ h1,h2,h3,h4,h5,h6,.welcome-title,.designer-heading,.portal-prompt,.portal-card h
 .movie-piece.float{top:0!important;bottom:auto!important;width:min(72vw,950px)!important;height:min(49vh,440px)!important;overflow:visible!important;transform-origin:bottom center}
 .movie-piece.float .piece-art{height:100%!important;width:100%!important;display:flex;align-items:flex-end;justify-content:center}
 .movie-piece.float img{object-fit:contain!important;object-position:center bottom!important;width:100%!important;height:100%!important}
+
+
+/* Illustrated, picture-book-quality menus. The art is a real JPEG, not an HTML mockup. */
+#onboarding.overlay{background:linear-gradient(110deg,rgba(13,26,48,.72),rgba(22,32,57,.52)),var(--parade-menu-art) center / cover no-repeat fixed;backdrop-filter:blur(3px)}
+.portal-card{width:min(900px,97vw);background:linear-gradient(180deg,rgba(255,251,239,.94),rgba(255,247,229,.89)),var(--parade-menu-art) center / cover no-repeat;border:5px solid #ffefc7;outline:2px solid #e89d64;outline-offset:-10px;box-shadow:0 10px 0 #9f4f5c,0 32px 100px #0d213b99;border-radius:27px}
+.portal-kicker{color:#734e65;text-shadow:0 1px #fff}
+.portal-card h2{color:#7b375e;text-shadow:2px 3px #fff4d5,4px 5px #e6b0a2;letter-spacing:.015em}
+.portal-prompt{color:#793650;text-shadow:1px 2px #fff1d6}
+.grade-tiles{gap:22px;margin-top:14px}
+.grade-tiles button{position:relative;min-height:198px;isolation:isolate;border:4px solid #fff9e7!important;border-radius:19px;background-color:#a9455d;color:#fff!important;box-shadow:0 7px 0 #9a4e5d,0 11px 24px #414c6880;overflow:hidden;transition:transform .16s,box-shadow .16s}
+.grade-tiles button:nth-child(2){box-shadow:0 7px 0 #4a77a0,0 11px 24px #414c6880}
+.grade-tiles button:hover,.grade-tiles button:focus-visible{transform:translateY(-4px) scale(1.015);box-shadow:0 10px 0 #8b4652,0 16px 32px #343a5970}
+.grade-tiles button .tile-number{font-family:var(--font-homebody)!important;font-size:78px;line-height:1;color:#fff;text-shadow:0 3px 7px #1a1e3666}
+.grade-tiles button b{font-family:var(--font-homebody)!important;text-transform:uppercase!important;font-size:25px;color:white;letter-spacing:.06em;text-shadow:0 3px 8px #17263a}
+.grade-tiles button small{font-size:13px;font-weight:900;color:#fff9e8;text-shadow:0 2px 7px #1e243d}
+.teacher-grid{gap:10px}
+.teacher-grid button{background:linear-gradient(160deg,#fffefb 0%,#ffecf0 56%,#ffdfd9 100%);border:2px solid #e3abb4;color:#713d55;box-shadow:0 4px 0 #e8a7ae,0 8px 16px #744d5a17;min-height:60px;font-size:15px;border-radius:16px}
+.teacher-grid button:nth-child(3n+2){background:linear-gradient(165deg,#fffefc,#e6f3ff 85%);border-color:#aacde7;box-shadow:0 4px 0 #a7cce9,0 8px 16px #3b628818}
+.teacher-grid button:nth-child(3n){background:linear-gradient(165deg,#fffefc,#fff0d6 85%);border-color:#edc78f;box-shadow:0 4px 0 #e6b579,0 8px 16px #7b522218}
+.number-grid button{background:linear-gradient(165deg,#fffefe,#f5e8fa);border:2px solid #d9bdd9;color:#814d87;box-shadow:0 3px 0 #c8a8cd;border-radius:13px}
+.number-grid button.selected,.number-grid button:hover{background:linear-gradient(145deg,#af6aad,#864d99);color:#fff;border-color:#704288}
+.sidebar{background:linear-gradient(180deg,#fff9ef,#fdf3ed)}
+.welcome-card{background:linear-gradient(145deg,#fff4e2,#ffedf2);border:2px solid #f1c1b7}
+.step{border:2px solid transparent;border-radius:15px;background:#fffdf8;box-shadow:0 3px 0 #ead1c4}
+.step.selected{background:linear-gradient(145deg,#a24d77,#733e78);border-color:#e6a5bd;color:#fff;box-shadow:0 4px 0 #6b3b64}
+.lineup-panel,.library-panel,.preview-panel{background:linear-gradient(180deg,#fffefa,#fff7f1);border-color:#edd5c6}
+.asset-card{background:linear-gradient(150deg,#fffefe 0%,#fff8f1 65%,#f8e9e7 100%);border:2px solid #ead0c4;border-radius:17px;box-shadow:0 4px 0 #e9cdc0,0 8px 22px #745b6d13}
+.asset-card:hover{transform:translateY(-3px);border-color:#b75e85;box-shadow:0 6px 0 #e4b4bf,0 12px 23px #a55a7928}
+.asset-card.selected-asset{border-color:#8b3c72;background:linear-gradient(145deg,#fff2f8,#ffe8f1)}
+.asset-card .asset-name{font-size:11px;max-width:130px}
+.lineup{overflow-y:auto;max-height:315px;grid-auto-flow:row;gap:8px;padding:2px 1px 5px;align-items:stretch}
+.lineup .slot{height:91px}
+@media(max-width:800px){.lineup{grid-auto-columns:minmax(77px,1fr);grid-auto-flow:row;max-height:228px;overflow-x:auto}.portal-card{max-height:98dvh}.grade-tiles button{min-height:150px}.grade-tiles button .tile-number{font-size:55px}}
+/* The parade can run inside the existing Canva/whiteboard classroom board. */
+html.embedded,html.embedded body{min-height:100%;overflow:hidden}
+html.embedded .topbar{height:57px;padding:0 11px;border-bottom-width:2px}
+html.embedded .brand h1{font-size:19px}
+html.embedded .brand-badge,html.embedded .footbar{display:none}
+html.embedded .body-layout{height:calc(100dvh - 57px);overflow:auto;padding:8px}
+html.embedded .top-actions .ghost-btn{display:none}
+html.embedded .portal-card{width:min(900px,99%)}
