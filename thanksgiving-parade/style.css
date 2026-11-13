@@ -277,3 +277,43 @@ html.embedded .app:before,html.embedded .app:after{display:none!important}
 /* Keep owner-provided typography: no replacements, with headings uppercase. */
 h1,h2,h3,h4,h5,h6,.welcome-title,.designer-heading,.portal-prompt,.steps-label,.workshop-control-area h3,.workshop-preview-area h3{font-family:'Homebody Club'!important;text-transform:uppercase!important}
 body,button,input,textarea,select,.step,.asset-card,.slot,.scene-chip,.cinema-controls button{font-family:'VAG'!important}
+
+
+/* Dedicated balloon-making screen and Saved My Balloons gallery */
+body.workshop-mode .body-layout{display:block!important;max-width:1550px!important;margin:auto!important;padding:14px 22px 26px!important}
+body.workshop-mode .sidebar,body.workshop-mode #paradePreviewPanel,body.workshop-mode #paradeLineupPanel{display:none!important}
+body.workshop-mode .main{display:block!important;width:100%!important}
+body.workshop-mode .library-panel{padding:18px 22px 26px!important;margin:0!important;min-height:0!important;overflow:visible!important}
+body.workshop-mode .library-top{display:none!important}
+body.workshop-mode #designPanel{display:block!important;padding:8px 0 0!important}
+body.workshop-mode #designPanel.hidden{display:none!important}
+body.workshop-mode .designer-row{background:linear-gradient(115deg,#a45ca7,#ed7fa1,#f2ad64)!important;border:4px solid #ffeec7!important;border-radius:22px!important;box-shadow:0 5px 0 #ad699c,0 13px 24px #98627c3b!important;padding:17px 19px!important;margin:0 0 18px!important;gap:18px!important}
+body.workshop-mode .designer-heading{color:#fffdf7!important;text-shadow:0 3px 0 #8d4d82,0 5px 12px #5a37666b!important;font-size:clamp(22px,2.5vw,37px)!important}
+body.workshop-mode .designer-row p{color:#fff6ed!important;font-size:14px!important}
+body.workshop-mode #workshopDoneBtn{flex:0 0 auto;white-space:nowrap;border-radius:16px!important;background:linear-gradient(#fff7b8,#ffcc6d)!important;box-shadow:0 4px 0 #c2864f!important}
+body.workshop-mode .workshop-layout{grid-template-columns:minmax(360px,.98fr) minmax(400px,1.02fr)!important;align-items:start!important;gap:20px!important}
+body.workshop-mode .workshop-control-area,body.workshop-mode .workshop-preview-area{border-radius:24px!important;border:4px solid #fff4da!important;box-shadow:0 7px 0 #e4b0cb,0 12px 25px #986c9c30!important;padding:19px!important}
+body.workshop-mode .workshop-control-area{background:linear-gradient(155deg,#fffaf0,#ffebf2)!important}
+body.workshop-mode .workshop-preview-area{background:linear-gradient(150deg,#f3faff,#f8efff)!important;top:14px!important}
+body.workshop-mode .workshop-preview-head{background:linear-gradient(110deg,#83c6bd,#68aaca)!important;border-radius:15px!important;padding:9px 13px!important;margin-bottom:8px!important}
+body.workshop-mode .workshop-preview-head h3{color:#fffdf2!important;text-shadow:0 2px #53908f!important}
+body.workshop-mode .workshop-art{background:radial-gradient(ellipse at center,#fff9ed,#e8f8ff 80%)!important;border:3px dashed #c8abda!important;border-radius:20px!important}
+body.workshop-mode #saveCreation{font-size:16px!important;min-height:53px!important}
+.created-shelf{margin:22px 2px 8px!important;border:4px solid #fff3d9!important;background:linear-gradient(140deg,#fffaf0,#ffe9ef 52%,#e8f4fa)!important;border-radius:22px!important;box-shadow:0 6px 0 #e2abc2,0 13px 24px #704c7d22!important;padding:18px 18px 22px!important}
+.created-shelf-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:3px dashed #d7accf}
+.created-shelf-heading h3{font-family:'Homebody Club'!important;text-transform:uppercase!important;color:#8e4779!important;font-size:clamp(21px,2.2vw,30px)!important;margin:2px 0 4px!important;line-height:1.2}
+.created-shelf-heading p{color:#835c7b;font-size:12px;margin:0;line-height:1.4}
+.created-shelf-heading .eyebrow{font-size:10px;color:#ae7199!important}
+.created-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px}
+.created-card{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;text-align:center;padding:10px 10px 13px;border-radius:18px;border:3px solid #fff9e6;background:linear-gradient(155deg,#fff,#f1e7ff);box-shadow:0 5px 0 #c1abd6,0 9px 15px #836a9e1e;min-width:0}
+.created-card:nth-child(3n+2){background:linear-gradient(155deg,#fff,#ddf5ed);box-shadow:0 5px 0 #a8d7bd,0 9px 15px #836a9e1e}
+.created-card:nth-child(3n){background:linear-gradient(155deg,#fff,#ffe7db);box-shadow:0 5px 0 #ebc3a3,0 9px 15px #836a9e1e}
+.created-image{display:block;width:100%;height:126px;object-fit:contain;object-position:center center}
+.created-name{font-family:'VAG'!important;color:#77466c!important;font-size:14px!important;margin:7px 0 3px!important;line-height:1.2}
+.created-card small{font-family:'VAG'!important;color:#99728a!important;font-size:9px!important;min-height:25px!important}
+.created-add{margin-top:10px;padding:10px 4px;border-radius:13px;border:2px solid #fffbf0;background:linear-gradient(#a9ecce,#64c5a2);color:#295c59;font-family:'VAG'!important;font-size:12px!important;box-shadow:0 3px 0 #53a486}
+.created-add:disabled{opacity:.48;cursor:not-allowed}
+.created-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:18px 12px;border:3px dashed #d9b0cc;border-radius:20px;background:#fffefa95;color:#875376}
+.created-empty span{font-size:35px}.created-empty strong{font-family:'Homebody Club'!important;font-size:21px}.created-empty p{font-size:13px;margin:0 0 7px}
+@media(max-width:940px){body.workshop-mode .workshop-layout{grid-template-columns:1fr!important}body.workshop-mode .workshop-preview-area{position:relative!important;top:0!important}body.workshop-mode .body-layout{padding:10px!important}}
+@media(max-width:620px){body.workshop-mode .designer-row{flex-direction:column;align-items:stretch!important}body.workshop-mode .workshop-bases{grid-template-columns:repeat(3,minmax(0,1fr))!important}.created-shelf-heading{flex-direction:column;align-items:flex-start}.created-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
