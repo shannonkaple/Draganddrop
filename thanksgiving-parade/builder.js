@@ -2,16 +2,17 @@
 /* THE LITTLE PARADE COMPANY — flying balloon dress-up workshop.
    Original balloon and glossy face atlasses, no background, no baked-on ropes. */
 (function(){
-  const BODY_SRC='assets/custom/parade-bodies.webp';
+  const BODY_SRC='assets/custom/parade-bodies-15.webp';
   const FEATURE_SRC='assets/custom/parade-features.webp';
   const W=640,H=430;
   const BODIES=[
     'TEDDY BEAR','PUPPY','PINK BUNNY','WHITE CAT','DINOSAUR',
-    'ALIEN','FRIENDLY MONSTER','GIRL','ASTRONAUT','NINJA'
+    'ALIEN','FRIENDLY MONSTER','CURLY PUFF GIRL','CURLY-HAIR BOY','PONYTAIL GIRL',
+    'UNICORN','DRAGON','CHICK','SQUIRREL','SPACE ROBOT'
   ];
   const CATEGORIES=[
-    {id:'eyes',name:'EYES',names:['BRIGHT','ROUND','SWEET','LASHES','SLEEPY','BIG EYES','BOLD','STARRY','WINK','HAPPY BROWS']},
-    {id:'nose',name:'NOSE',names:['BLACK','PINK','BROWN','GOLD','RED','BLUE','TEAL','ORANGE']},
+    {id:'eyes',name:'EYES',names:['NONE','BRIGHT','ROUND','SWEET','LASHES','SLEEPY','BIG EYES','BOLD','STARRY','WINK','HAPPY BROWS']},
+    {id:'nose',name:'NOSE',names:['NONE','BLACK','PINK','BROWN','GOLD','RED','BLUE','TEAL','ORANGE']},
     {id:'mouth',name:'MOUTH',names:['NONE','SMILE','GRIN','SURPRISED','TINY SMILE','TONGUE','SILLY','OPEN SMILE']},
     {id:'hat',name:'HATS',names:['NONE','COWBOY','CROWN','BOW','PARTY HAT','BEANIE','SUPER MASK','VISOR']},
     {id:'clothes',name:'CLOTHES',names:['NONE','SWEATER','SUPER CAPE','OVERALLS','VEST','RAINCOAT','STAR SHIRT','TUTU']},
@@ -21,7 +22,7 @@
   const COLORS={red:'#f65d62',pink:'#f38ac6',blue:'#439ce1',yellow:'#ffd05d',green:'#65c39b',purple:'#9f7ada',cream:'#fff3de'};
   const bodyImage=new Image(),featureImage=new Image();
   const cache=new Map();
-  const state={base:0,eyes:0,nose:0,mouth:1,hat:0,clothes:0,shoes:0,prop:0};
+  const state={base:0,eyes:0,nose:0,mouth:0,hat:0,clothes:0,shoes:0,prop:0};
   let active='eyes',ready=false;
   const $=id=>document.getElementById(id);
   function imageReady(){return bodyImage.complete&&bodyImage.naturalWidth&&featureImage.complete&&featureImage.naturalWidth}
@@ -44,16 +45,16 @@
     ctx.beginPath();ctx.ellipse(x+w*.32,y+h*.26,w*.16,h*.09,-.22,0,Math.PI*2);ctx.fillStyle='#ffffff8e';ctx.fill();
   }
   function drawEyes(ctx,idx,a){
-    const col=idx%5,row=Math.floor(idx/5);let x=a[0]-77,y=a[1]-47;
-    ctx.drawImage(featureImage,col*256+8,row*256+27,240,180,x,y,156,100);
+    if(!idx)return;const piece=idx-1,col=piece%5,row=Math.floor(piece/5);let x=a[0]-80,y=a[1]-61;
+    ctx.drawImage(featureImage,col*250,row*250+20,250,195,x,y,160,108);
   }
   function drawNose(ctx,idx,a){
-    const col=idx%5,row=2+Math.floor(idx/5);
-    ctx.drawImage(featureImage,col*256+16,row*256+17,225,225,a[0]-20,a[1]+48,44,34);
+    if(!idx)return;const piece=idx-1,col=piece%5,row=2+Math.floor(piece/5);
+    ctx.drawImage(featureImage,col*250,row*250,250,250,a[0]-23,a[1]+35,46,35);
   }
   function drawMouth(ctx,n,a){
     if(!n)return;
-    const x=a[0],y=a[1]+102;
+    const x=a[0],y=a[1]+67;
     ctx.save();ctx.lineWidth=5;ctx.lineCap='round';ctx.strokeStyle='#54394e';ctx.fillStyle='#6f3449';ctx.beginPath();
     if(n===1||n===4){ctx.arc(x,y-8,n===4?12:24,.08,Math.PI-.08);ctx.stroke()}
     if(n===2||n===7){ctx.ellipse(x,y+2,27,n===2?14:20,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(x-22,y-4);ctx.lineTo(x+22,y-4);ctx.strokeStyle='#fff2eb';ctx.lineWidth=6;ctx.stroke()}
@@ -115,21 +116,27 @@
     ctx.restore();
   }
   function anchors(index){
-    // All ten are left-facing, prone in flight; these are per-form anchor corrections.
+    // All fifteen are left-facing, prone in flight; per-form anchor corrections.
     const adjust=[
       [0,0,0,0],[5,-4,-4,4],[4,8,0,0],[-4,-1,0,0],[-9,4,12,-4],
-      [2,-2,0,0],[5,-4,0,4],[-8,7,-10,1],[4,-5,0,5],[1,5,0,3]
-    ][Math.max(0,Math.min(9,index))];
+      [2,-2,0,0],[5,-4,0,4],[-8,7,-10,1],[4,-5,0,5],[1,5,0,3],
+      [-5,-8,0,-1],[-7,4,5,-5],[-3,5,0,4],[0,-5,2,6],[-2,7,-6,-2]
+    ][Math.max(0,Math.min(14,index))];
     return {face:[277+adjust[0],159+adjust[1]],hat:[277+adjust[0],100+adjust[1]],body:[398+adjust[2],282+adjust[3]],feet:[513+adjust[2],315+adjust[3]],hands:[150+adjust[0],287+adjust[1]]};
   }
   function render(canvas,recipe){
     if(!canvas)return false;canvas.width=W;canvas.height=H;
     const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,H);
     if(!imageReady())return false;
-    const r=recipe||state;const idx=Math.min(9,Math.max(0,Number(r.base)||0));
-    // Only the body portion is drawn from the source: original tether ropes are cropped out.
-    ctx.drawImage(bodyImage,(idx%5)*384,Math.floor(idx/5)*384,384,336,42,13,562,404);
+    const r=recipe||state;const idx=Math.min(14,Math.max(0,Number(r.base)||0));
+    // Five columns and three rows of 512px tiles; crop bottom tether area, keeping the flying balloon.
+    ctx.drawImage(bodyImage,(idx%5)*512,Math.floor(idx/5)*512,512,466,55,8,555,400);
     const a=anchors(idx);
+    // Child characters have simple modest base clothes before students choose costumes.
+    if(idx>=7&&idx<=9){
+      glossy(ctx,a.body[0]-66,a.body[1]-48,164,96,idx===7?'#eebdca':idx===8?'#83bde0':'#f4cc8e');
+      glossy(ctx,a.body[0]+42,a.body[1]+17,112,48,'#648fb9');
+    }
     drawClothes(ctx,Number(r.clothes)||0,a.body);
     drawShoes(ctx,Number(r.shoes)||0,a.feet);
     drawEyes(ctx,Number(r.eyes)||0,a.face);
@@ -141,10 +148,10 @@
   }
   function compose(c){
     if(!c||!c.workshop)return null;
-    const recipe={base:Math.max(0,Math.min(9,Number(c.baseId)-301)),...c.options};
+    const recipe={base:Math.max(0,Math.min(14,Number(c.baseId)-301)),...c.options};
     const signature=JSON.stringify(recipe);
     if(cache.has(signature))return cache.get(signature);
-    if(!imageReady())return 'assets/custom/parade-bodies.webp';
+    if(!imageReady())return 'assets/custom/parade-bodies-15.webp';
     const canvas=document.createElement('canvas');render(canvas,recipe);
     const url=canvas.toDataURL('image/webp',.87);cache.set(signature,url);
     return url;
@@ -184,7 +191,7 @@
       window.paradeAddCustom(c);
     });
     $('workshopReset').addEventListener('click',()=>{
-      Object.assign(state,{eyes:0,nose:0,mouth:1,hat:0,clothes:0,shoes:0,prop:0});categoryTabs();options();pickBase();draw()
+      Object.assign(state,{eyes:0,nose:0,mouth:0,hat:0,clothes:0,shoes:0,prop:0});categoryTabs();options();pickBase();draw()
     });
     if(imageReady()){pickBase();categoryTabs();options();draw()}
     else{pickBase();categoryTabs();options()}
