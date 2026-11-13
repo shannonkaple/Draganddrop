@@ -179,3 +179,17 @@ html.embedded .portal-card{width:min(900px,99%)}
 .tether-rope:nth-child(2){left:34%;transform:rotate(5deg)}
 .tether-rope:nth-child(3){left:67%;transform:rotate(-5deg)}
 .tether-rope:nth-child(4){left:98%;transform:rotate(-12deg)}
+
+
+/* 2026 parade picture framing: big ground-level floats and full-size flying balloons */
+.movie-piece.float{width:min(84vw,1140px)!important;height:min(60vh,545px)!important;max-width:none!important}
+.movie-piece.balloon{width:min(37vw,540px)!important;height:min(68vh,600px)!important}
+.movie-piece.float .piece-art{width:100%!important;height:100%!important;align-items:flex-end!important}
+.movie-piece.float img{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center bottom!important}
+.stage-characters img{max-width:none}
+.movie-characters{overflow:hidden}
+@media(max-width:850px){
+ .movie-piece.float{width:min(83vw,850px)!important;height:min(58vh,485px)!important}
+ .movie-piece.balloon{width:min(49vw,460px)!important;height:min(67vh,560px)!important}
+ .movie-piece.balloon .handler{width:35px!important;height:58px!important;flex-basis:35px!important}
+}
