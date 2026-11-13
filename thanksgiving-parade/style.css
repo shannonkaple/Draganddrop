@@ -53,6 +53,6 @@ h1,h2,h3,h4,h5,h6,.brand h1,.welcome-title,.designer-heading,.portal-card h2,.po
 html,body,body *,button,input,textarea,select{font-family:var(--font-vag)!important}
 h1,h2,h3,h4,h5,h6,.welcome-title,.designer-heading,.portal-prompt,.portal-card h2,.portal-footer,.tile-number,.stage-empty b,.movie-title,.cinema-brand{font-family:var(--font-homebody)!important;text-transform:uppercase!important;font-style:normal!important}
 /* Floats roll along the road as broad street vehicles; balloons alone fly. */
-.movie-piece.float{top:0!important;bottom:auto!important;width:min(49vw,760px)!important;height:47vh!important;overflow:visible!important;transform-origin:bottom center}
+.movie-piece.float{top:0!important;bottom:auto!important;width:min(72vw,950px)!important;height:min(49vh,440px)!important;overflow:visible!important;transform-origin:bottom center}
 .movie-piece.float .piece-art{height:100%!important;width:100%!important;display:flex;align-items:flex-end;justify-content:center}
 .movie-piece.float img{object-fit:contain!important;object-position:center bottom!important;width:100%!important;height:100%!important}
