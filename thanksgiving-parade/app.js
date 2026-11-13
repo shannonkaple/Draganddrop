@@ -34,7 +34,18 @@ function storageKey(){return `parade_2026_${state.classCode}_${state.grade}_${st
 function draft(){return {pieces:[...state.pieces],customPieces:[...state.customPieces],scene:state.scene,routeTour:state.routeTour,color:state.color,music:state.music};}
 function sanitizeDraft(input){
  const v=input&&typeof input==='object'?input:{};
- const customs=Array.isArray(v.customPieces)?v.customPieces.slice(0,12).filter(c=>c&&Number.isInteger(c.id)&&c.id>=1001&&c.id<=1099&&Number.isInteger(c.baseId)&&c.baseId>=1&&c.baseId<=27).map(c=>({id:c.id,baseId:c.baseId,name:String(c.name||'My Balloon').replace(/[^a-z0-9 -]/gi,'').slice(0,26),hue:Math.max(0,Math.min(330,Number(c.hue)||0)),strokes:Array.isArray(c.strokes)?c.strokes.slice(0,6).map(s=>({color:['#ffffff','#f8c648','#f66b75','#659bd1','#44b288','#734aa9','#21252d'].includes(s.color)?s.color:'#f66b75',pts:Array.isArray(s.pts)?s.pts.slice(0,40).map(pt=>[Number(pt[0])||0,Number(pt[1])||0]):[]})):[]})):[];
+ const customs=Array.isArray(v.customPieces)?v.customPieces.slice(0,50).map(c=>{
+  if(!c||!Number.isInteger(c.id)||c.id<1001||c.id>1099)return null;
+  const name=String(c.name||'My Balloon').replace(/[^a-z0-9 -]/gi,'').slice(0,26);
+  if(c.workshop&&Number.isInteger(c.baseId)&&c.baseId>=301&&c.baseId<=310){
+   const o=c.options&&typeof c.options==='object'?c.options:{};
+   const caps={eyes:9,nose:7,mouth:7,hat:7,clothes:7,shoes:6,prop:7};
+   const options={};for(const [key,max] of Object.entries(caps))options[key]=Math.max(0,Math.min(max,Number(o[key])||0));
+   return {id:c.id,name,baseId:c.baseId,workshop:true,options};
+  }
+  if(!Number.isInteger(c.baseId)||c.baseId<1||c.baseId>27)return null;
+  return {id:c.id,baseId:c.baseId,name,hue:Math.max(0,Math.min(330,Number(c.hue)||0)),strokes:Array.isArray(c.strokes)?c.strokes.slice(0,6).map(st=>({color:['#ffffff','#f8c648','#f66b75','#659bd1','#44b288','#734aa9','#21252d'].includes(st.color)?st.color:'#f66b75',pts:Array.isArray(st.pts)?st.pts.slice(0,40).map(pt=>[Number(pt[0])||0,Number(pt[1])||0]):[]})):[ ]};
+ }).filter(Boolean):[];
  const validIds=new Set([...PIECES.map(x=>x.id),...customs.map(x=>x.id)]);
  return {pieces:Array.isArray(v.pieces)?v.pieces.map(Number).filter(id=>validIds.has(id)).slice(0,MAX[state.grade]):[],customPieces:customs,scene:SCENES.some(x=>x.id===v.scene)?v.scene:SCENES[0].id,routeTour:false,color:COLORS.some(x=>x[0]===v.color)?v.color:'cranberry',music:MUSIC.some(x=>x.id===v.music)?v.music:'march'};
 }
@@ -51,6 +62,7 @@ function renderAll(){renderProgress();renderLineup();renderGallery();renderDecor
 function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0;$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
 const customSrcCache=new Map();
 function customSource(c){
+ if(c.workshop&&window.PARADE_WORKSHOP)return window.PARADE_WORKSHOP.compose(c);
  const signature=JSON.stringify(c);if(customSrcCache.has(signature))return customSrcCache.get(signature);
  const original=PIECES.find(x=>x.id===c.baseId)||PIECES[0];
  const strokes=(c.strokes||[]).map(st=>{const points=st.pts.map(pt=>`${Math.round(pt[0])},${Math.round(pt[1])}`).join(' ');return `<polyline points="${points}" stroke="${st.color}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`}).join('');
@@ -128,18 +140,12 @@ $('numberEnter').addEventListener('click',()=>submitPortal($('numberOther').valu
 $('studentModal').classList.add('hidden');showPortal('grade');
 
 // Students decorate a polished uploaded balloon illustration on a real drawing canvas.
-const designer={baseId:1,hue:0,color:'#f66b75',strokes:[],drawing:false,last:null};
-const PEN_COLORS=['#ffffff','#f8c648','#f66b75','#659bd1','#44b288','#734aa9','#21252d'];
-const designCanvas=$('designCanvas'),designCtx=designCanvas.getContext('2d');
-function drawDesigner(){const canvas=designCanvas,ctx=designCtx;ctx.clearRect(0,0,canvas.width,canvas.height);const base=PIECES.find(x=>x.id===designer.baseId)||PIECES[0];let img=designerImageCache.get(base.id);if(!img){img=new Image();img.onload=()=>{if(designer.baseId===base.id)drawDesigner()};img.src=base.src;designerImageCache.set(base.id,img)}if(img.complete&&img.naturalWidth){ctx.save();ctx.filter=`hue-rotate(${designer.hue}deg)`;ctx.drawImage(img,42,0,396,450);ctx.restore()}for(const stroke of designer.strokes){if(!stroke.pts.length)continue;ctx.beginPath();ctx.strokeStyle=stroke.color;ctx.lineWidth=8;ctx.lineCap='round';ctx.lineJoin='round';ctx.moveTo(...stroke.pts[0]);if(stroke.pts.length===1){ctx.lineTo(stroke.pts[0][0]+.1,stroke.pts[0][1]+.1)}for(let i=1;i<stroke.pts.length;i++)ctx.lineTo(...stroke.pts[i]);ctx.stroke()}}
-const designerImageCache=new Map();
-function renderStarters(){const g=$('starterGallery');g.innerHTML='';PIECES.filter(p=>p.type==='balloon').forEach(p=>{const b=document.createElement('button');b.type='button';b.title=p.name;b.className=designer.baseId===p.id?'selected':'';b.innerHTML=`<img src="${p.src}" alt="${p.name}">`;b.onclick=()=>{designer.baseId=p.id;designer.strokes=[];renderStarters();drawDesigner()};g.appendChild(b)})}
-function renderPenColors(){const g=$('penColors');g.innerHTML='';PEN_COLORS.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='pen-color'+(designer.color===c?' active':'');b.style.background=c;b.setAttribute('aria-label','Paint '+c);b.onclick=()=>{designer.color=c;renderPenColors()};g.appendChild(b)})}
-function canvasPoint(e){const r=designCanvas.getBoundingClientRect();return [Math.max(0,Math.min(480,Math.round((e.clientX-r.left)/r.width*480))),Math.max(0,Math.min(450,Math.round((e.clientY-r.top)/r.height*450)))]}
-designCanvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;if(designer.strokes.length>=6){designer.strokes.shift()}designer.drawing=true;designer.last=canvasPoint(e);designer.strokes.push({color:designer.color,pts:[designer.last]});designCanvas.setPointerCapture(e.pointerId);drawDesigner()});
-designCanvas.addEventListener('pointermove',e=>{if(!designer.drawing)return;const pts=designer.strokes.at(-1).pts;const point=canvasPoint(e);if(Math.hypot(point[0]-designer.last[0],point[1]-designer.last[1])>8&&pts.length<40){pts.push(point);designer.last=point;drawDesigner()}});
-function stopDesigner(){designer.drawing=false;designer.last=null}
-designCanvas.addEventListener('pointerup',stopDesigner);designCanvas.addEventListener('pointercancel',stopDesigner);
-// Hue-shifting official parade balloons retired; original bodies will be the customization source.$('eraseDrawing').addEventListener('click',()=>{designer.strokes=[];drawDesigner()});
-$('saveCreation').addEventListener('click',()=>{if(state.pieces.length>=MAX[state.grade]){notify('Your lineup is full! Remove a piece to add your balloon.',false);return}const id=1001+Math.max(-1,...state.customPieces.map(x=>x.id-1001))+1;const name=($('designName').value.trim().replace(/[^a-z0-9 -]/gi,'').slice(0,26)||'My Balloon');if(id>1099){notify('You have made too many custom balloons. Try removing an older one.',false);return}const c={id,baseId:designer.baseId,hue:designer.hue,name,strokes:designer.strokes.map(s=>({color:s.color,pts:s.pts.map(v=>[v[0],v[1]])}))};state.customPieces.push(c);state.pieces.push(id);state.activePiece=state.pieces.length-1;markChanged();renderAll();notify('Your original balloon is in the parade!');});
-renderStarters();renderPenColors();drawDesigner();
+/* Original outfit workshop; legacy recoloring canvas intentionally retired. */
+function drawDesigner(){window.PARADE_WORKSHOP?.draw()}
+window.paradeCustomIds=()=>state.customPieces.map(x=>x.id-1001);
+window.paradeAddCustom=c=>{
+ if(state.pieces.length>=MAX[state.grade]){notify('Your lineup is full. Remove one first.',false);return false}
+ if(state.customPieces.some(x=>x.id===c.id)||c.id>1099){notify('Choose another character to replace a previous creation.',false);return false}
+ state.customPieces.push(c);state.pieces.push(c.id);state.activePiece=state.pieces.length-1;
+ markChanged();renderAll();notify('Your dressed balloon joined the parade!');return true;
+};
