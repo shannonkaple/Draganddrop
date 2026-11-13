@@ -111,3 +111,71 @@ html.embedded .portal-card{width:min(900px,99%)}
 .movie-piece.balloon .handler-line{bottom:-22vh!important}
 .movie-piece.balloon .tethers{bottom:-18vh!important;height:18vh!important;border-width:1.5px!important}
 @media(max-width:850px){.stage{aspect-ratio:2048 / 868!important}}
+
+
+/* PARADE STUDIO 2026: polished illustrated game interface */
+.app{background:radial-gradient(circle at 8% 2%,#ffedbd 0,transparent 32%),radial-gradient(circle at 89% 14%,#d8e8fc 0,transparent 38%),linear-gradient(165deg,#f6e8ed,#e8f1fc 55%,#fff0d7)}
+.topbar{background:linear-gradient(95deg,rgba(255,253,238,.96),rgba(247,225,231,.95)),var(--parade-menu-art) center 37%/cover!important;border-bottom:4px solid #db8f8e;box-shadow:0 7px 20px #5939521a}
+.brand-badge{border:3px solid #fff8dd;box-shadow:0 4px 0 #a4556a,0 7px 15px #78466d36}
+.preview-panel,.lineup-panel,.library-panel{border:3px solid #fff7e7!important;outline:1px solid #e3c7bf;box-shadow:0 7px 0 #d5aeb47d,0 20px 38px #414d7421!important;border-radius:22px!important;overflow:hidden}
+.preview-head,.library-top,.section-heading{background:linear-gradient(100deg,#fffdf9,#fff0e4 55%,#f4e7f5);border-bottom:1px solid #eed4d1}
+.stage{border:5px solid #f9e5d8!important;border-top:0!important}
+.stage-sign,.scene-chip{box-shadow:0 3px 7px #313d5162}
+.step{position:relative;transition:transform .16s,box-shadow .16s;border:2px solid #f0d4d2!important;background:linear-gradient(140deg,#fffdfa,#ffeff4 80%)!important}
+.step:nth-child(2){background:linear-gradient(140deg,#fffefa,#e9f5ff)!important}
+.step:nth-child(3){background:linear-gradient(140deg,#fffdf7,#f0e8ff)!important}
+.step:nth-child(4){background:linear-gradient(140deg,#fffdf6,#fff0dc)!important}
+.step:hover,.step:focus-visible{transform:translateY(-2px);box-shadow:0 6px 0 #e4c6c7}
+.step.selected{background:linear-gradient(135deg,#b7578c,#6c4a94)!important;color:white!important;border-color:#e8b3dd!important;box-shadow:0 5px 0 #5f477b!important}
+.step.selected small,.step.selected b{color:white!important}
+.preview-actions .play-btn,.save-btn,.start-btn{box-shadow:0 5px 0 #833a64,0 10px 19px #73365436!important;border:2px solid #ffe0e9!important;transition:transform .17s}
+.preview-actions .play-btn:active,.save-btn:active,.start-btn:active{transform:translateY(3px)}
+.asset-card{border:3px solid #fff6e8!important;outline:1px solid #e1bdcf;border-radius:18px!important;overflow:hidden;box-shadow:0 5px 0 #e7b8c8,0 8px 19px #855b7332!important}
+.asset-card:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 9px 0 #dbb0c9,0 16px 23px #81597930!important}
+.lineup .slot{border:2px solid #e1d1e7;border-radius:12px;background:linear-gradient(145deg,#fffefa,#faf0fb);box-shadow:0 3px 0 #e2cddc}
+.lineup .slot.filled{background:linear-gradient(145deg,#fffefb,#fceef5)}
+.portal-card{background:linear-gradient(165deg,rgba(255,251,241,.95),rgba(254,240,229,.9)),var(--parade-menu-art) center/cover!important}
+.portal-prompt,.portal-card h2,.designer-heading,.workshop-control-area h3,.workshop-preview-area h3{font-family:'Homebody Club'!important;text-transform:uppercase!important}
+.teacher-grid button,.number-grid button{transition:transform .12s}
+.teacher-grid button:hover,.number-grid button:hover{transform:translateY(-3px)}
+/* Flying balloon character-creator: click cards, no dragging tiny stickers */
+.design-panel{background:linear-gradient(148deg,#fff9ec,#fff1f6 55%,#eaf5ff);padding:16px;border-radius:17px}
+.designer-row{padding:5px 5px 13px;display:flex;justify-content:space-between;align-items:center}
+.designer-heading{font-size:clamp(24px,2.6vw,35px)!important;letter-spacing:.025em}
+.workshop-layout{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(330px,.96fr);gap:16px;align-items:start}
+.workshop-control-area,.workshop-preview-area{background:linear-gradient(165deg,#fffef9,#fff2eb);border:3px solid #fff;border-radius:21px;padding:14px;box-shadow:0 5px 0 #dec4cc,0 11px 22px #7159721c;min-width:0}
+.workshop-control-area h3,.workshop-preview-area h3{font-size:19px;color:#833b68;margin:4px 0 10px}
+.workshop-bases{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-bottom:15px}
+.workshop-body,.workshop-choice{border-radius:14px;border:2px solid #e5cfdb;background:linear-gradient(160deg,#fff,#f9ecf5);box-shadow:0 3px 0 #e7d0de;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:3px 2px 7px;gap:2px;color:#71435d;min-width:0;transition:transform .12s}
+.workshop-body:hover,.workshop-choice:hover{transform:translateY(-3px);box-shadow:0 6px 0 #dfbdd1}
+.workshop-body.chosen,.workshop-choice.chosen,.workshop-tab.chosen{background:linear-gradient(145deg,#f9e3f4,#e8e9ff)!important;border-color:#a95c98!important;box-shadow:0 3px 0 #a576ad!important}
+.workshop-body canvas{display:block;width:100%;height:74px;object-fit:contain}
+.workshop-body span{font-size:10px;font-weight:900;line-height:1.12;text-align:center;min-height:23px}
+.workshop-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.workshop-tab{padding:8px 10px;font-size:11px;font-weight:900;border-radius:16px;border:2px solid #e4c7db;background:linear-gradient(140deg,#fffdfa,#fbe4f3);color:#7c4979;box-shadow:0 2px 0 #e5c7d8}
+.workshop-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-height:295px;overflow:auto;padding:4px 3px 8px}
+.workshop-choice canvas{display:block;width:100%;height:91px}
+.workshop-choice span{font-size:10px;font-weight:900;line-height:1.2;text-align:center;min-height:23px}
+.workshop-preview-area{background:linear-gradient(155deg,#fffef5,#eaf6ff);position:sticky;top:12px}
+.workshop-preview-head{display:flex;justify-content:space-between;align-items:center}
+.workshop-preview-head span{background:#e2f0ff;color:#5679a0;font-size:10px;font-weight:900;padding:5px 9px;border-radius:20px}
+.workshop-art{border:4px solid #fff;border-radius:18px;background:radial-gradient(circle at 55% 45%,#fffefd 0,#eef5ff 65%,#f8e8f5);box-shadow:inset 0 0 0 1px #c5cddf,0 4px 11px #7b8a9e2a}
+.workshop-art canvas{width:100%;height:auto;display:block}
+.workshop-help{font-size:12px;color:#775f7a;line-height:1.35;margin:10px 0 13px}
+.workshop-preview-area label{font-size:12px;font-weight:900;display:block;color:#795071}
+.workshop-preview-area input{width:100%;padding:11px 13px;background:#fff;border:2px solid #dec5da;border-radius:12px;margin:5px 0 12px}
+.workshop-preview-area .design-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.workshop-preview-area .play-btn{font-size:12px}
+@media(max-width:980px){.workshop-layout{grid-template-columns:1fr}.workshop-preview-area{position:relative;top:0}.workshop-body canvas{height:85px}}
+@media(max-width:600px){.workshop-bases{grid-template-columns:repeat(3,minmax(0,1fr))}.workshop-options{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* Real moving parade crew: illustrated people, not square CSS dolls. */
+.movie-piece.balloon .handler-line{position:absolute!important;left:9%!important;width:82%!important;right:auto!important;height:77px!important;bottom:calc(-1 * var(--handler-ground,190px))!important;display:flex!important;justify-content:space-between!important;align-items:end!important;gap:3px!important;z-index:4!important}
+.movie-piece.balloon .handler{display:block!important;position:relative!important;width:49px!important;height:77px!important;flex:0 0 49px!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.movie-piece.balloon .handler::before,.movie-piece.balloon .handler::after{display:none!important}
+.movie-piece.balloon .handler img{width:100%!important;height:100%!important;object-fit:contain!important;filter:drop-shadow(0 2px 1px #31314877)!important}
+.movie-piece.balloon .tethers{position:absolute!important;left:15%!important;right:15%!important;bottom:calc(-1 * var(--handler-ground,190px) + 69px)!important;height:max(25px,calc(var(--handler-ground,190px) - 69px))!important;border:0!important;transform:none!important;pointer-events:none!important}
+.tether-rope{display:block;position:absolute;top:0;height:100%;width:2px;border-radius:2px;background:linear-gradient(90deg,#fff,#a8a3aa,#f8f2e8);box-shadow:0 1px 3px #3c435b69;transform-origin:bottom center}
+.tether-rope:nth-child(1){left:2%;transform:rotate(12deg)}
+.tether-rope:nth-child(2){left:34%;transform:rotate(5deg)}
+.tether-rope:nth-child(3){left:67%;transform:rotate(-5deg)}
+.tether-rope:nth-child(4){left:98%;transform:rotate(-12deg)}
