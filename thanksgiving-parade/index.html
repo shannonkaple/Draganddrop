@@ -33,20 +33,24 @@
    <div class="tip-card"><span class="tip-star">🦃</span><div><b>Parade director tip</b><p id="tipText">Start by choosing your favorite balloons. Click any picture to add it to your lineup!</p></div></div>
  </aside>
  <main class="main">
-   <section class="preview-panel" aria-label="Animated parade preview">
+   <section class="preview-panel" id="paradePreviewPanel" aria-label="Animated parade preview">
     <div class="preview-head"><div><span class="eyebrow">LIVE PREVIEW</span><h2 id="stageHeading">Your own NYC parade</h2></div><div class="head-controls"><span class="scene-chip" id="sceneChip">Central Park West</span><button type="button" id="previewSceneNext" class="circle-btn" aria-label="Switch scene">↻</button></div></div>
     <div id="stage" class="stage central-park" aria-label="Parade street background"><div id="stageScene" class="stage-scene"></div><div id="stageCharacters" class="stage-characters"></div><div class="stage-sign" id="stageSign">CENTRAL PARK WEST · NEW YORK CITY</div><div class="road-strip" aria-hidden="true"></div><div id="stageEmpty" class="stage-empty"><span class="empty-icon">✦</span><b>Your parade starts here!</b><span>Choose a balloon or float from below.</span></div></div>
     <div class="preview-foot"><span class="preview-caption" id="previewCaption">Make your lineup, then watch it come to life.</span><div class="preview-actions"><button type="button" id="shuffleBtn" class="light-btn">✳ Surprise Me</button><button type="button" id="playBtn" class="play-btn"><span aria-hidden="true">▶️</span> PLAY MY PARADE</button></div></div>
    </section>
-   <section class="lineup-panel" aria-label="Parade lineup">
+   <section class="lineup-panel" id="paradeLineupPanel" aria-label="Parade lineup">
      <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2>Put your parade in order <span class="muted" id="lineupCount">Your parade</span></h2></div><div class="tiny-help">Use ◀ ▶ to move a piece</div></div>
      <div class="lineup" id="lineup" role="list"></div>
    </section>
    <section class="library-panel" id="libraryPanel">
     <div class="library-top"><div><span class="eyebrow" id="libraryEyebrow">BALLOON COLLECTION</span><h2 id="libraryTitle">Choose your favorite balloons</h2></div><div class="library-tools"><span id="libraryCount">27 choices</span><button type="button" class="arrow-btn" id="galleryBack" aria-label="Previous choices">‹</button><button type="button" class="arrow-btn" id="galleryForward" aria-label="Next choices">›</button></div></div>
-    <div id="gallery" class="gallery" aria-label="Available parade pieces"></div>
+    <div id="gallery" class="gallery" aria-label="Official parade pieces"></div>
+    <section id="createdShelf" class="created-shelf hidden" aria-label="My saved custom flying balloons">
+      <div class="created-shelf-heading"><div><span class="eyebrow">YOUR CREATIONS</span><h3>MY BALLOONS</h3><p>These are yours to keep. Choose one to add it to your parade.</p></div><button type="button" id="newCreationBtn" class="light-btn">🎨 MAKE ANOTHER</button></div>
+      <div id="myCreations" class="created-cards" role="list"></div>
+    </section>
     <div id="designPanel" class="design-panel hidden" aria-label="Design your own flying balloon">
-      <div class="designer-row"><div><b class="designer-heading">FLYING BALLOON DRESS-UP STUDIO</b><p>Pick a balloon, give it a face, and dress it for the big parade!</p></div><span class="eyebrow">MAKE YOUR OWN PARADE STAR</span></div>
+      <div class="designer-row"><div><b class="designer-heading">FLYING BALLOON DRESS-UP STUDIO</b><p>Pick a flying balloon, give it a face, and dress it for the big parade!</p></div><button type="button" id="workshopDoneBtn" class="light-btn">🏠 BACK TO PARADE</button></div>
       <div class="workshop-layout">
         <div class="workshop-control-area">
           <h3>CHOOSE YOUR BALLOON</h3>
@@ -60,7 +64,7 @@
           <div class="workshop-art"><canvas id="workshopCanvas" width="640" height="430" aria-label="Your customized flying parade balloon"></canvas></div>
           <p class="workshop-help">The pieces are designed for flying balloons. The parade adds handlers and ropes after you save.</p>
           <label for="designName">NAME YOUR BALLOON</label><input id="designName" maxlength="26" value="My Dream Balloon" autocomplete="off" aria-label="Balloon name">
-          <div class="design-actions"><button id="workshopReset" class="light-btn" type="button">RESET OUTFIT</button><button id="saveCreation" type="button" class="play-btn">✦ ADD TO MY PARADE</button></div>
+          <div class="design-actions"><button id="workshopReset" class="light-btn" type="button">RESET OUTFIT</button><button id="saveCreation" type="button" class="play-btn">💾 SAVE TO MY BALLOONS</button></div>
         </div>
       </div>
     </div>
