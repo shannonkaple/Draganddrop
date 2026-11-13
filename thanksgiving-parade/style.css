@@ -345,3 +345,10 @@ body.workshop-mode .designer-row p{margin:0 4px 7px!important}
 .preview-actions .game-play-art:hover:not(:disabled){transform:translateY(-2px) scale(1.02)}
 .preview-actions .game-play-art:disabled{opacity:.42!important;filter:grayscale(.3);cursor:not-allowed}
 @media(max-width:800px){.game-brand-image{width:200px;height:55px}.preview-actions .game-play-art{width:185px}.library-heading-art{width:220px;height:75px}.portal-art{max-height:140px}}
+
+
+/* Genuine independent HOME button image (not a recolored box). */
+.top-actions .home-nav.game-icon-btn{display:block!important;flex:0 0 auto;width:114px;height:auto;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible;line-height:0}
+.top-actions .home-nav.game-icon-btn img{display:block;width:100%;height:auto;aspect-ratio:1962 / 802;object-fit:contain;filter:drop-shadow(0 4px 3px #562d5688)}
+.top-actions .home-nav.game-icon-btn:hover{transform:translateY(-2px) scale(1.03)}
+@media(max-width:800px){.top-actions .home-nav.game-icon-btn{width:81px}}
