@@ -10,7 +10,7 @@
 <body>
 <div id="app" class="app">
 <header class="topbar">
-  <div class="brand"><div class="brand-badge" aria-hidden="true">🎈</div><div><div class="overline">THE LITTLE PARADE COMPANY</div><h1>My Thanksgiving Parade <span>Studio</span></h1></div></div>
+  <div class="brand"><img src="assets/ui/main-title.webp" class="game-brand-image" alt="My Thanksgiving Parade" decoding="async"><h1 class="sr-only">My Thanksgiving Parade Studio</h1></div>
   <div class="top-actions"><button type="button" class="outline-btn home-nav" id="homeBtn" title="Return to the welcome screen">🏠 Home</button><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">❔ Help</button><button type="button" class="outline-btn" id="changeStudentBtn">👩‍🏫 Change Student</button><button type="button" class="save-btn" id="saveBtn">💾 Save Parade</button></div>
 </header>
 <div class="body-layout">
@@ -24,10 +24,10 @@
    </div>
    <div class="steps-label">CREATE YOUR PARADE</div>
    <div class="step-list">
-    <button class="step selected" type="button" data-tab="balloons"><span class="step-icon" aria-hidden="true">🎈</span><span><b>Choose Balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
-    <button class="step" type="button" data-tab="floats"><span class="step-icon" aria-hidden="true">🚚</span><span><b>Choose Floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
-    <button class="step" type="button" data-tab="design"><span class="step-icon" aria-hidden="true">🎨</span><span><b>Dress Up a Balloon</b><small>Dress a character for your parade</small></span><span class="step-chevron">›</span></button>
-    <button class="step" type="button" data-tab="decorate"><span class="step-icon" aria-hidden="true">🍁</span><span><b>Scenes & Music</b><small>NYC scenes, banner &amp; music</small></span><span class="step-chevron">›</span></button>
+    <button class="step selected" type="button" data-tab="balloons" aria-label="Choose balloons"><img class="step-game-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎈</span><span><b>Choose Balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
+    <button class="step" type="button" data-tab="floats" aria-label="Choose floats"><img class="step-game-art" src="assets/ui/floats.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🚚</span><span><b>Choose Floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
+    <button class="step" type="button" data-tab="design" aria-label="Dress up your balloon"><img class="step-game-art" src="assets/ui/dress-up.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎨</span><span><b>Dress Up a Balloon</b><small>Dress a character for your parade</small></span><span class="step-chevron">›</span></button>
+    <button class="step" type="button" data-tab="decorate" aria-label="Parade scenes and music"><img class="step-game-art" src="assets/ui/scenes.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🍁</span><span><b>Scenes & Music</b><small>NYC scenes, banner &amp; music</small></span><span class="step-chevron">›</span></button>
    </div>
     <!-- The official-balloon recoloring tool is intentionally retired. Original design assets will have their own workshop. -->
    <div class="tip-card"><span class="tip-star">🦃</span><div><b>Parade director tip</b><p id="tipText">Start by choosing your favorite balloons. Click any picture to add it to your lineup!</p></div></div>
@@ -36,21 +36,21 @@
    <section class="preview-panel" id="paradePreviewPanel" aria-label="Animated parade preview">
     <div class="preview-head"><div><span class="eyebrow">LIVE PREVIEW</span><h2 id="stageHeading">Your own NYC parade</h2></div><div class="head-controls"><span class="scene-chip" id="sceneChip">Central Park West</span><button type="button" id="previewSceneNext" class="circle-btn" aria-label="Switch scene">↻</button></div></div>
     <div id="stage" class="stage central-park" aria-label="Parade street background"><div id="stageScene" class="stage-scene"></div><div id="stageCharacters" class="stage-characters"></div><div class="stage-sign" id="stageSign">CENTRAL PARK WEST · NEW YORK CITY</div><div class="road-strip" aria-hidden="true"></div><div id="stageEmpty" class="stage-empty"><span class="empty-icon">✦</span><b>Your parade starts here!</b><span>Choose a balloon or float from below.</span></div></div>
-    <div class="preview-foot"><span class="preview-caption" id="previewCaption">Make your lineup, then watch it come to life.</span><div class="preview-actions"><button type="button" id="shuffleBtn" class="light-btn">✳ Surprise Me</button><button type="button" id="playBtn" class="play-btn"><span aria-hidden="true">▶️</span> PLAY MY PARADE</button></div></div>
+    <div class="preview-foot"><span class="preview-caption" id="previewCaption">Make your lineup, then watch it come to life.</span><div class="preview-actions"><button type="button" id="shuffleBtn" class="light-btn">✳ Surprise Me</button><button type="button" id="playBtn" class="play-btn game-play-art" aria-label="Watch my parade"><img src="assets/ui/watch-parade.webp" alt="" aria-hidden="true"><span class="sr-only">Watch my parade</span></button></div></div>
    </section>
    <section class="lineup-panel" id="paradeLineupPanel" aria-label="Parade lineup">
      <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2>Put your parade in order <span class="muted" id="lineupCount">Your parade</span></h2></div><div class="tiny-help">Use ◀ ▶ to move a piece</div></div>
      <div class="lineup" id="lineup" role="list"></div>
    </section>
    <section class="library-panel" id="libraryPanel">
-    <div class="library-top"><div><span class="eyebrow" id="libraryEyebrow">BALLOON COLLECTION</span><h2 id="libraryTitle">Choose your favorite balloons</h2></div><div class="library-tools"><span id="libraryCount">27 choices</span><button type="button" class="arrow-btn" id="galleryBack" aria-label="Previous choices">‹</button><button type="button" class="arrow-btn" id="galleryForward" aria-label="Next choices">›</button></div></div>
+    <div class="library-top"><div class="game-library-heading"><img id="libraryHeadingArt" class="library-heading-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="eyebrow sr-only" id="libraryEyebrow">BALLOON COLLECTION</span><h2 id="libraryTitle" class="sr-only">Choose your favorite balloons</h2></div><div class="library-tools"><span id="libraryCount">27 choices</span><button type="button" class="arrow-btn" id="galleryBack" aria-label="Previous choices">‹</button><button type="button" class="arrow-btn" id="galleryForward" aria-label="Next choices">›</button></div></div>
     <div id="gallery" class="gallery" aria-label="Official parade pieces"></div>
     <section id="createdShelf" class="created-shelf hidden" aria-label="My saved custom flying balloons">
       <div class="created-shelf-heading"><div><span class="eyebrow">YOUR CREATIONS</span><h3>MY BALLOONS</h3><p>These are yours to keep. Choose one to add it to your parade.</p></div><button type="button" id="newCreationBtn" class="light-btn">🎨 MAKE ANOTHER</button></div>
       <div id="myCreations" class="created-cards" role="list"></div>
     </section>
     <div id="designPanel" class="design-panel hidden" aria-label="Design your own flying balloon">
-      <div class="designer-row"><div><b class="designer-heading">FLYING BALLOON DRESS-UP STUDIO</b><p>Pick a flying balloon, give it a face, and dress it for the big parade!</p></div><button type="button" id="workshopDoneBtn" class="light-btn">🏠 BACK TO PARADE</button></div>
+      <div class="designer-row"><div><img class="workshop-header-art" src="assets/ui/dress-up.webp" alt="Dress Up"><b class="designer-heading sr-only">FLYING BALLOON DRESS-UP STUDIO</b><p>Pick a flying balloon, give it a face, and dress it for the big parade!</p></div><button type="button" id="workshopDoneBtn" class="light-btn">🏠 BACK TO PARADE</button></div>
       <div class="workshop-layout">
         <div class="workshop-control-area">
           <h3>CHOOSE YOUR BALLOON</h3>
@@ -69,9 +69,9 @@
       </div>
     </div>
     <div id="decoratePanel" class="decorate-panel hidden">
-      <div class="design-section"><b>Choose your New York scene</b><div class="scenes" id="scenes"></div></div>
+      <div class="design-section"><img src="assets/ui/scenes.webp" class="section-art" alt="Scenes"><b class="sr-only">Choose your New York scene</b><div class="scenes" id="scenes"></div></div>
       <div class="design-section"><b>Parade banner color</b><div class="swatches" id="colors"></div></div>
-      <div class="design-section"><b>Pick your parade music</b><div class="music-options" id="musicOptions"></div></div>
+      <div class="design-section"><img src="assets/ui/music.webp" class="section-art" alt="Music"><b class="sr-only">Pick your parade music</b><div class="music-options" id="musicOptions"></div></div>
     </div>
    </section>
  </main>
@@ -88,8 +88,8 @@
 <!-- Student-friendly entrance: grade → teacher → student number. -->
 <div class="overlay portal" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="portalTitle">
  <div class="portal-card">
-  <div class="portal-kicker">THE LITTLE PARADE COMPANY · NYC</div>
-  <h2 id="portalTitle">Your Parade<br><em>Starts Here!</em></h2>
+  <img id="portalArt" class="portal-art" src="assets/ui/choose-grade.webp" alt="Choose your grade"><div class="portal-kicker">THE LITTLE PARADE COMPANY · NYC</div>
+  <h2 id="portalTitle" class="sr-only">Your Parade Starts Here!</h2>
   <div class="portal-progress" aria-label="Entrance progress"><span id="portalDot1" class="current">1</span><i></i><span id="portalDot2">2</span><i></i><span id="portalDot3">3</span></div>
   <section class="portal-screen" id="portalGrade">
    <p class="portal-prompt">First, choose your grade!</p>
