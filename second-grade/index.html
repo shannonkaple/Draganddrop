@@ -428,7 +428,8 @@ const gameOnly={
  'going-nuts':'https://toytheater.com/going-nuts.php',
  'tap-out':'https://toytheater.com/tap-out.php',
  'froggy-road':'https://toytheater.com/froggy-road.php',
- 'merge-fruit':'https://toytheater.com/merge-fruit.php'
+ 'merge-fruit':'https://toytheater.com/merge-fruit.php',
+ 'ball-sort':'https://toytheater.com/ball-sort.php'
 };
 const viewport=document.getElementById('gameViewport');
 const frameWindow=document.getElementById('frameWindow');
@@ -439,34 +440,34 @@ let viewMode='game';
 // Never enlarge a fixed website crop; fit it within the Chromebook space.
 const cropProfiles={
  'maze':{left:160,top:25,width:1120,height:1160},
- 'disguise':{left:242,top:86,width:690,height:850},
+ 'disguise':{left:150,top:30,width:990,height:1120},
  'parking':{left:242,top:86,width:690,height:780},
  'find-me':{left:242,top:86,width:720,height:780},
- 'different':{left:215,top:87,width:1220,height:1120},
+ 'different':{left:120,top:30,width:1370,height:1260},
  'going-nuts':{left:242,top:86,width:690,height:820},
  'block-puzzle':{left:242,top:86,width:700,height:820},
  'gummy-blocks':{left:242,top:86,width:700,height:780},
- 'pattern-block-puzzle':{left:242,top:86,width:790,height:810},
- 'pieces':{left:242,top:86,width:710,height:810},
- 'find':{left:242,top:86,width:700,height:820},
+ 'pattern-block-puzzle':{left:150,top:30,width:1000,height:1060},
+ 'pieces':{left:150,top:30,width:950,height:1050},
+ 'find':{left:150,top:30,width:950,height:1070},
  'digraph-cards':{left:242,top:86,width:750,height:850},
  'tap-out':{left:242,top:86,width:750,height:850},
  'animal-slider':{left:242,top:86,width:720,height:780},
- 'line':{left:242,top:86,width:720,height:850},
- 'memory':{left:240,top:85,width:760,height:820},
+ 'line':{left:150,top:30,width:970,height:1090},
+ 'memory':{left:155,top:30,width:960,height:1060},
  'merge-fruit':{left:240,top:85,width:700,height:820},
- 'stack':{left:240,top:85,width:760,height:890},
+ 'stack':{left:150,top:30,width:970,height:1130},
  'froggy-road':{left:240,top:85,width:740,height:820},
- 'quest':{left:240,top:85,width:760,height:820},
+ 'quest':{left:150,top:30,width:980,height:1090},
  'hidden-picture-kayak':{left:232,top:85,width:730,height:825},
  'hidden-picture-cafeteria':{left:232,top:85,width:730,height:825},
- 'hidden-picture-grocery-store':{left:232,top:85,width:730,height:825},
- 'hidden-picture-museum':{left:232,top:85,width:730,height:825},
- 'hidden-picture-library':{left:232,top:85,width:730,height:825},
+ 'hidden-picture-grocery-store':{left:145,top:30,width:970,height:1070},
+ 'hidden-picture-museum':{left:145,top:30,width:970,height:1070},
+ 'hidden-picture-library':{left:145,top:30,width:970,height:1070},
  'hidden-picture-amazon':{left:232,top:85,width:730,height:825},
  'hidden-picture-pirate-ship':{left:232,top:85,width:730,height:825},
  'hidden-picture-classroom':{left:232,top:85,width:730,height:825},
- 'hidden-picture-playground':{left:232,top:85,width:730,height:825},
+ 'hidden-picture-playground':{left:145,top:30,width:970,height:1070},
  'hidden-picture-camping':{left:232,top:85,width:730,height:825},
  'hidden-picture-space':{left:232,top:85,width:730,height:825},
  'hidden-picture-beach':{left:232,top:85,width:730,height:825},
@@ -478,7 +479,8 @@ const cropProfiles={
  'hidden-picture-monster-restaurant':{left:232,top:85,width:730,height:825}
 };
 // Maze gets a fresh fit preset so previously saved tight crops cannot override it.
-const fitStorageKey=()=>current?.slug==='maze'?'tt-crop-v2:maze':'tt-crop-v1:'+current.slug;
+// New safe-fit defaults for every website-view game; ignore old saved tight crops.
+const fitStorageKey=()=>current?'tt-crop-v3:'+current.slug:'';
 const getFitChanges=()=>{
  if(!current)return {zoom:0,x:0,y:0};
  try{return JSON.parse(localStorage.getItem(fitStorageKey()))||{zoom:0,x:0,y:0}}catch(e){return {zoom:0,x:0,y:0}}
