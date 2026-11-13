@@ -32,3 +32,16 @@ h1,h2,h3,.welcome-title,.designer-heading,.modal-card h2{font-family:var(--font-
 .movie-piece.float .piece-art img{width:100%;height:100%;object-fit:contain;object-position:center bottom}
 .movie-piece.balloon{top:0!important;bottom:auto!important}
 @media(max-width:870px){.designer-layout{grid-template-columns:1fr}.designer-row .eyebrow{display:none}}
+
+/* Use Shannon's exact uploaded fonts, hosted inside this site. No substituted typefaces. */
+@font-face{font-family:'Homebody Club';src:url('fonts/KAHomebodyClub.ttf') format('truetype');font-style:normal;font-weight:100 900;font-display:swap}
+@font-face{font-family:'VAG';src:url('fonts/VAG-Rounded-Std-Black_47296.ttf') format('opentype');font-style:normal;font-weight:100 900;font-display:swap}
+:root{--font-vag:'VAG';--font-homebody:'Homebody Club'}
+html,body,button,input,select,textarea,.portal-card,.cinema-brand span,.step,.brand,.brand-badge,.modal-card,.cinema-controls,.cinema-bottom,.library-panel,.grade-tiles b,.tile-number,.portal-footer,.portal-back,.portal-prompt,.portal-card p,.portal-card small,.portal-card label,.scene-chip,.welcome-card,.lineup,.movie-status{font-family:'VAG'!important}
+h1,h2,h3,h4,h5,h6,.brand h1,.welcome-title,.designer-heading,.portal-card h2,.portal-prompt,.cinema-brand,.library-top h2,.preview-head h2,.modal-card h2,.movie-bottom-banner{font-family:'Homebody Club'!important;text-transform:uppercase!important;letter-spacing:.04em}
+.portal-footer,.tile-number,.portal-card .tile-number{font-family:'VAG'!important}
+.movie-piece.float{bottom:auto!important;top:0!important;transform-origin:bottom center;animation:none!important}
+.movie-piece.float .piece-art,.movie-piece.float .piece-art img{animation:none!important}
+.movie-piece.float .piece-art{display:flex;align-items:flex-end;justify-content:center;width:100%;height:100%}
+.movie-piece.float .piece-art img{height:100%;width:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 8px 7px #101c3380)}
+.movie-piece.balloon .piece-art{animation:bob 2.6s ease-in-out infinite}
