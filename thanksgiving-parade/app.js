@@ -1,4 +1,6 @@
 'use strict';
+// Compact embed view for the STEM Classroom Screen. Grade, teacher and number entry remain interactive.
+if(new URLSearchParams(window.location.search).get('embed')==='1')document.documentElement.classList.add('embedded');
 /* Thanksgiving Parade Studio — original browser app. Provided artwork remains unmodified. */
 const SUPABASE_URL='https://vcjyhcnsuiwdeqqbiwgx.supabase.co';
 const SUPABASE_KEY='sb_publishable_EwVEFoVOIY4F_qH69otfww_FmYOLGBe';
