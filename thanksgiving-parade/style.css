@@ -97,3 +97,17 @@ html.embedded .brand-badge,html.embedded .footbar{display:none}
 html.embedded .body-layout{height:calc(100dvh - 57px);overflow:auto;padding:8px}
 html.embedded .top-actions .ghost-btn{display:none}
 html.embedded .portal-card{width:min(900px,99%)}
+
+
+/* NYC backgrounds already contain crowds, road, sidewalks and lane markings.
+   Preserve the scene's whole composition in the preview instead of cropping it. */
+.stage{height:auto!important;aspect-ratio:2048 / 868;min-height:0!important}
+.stage-scene{background-size:100% 100%!important;background-position:center center!important}
+.road-strip,.movie-road,.movie-crowd{display:none!important}
+.movie-background{background-position:center bottom!important;background-size:cover!important;filter:none!important}
+/* Position all moving artwork over the street actually painted in the scene. */
+.movie-piece.float{height:min(49vh,440px)!important;width:min(72vw,950px)!important}
+.movie-piece.float .piece-art,.movie-piece.float img{object-position:center bottom!important}
+.movie-piece.balloon .handler-line{bottom:-22vh!important}
+.movie-piece.balloon .tethers{bottom:-18vh!important;height:18vh!important;border-width:1.5px!important}
+@media(max-width:850px){.stage{aspect-ratio:2048 / 868!important}}
