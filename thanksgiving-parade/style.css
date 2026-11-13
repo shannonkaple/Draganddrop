@@ -317,3 +317,31 @@ body.workshop-mode #saveCreation{font-size:16px!important;min-height:53px!import
 .created-empty span{font-size:35px}.created-empty strong{font-family:'Homebody Club'!important;font-size:21px}.created-empty p{font-size:13px;margin:0 0 7px}
 @media(max-width:940px){body.workshop-mode .workshop-layout{grid-template-columns:1fr!important}body.workshop-mode .workshop-preview-area{position:relative!important;top:0!important}body.workshop-mode .body-layout{padding:10px!important}}
 @media(max-width:620px){body.workshop-mode .designer-row{flex-direction:column;align-items:stretch!important}body.workshop-mode .workshop-bases{grid-template-columns:repeat(3,minmax(0,1fr))!important}.created-shelf-heading{flex-direction:column;align-items:flex-start}.created-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Separately generated uncropped 3D raster art, not colors-only CSS boxes. */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.game-brand-image{display:block;width:clamp(220px,22vw,350px);height:77px;object-fit:contain;object-position:left center;filter:drop-shadow(0 3px 4px #452d4880)}
+.brand{min-width:0}
+.step-list{gap:6px!important}
+.step-list .step,.step-list .step:nth-child(n){min-height:0!important;width:100%!important;height:auto!important;padding:0!important;border:0!important;outline:0!important;border-radius:13px!important;background:transparent!important;box-shadow:none!important;filter:drop-shadow(0 4px 3px #5d3c6485);overflow:visible!important;display:block!important;line-height:0!important;transform-origin:center}
+.step-list .step>span{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important}
+.step-list .step-game-art{display:block!important;object-fit:contain;object-position:center;width:100%;height:auto;aspect-ratio:3 / 1;max-width:100%;border-radius:12px;overflow:visible}
+.step-list .step:hover{transform:translateY(-3px) scale(1.025)!important;filter:drop-shadow(0 7px 5px #563b767a)}
+.step-list .step.selected{transform:translateX(6px) scale(1.02)!important;filter:drop-shadow(0 4px 0 #ffeaa4) drop-shadow(0 0 8px #e98bbc)!important}
+.library-top{min-height:96px!important}
+.library-top .game-library-heading{display:flex;align-items:center;min-height:0}
+.library-heading-art{display:block;width:clamp(215px,24vw,370px);height:110px;object-fit:contain;object-position:left center;filter:drop-shadow(0 4px 4px #623a6480)}
+.library-top:has(.library-heading-art){padding-top:0!important;padding-bottom:0!important}
+.portal-art{display:block;width:min(600px,96%);height:auto;max-height:190px;object-fit:contain;object-position:center;margin:0 auto 6px;filter:drop-shadow(0 6px 5px #6e4a6683)}
+#onboarding .portal-card{padding-top:16px!important}
+#onboarding .portal-kicker{margin-top:0!important}
+.workshop-header-art{display:block;width:min(520px,100%);height:auto;max-height:185px;object-fit:contain;object-position:left center;filter:drop-shadow(0 5px 3px #6a426c78)}
+body.workshop-mode .designer-row{padding:10px 19px!important}
+body.workshop-mode .designer-row p{margin:0 4px 7px!important}
+.section-art{display:block;width:min(310px,100%);height:auto;max-height:110px;object-fit:contain;object-position:left center;margin:-8px 0 6px;filter:drop-shadow(0 3px 3px #86587950)}
+.preview-actions .game-play-art,.preview-actions .game-play-art:disabled{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;display:block!important;width:clamp(195px,23vw,310px);height:auto;line-height:0;overflow:visible;border-radius:0!important}
+.preview-actions .game-play-art img{display:block;width:100%;height:auto;aspect-ratio:3/1;object-fit:contain;filter:drop-shadow(0 5px 4px #94597c90)}
+.preview-actions .game-play-art:hover:not(:disabled){transform:translateY(-2px) scale(1.02)}
+.preview-actions .game-play-art:disabled{opacity:.42!important;filter:grayscale(.3);cursor:not-allowed}
+@media(max-width:800px){.game-brand-image{width:200px;height:55px}.preview-actions .game-play-art{width:185px}.library-heading-art{width:220px;height:75px}.portal-art{max-height:140px}}
