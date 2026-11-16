@@ -95,7 +95,7 @@
     const back = [];
     const front = [];
     for (const category of legacyOrder) {
-      if (category === 'costumes') continue;
+      if (category === 'costumes' || category === 'eyes' || category === 'noses' || category === 'mouths') continue;
       const option = design.options[category];
       const picked = catalog.parts[category][option - 1] ?? catalog.extra?.[category]?.[option];
       if (!picked) continue;
@@ -181,6 +181,14 @@
     }
     const canvas = document.createElement('canvas');
     paint(canvas, layers, 1.5);
+    const base = bodyById.get(design.baseId);
+    if(base && window.PARADE_FACE_ART) {
+      const ctx = canvas.getContext('2d');
+      ctx.save();
+      ctx.scale(1.5, 1.5);
+      try { window.PARADE_FACE_ART.paint(ctx, design, base); }
+      finally {ctx.restore();}
+    }
     return remember(design, canvas.toDataURL('image/webp', .89));
   }
 
