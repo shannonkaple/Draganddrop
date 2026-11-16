@@ -293,8 +293,9 @@ function renderLineup(){
  const active=state.activePiece;
  if(Number.isInteger(active)&&active>=0&&active<cards.length){
   const item=cards[active];
-  if(item.offsetLeft+item.offsetWidth>el.scrollLeft+el.clientWidth)el.scrollLeft=item.offsetLeft+item.offsetWidth-el.clientWidth+12;
-  else if(item.offsetLeft<el.scrollLeft)el.scrollLeft=Math.max(0,item.offsetLeft-12);
+  const viewport=el.getBoundingClientRect(),position=item.getBoundingClientRect();
+  if(position.right>viewport.right)el.scrollLeft+=position.right-viewport.right+12;
+  else if(position.left<viewport.left)el.scrollLeft-=viewport.left-position.left+12;
  }
 }
 const newBalloons=GALLERY_PIECES.filter(piece=>piece.original);
