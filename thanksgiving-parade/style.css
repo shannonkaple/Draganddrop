@@ -355,3 +355,26 @@ body.workshop-mode .designer-row p{margin:0 4px 7px!important}
 
 /* Saved custom balloons: clear, keyboard-operable delete control */
 .created-delete{font-family:'VAG'!important;font-size:11px!important;min-height:34px!important;margin-top:9px!important;border:2px solid #ffefdf!important;border-radius:12px!important;background:linear-gradient(#fff2e8,#f5bac3)!important;color:#74314b!important;box-shadow:0 3px 0 #c9899a!important;cursor:pointer!important}.created-delete:hover,.created-delete:focus-visible{filter:saturate(1.15);outline:2px solid #8d507a;outline-offset:2px}
+
+/* Storybook illustration belongs to the GRADE SELECTION entrance, never the parade street. */
+#onboarding.overlay:has(#portalGrade:not(.hidden)){
+  background:linear-gradient(110deg,rgba(38,30,62,.28),rgba(44,33,48,.19)),
+    url('assets/scenes/storybook-parade.jpg') center center / cover no-repeat!important;
+  backdrop-filter:none!important;
+}
+#onboarding.overlay:has(#portalGrade:not(.hidden)) .portal-card{
+  width:min(760px,94vw)!important;
+  background:linear-gradient(165deg,rgba(255,251,238,.95),rgba(255,247,231,.90))!important;
+  box-shadow:0 11px 0 #9c627a,0 25px 75px rgba(30,20,32,.50)!important;
+}
+#onboarding.overlay:has(#portalGrade:not(.hidden)) .grade-tiles button{
+  backdrop-filter:blur(4px);
+}
+@media(max-width:670px){
+  #onboarding.overlay:has(#portalGrade:not(.hidden)){
+    background-position:57% center!important;
+  }
+  #onboarding.overlay:has(#portalGrade:not(.hidden)) .portal-card{
+    width:min(96vw,580px)!important;
+  }
+}
