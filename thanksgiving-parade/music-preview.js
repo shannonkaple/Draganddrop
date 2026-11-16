@@ -51,15 +51,18 @@
     if(!track)return;
     stopPreview(false);
     active=index;
-    audio.src=track.src;
-    audio.load();
     const token=++requestToken;
-    status.textContent='Loading '+track.name+'…';
+    status.textContent='Loading full song: '+track.name+'…';
     refresh();
     try{
+      const src=await window.PARADE_FULL_MUSIC.load(track.src);
+      if(token!==requestToken)return;
+      audio.src=src;
+      audio.loop=false;
+      audio.load();
       await audio.play();
       if(token!==requestToken)return;
-      status.textContent='Now playing: '+track.name+' — press STOP when finished.';
+      status.textContent='Now playing the full song: '+track.name+'. Press STOP to finish.';
     }catch(error){
       if(token!==requestToken)return;
       if(error?.name==='AbortError')return;
@@ -96,7 +99,7 @@
   // A parade always owns the soundtrack: never let the sample overlap the movie.
   document.addEventListener('click',event=>{
     if(event.target.closest('#playBtn,#homeBtn,#changeStudentBtn,#closeMovieBtn') ||
-       (event.target.closest('.step') && event.target.closest('.step').dataset.tab!=='decorate')) {
+       (event.target.closest('.step') && event.target.closest('.step').dataset.tab!=='bands')) {
       if(active>=0)stopPreview();
     }
   },true);
