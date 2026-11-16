@@ -45,7 +45,10 @@ const PIECES=[
 [63,'Scout the Space Pup','balloon','scout-space-pup'],
 [64,'Pip the Octopus','balloon','pip-octopus'],
 [65,'Taffy the Narwhal','balloon','taffy-narwhal'],
-[66,'Crumb the Gingerbread Kid','balloon','crumb-gingerbread-kid']
+[66,'Crumb the Gingerbread Kid','balloon','crumb-gingerbread-kid'],
+[67,'Emberling','balloon','emberling'],
+[68,'Sparkskip','balloon','sparkskip'],
+[69,'Mossbloom','balloon','mossbloom']
 ].map(([id,name,type,art])=>({
  id,name,type,original:Boolean(art),src:art?ASSETS+art+'.webp':(window.PARADE_PIECE_ASSETS||{})[id]||ASSETS+id+'.svg'
 }));
@@ -67,7 +70,7 @@ const MUSIC=[
 const MAX={1:25,2:25};
 const $=id=>document.getElementById(id);
 let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,color:'cranberry',music:'march',activePiece:null};
-let tab='balloons',balloonCollection='original',saveTimer=null,studentSession=null,entryRun=0;
+let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
 function draft(){return {pieces:[...state.pieces],customPieces:[...state.customPieces],scene:state.scene,routeTour:state.routeTour,color:state.color,music:state.music};}
 function sanitizeDraft(input,grade=state.grade){
  const v=input&&typeof input==='object'?input:{};
@@ -129,23 +132,55 @@ function customSource(c){
  const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);customSrcCache.set(signature,url);return url;
 }
 function getPiece(id){const standard=PIECES.find(p=>p.id===id);if(standard)return standard;const c=state.customPieces.find(p=>p.id===id);return c?{id:c.id,name:c.name,type:'balloon',src:customSource(c),custom:true}:null;}
-function renderLineup(){const el=$('lineup');el.innerHTML='';const max=MAX[state.grade];const visible=Math.min(max,Math.max(5,state.pieces.length+1));el.style.gridTemplateColumns=`repeat(${Math.min(8,visible)},minmax(77px,1fr))`;for(let i=0;i<visible;i++){const id=state.pieces[i];const piece=getPiece(id);const slot=document.createElement('div');slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');slot.setAttribute('role','listitem');slot.innerHTML=`<span class="slot-number">${i+1}</span>`;if(piece){slot.draggable=true;slot.innerHTML+=`<img ${piece.src?'src="'+piece.src+'"':''} alt="${piece.name}" loading="lazy"><span class="slot-label" title="${piece.name.replaceAll('"','')}">${piece.name}</span><div class="slot-controls"><button type="button" data-action="left" aria-label="Move ${piece.name} left" ${i===0?'disabled':''}>◀</button><button type="button" data-action="right" aria-label="Move ${piece.name} right" ${i===state.pieces.length-1?'disabled':''}>▶</button><button type="button" data-action="remove" aria-label="Remove ${piece.name}">×</button></div>`;slot.addEventListener('click',e=>{if(e.target.closest('button')){const act=e.target.dataset.action;if(act==='remove'){state.pieces.splice(i,1);state.activePiece=null;}else if(act==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1;}else if(act==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1;}markChanged();renderAll()}else{state.activePiece=i;renderLineup()}});slot.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',String(i))});slot.addEventListener('dragover',e=>e.preventDefault());slot.addEventListener('drop',e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/plain'));if(Number.isInteger(from)&&from>=0&&from<state.pieces.length&&from!==i&&i<state.pieces.length){const [x]=state.pieces.splice(from,1);state.pieces.splice(i,0,x);markChanged();renderAll()}})}else{slot.innerHTML+='<span class="slot-empty">+</span><span class="slot-empty-text">EMPTY</span>';slot.addEventListener('click',()=>switchTab('balloons'))}el.appendChild(slot)}}
-function renderGallery(){const g=$('gallery');g.innerHTML='';const type=tab==='floats'?'float':'balloon';const artwork=$('libraryHeadingArt');if(artwork)artwork.src='assets/ui/'+(type==='float'?'floats':'balloons')+'.webp';const choices=GALLERY_PIECES.filter(piece=>piece.type===type&&(type==='float'||piece.original===(balloonCollection==='original')));$('libraryCount').textContent=choices.length+' choices';$('libraryEyebrow').textContent=type==='float'?'FLOAT COLLECTION':'BALLOON COLLECTION';$('libraryTitle').textContent=type==='float'?'Choose a fantastic float':balloonCollection==='original'?'Choose an original balloon':'Choose a real parade balloon';for(const p of choices){const selected=state.pieces.includes(p.id);const btn=document.createElement('button');btn.className='asset-card'+(selected?' selected-asset':'')+(p.custom?' custom-card':'');btn.type='button';btn.title=p.name;btn.setAttribute('aria-label',`Add ${p.name} to your parade`);btn.innerHTML=`<span class="add-dot">${selected?'✓':'+'}</span><img src="${p.src}" alt="" loading="lazy"><span class="asset-name">${p.name}</span>`;btn.disabled=state.pieces.length>=MAX[state.grade];btn.onclick=()=>{if(state.pieces.length>=MAX[state.grade]){notify('Lineup full — remove one first!',false);return}state.pieces.push(p.id);state.activePiece=state.pieces.length-1;markChanged();renderAll()};g.appendChild(btn)}}
-
+function renderLineup(){const el=$('lineup');el.innerHTML='';const max=MAX[state.grade];const visible=Math.min(max,Math.max(5,state.pieces.length+1));el.style.gridTemplateColumns=`repeat(${Math.min(8,visible)},minmax(var(--slot-min,77px),1fr))`;for(let i=0;i<visible;i++){const id=state.pieces[i];const piece=getPiece(id);const slot=document.createElement('div');slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');slot.setAttribute('role','listitem');slot.innerHTML=`<span class="slot-number">${i+1}</span>`;if(piece){slot.draggable=true;slot.innerHTML+=`<img ${piece.src?'src="'+piece.src+'"':''} alt="${piece.name}" loading="lazy"><span class="slot-label" title="${piece.name.replaceAll('"','')}">${piece.name}</span><div class="slot-controls"><button type="button" data-action="left" aria-label="Move ${piece.name} left" ${i===0?'disabled':''}>◀</button><button type="button" data-action="right" aria-label="Move ${piece.name} right" ${i===state.pieces.length-1?'disabled':''}>▶</button><button type="button" data-action="remove" aria-label="Remove ${piece.name}">×</button></div>`;slot.addEventListener('click',e=>{if(e.target.closest('button')){const act=e.target.dataset.action;if(act==='remove'){state.pieces.splice(i,1);state.activePiece=null;}else if(act==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1;}else if(act==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1;}markChanged();renderAll()}else{state.activePiece=i;renderLineup()}});slot.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',String(i))});slot.addEventListener('dragover',e=>e.preventDefault());slot.addEventListener('drop',e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/plain'));if(Number.isInteger(from)&&from>=0&&from<state.pieces.length&&from!==i&&i<state.pieces.length){const [x]=state.pieces.splice(from,1);state.pieces.splice(i,0,x);markChanged();renderAll()}})}else{slot.innerHTML+='<span class="slot-empty">+</span><span class="slot-empty-text">EMPTY</span>';slot.addEventListener('click',()=>switchTab('balloons'))}el.appendChild(slot)}}
+const newBalloons=GALLERY_PIECES.filter(piece=>piece.original);
+const featuredBalloons=[37,59,60,61,62,67,68,69];
+const newChoices=[
+ ...featuredBalloons.map(id=>newBalloons.find(piece=>piece.id===id)),
+ ...newBalloons.filter(piece=>!featuredBalloons.includes(piece.id))
+];
+function renderShelf(id,choices){
+ const gallery=$(id);
+ const scrollLeft=gallery.scrollLeft;
+ const cards=choices.map(piece=>{
+  const selected=state.pieces.includes(piece.id);
+  const button=document.createElement('button');
+  button.className='asset-card'+(selected?' selected-asset':'');
+  button.type='button';
+  button.title=piece.name;
+  button.setAttribute('aria-label',`Add ${piece.name} to your parade`);
+  button.innerHTML=`<span class="add-dot">${selected?'✓':'+'}</span><img src="${piece.src}" alt="" loading="lazy"><span class="asset-name">${piece.name}</span>`;
+  button.disabled=state.pieces.length>=MAX[state.grade];
+  button.onclick=()=>{
+   if(state.pieces.length>=MAX[state.grade])return;
+   state.pieces.push(piece.id);
+   state.activePiece=state.pieces.length-1;
+   markChanged();
+   renderAll();
+  };
+  return button;
+ });
+ gallery.replaceChildren(...cards);
+ gallery.scrollLeft=scrollLeft;
+ $(id+'Count').textContent=choices.length+' choices';
+}
+function renderGallery(){
+ if(tab==='balloons'){
+  renderShelf('realGallery',GALLERY_PIECES.filter(piece=>piece.type==='balloon'&&!piece.original));
+  renderShelf('newGallery',newChoices);
+ } else if(tab==='floats'){
+  renderShelf('floatGallery',GALLERY_PIECES.filter(piece=>piece.type==='float'));
+ }
+}
 function renderTabs(){
- const showScenes=tab==='decorate';
- document.querySelectorAll('.step').forEach(el=>el.classList.toggle('selected',el.dataset.tab===tab));
- for(const id of ['gallery','galleryBack','galleryForward','libraryCount'])$(id).classList.toggle('hidden',showScenes);
- $('decoratePanel').classList.toggle('hidden',!showScenes);
- $('balloonCollections').classList.toggle('hidden',tab!=='balloons');
- for(const button of document.querySelectorAll('[data-balloon-collection]')){
-  button.setAttribute('aria-pressed',String(button.dataset.balloonCollection===balloonCollection));
- }
- if(showScenes){
-  $('libraryHeadingArt').src='assets/ui/scenes.webp';
-  $('libraryTitle').textContent='Choose your parade scene and music';
-  $('libraryEyebrow').textContent='SCENES & MUSIC';
- }
+ document.querySelectorAll('.step').forEach(button=>{
+  const active=button.dataset.tab===tab;
+  button.classList.toggle('selected',active);
+  button.setAttribute('aria-pressed',String(active));
+ });
+ $('balloonShelves').classList.toggle('hidden',tab!=='balloons');
+ $('floatShelf').classList.toggle('hidden',tab!=='floats');
+ $('decoratePanel').classList.toggle('hidden',tab!=='decorate');
 }
 function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge;$('stageHeading').textContent=state.grade===1?'Your magical NYC parade':'Your own NYC parade'}
 function renderPreview(){const g=$('stageCharacters');g.innerHTML='';$('stageEmpty').classList.toggle('hidden',state.pieces.length>0);let items=state.pieces.slice(0,2);items.forEach((id,i)=>{const p=getPiece(id);if(!p?.src)return;const el=document.createElement('img');el.src=p.src;el.alt=p.name;el.style.cssText=`position:absolute;bottom:${p.type==='float'?'-8%':'18%'};left:${i===0?0:50}%;width:${p.type==='float'?'55%':'47%'};height:${p.type==='float'?'93%':'77%'};object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #33253675);${p.type==='float'?'':`animation:bob ${2.5+i*.31}s ease-in-out infinite;`}`;el.loading='lazy';g.appendChild(el)});$('previewCaption').textContent=state.pieces.length?`${state.pieces.length} parade stars are ready for the big day!`:'Make your lineup, then watch it come to life.'}
@@ -155,9 +190,9 @@ const music=$('musicOptions');music.innerHTML='';MUSIC.forEach(m=>{const b=docum
 }
 function switchTab(next){
  tab=next;
+ renderTabs();
  if(tab==='decorate')renderDecorate();
  else renderGallery();
- renderTabs();
  document.querySelector('.body-layout')?.scrollTo({top:0});
  window.scrollTo({top:0,behavior:'instant'});
 }
@@ -177,7 +212,6 @@ async function enterStudent(){
  $('onboarding').classList.add('hidden');
  $('studentModal').classList.add('hidden');
  $('app').inert=false;
- balloonCollection='original';
  switchTab('balloons');
  renderAll();
  notify(message);
@@ -199,19 +233,17 @@ function startMovie(){
  const track=MUSIC.find(song=>song.id===state.music)??MUSIC[0];
  window.PARADE_PLAYER?.start(pieces,scene(),track);
 }
-for(const button of document.querySelectorAll('[data-balloon-collection]')){
+for(const button of document.querySelectorAll('[data-scroll-gallery]')){
  button.addEventListener('click',()=>{
-  balloonCollection=button.dataset.balloonCollection;
-  renderGallery();
-  renderTabs();
-  $('gallery').scrollLeft=0;
+  const gallery=$(button.dataset.scrollGallery);
+  gallery.scrollBy({left:Number(button.dataset.direction)*gallery.clientWidth*.85,behavior:'smooth'});
  });
 }
 // All controls remain operable with keyboard and trackpad. Avoid any touch-only interactions.
 document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
 document.querySelectorAll('.grade-pick').forEach(el=>el.addEventListener('click',()=>{state.grade=Number(el.dataset.grade);document.querySelectorAll('.grade-pick').forEach(e=>e.classList.toggle('selected',e===el))}));
 $('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('homeBtn').addEventListener('click',openStudent);$('saveBtn').addEventListener('click',()=>saveParade());$('playBtn').addEventListener('click',startMovie);
-$('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('galleryBack').addEventListener('click',()=>$('gallery').scrollBy({left:-560,behavior:'smooth'}));$('galleryForward').addEventListener('click',()=>$('gallery').scrollBy({left:560,behavior:'smooth'}));$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...GALLERY_PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));$('helpClose').addEventListener('click',()=>$('helpModal').classList.add('hidden'));$('helpGotIt').addEventListener('click',()=>$('helpModal').classList.add('hidden'));
+$('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...GALLERY_PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));$('helpClose').addEventListener('click',()=>$('helpModal').classList.add('hidden'));$('helpGotIt').addEventListener('click',()=>$('helpModal').classList.add('hidden'));
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.PARADE_PLAYER?.active)$('helpModal').classList.add('hidden');});
 // Teachers can bookmark a class-specific link such as ?class=JOHNSON&grade=1.
 const params=new URLSearchParams(window.location.search);const classFromUrl=(params.get('class')||'').trim().toUpperCase();if(/^[A-Z0-9-]{2,12}$/.test(classFromUrl)){$('classCode').value=classFromUrl;state.classCode=classFromUrl}const gradeFromUrl=Number(params.get('grade'));if(gradeFromUrl===1||gradeFromUrl===2){state.grade=gradeFromUrl;document.querySelectorAll('.grade-pick').forEach(el=>el.classList.toggle('selected',Number(el.dataset.grade)===gradeFromUrl))}
