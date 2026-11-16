@@ -1430,3 +1430,176 @@ body:not(.workshop-mode) .preview-caption{
   body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art{width:192px!important}
   body:not(.workshop-mode) .preview-caption{flex-basis:100%!important}
 }
+
+
+/* November 16: clean red and sky-blue parade entrance / navigational identity */
+:root{--kaple-red:#d8082e;--kaple-sky:#e1f5fb;--kaple-deep:#a80a2a}
+body:not(.workshop-mode) .game-brand-image{
+  width:clamp(205px,22vw,300px)!important;
+  height:61px!important;filter:none!important;object-fit:contain!important
+}
+body:not(.workshop-mode) .step-list .step:nth-child(n){
+  background:#e1f5fb!important;border:2px solid #fff!important;
+  box-shadow:0 3px 0 #a6d4e4!important; border-radius:14px!important;
+  padding:0 6px!important;min-width:0!important;
+}
+body:not(.workshop-mode) .step-list .step.selected{
+  background:#fff!important;border:3px solid #d8082e!important;
+  box-shadow:0 3px 0 #b40e2d!important;filter:none!important;
+  transform:none!important
+}
+body:not(.workshop-mode) .step-list .step:hover{
+  transform:translateY(-2px)!important;filter:none!important
+}
+body:not(.workshop-mode) .step-list .step-game-art{
+  width:100%!important;height:51px!important;object-fit:contain!important;
+  filter:none!important
+}
+/* Use a clean flat, fully illustrated New York skyline as the entire entrance,
+   rather than the prior pink/purple storybook backgrounds and cards. */
+#onboarding.overlay,
+#onboarding.overlay:has(#portalGrade:not(.hidden)){
+  background:#a8eafa url('assets/ui/kaple-parade-entrance-redblue-2026.svg') center / cover no-repeat!important;
+  backdrop-filter:none!important;
+}
+#onboarding .portal-card,
+#onboarding.overlay:has(#portalGrade:not(.hidden)) .portal-card{
+  width:min(790px,96vw)!important;
+  max-height:calc(100dvh - 35px)!important;
+  padding:clamp(12px,2vw,21px)!important;
+  background:#fffefbea!important;
+  background-image:none!important;
+  border:5px solid #fff!important;
+  outline:4px solid #d8082e!important;
+  outline-offset:0!important;
+  border-radius:20px!important;
+  box-shadow:0 9px 0 #bf0b30,0 18px 45px #264b6880!important;
+  text-shadow:none!important;
+}
+#onboarding .portal-card::before,
+#onboarding .portal-card::after{content:none!important;display:none!important}
+#onboarding .portal-card .portal-art,
+#onboarding .portal-card .portal-welcome-art{display:none!important}
+#onboarding .portal-card .portal-brand-redblue{
+  display:block!important;width:min(535px,90%)!important;
+  max-height:126px!important;height:auto!important;
+  object-fit:contain!important;margin:0 auto 8px!important;
+  filter:none!important;
+}
+#onboarding .portal-progress{margin:2px auto 9px!important;gap:9px!important}
+#onboarding .portal-progress span{
+  width:31px!important;height:31px!important;
+  color:#d8082e!important;border:2px solid #d8082e!important;
+  background:#fff!important;box-shadow:none!important;
+}
+#onboarding .portal-progress span.current{
+  background:#d8082e!important;color:#fff!important;
+  border-color:#d8082e!important;box-shadow:none!important;
+}
+#onboarding .portal-progress span.done{
+  background:#e1f5fb!important;color:#d8082e!important;
+  border-color:#d8082e!important;
+}
+#onboarding .portal-progress i{border-color:#d8082e!important;opacity:.65}
+#onboarding .portal-prompt{
+  color:#c8102e!important;text-shadow:none!important;
+  font-family:Georgia,'Times New Roman',serif!important;
+  font-weight:900!important;letter-spacing:.4px!important;
+  font-size:clamp(22px,3.1vw,30px)!important;
+  line-height:1.12!important;margin:4px auto 15px!important;
+}
+#portalGrade .grade-tiles{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  max-width:720px!important;gap:10px!important;margin:8px auto 4px!important;
+}
+#onboarding #portalGrade .grade-tiles button{
+  min-height:150px!important;height:auto!important;gap:2px!important;
+  padding:12px 6px!important; background:#d8082e!important;
+  background-image:none!important;border:3px solid #fff!important;
+  border-radius:17px!important;color:#fff!important;
+  box-shadow:0 5px 0 #a80a2a!important;
+  text-shadow:none!important;backdrop-filter:none!important;
+}
+#onboarding #portalGrade .grade-tiles button:nth-child(2){
+  background:#d5f2fb!important;color:#d8082e!important;
+  box-shadow:0 5px 0 #8ab9ce!important
+}
+#onboarding #portalGrade .grade-tiles button:nth-child(3){
+  background:#fff!important;color:#d8082e!important;
+  box-shadow:0 5px 0 #a8d2e2!important
+}
+#onboarding #portalGrade .grade-tiles button .tile-number,
+#onboarding #portalGrade .grade-tiles button b,
+#onboarding #portalGrade .grade-tiles button small{
+  color:inherit!important;text-shadow:none!important;
+}
+#onboarding #portalGrade .grade-tiles button .tile-number{
+  font-family:Georgia,'Times New Roman',serif!important;
+  font-weight:900!important;font-size:clamp(52px,6.2vw,74px)!important;
+  line-height:.95!important;
+}
+#onboarding #portalGrade .grade-tiles button b{
+  font-family:'VAG',system-ui,sans-serif!important;
+  font-size:clamp(14px,1.6vw,20px)!important;line-height:1.15!important;
+}
+#onboarding #portalGrade .grade-tiles button small{
+  font-family:'VAG',system-ui,sans-serif!important;
+  font-size:clamp(9px,1vw,12px)!important;
+}
+#onboarding .teacher-grid{
+  max-height:min(46vh,335px)!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;margin:2px auto 8px!important;
+  padding:3px!important
+}
+#onboarding .portal-card .teacher-grid button,
+#onboarding .portal-card .teacher-grid button:nth-child(n){
+  background:#e1f5fb!important;background-image:none!important;
+  color:#c8102e!important;border:2px solid #a1cfde!important;
+  border-radius:9px!important;box-shadow:0 3px 0 #7ab7cc!important;
+  min-height:47px!important;padding:7px 4px!important;
+  font-family:'VAG',system-ui,sans-serif!important;
+  font-size:13px!important;text-shadow:none!important;
+}
+#onboarding .portal-card .teacher-grid button:hover,
+#onboarding .portal-card .teacher-grid button:focus-visible{
+  background:#d8082e!important;color:#fff!important;border-color:#d8082e!important;
+}
+#onboarding .number-grid{gap:7px!important;margin:10px auto!important}
+#onboarding .portal-card .number-grid button{
+  background:#e1f5fb!important;background-image:none!important;
+  border:2px solid #9ec9da!important;color:#c8102e!important;
+  border-radius:8px!important;box-shadow:none!important;min-height:41px!important
+}
+#onboarding .portal-card .number-grid button.selected,
+#onboarding .portal-card .number-grid button:hover{
+  background:#d8082e!important;color:#fff!important;border-color:#d8082e!important
+}
+#onboarding .portal-card .portal-summary{
+  background:#e1f5fb!important;color:#c8102e!important;border-radius:8px!important
+}
+#onboarding .portal-card .number-other label,
+#onboarding .portal-card .portal-back{color:#b30c2e!important}
+#onboarding .portal-card .number-other input{
+  background:#fff!important;border:2px solid #a3cdda!important;color:#b30c2e!important
+}
+#onboarding .portal-card #numberEnter{
+  background:#d8082e!important;color:#fff!important;box-shadow:0 3px 0 #a80a2a!important
+}
+#onboarding .portal-back img{filter:none!important}
+#onboarding .grade-tiles button:focus-visible,
+#onboarding .teacher-grid button:focus-visible,
+#onboarding .number-grid button:focus-visible{
+  outline:4px solid #246da5!important;outline-offset:3px!important
+}
+@media(max-width:700px){
+  #onboarding .portal-card .portal-brand-redblue{max-height:95px!important}
+  #portalGrade .grade-tiles{gap:6px!important}
+  #onboarding #portalGrade .grade-tiles button{min-height:120px!important;padding:8px 3px!important}
+  #onboarding .teacher-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-height:50vh!important}
+}
+@media(max-width:450px){
+  #portalGrade .grade-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #onboarding #portalGrade .grade-tiles .guest-tile{grid-column:1/-1!important;min-height:75px!important}
+  #onboarding .portal-card .portal-brand-redblue{max-height:80px!important}
+}
