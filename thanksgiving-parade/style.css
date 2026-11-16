@@ -1829,3 +1829,27 @@ body:not(.workshop-mode) .footbar{display:none!important}
    height:32px!important;min-height:32px!important;width:16%!important
  }
 }
+
+/* Raster theme finishing touches: keep interactive utilities usable on tablets */
+#onboarding .portal-card .teacher-grid button:hover,
+#onboarding .portal-card .teacher-grid button:focus-visible,
+#onboarding .portal-card .number-grid button.selected,
+#onboarding .portal-card .number-grid button:hover,
+#onboarding .portal-card #numberEnter{
+  background:#E7002A!important;border-color:#E7002A!important;color:#fff!important;
+}
+#onboarding .portal-progress span.current{
+  background:#E7002A!important;border-color:#E7002A!important;color:#fff!important;
+}
+#onboarding .portal-card .portal-back,#onboarding .portal-card .number-other label{color:#E7002A!important}
+@media (min-width:641px) and (max-width:850px){
+ body:not(.workshop-mode) header.topbar{
+  height:auto!important;min-height:65px!important;flex-wrap:wrap!important;
+  justify-content:center!important;padding:3px 6px!important
+ }
+ body:not(.workshop-mode) header.topbar .game-brand-image{height:50px!important}
+ body:not(.workshop-mode) header.topbar .top-actions{
+  flex-basis:100%!important;justify-content:space-evenly!important;
+  padding-bottom:3px!important
+ }
+}
