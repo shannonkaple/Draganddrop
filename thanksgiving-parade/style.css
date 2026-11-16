@@ -1317,3 +1317,116 @@ body:not(.workshop-mode) #libraryPanel .asset-card:focus-visible,
 body:not(.workshop-mode) #libraryPanel [data-page-gallery]:focus-visible{
  outline:3px solid #2879ab!important;outline-offset:3px!important
 }
+
+/* Nov 16 refinement: solid ice blue, red utility ribbon, clean image navigation, green watch control. */
+:root{
+  --parade-ice-blue:#E1F5FB;
+  --parade-banner-red:#C8102E;
+  --parade-green:#238A4F;
+}
+/* A single airy, ice-blue canvas instead of the former patterned background. */
+html,body{background:#E1F5FB!important;background-image:none!important}
+body:not(.workshop-mode) .app{
+  background:#E1F5FB!important;
+  background-image:none!important;
+}
+/* The utility controls should read as one separate, unmistakable red ribbon. */
+body:not(.workshop-mode) header.topbar{
+  position:relative;z-index:2;
+  background:linear-gradient(180deg,#DE1839 0%,#C8102E 78%,#AC0D2B 100%)!important;
+  background-color:#C8102E!important;
+  border-bottom:4px solid #920C25!important;
+  box-shadow:0 4px 0 #FFFFFF,0 8px 16px #4B48592B!important;
+}
+body:not(.workshop-mode) header.topbar .saved-note{
+  color:#FFFFFF!important;text-shadow:none!important;font-size:11px!important;
+  font-weight:800!important;line-height:1.2!important;
+}
+body:not(.workshop-mode) header.topbar .outline-btn,
+body:not(.workshop-mode) header.topbar .ghost-btn{
+  color:#203C50!important;
+  background:linear-gradient(#FFFFFF,#E2F5FA)!important;
+  border:2px solid #FFFFFF!important;
+  box-shadow:0 3px 0 #89BACD,0 5px 9px #7D0D2233!important;
+}
+body:not(.workshop-mode) header.topbar #saveBtn{
+  color:#71142C!important;background:linear-gradient(#FFF4BA,#FFC849)!important;
+  border:2px solid #FFFBE6!important;
+  box-shadow:0 4px 0 #CE941C,0 7px 12px #620C263D!important;
+}
+body:not(.workshop-mode) header.topbar #studioFullscreenBtn span{
+  color:#203C50!important;
+}
+/* Illustrated picture buttons already say BALLOONS, FLOATS, BANDS & SCENES.
+   Do not cover the artwork with another title or a number circle. */
+body:not(.workshop-mode) .step-list .step:nth-child(n)::before,
+body:not(.workshop-mode) .step-list .step:nth-child(n)::after{
+  content:none!important;display:none!important;
+}
+body:not(.workshop-mode) .step-list .step:nth-child(n){
+  padding:4px 8px!important;
+  align-items:center!important;
+}
+body:not(.workshop-mode) .step-list .step-game-art{
+  height:54px!important;max-height:100%!important;
+  width:100%!important;object-fit:contain!important;
+}
+/* Scene name appears once in the preview toolbar, not over the artwork too. */
+body:not(.workshop-mode) #stageSign{display:none!important}
+body:not(.workshop-mode) .preview-head .scene-chip{
+  color:#244457!important;background:#E9F6FA!important;
+  border:1px solid #A7CCDC!important;box-shadow:none!important;
+  font-size:11px!important;text-shadow:none!important;
+}
+/* A BIG green watch button with the student's existing parade illustration. */
+body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art,
+body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art:disabled{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 auto!important;
+  width:clamp(188px,18vw,248px)!important;
+  height:67px!important;min-height:67px!important;
+  padding:5px 10px!important;
+  background:linear-gradient(180deg,#5BD584 0%,#279B58 55%,#167A45 100%)!important;
+  border:3px solid #F0FFE9!important;border-radius:18px!important;
+  box-shadow:inset 0 2px 0 #C6FFCE,0 6px 0 #0D6036,0 10px 16px #124E3460!important;
+  line-height:1!important;overflow:visible!important;
+  transition:transform .15s,filter .15s!important;
+}
+body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art img{
+  display:block!important;
+  width:100%!important;height:54px!important;max-height:54px!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 2px 2px #05482A6B)!important;
+}
+body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art:hover:not(:disabled){
+  transform:translateY(-2px)!important;
+  filter:brightness(1.06)!important;
+}
+body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art:active:not(:disabled){
+  transform:translateY(4px)!important;box-shadow:inset 0 1px 0 #C6FFCE,0 2px 0 #0D6036!important;
+}
+body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art:disabled{
+  opacity:.5!important;cursor:not-allowed!important;
+}
+body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art:focus-visible{
+  outline:4px solid #154D8A!important;outline-offset:4px!important;
+}
+body:not(.workshop-mode) .preview-foot{
+  gap:10px!important;min-height:83px!important;
+  flex-wrap:wrap!important;align-items:center!important;
+}
+body:not(.workshop-mode) .preview-actions{
+  display:flex!important;align-items:center!important;
+  justify-content:flex-end!important;gap:9px!important;flex-wrap:nowrap!important;
+}
+body:not(.workshop-mode) .preview-caption{
+  font-size:12px!important;line-height:1.25!important;
+  color:#25455C!important;flex:1 1 110px!important;min-width:90px!important;
+}
+@media(max-width:530px){
+  body:not(.workshop-mode) .preview-foot{justify-content:center!important}
+  body:not(.workshop-mode) .preview-actions{width:100%;justify-content:space-between!important}
+  body:not(.workshop-mode) .preview-actions button#playBtn.game-play-art{width:192px!important}
+  body:not(.workshop-mode) .preview-caption{flex-basis:100%!important}
+}
