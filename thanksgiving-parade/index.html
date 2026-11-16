@@ -6,7 +6,7 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>My Thanksgiving Parade | Balloon Parade Studio</title>
 <link rel="icon" href="assets/ui/main-title.webp" type="image/webp">
-<link rel="stylesheet" href="style.css?v=20261116-guest-mode">
+<link rel="stylesheet" href="style.css?v=20261116-studio-refresh1">
 </head>
 <body>
 <div id="app" class="app" inert>
@@ -25,10 +25,10 @@
    </div>
    <div class="steps-label">CREATE YOUR PARADE</div>
    <div class="step-list">
-    <button class="step selected" type="button" data-tab="balloons" aria-label="Choose balloons"><img class="step-game-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎈</span><span><b>Choose Balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
-    <button class="step" type="button" data-tab="floats" aria-label="Choose floats"><img class="step-game-art" src="assets/ui/floats.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🚚</span><span><b>Choose Floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
-    <button class="step" type="button" data-tab="bands" aria-label="Marching Bands"><img class="step-game-art" src="assets/ui/bands.webp" alt=""></button>
-    <button class="step" type="button" data-tab="decorate" aria-label="Parade scenes and music"><img class="step-game-art" src="assets/ui/scenes.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🍁</span><span><b>Scenes & Music</b><small>NYC scenes, banner &amp; music</small></span><span class="step-chevron">›</span></button>
+    <button class="step selected" type="button" data-step="1" data-tab="balloons" aria-label="Choose balloons"><img class="step-game-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎈</span><span><b>Choose Balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
+    <button class="step" type="button" data-step="2" data-tab="floats" aria-label="Choose floats"><img class="step-game-art" src="assets/ui/floats.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🚚</span><span><b>Choose Floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
+    <button class="step" type="button" data-step="3" data-tab="bands" aria-label="Marching Bands"><img class="step-game-art" src="assets/ui/bands.webp" alt=""></button>
+    <button class="step" type="button" data-step="4" data-tab="decorate" aria-label="Parade scenes and music"><img class="step-game-art" src="assets/ui/scenes.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🍁</span><span><b>Scenes & Music</b><small>NYC scenes, banner &amp; music</small></span><span class="step-chevron">›</span></button>
    </div>
    <div class="tip-card"><span class="tip-star">🦃</span><div><b>Parade director tip</b><p id="tipText">Start by choosing your favorite balloons. Click any picture to add it to your lineup!</p></div></div>
  </aside>
@@ -39,22 +39,23 @@
     <div class="preview-foot"><span class="preview-caption" id="previewCaption">Make your lineup, then watch it come to life.</span><div class="preview-actions"><button type="button" id="shuffleBtn" class="light-btn">✳ Surprise Me</button><button type="button" id="playBtn" class="play-btn game-play-art" aria-label="Watch my parade"><img src="assets/ui/watch-parade.webp" alt="" aria-hidden="true"><span class="sr-only">Watch my parade</span></button></div></div>
    </section>
    <section class="lineup-panel" id="paradeLineupPanel" aria-label="Parade lineup">
-     <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2>Put your parade in order <span class="muted" id="lineupCount">Your parade</span></h2></div><div class="lineup-actions"><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="-1" aria-label="Previous lineup slots">‹</button><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="1" aria-label="Next lineup slots">›</button></div></div>
+     <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2>Put your parade in order <span class="muted" id="lineupCount">Your parade</span></h2><span class="lineup-instructions">BLUE ARROWS = MOVE &nbsp; • &nbsp; RED TRASH CAN = DELETE</span></div><div class="lineup-actions"><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="-1" aria-label="Previous lineup slots">←</button><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="1" aria-label="Next lineup slots">→</button></div></div>
      <div class="lineup" id="lineup" role="list"></div>
    </section>
-   <section class="library-panel" id="libraryPanel">
+   <section class="library-panel" id="libraryPanel" aria-label="Choose parade items">
+    <div class="studio-flow-kicker" id="libraryChoiceLabel">1 · PICK YOUR BALLOONS</div>
     <div id="balloonShelves">
     <section class="balloon-shelf" aria-labelledby="realGalleryTitle">
       <div class="shelf-heading"><h2 id="realGalleryTitle">Original Parade Balloons</h2><span id="realGalleryCount">26 choices</span>
-        <button type="button" class="arrow-btn" data-scroll-gallery="realGallery" data-direction="-1" aria-label="Previous original parade balloons">‹</button>
-        <button type="button" class="arrow-btn" data-scroll-gallery="realGallery" data-direction="1" aria-label="Next original parade balloons">›</button>
+        <button type="button" class="arrow-btn" data-scroll-gallery="realGallery" data-direction="-1" aria-label="Previous original parade balloons">←</button>
+        <button type="button" class="arrow-btn" data-scroll-gallery="realGallery" data-direction="1" aria-label="Next original parade balloons">→</button>
       </div>
       <div id="realGallery" class="gallery" aria-labelledby="realGalleryTitle"></div>
     </section>
     <section class="balloon-shelf" aria-labelledby="newGalleryTitle">
       <div class="shelf-heading"><h2 id="newGalleryTitle">New Character Balloons</h2><span id="newGalleryCount">33 choices</span>
-        <button type="button" class="arrow-btn" data-scroll-gallery="newGallery" data-direction="-1" aria-label="Previous new character balloons">‹</button>
-        <button type="button" class="arrow-btn" data-scroll-gallery="newGallery" data-direction="1" aria-label="Next new character balloons">›</button>
+        <button type="button" class="arrow-btn" data-scroll-gallery="newGallery" data-direction="-1" aria-label="Previous new character balloons">←</button>
+        <button type="button" class="arrow-btn" data-scroll-gallery="newGallery" data-direction="1" aria-label="Next new character balloons">→</button>
       </div>
       <div id="newGallery" class="gallery" aria-labelledby="newGalleryTitle"></div>
     </section>
@@ -62,8 +63,8 @@
     <div id="floatShelf" class="hidden">
     <section class="balloon-shelf" aria-labelledby="floatGalleryTitle">
       <div class="shelf-heading"><h2 id="floatGalleryTitle">Parade Floats</h2><span id="floatGalleryCount">23 choices</span>
-        <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="-1" aria-label="Previous parade floats">‹</button>
-        <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="1" aria-label="Next parade floats">›</button>
+        <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="-1" aria-label="Previous parade floats">←</button>
+        <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="1" aria-label="Next parade floats">→</button>
       </div>
       <div id="floatGallery" class="gallery" aria-labelledby="floatGalleryTitle"></div>
     </section>
@@ -173,7 +174,7 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261116-guest-mode" defer></script>
+<script src="app.js?v=20261116-studio-refresh1" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
