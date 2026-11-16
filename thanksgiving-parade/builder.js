@@ -95,6 +95,8 @@
     const r=recipe||state, idx=Math.max(0,Math.min(14,Number(r.base)||0));
     ctx.drawImage(bodyImage,(idx%5)*512,Math.floor(idx/5)*512,512,466,55,8,555,400);
     const a=anchors(idx);
+    // Children ALWAYS wear modest plain white base clothing, even with no outfit selected.
+    if(idx===7||idx===8||idx===9){drawSeparate(ctx,'shirts',11,a,idx);drawSeparate(ctx,'shorts',11,a,idx)}
     const value=(cat,old)=>Number(r[cat]??r[old]??0);
     // Dress-up layering matches the forward-reaching flying pose.
     drawSeparate(ctx,'shirts',value('shirts','clothes'),a,idx);
@@ -143,7 +145,7 @@
   function init(){if(!$('workshopCanvas'))return;
     $('saveCreation').addEventListener('click',()=>{
       if(typeof state==='undefined'||!window.PARADE_WORKSHOP)return;
-      if(!artworkLoaded(state)){alert('The accessory artwork is still loading. Please try Save again.');return;}
+      if(!artworkLoaded(state)||((state.base===7||state.base===8||state.base===9)&&!(artImage('shirts',11)?.complete&&artImage('shirts',11)?.naturalWidth&&artImage('shorts',11)?.complete&&artImage('shorts',11)?.naturalWidth))){alert('The costume artwork is loading. Please try Save again.');return;}
       // Main game state is a global lexical binding created by app.js.
       if(typeof markChanged!=='function')return;
       if(window.paradeBuilderCount && window.paradeBuilderCount>=99)return;
@@ -158,7 +160,7 @@
     });
     if(imageReady()){pickBase();categoryTabs();options();draw()}
     else{pickBase();categoryTabs();options()}
-    for(const c of CATEGORIES)for(let n=1;n<=10;n++)artImage(c.id,n);
+    for(const c of CATEGORIES)for(let n=1;n<=10;n++)artImage(c.id,n);artImage('shirts',11);artImage('shorts',11);
   }
   window.PARADE_WORKSHOP={compose,draw,render,state,initialize:init,refresh(){pickBase();categoryTabs();options();draw()},get ready(){return ready}};
   // App-side callbacks keep the saved parade data in the existing cloud/local saving system.
