@@ -644,3 +644,333 @@ html.embedded .workshop-art canvas {
   #portalGrade .grade-tiles button{min-height:104px!important}
   #portalGrade .guest-tile .tile-number{font-size:39px}
 }
+
+/* Parade Studio 2026: picture-first workspace refresh — widescreen parade and big reorder controls. */
+:root{--studio-blue:#2376b8;--studio-blue-dark:#16568a;--studio-red:#d95367;--studio-red-dark:#a63f51;--studio-panel:#fffbf6}
+body:not(.workshop-mode) .app{background:linear-gradient(150deg,#f9f2e8,#f4f0fa 60%,#fff7e8)!important}
+body:not(.workshop-mode) .topbar{
+  min-height:62px!important;height:62px!important;padding:4px 16px!important;
+  border-bottom:3px solid #e9bd82!important;box-shadow:0 3px 10px #4c36531c!important
+}
+body:not(.workshop-mode) .game-brand-image{width:clamp(190px,20vw,280px)!important;height:54px!important}
+body:not(.workshop-mode) .top-actions{gap:7px!important;min-width:0}
+body:not(.workshop-mode) .top-actions .outline-btn,
+body:not(.workshop-mode) .top-actions .ghost-btn,
+body:not(.workshop-mode) .top-actions .save-btn{
+  min-height:39px!important;padding:6px 10px!important;border-radius:12px!important;
+  font-size:12px!important;line-height:1.1;white-space:nowrap;
+  border:2px solid #fff4e6!important;box-shadow:0 4px 0 #bea2ac,0 7px 12px #55405a1d!important
+}
+body:not(.workshop-mode) .top-actions .save-btn{
+  background:linear-gradient(#ff9d72,#de6174)!important;color:#fff!important;
+  box-shadow:0 4px 0 #9e4860,0 8px 15px #633b613d!important
+}
+body:not(.workshop-mode) .top-actions .home-nav.game-icon-btn{width:69px!important;max-width:69px}
+body:not(.workshop-mode) .top-actions .home-nav.game-icon-btn img{max-width:100%;max-height:52px}
+body:not(.workshop-mode) .top-actions button:active{transform:translateY(3px)!important}
+body:not(.workshop-mode) .top-actions button:focus-visible{outline:3px solid #3054aa!important;outline-offset:3px}
+
+@media(min-width:901px){
+ body:not(.workshop-mode) .body-layout{
+   display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:11px!important;
+   max-width:1670px!important;padding:11px 16px 7px!important;align-items:start
+ }
+ body:not(.workshop-mode) .sidebar{
+   display:grid!important;grid-template-columns:minmax(165px,205px) minmax(0,1fr)!important;
+   align-items:center;gap:12px!important;min-width:0;min-height:83px;
+   padding:7px 9px!important;border:2px solid #ead6d1;border-radius:20px;
+   background:linear-gradient(150deg,#fffaf4,#f8eaf6)!important;
+   box-shadow:0 5px 0 #dfcfdb,0 8px 15px #6b4a6120
+ }
+ body:not(.workshop-mode) .welcome-card{
+   height:77px!important;min-height:0!important;padding:8px 10px!important;
+   border-radius:13px!important;box-shadow:none!important;border:2px solid #f5dca4!important;
+   overflow:hidden
+ }
+ body:not(.workshop-mode) .welcome-card .eyebrow{font-size:8px}
+ body:not(.workshop-mode) .welcome-card .welcome-title{font-size:16px!important;margin:2px 0 4px!important;line-height:1.1}
+ body:not(.workshop-mode) .welcome-card p{display:none!important}
+ body:not(.workshop-mode) .welcome-card .progress{height:7px!important}
+ body:not(.workshop-mode) .welcome-card .countline{margin-top:3px!important;font-size:9px!important;gap:5px}
+ body:not(.workshop-mode) .sidebar .steps-label,
+ body:not(.workshop-mode) .sidebar .tip-card{display:none!important}
+ body:not(.workshop-mode) .step-list{
+   display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px!important;
+   align-items:stretch;min-width:0
+ }
+ body:not(.workshop-mode) .step-list .step:nth-child(n){
+   position:relative!important;display:flex!important;align-items:center;justify-content:center;
+   height:77px!important;min-height:77px!important;min-width:0;width:100%!important;
+   padding:4px 10px 16px!important;border:3px solid #fff6e7!important;
+   border-radius:17px!important;overflow:hidden!important;
+   background:linear-gradient(170deg,#fff4e4d6,#ffe1c5d9),url('assets/scenes/storybook-parade.jpg') center 50%/cover!important;
+   box-shadow:0 5px 0 #c8877b,0 9px 16px #59354a33!important;
+   filter:none!important;line-height:1!important;transform:none!important
+ }
+ body:not(.workshop-mode) .step-list .step:nth-child(2){
+   background:linear-gradient(170deg,#edfaffdc,#c4eaffea),url('assets/scenes/storybook-parade.jpg') center/cover!important;
+   box-shadow:0 5px 0 #79aac2,0 9px 16px #2b58702e!important
+ }
+ body:not(.workshop-mode) .step-list .step:nth-child(3){
+   background:linear-gradient(170deg,#f9f1ffdf,#e4d4ffef),url('assets/scenes/storybook-parade.jpg') center/cover!important;
+   box-shadow:0 5px 0 #a291c8,0 9px 16px #4e386c2e!important
+ }
+ body:not(.workshop-mode) .step-list .step:nth-child(4){
+   background:linear-gradient(170deg,#fff7dfdc,#ffe5bcea),url('assets/scenes/storybook-parade.jpg') center/cover!important;
+   box-shadow:0 5px 0 #d8a66f,0 9px 16px #7657372e!important
+ }
+ body:not(.workshop-mode) .step-list .step-game-art{
+   width:100%!important;height:52px!important;aspect-ratio:auto!important;
+   max-width:210px!important;object-fit:contain!important;filter:drop-shadow(0 2px 2px #45365335)
+ }
+ body:not(.workshop-mode) .step-list .step:nth-child(n)::before{
+   content:attr(data-step);position:absolute;top:5px;left:7px;display:grid;place-items:center;
+   width:21px;height:21px;border-radius:50%;background:#fffdf5;color:#754c63;font:900 12px 'VAG',sans-serif;
+   border:2px solid #f7d4c0;box-shadow:0 2px 0 #bda19c
+ }
+ body:not(.workshop-mode) .step-list .step:nth-child(n)::after{
+   position:absolute;bottom:1px;left:0;right:0;display:block;z-index:2;
+   font:900 10px 'VAG',sans-serif;letter-spacing:.065em;color:#65394e;
+   text-align:center;background:linear-gradient(90deg,transparent,#fffdf7d9 20%,#fffdf7d9 80%,transparent);
+   padding:1px 2px 3px;line-height:1
+ }
+ body:not(.workshop-mode) .step-list .step:nth-child(1)::after{content:'BALLOONS'}
+ body:not(.workshop-mode) .step-list .step:nth-child(2)::after{content:'FLOATS'}
+ body:not(.workshop-mode) .step-list .step:nth-child(3)::after{content:'MARCHING BANDS'}
+ body:not(.workshop-mode) .step-list .step:nth-child(4)::after{content:'SCENES & MUSIC'}
+ body:not(.workshop-mode) .step-list .step.selected{
+   transform:translateY(2px)!important;border-color:#734a93!important;
+   box-shadow:0 3px 0 #795a9c,0 0 0 2px #d6b1ec,0 9px 18px #5a3f8533!important
+ }
+ body:not(.workshop-mode) .step-list .step:hover{transform:translateY(-2px)!important}
+ body:not(.workshop-mode) .step-list .step:focus-visible{
+   outline:4px solid #2c6bab!important;outline-offset:3px!important
+ }
+ body:not(.workshop-mode) .main{
+   display:grid!important;grid-template-columns:minmax(315px,.86fr) minmax(0,1.5fr)!important;
+   grid-template-rows:auto auto!important;grid-template-areas:'library preview' 'lineup lineup';
+   align-items:stretch!important;align-content:start!important;gap:13px!important;min-width:0
+ }
+ body:not(.workshop-mode) .main #libraryPanel{grid-area:library!important;max-height:365px}
+ body:not(.workshop-mode) .main #paradePreviewPanel{grid-area:preview!important}
+ body:not(.workshop-mode) .main #paradeLineupPanel{grid-area:lineup!important;min-width:0;width:100%}
+}
+body:not(.workshop-mode) .preview-panel,
+body:not(.workshop-mode) .lineup-panel,
+body:not(.workshop-mode) .library-panel{
+  border:3px solid #fff9f0!important;outline:1px solid #e5c7c6!important;
+  border-radius:20px!important;background:var(--studio-panel)!important;
+  box-shadow:0 6px 0 #ddc9cf,0 13px 24px #513a531b!important;min-width:0
+}
+body:not(.workshop-mode) .library-panel{padding:10px!important;overflow:auto!important;scrollbar-width:thin}
+body:not(.workshop-mode) .studio-flow-kicker{
+  display:flex;align-items:center;min-height:23px;margin:-2px 3px 7px;padding:2px 8px;
+  color:#764366;font:900 13px 'VAG',sans-serif;letter-spacing:.05em;
+  background:linear-gradient(90deg,#fff0d7,#fffafa);border-radius:8px
+}
+body:not(.workshop-mode) .balloon-shelf{
+  border:2px solid #f0d2d0!important;border-radius:15px!important;
+  background:linear-gradient(#fffdfb,#fff3eb)!important;padding:7px!important;margin-bottom:8px!important
+}
+body:not(.workshop-mode) #balloonShelves .balloon-shelf + .balloon-shelf{
+  background:linear-gradient(#fffdfb,#f6eaff)!important;border-color:#d9c8eb!important
+}
+body:not(.workshop-mode) .shelf-heading{min-height:29px;gap:6px;margin-bottom:4px!important}
+body:not(.workshop-mode) .shelf-heading h2{font-size:15px!important;line-height:1.05!important}
+body:not(.workshop-mode) .shelf-heading span{font-size:10px!important}
+body:not(.workshop-mode) .gallery{gap:9px!important;padding:4px 4px 11px!important;scrollbar-width:thin}
+body:not(.workshop-mode) .balloon-shelf .asset-card{
+  height:113px!important;flex:0 0 106px!important;padding:6px 3px 5px!important;
+  border-radius:13px!important;border:2px solid #fff7ed!important;outline:1px solid #ead0c9;
+  background:linear-gradient(165deg,#fffdfa,#fcebe8)!important;
+  box-shadow:0 4px 0 #dbc0c5,0 8px 12px #76496420!important
+}
+body:not(.workshop-mode) .balloon-shelf .asset-card img{height:72px!important;width:88px!important;object-fit:contain!important}
+body:not(.workshop-mode) .balloon-shelf .asset-card .asset-name{
+  font-size:10px!important;line-height:1.05!important;max-width:99px!important
+}
+body:not(.workshop-mode) .balloon-shelf .asset-card .add-dot{width:21px!important;height:21px!important;right:4px!important;top:4px!important}
+body:not(.workshop-mode) .balloon-shelf .asset-card:hover{transform:translateY(-2px)!important;box-shadow:0 6px 0 #c9adba,0 11px 17px #754d6b32!important}
+body:not(.workshop-mode) .arrow-btn,
+body:not(.workshop-mode) .lineup-actions .arrow-btn{
+  display:grid!important;place-items:center!important;width:40px!important;min-width:40px!important;
+  height:36px!important;min-height:36px!important;padding:0!important;border:2px solid #fdf8e9!important;
+  border-radius:11px!important;font:900 27px/1 'VAG',sans-serif!important;
+  color:#fff!important;background:linear-gradient(180deg,#6eb9eb,#2a7cbc)!important;
+  box-shadow:0 4px 0 #215f96,0 7px 10px #39537535!important
+}
+body:not(.workshop-mode) .arrow-btn:active{transform:translateY(3px)!important;box-shadow:0 1px 0 #215f96!important}
+body:not(.workshop-mode) .arrow-btn:focus-visible{outline:3px solid #7f458d!important;outline-offset:2px}
+
+body:not(.workshop-mode) .preview-panel{overflow:hidden!important}
+body:not(.workshop-mode) .preview-head,
+body:not(.workshop-mode) .section-heading{
+  background:linear-gradient(115deg,#fff8e7,#ffe9e7 65%,#efe6fa)!important;
+  padding:8px 12px!important;border-bottom:2px solid #f0d8cc!important;
+}
+body:not(.workshop-mode) .preview-head h2{font-size:19px!important;margin:1px 0!important}
+body:not(.workshop-mode) .preview-head .eyebrow{font-size:9px!important;color:#9a5066}
+body:not(.workshop-mode) .head-controls .circle-btn{
+  border:2px solid #fff6e9!important;background:linear-gradient(#ccecfb,#91c8e9)!important;
+  box-shadow:0 3px 0 #7eaaca!important;color:#396083;font-weight:900
+}
+body:not(.workshop-mode) .preview-panel .stage{
+  width:100%!important;max-width:none!important;height:clamp(205px,17.5vw,255px)!important;
+  min-height:0!important;aspect-ratio:auto!important;margin:0!important;
+  border:4px solid #fff3e1!important;border-left:0!important;border-right:0!important;
+  overflow:hidden!important
+}
+body:not(.workshop-mode) .preview-panel .stage-scene{
+  background-size:cover!important;background-position:center 66%!important;
+}
+body:not(.workshop-mode) .preview-foot{min-height:50px!important;padding:6px 12px!important;gap:8px}
+body:not(.workshop-mode) .preview-caption{font-size:12px!important;font-weight:700;color:#7d5b6d!important}
+body:not(.workshop-mode) .preview-actions{align-items:center!important;gap:7px!important}
+body:not(.workshop-mode) .preview-actions .game-play-art{width:clamp(145px,15vw,212px)!important}
+body:not(.workshop-mode) .preview-actions .light-btn{min-height:35px!important;font-size:11px!important}
+body:not(.workshop-mode) #paradeLineupPanel{padding:0 10px 10px!important}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading{margin:0 -10px 7px!important;min-height:50px}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading h2{font-size:20px!important}
+body:not(.workshop-mode) .lineup-instructions{
+  display:block;margin-top:4px;color:#8b546f;
+  font:800 11px 'VAG',sans-serif;line-height:1.1;letter-spacing:.02em
+}
+body:not(.workshop-mode) .lineup{
+  --slot-min:148px!important;display:grid!important;grid-auto-flow:column!important;
+  overflow-x:auto!important;overflow-y:hidden!important;max-height:none!important;min-height:156px!important;
+  gap:10px!important;padding:3px 2px 8px!important;scrollbar-width:thin;
+  scroll-snap-type:x proximity!important;scroll-padding:5px
+}
+body:not(.workshop-mode) .lineup .slot{
+  display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+  align-items:center!important;flex:0 0 auto;min-width:148px!important;
+  height:145px!important;padding:8px 7px 7px!important;gap:2px!important;
+  border:2px solid #f4dfbc!important;border-radius:14px!important;
+  background:linear-gradient(#fffdf8,#fff2e5)!important;
+  box-shadow:0 4px 0 #e9c5be!important;scroll-snap-align:start;cursor:pointer
+}
+body:not(.workshop-mode) .lineup .slot.filled{
+  background:linear-gradient(150deg,#ffffff,#f6f0ff)!important;border-color:#dad1ec!important
+}
+body:not(.workshop-mode) .lineup .slot.active{
+  background:linear-gradient(#e8f7fe,#f6e8fa)!important;border-color:#4d8ebf!important;
+  box-shadow:0 4px 0 #7eafd2,0 0 0 2px #b5d6f1!important
+}
+body:not(.workshop-mode) .lineup .slot-number{
+  top:4px!important;left:5px!important;background:#854a80!important;
+  color:#fff!important;font-size:12px!important;border-radius:8px!important;padding:2px 7px!important
+}
+body:not(.workshop-mode) .lineup .slot-art{
+  display:flex;align-items:center;justify-content:center;height:65px;min-height:65px;
+  width:100%;padding-top:3px;pointer-events:none
+}
+body:not(.workshop-mode) .lineup .slot-art img{
+  display:block;max-height:61px!important;height:61px!important;width:100%!important;
+  object-fit:contain!important;filter:drop-shadow(0 3px 3px #44315852)
+}
+body:not(.workshop-mode) .lineup .slot-label{
+  width:100%;font:900 11px/1.1 'VAG',sans-serif!important;color:#573b60!important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:13px
+}
+body:not(.workshop-mode) .lineup .slot-controls{
+  position:static!important;inset:auto!important;
+  display:grid!important;grid-template-columns:1fr 1fr 1.3fr;align-items:center;
+  gap:5px!important;margin-top:auto;width:100%!important;height:43px!important;
+  z-index:3;flex:none
+}
+body:not(.workshop-mode) .lineup .slot-controls button{
+  display:flex!important;flex-direction:column;align-items:center;justify-content:center;
+  width:100%!important;height:39px!important;min-width:0;padding:2px!important;
+  border:2px solid #eaf6ff!important;border-radius:10px!important;
+  color:#fff!important;background:linear-gradient(180deg,#7ac6f5,#327dbe)!important;
+  box-shadow:0 3px 0 #1d5688,0 5px 7px #25456a35!important;cursor:pointer
+}
+body:not(.workshop-mode) .lineup .slot-controls button svg{
+  display:block;width:24px;height:24px;stroke:currentColor;stroke-width:2.8;
+  stroke-linecap:round;stroke-linejoin:round;fill:none;pointer-events:none
+}
+body:not(.workshop-mode) .lineup .slot-controls .slot-remove{
+  color:#fff!important;background:linear-gradient(180deg,#ff8a92,#d74b64)!important;
+  border-color:#ffeced!important;box-shadow:0 3px 0 #a63e56,0 5px 8px #5d244d33!important
+}
+body:not(.workshop-mode) .lineup .slot-controls .slot-remove svg{width:19px;height:19px}
+body:not(.workshop-mode) .lineup .slot-controls .slot-remove span{
+  display:block;color:#fff;font:900 7px/1 'VAG',sans-serif!important;letter-spacing:.025em
+}
+body:not(.workshop-mode) .lineup .slot-controls button:disabled{
+  opacity:.28!important;filter:grayscale(.6);cursor:not-allowed;box-shadow:0 2px 0 #94a2b0!important
+}
+body:not(.workshop-mode) .lineup .slot-controls button:not(:disabled):active{
+  transform:translateY(2px)!important;box-shadow:0 1px 0 #264f80!important
+}
+body:not(.workshop-mode) .lineup .slot-controls button:focus-visible{
+  outline:3px solid #6b439b!important;outline-offset:2px
+}
+body:not(.workshop-mode) .lineup .slot-empty{
+  font-size:49px!important;font-weight:900!important;color:#b48aaf!important;
+  margin-top:20px!important;line-height:1!important
+}
+body:not(.workshop-mode) .lineup .slot-empty-text{
+  font:900 12px 'VAG',sans-serif!important;color:#a16e91!important
+}
+@media(max-width:1100px) and (min-width:901px){
+ body:not(.workshop-mode) .sidebar{grid-template-columns:minmax(150px,180px) 1fr!important}
+ body:not(.workshop-mode) .main{grid-template-columns:minmax(310px,.85fr) minmax(0,1.2fr)!important}
+ body:not(.workshop-mode) .top-actions .saved-note{display:none!important}
+ body:not(.workshop-mode) .step-list .step:nth-child(n){height:70px!important;min-height:70px!important}
+}
+@media(max-width:900px){
+ body:not(.workshop-mode) .body-layout{
+   grid-template-columns:minmax(0,1fr)!important;display:grid!important;
+   padding:8px!important;gap:9px!important
+ }
+ body:not(.workshop-mode) .sidebar{
+   display:block!important;padding:6px!important;border:2px solid #e7d1ce;border-radius:15px;
+   background:#fff8ef!important
+ }
+ body:not(.workshop-mode) .sidebar .welcome-card,
+ body:not(.workshop-mode) .sidebar .tip-card,
+ body:not(.workshop-mode) .sidebar .steps-label{display:none!important}
+ body:not(.workshop-mode) .step-list{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px!important}
+ body:not(.workshop-mode) .step-list .step:nth-child(n){
+   display:flex!important;align-items:center;justify-content:center;
+   height:63px!important;min-height:63px!important;width:100%!important;
+   border:2px solid #fff4df!important;border-radius:12px!important;
+   box-shadow:0 4px 0 #cba8b9!important;background:#fff0e7!important
+ }
+ body:not(.workshop-mode) .step-list .step-game-art{height:56px!important;width:100%!important}
+ body:not(.workshop-mode) .main{
+   display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+   grid-template-rows:auto auto auto!important;grid-template-areas:'library' 'lineup' 'preview';
+   gap:10px!important;min-width:0
+ }
+ body:not(.workshop-mode) .main #libraryPanel,
+ body:not(.workshop-mode) .main #paradePreviewPanel,
+ body:not(.workshop-mode) .main #paradeLineupPanel{grid-area:auto}
+ body:not(.workshop-mode) .main #libraryPanel{grid-area:library;max-height:320px;overflow:auto}
+ body:not(.workshop-mode) .main #paradePreviewPanel{grid-area:preview}
+ body:not(.workshop-mode) .main #paradeLineupPanel{grid-area:lineup}
+ body:not(.workshop-mode) .preview-panel .stage{height:230px!important}
+ body:not(.workshop-mode) .lineup{--slot-min:140px!important}
+ body:not(.workshop-mode) .lineup .slot{min-width:140px!important}
+ body:not(.workshop-mode) .top-actions .saved-note{display:none!important}
+}
+@media(max-width:650px){
+ body:not(.workshop-mode) .topbar{min-height:58px!important;height:auto!important;padding:4px 7px!important}
+ body:not(.workshop-mode) .top-actions .outline-btn,
+ body:not(.workshop-mode) .top-actions .ghost-btn{font-size:10px!important;padding:5px 6px!important}
+ body:not(.workshop-mode) .top-actions .home-nav.game-icon-btn{width:48px!important}
+ body:not(.workshop-mode) .step-list .step:nth-child(n){height:54px!important;min-height:54px!important}
+ body:not(.workshop-mode) .step-list .step-game-art{height:46px!important}
+ body:not(.workshop-mode) #paradeLineupPanel .section-heading{flex-wrap:wrap}
+ body:not(.workshop-mode) .lineup-instructions{font-size:10px}
+}
+@media(max-height:780px) and (min-width:901px){
+ body:not(.workshop-mode) .body-layout{padding-top:7px!important;gap:8px!important}
+ body:not(.workshop-mode) .sidebar{min-height:78px!important}
+ body:not(.workshop-mode) .preview-panel .stage{height:clamp(190px,15.5vw,230px)!important}
+ body:not(.workshop-mode) .main #libraryPanel{max-height:341px}
+ body:not(.workshop-mode) .lineup .slot{height:137px!important}
+ body:not(.workshop-mode) .lineup{min-height:149px!important}
+ body:not(.workshop-mode) #paradeLineupPanel .section-heading{min-height:43px!important;padding-top:5px!important;padding-bottom:5px!important}
+}
