@@ -269,7 +269,7 @@
   // Never silently substitute an older song for one of the four student-selected tracks.
   audio.addEventListener('error', () => {
     if (playing && !playing.done)
-      showMessage('This song could not load. Return to Scenes & Music to pick another.');
+      showMessage('This song could not load. Return to Marching Bands & Music to pick another.');
   });
 
   function playAudio() {
@@ -326,12 +326,38 @@
     endCard.classList.add('hidden');
     el('endSaveStatus').textContent = '';
     el('timelineFill').style.width = '0%';
-    if (lastTrack !== track.src || audio.getAttribute('src') !== track.src) {
-      lastTrack = track.src;
-      audio.src = track.src;
+    // Begin immediately on the user’s PLAY click, then transition once to the
+    // complete original recording assembled from the existing MP3 parts.
+    // This prevents the old short classroom OGG from repeating every ~30 seconds.
+    const session = playing;
+    const loader = window.PARADE_FULL_MUSIC;
+    const available = loader?.peek(track.src);
+    const initialSource = available || track.src;
+    if (lastTrack !== initialSource || audio.getAttribute('src') !== initialSource) {
+      lastTrack = initialSource;
+      audio.src = initialSource;
     }
+    audio.loop = true;
     audio.currentTime = 0;
     playAudio();
+    if (!available && loader) {
+      loader.load(track.src).then(fullSource => {
+        if (playing !== session || playing.done) return;
+        const offset = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+        lastTrack = fullSource;
+        audio.src = fullSource;
+        audio.loop = true;
+        audio.addEventListener('loadedmetadata', () => {
+          if (playing === session && Number.isFinite(audio.duration))
+            audio.currentTime = Math.min(offset, Math.max(0, audio.duration - .1));
+        }, {once:true});
+        if (!playing.paused) playAudio();
+      }).catch(error => {
+        console.warn('Full-length parade soundtrack unavailable:', error);
+        if (playing === session && !playing.done)
+          showMessage('The full song did not load; the shorter version will repeat.');
+      });
+    }
     controls();
     resize();
     el('closeMovieBtn').focus({ preventScroll: true });
