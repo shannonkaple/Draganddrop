@@ -304,16 +304,26 @@ const newChoices=[
  ...featuredBalloons.map(id=>newBalloons.find(piece=>piece.id===id)),
  ...newBalloons.filter(piece=>!featuredBalloons.includes(piece.id))
 ];
+// Show full-size, complete balloon pictures one page at a time: no nested scrolling.
+let balloonGroup='real';
+const galleryPages={realGallery:0,newGallery:0,floatGallery:0,bandGallery:0};
+function galleryPageSize(){
+ const width=window.innerWidth;
+ return width>=1180?10:width>=680?8:width>=480?6:4;
+}
 function renderShelf(id,choices){
  const gallery=$(id);
- const scrollLeft=gallery.scrollLeft;
- const cards=choices.map(piece=>{
+ const pageSize=galleryPageSize();
+ const totalPages=Math.max(1,Math.ceil(choices.length/pageSize));
+ galleryPages[id]=Math.max(0,Math.min(galleryPages[id]||0,totalPages-1));
+ const page=galleryPages[id];
+ const cards=choices.slice(page*pageSize,(page+1)*pageSize).map(piece=>{
   const selected=state.pieces.includes(piece.id);
   const button=document.createElement('button');
   button.className='asset-card'+(selected?' selected-asset':'');
   button.type='button';
   button.title=piece.name;
-  button.setAttribute('aria-label',`Add ${piece.name} to your parade`);
+  button.setAttribute('aria-label',(selected?'Add another ':'Add ')+piece.name+' to your parade');
   const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="" loading="lazy">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
   button.innerHTML='<span class="add-dot">'+(selected?'✓':'+')+'</span>'+pictures+'<span class="asset-name">'+piece.name+'</span>';
   button.disabled=state.pieces.length>=MAX[state.grade];
@@ -327,8 +337,16 @@ function renderShelf(id,choices){
   return button;
  });
  gallery.replaceChildren(...cards);
- gallery.scrollLeft=scrollLeft;
+ gallery.scrollLeft=0;
  $(id+'Count').textContent=choices.length+' choices';
+ const status=$(({realGallery:'realPageStatus',newGallery:'newPageStatus',floatGallery:'floatPageStatus'})[id]);
+ if(status)status.textContent='Page '+(page+1)+' of '+totalPages;
+ document.querySelectorAll('[data-page-gallery="'+id+'"]').forEach(button=>{
+  const direction=Number(button.dataset.direction);
+  button.disabled=direction<0?page===0:page>=totalPages-1;
+  button.title=direction<0?'Previous pictures':'More pictures';
+  button.setAttribute('aria-label',(direction<0?'Previous':'Next')+' page of '+(id==='realGallery'?'original balloons':id==='newGallery'?'new characters':'parade floats'));
+ });
 }
 function renderGallery(){
  if(tab==='balloons'){
@@ -347,6 +365,13 @@ function renderTabs(){
   button.setAttribute('aria-pressed',String(active));
  });
  $('balloonShelves').classList.toggle('hidden',tab!=='balloons');
+ document.querySelectorAll('[data-balloon-group]').forEach(button=>{
+  const active=button.dataset.balloonGroup===balloonGroup;
+  button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active));
+ });
+ $('realGallery').closest('.balloon-shelf').classList.toggle('hidden',balloonGroup!=='real');
+ $('newGallery').closest('.balloon-shelf').classList.toggle('hidden',balloonGroup!=='new');
+ $('balloonGroupNav').classList.toggle('hidden',tab!=='balloons');
  $('floatShelf').classList.toggle('hidden',tab!=='floats');
  $('bandShelf').classList.toggle('hidden',tab!=='bands');
  $('decoratePanel').classList.toggle('hidden',tab!=='decorate');
@@ -403,6 +428,20 @@ function startMovie(){
  const track=MUSIC.find(song=>song.id===state.music)??MUSIC[0];
  window.PARADE_PLAYER?.start(pieces,scene(),track);
 }
+document.querySelectorAll('[data-balloon-group]').forEach(button=>button.addEventListener('click',()=>{
+ balloonGroup=button.dataset.balloonGroup;
+ renderGallery();renderTabs();
+}));
+document.querySelectorAll('[data-page-gallery]').forEach(button=>button.addEventListener('click',()=>{
+ const id=button.dataset.pageGallery;
+ galleryPages[id]=Math.max(0,(galleryPages[id]||0)+Number(button.dataset.direction));
+ renderGallery();
+}));
+let galleryResizeFrame=0;
+window.addEventListener('resize',()=>{
+ if(galleryResizeFrame)cancelAnimationFrame(galleryResizeFrame);
+ galleryResizeFrame=requestAnimationFrame(()=>{galleryResizeFrame=0;if(tab!=='decorate')renderGallery()});
+});
 for(const button of document.querySelectorAll('[data-scroll-gallery]')){
  button.addEventListener('click',()=>{
   const gallery=$(button.dataset.scrollGallery);
