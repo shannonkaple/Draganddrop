@@ -24,7 +24,12 @@ const SCENES=[
 {id:'herald-square',name:'Herald Square',badge:'HERALD SQUARE · 34TH STREET',src:(window.PARADE_SCENE_ASSETS||{})['herald-square']||'assets/scenes/herald-square.svg'}
 ];
 const COLORS=[['cranberry','#a83d5b'],['pumpkin','#ee853f'],['gold','#f3b83c'],['forest','#357c62'],['blue','#397cb6'],['purple','#9470b1']];
-const MUSIC=[{id:'march',label:'Grand Parade March',sub:'Brass & drums',bpm:114},{id:'bouncy',label:'Silly Balloon Bounce',sub:'Happy & playful',bpm:145},{id:'cozy',label:'Autumn Stroll',sub:'Warm & gentle',bpm:90},{id:'celebration',label:'Big Celebration',sub:'Bright & exciting',bpm:130}];
+const MUSIC=[
+  {id:'march',label:'Balloons Over the Boulevard',sub:'Festive brass & drums',slug:'balloons_over_the_boulevard',parts:15},
+  {id:'bouncy',label:'The Tinsel Cadence',sub:'Upbeat parade music',slug:'the_tinsel_cadence',parts:15},
+  {id:'cozy',label:'Fifty Yard Triumph',sub:'Triumphant marching melody',slug:'fifty_yard_triumph',parts:15},
+  {id:'celebration',label:'Sunday Morning Strut',sub:'Bright jazzy parade',slug:'sunday_morning_strut',parts:15}
+];
 const MAX={1:25,2:25};
 const $=id=>document.getElementById(id);
 let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'central-park',routeTour:false,color:'cranberry',music:'march',activePiece:null};
@@ -116,7 +121,7 @@ function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`ur
 function renderPreview(){const g=$('stageCharacters');g.innerHTML='';$('stageEmpty').classList.toggle('hidden',state.pieces.length>0);let items=state.pieces.slice(0,2);items.forEach((id,i)=>{const p=getPiece(id);if(!p)return;const el=document.createElement('img');el.src=p.src;el.alt=p.name;el.style.cssText=`position:absolute;bottom:${p.type==='float'?'-8%':'18%'};left:${i===0?0:50}%;width:${p.type==='float'?'59%':'47%'};height:${p.type==='float'?'76%':'77%'};object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #33253675);${p.type==='float'?'':`animation:bob ${2.5+i*.31}s ease-in-out infinite;`}`;el.loading='lazy';g.appendChild(el)});$('previewCaption').textContent=state.pieces.length?`${state.pieces.length} parade stars are ready for the big day!`:'Make your lineup, then watch it come to life.'}
 function renderDecorate(){const sc=$('scenes');sc.innerHTML='';SCENES.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='scene-option'+(state.scene===s.id?' active':'');b.innerHTML=`<img class="scene-thumb" src="${s.src}" alt="">${s.name}`;b.onclick=()=>{state.scene=s.id;markChanged();renderAll()};sc.appendChild(b)});
 const colors=$('colors');colors.innerHTML='';COLORS.forEach(([name,color])=>{const b=document.createElement('button');b.type='button';b.className='swatch'+(state.color===name?' active':'');b.style.background=color;b.title=name;b.setAttribute('aria-label',name+' banner color');b.onclick=()=>{state.color=name;document.documentElement.style.setProperty('--wine',color);markChanged();renderAll()};colors.appendChild(b)});
-const music=$('musicOptions');music.innerHTML='';MUSIC.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='music-option'+(state.music===m.id?' active':'');b.innerHTML=`♫ ${m.label}<small>${m.sub}</small>`;b.onclick=()=>{state.music=m.id;markChanged();renderAll();if(movie.active&&movie.audio){movie.audio.stop();movie.audio=new ParadeMusic(state.music);if(!movie.muted&&!movie.paused)movie.audio.start()}};music.appendChild(b)});
+const music=$('musicOptions');music.innerHTML='';MUSIC.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='music-option'+(state.music===m.id?' active':'');b.innerHTML=`♫ ${m.label}<small>${m.sub}</small>`;b.onclick=()=>{state.music=m.id;markChanged();renderAll();if(movie.active&&movie.audio){movie.audio.stop();movie.audio=new ParadeMusic(state.music);if(!movie.muted&&!movie.paused)movie.audio.start()}};music.appendChild(b)});loadParadeTrack(state.music).catch(error=>console.warn('Parade music preload failed',error));
 }
 function switchTab(next){tab=next;renderTabs();if(next==='balloons'||next==='floats'){renderGallery();renderCreatedShelf()}else if(next==='decorate')renderDecorate();else if(next==='design')drawDesigner();window.scrollTo({top:0,behavior:'instant'});}
 async function enterStudent(){const classCode=$('classCode').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,12),number=Number($('studentNumber').value);if(!/^[A-Z0-9-]{2,12}$/.test(classCode)){$('entryError').textContent='Please use a classroom code with 2–12 letters or numbers.';return}if(!Number.isInteger(number)||number<1||number>99){$('entryError').textContent='Please enter your student number (1–99).';return}state.classCode=classCode;state.number=number;$('entryError').textContent='';studentModalOpen=false;$('studentModal').classList.add('hidden');renderAll();let saved;try{saved=JSON.parse(localStorage.getItem(storageKey())||'null')}catch{saved=null}if(saved)loadDraft(saved);notify('Checking your cloud save…');try{const cloud=await cloudLoad();if(cloud){loadDraft(cloud);notify('✓ Your parade was loaded')}else if(saved){notify('Local parade loaded');await saveParade(false)}else notify('New parade — have fun!')}catch(e){console.warn(e);notify(saved?'Local parade loaded — offline':'Offline — saves on this computer',false)}}
@@ -174,12 +179,51 @@ function movieFrame(ts){if(!movie.active)return;if(!movie.lastFrame)movie.lastFr
 function pauseMovie(){if(!movie.active||movie.done||movie.paused)return;movie.paused=true;movie.audio?.stop();$('pauseBtn').disabled=true;$('playMovieBtn').disabled=false;$('nowPlaying').textContent='Parade paused — press Play to keep going.'}
 function playMovie(){if(!movie.active)return;if(movie.done){startMovie();return}if(!movie.paused)return;movie.paused=false;movie.lastFrame=0;if(!movie.muted)movie.audio?.start();$('playMovieBtn').disabled=true;$('pauseBtn').disabled=false;$('nowPlaying').textContent='Your parade is playing!'}
 function closeMovie(){movie.active=false;cancelAnimationFrame(movie.raf);movie.raf=null;movie.audio?.stop();movie.audio=null;$('cinema').classList.add('hidden');document.body.style.overflow='';if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}
+// The original uploaded MP3 bytes are stored in ordered binary parts, avoiding
+// recompression or substitutions. Reassemble into one playable audio Blob.
+const paradeTrackUrls=new Map();
+function loadParadeTrack(style){
+  const info=MUSIC.find(t=>t.id===style)||MUSIC[0];
+  if(paradeTrackUrls.has(info.id))return paradeTrackUrls.get(info.id);
+  const promise=(async()=>{
+    const pieces=await Promise.all(Array.from({length:info.parts},async(_,i)=>{
+      const path='assets/music/'+info.slug+'.part-'+String(i+1).padStart(2,'0')+'.bin';
+      const response=await fetch(path,{cache:'force-cache'});
+      if(!response.ok)throw new Error('Music file unavailable: '+path+' ('+response.status+')');
+      return response.arrayBuffer();
+    }));
+    return URL.createObjectURL(new Blob(pieces,{type:'audio/mpeg'}));
+  })();
+  paradeTrackUrls.set(info.id,promise);
+  promise.catch(()=>paradeTrackUrls.delete(info.id));
+  return promise;
+}
 class ParadeMusic{
- constructor(style){this.style=style;this.ctx=null;this.timer=null;this.step=0;this.started=false;this.bpm=MUSIC.find(x=>x.id===style)?.bpm||110;this.notes={march:[0,4,7,12,7,4,0,7,5,9,12,9,7,4,2,0],bouncy:[0,7,9,7,4,0,4,7,12,9,7,4,2,4,0,-5],cozy:[0,4,7,4,2,5,9,5,0,4,7,4,-2,2,5,2],celebration:[0,4,7,12,11,7,9,12,14,12,9,7,5,4,2,0]}[style]||[0,4,7,12]}
- start(){if(this.started)return;this.started=true;this.ctx=this.ctx||new (window.AudioContext||window.webkitAudioContext)();if(this.ctx.state==='suspended')this.ctx.resume();this.tick();this.timer=setInterval(()=>this.tick(),60000/this.bpm/2)}
- tick(){if(!this.ctx)return;let now=this.ctx.currentTime;let note=this.notes[this.step%this.notes.length];let bass=[-12,-12,-7,-5][Math.floor(this.step/4)%4];this.playTone(293.66*2**(note/12),now,.18,.055,this.style==='cozy'?'sine':'triangle');if(this.step%2===0)this.playTone(130.81*2**(bass/12),now,.22,.028,'sine');if(this.style!=='cozy'&&this.step%4===0)this.playTone(120,now,.09,.025,'sawtooth');this.step++}
- playTone(freq,t,length,vol,type){const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+length);o.connect(g);g.connect(this.ctx.destination);o.start(t);o.stop(t+length+.02)}
- stop(){if(this.timer){clearInterval(this.timer);this.timer=null}this.started=false;this.ctx?.suspend().catch(()=>{})}
+  constructor(style){this.style=style;this.audio=null;this.started=false;this.generation=0;}
+  async start(){
+    this.started=true;
+    const request=++this.generation;
+    if(!this.audio){
+      try{
+        const url=await loadParadeTrack(this.style);
+        if(!this.started||request!==this.generation)return;
+        this.audio=new Audio(url);
+        this.audio.loop=true;
+        this.audio.preload='auto';
+      }catch(error){
+        console.error('Could not load parade music',error);
+        if(request===this.generation){this.started=false;notify('Music did not load. Your parade will still play.',false)}
+        return;
+      }
+    }
+    if(!this.started||request!==this.generation)return;
+    try{await this.audio.play();}
+    catch(error){
+      console.warn('Parade music could not start automatically',error);
+      if(this.started)notify('Click Sound On to start your music.',false);
+    }
+  }
+  stop(){this.started=false;this.generation++;if(this.audio)this.audio.pause()}
 }
 // All controls remain operable with keyboard and trackpad. Avoid any touch-only interactions.
 document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
