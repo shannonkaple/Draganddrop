@@ -15,8 +15,15 @@ const PIECES=[
 [25,'Spider-Man','balloon'],[26,'SpongeBob & Gary','balloon'],[27,'Pillsbury Doughboy','balloon'],
 [28,'Parade All-Stars','float'],[29,'Amazing Marionettes','float'],[30,'123 Sesame Street','float'],
 [31,'Winter Mountain','float'],[32,'Friendsgiving in POPCITY','float'],[33,'Dazzling Dance Party','float'],
-[34,'Holiday Countdown','float'],[35,'Tom Turkey','float'],[36,'Santa’s Sleigh','float']
-].map(([id,name,type])=>({id,name,type,src:(window.PARADE_PIECE_ASSETS||{})[id]||ASSETS+id+'.svg'}));
+[34,'Holiday Countdown','float'],[35,'Tom Turkey','float'],[36,'Santa’s Sleigh','float'],
+[37,'Penny the Astronaut','balloon','astronaut-girl'],
+[38,'Plum the Dragon','balloon','purple-dragon'],
+[39,'Maple the Red Panda','balloon','red-panda'],
+[40,'Bubbles the Axolotl','balloon','pink-axolotl']
+].map(([id,name,type,art])=>({
+ id,name,type,src:art?ASSETS+art+'.webp':(window.PARADE_PIECE_ASSETS||{})[id]||ASSETS+id+'.svg'
+}));
+const GALLERY_PIECES=PIECES.filter(piece=>piece.id!==8);
 const SCENES=[
 {id:'storybook',name:'Storybook Parade',badge:'HERALD SQUARE · STORYBOOK PARADE',src:'assets/scenes/storybook-parade.jpg'},
 {id:'central-park',name:'Central Park West',badge:'CENTRAL PARK WEST · UPPER WEST SIDE',src:(window.PARADE_SCENE_ASSETS||{})['central-park']||'assets/scenes/central-park.svg'},
@@ -35,8 +42,6 @@ const MAX={1:25,2:25};
 const $=id=>document.getElementById(id);
 let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,color:'cranberry',music:'march',activePiece:null};
 let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
-function cleanId(x){return Number.isInteger(Number(x))&&Number(x)>=1&&Number(x)<=36?Number(x):null;}
-function storageKey(){return `parade_2026_${state.classCode}_${state.grade}_${state.number}`;}
 function draft(){return {pieces:[...state.pieces],customPieces:[...state.customPieces],scene:state.scene,routeTour:state.routeTour,color:state.color,music:state.music};}
 function sanitizeDraft(input,grade=state.grade){
  const v=input&&typeof input==='object'?input:{};
@@ -74,7 +79,7 @@ async function saveParade(session=studentSession){
 }
 function scene(){return SCENES.find(x=>x.id===state.scene)||SCENES[0]}
 function currentColor(){return COLORS.find(x=>x[0]===state.color)?.[1]||'#a83d5b'}
-function renderAll(){renderProgress();renderLineup();renderGallery();renderCreatedShelf();renderDecorate();renderScene();renderPreview();renderTabs();}
+function renderAll(){renderProgress();renderLineup();renderGallery();renderDecorate();renderScene();renderPreview();renderTabs();}
 function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
 const customSrcCache=new Map();
 const savedImages=new Map();
@@ -99,73 +104,30 @@ function customSource(c){
 }
 function getPiece(id){const standard=PIECES.find(p=>p.id===id);if(standard)return standard;const c=state.customPieces.find(p=>p.id===id);return c?{id:c.id,name:c.name,type:'balloon',src:customSource(c),custom:true}:null;}
 function renderLineup(){const el=$('lineup');el.innerHTML='';const max=MAX[state.grade];const visible=Math.min(max,Math.max(5,state.pieces.length+1));el.style.gridTemplateColumns=`repeat(${Math.min(8,visible)},minmax(77px,1fr))`;for(let i=0;i<visible;i++){const id=state.pieces[i];const piece=getPiece(id);const slot=document.createElement('div');slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');slot.setAttribute('role','listitem');slot.innerHTML=`<span class="slot-number">${i+1}</span>`;if(piece){slot.draggable=true;slot.innerHTML+=`<img ${piece.src?'src="'+piece.src+'"':''} alt="${piece.name}" loading="lazy"><span class="slot-label" title="${piece.name.replaceAll('"','')}">${piece.name}</span><div class="slot-controls"><button type="button" data-action="left" aria-label="Move ${piece.name} left" ${i===0?'disabled':''}>◀</button><button type="button" data-action="right" aria-label="Move ${piece.name} right" ${i===state.pieces.length-1?'disabled':''}>▶</button><button type="button" data-action="remove" aria-label="Remove ${piece.name}">×</button></div>`;slot.addEventListener('click',e=>{if(e.target.closest('button')){const act=e.target.dataset.action;if(act==='remove'){state.pieces.splice(i,1);state.activePiece=null;}else if(act==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1;}else if(act==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1;}markChanged();renderAll()}else{state.activePiece=i;renderLineup()}});slot.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',String(i))});slot.addEventListener('dragover',e=>e.preventDefault());slot.addEventListener('drop',e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/plain'));if(Number.isInteger(from)&&from>=0&&from<state.pieces.length&&from!==i&&i<state.pieces.length){const [x]=state.pieces.splice(from,1);state.pieces.splice(i,0,x);markChanged();renderAll()}})}else{slot.innerHTML+='<span class="slot-empty">+</span><span class="slot-empty-text">EMPTY</span>';slot.addEventListener('click',()=>switchTab('balloons'))}el.appendChild(slot)}}
-function renderGallery(){const g=$('gallery');g.innerHTML='';const type=tab==='floats'?'float':'balloon';const artwork=$('libraryHeadingArt');if(artwork)artwork.src='assets/ui/'+(type==='float'?'floats':'balloons')+'.webp';const choices=PIECES.filter(p=>p.type===type);$('libraryCount').textContent=choices.length+' choices';$('libraryEyebrow').textContent=type==='float'?'FLOAT COLLECTION':'BALLOON COLLECTION';$('libraryTitle').textContent=type==='float'?'Choose a fantastic float':'Choose your favorite balloons';for(const p of choices){const selected=state.pieces.includes(p.id);const btn=document.createElement('button');btn.className='asset-card'+(selected?' selected-asset':'')+(p.custom?' custom-card':'');btn.type='button';btn.title=p.name;btn.setAttribute('aria-label',`Add ${p.name} to your parade`);btn.innerHTML=`<span class="add-dot">${selected?'✓':'+'}</span><img src="${p.src}" alt="" loading="lazy"><span class="asset-name">${p.name}</span>`;btn.disabled=state.pieces.length>=MAX[state.grade];btn.onclick=()=>{if(state.pieces.length>=MAX[state.grade]){notify('Lineup full — remove one first!',false);return}state.pieces.push(p.id);state.activePiece=state.pieces.length-1;markChanged();renderAll()};g.appendChild(btn)}}
+function renderGallery(){const g=$('gallery');g.innerHTML='';const type=tab==='floats'?'float':'balloon';const artwork=$('libraryHeadingArt');if(artwork)artwork.src='assets/ui/'+(type==='float'?'floats':'balloons')+'.webp';const choices=GALLERY_PIECES.filter(p=>p.type===type);$('libraryCount').textContent=choices.length+' choices';$('libraryEyebrow').textContent=type==='float'?'FLOAT COLLECTION':'BALLOON COLLECTION';$('libraryTitle').textContent=type==='float'?'Choose a fantastic float':'Choose your favorite balloons';for(const p of choices){const selected=state.pieces.includes(p.id);const btn=document.createElement('button');btn.className='asset-card'+(selected?' selected-asset':'')+(p.custom?' custom-card':'');btn.type='button';btn.title=p.name;btn.setAttribute('aria-label',`Add ${p.name} to your parade`);btn.innerHTML=`<span class="add-dot">${selected?'✓':'+'}</span><img src="${p.src}" alt="" loading="lazy"><span class="asset-name">${p.name}</span>`;btn.disabled=state.pieces.length>=MAX[state.grade];btn.onclick=()=>{if(state.pieces.length>=MAX[state.grade]){notify('Lineup full — remove one first!',false);return}state.pieces.push(p.id);state.activePiece=state.pieces.length-1;markChanged();renderAll()};g.appendChild(btn)}}
 
-function renderCreatedShelf(){
- const shelf=$('createdShelf'),root=$('myCreations');
- if(!shelf||!root)return;
- shelf.classList.toggle('hidden',tab!=='balloons');
- root.replaceChildren();
- const designs=state.customPieces;
- if(!designs.length){
-  const empty=document.createElement('div');empty.className='created-empty';
-  empty.innerHTML='<span aria-hidden="true">🎨</span><strong>YOUR BALLOON COLLECTION STARTS HERE</strong><p>Dress a flying balloon, save it, then choose when to put it in your parade.</p>';
-  const start=document.createElement('button');start.type='button';start.className='light-btn';start.textContent='✨ MAKE MY FIRST BALLOON';start.addEventListener('click',()=>switchTab('design'));empty.appendChild(start);root.appendChild(empty);return;
+function renderTabs(){
+ const showScenes=tab==='decorate';
+ document.querySelectorAll('.step').forEach(el=>el.classList.toggle('selected',el.dataset.tab===tab));
+ for(const id of ['gallery','galleryBack','galleryForward','libraryCount'])$(id).classList.toggle('hidden',showScenes);
+ $('decoratePanel').classList.toggle('hidden',!showScenes);
+ if(showScenes){
+  $('libraryHeadingArt').src='assets/ui/scenes.webp';
+  $('libraryTitle').textContent='Choose your parade scene and music';
+  $('libraryEyebrow').textContent='SCENES & MUSIC';
  }
- designs.forEach((d,index)=>{
-  const piece=getPiece(d.id);if(!piece)return;
-  const card=document.createElement('article');card.className='created-card';card.setAttribute('role','listitem');
-  const image=document.createElement('img');if(piece.src)image.src=piece.src;image.alt=piece.name;image.loading='lazy';image.className='created-image';
-  const name=document.createElement('strong');name.textContent=piece.name;name.className='created-name';
-    const add=document.createElement('button');add.type='button';add.className='created-add';
-  add.textContent='➕ ADD TO PARADE';add.disabled=state.pieces.length>=MAX[state.grade];
-  add.setAttribute('aria-label','Add '+piece.name+' to parade');
-  add.addEventListener('click',()=>{
-   if(state.pieces.length>=MAX[state.grade]){notify('Your parade is full. Remove a piece to make room.',false);return}
-   state.pieces.push(piece.id);state.activePiece=state.pieces.length-1;
-   markChanged();renderAll();notify(piece.name+' was added to your parade!');
-  });
-
-  const actions=document.createElement('div');
-  actions.className='created-actions';
-  if(d.workshop){
-   const edit=document.createElement('button');
-   edit.type='button';edit.className='light-btn';edit.textContent='Edit';edit.setAttribute('aria-label','Edit '+d.name);
-   edit.onclick=()=>switchTab('design',d);
-   actions.appendChild(edit);
-  }
-  const remove=document.createElement('button');
-  remove.type='button';remove.className='light-btn created-delete';remove.textContent='Delete';remove.setAttribute('aria-label','Delete '+d.name);
-  remove.onclick=()=>{
-   const attached=state.pieces.includes(d.id);
-   const message=attached?'Delete '+d.name+' from My Balloons and your parade?':'Delete '+d.name+' from My Balloons?';
-   if(!confirm(message))return;
-   savedImages.delete(d.id);
-   window.PARADE_IMAGES?.remove(storageKey(),d).catch(()=>{});
-   state.customPieces=state.customPieces.filter(item=>item.id!==d.id);
-   state.pieces=state.pieces.filter(id=>id!==d.id);
-   state.activePiece=null;
-   markChanged();renderAll();
-  };
-  actions.appendChild(remove);
-  card.append(image,name,add,actions);
-  root.appendChild(card);
- });
 }
-
-function renderTabs(){document.body.classList.toggle('workshop-mode',tab==='design');$('createdShelf')?.classList.toggle('hidden',tab!=='balloons');document.querySelectorAll('.step').forEach(el=>el.classList.toggle('selected',el.dataset.tab===tab));const special=tab==='decorate'||tab==='design';$('gallery').classList.toggle('hidden',special);$('decoratePanel').classList.toggle('hidden',tab!=='decorate');$('designPanel').classList.toggle('hidden',tab!=='design');$('galleryBack').classList.toggle('hidden',special);$('galleryForward').classList.toggle('hidden',special);$('libraryCount').classList.toggle('hidden',special);if(tab==='decorate'){if($('libraryHeadingArt'))$('libraryHeadingArt').src='assets/ui/scenes.webp';$('libraryTitle').textContent='Dress up your parade';$('libraryEyebrow').textContent='PARADE DESIGN STUDIO'}if(tab==='design'){if($('libraryHeadingArt'))$('libraryHeadingArt').src='assets/ui/dress-up.webp';$('libraryTitle').textContent='Create your own balloon';$('libraryEyebrow').textContent='YOUR BALLOON WORKSHOP';drawDesigner()}}
 function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge;$('stageHeading').textContent=state.grade===1?'Your magical NYC parade':'Your own NYC parade'}
 function renderPreview(){const g=$('stageCharacters');g.innerHTML='';$('stageEmpty').classList.toggle('hidden',state.pieces.length>0);let items=state.pieces.slice(0,2);items.forEach((id,i)=>{const p=getPiece(id);if(!p?.src)return;const el=document.createElement('img');el.src=p.src;el.alt=p.name;el.style.cssText=`position:absolute;bottom:${p.type==='float'?'-8%':'18%'};left:${i===0?0:50}%;width:${p.type==='float'?'55%':'47%'};height:${p.type==='float'?'93%':'77%'};object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #33253675);${p.type==='float'?'':`animation:bob ${2.5+i*.31}s ease-in-out infinite;`}`;el.loading='lazy';g.appendChild(el)});$('previewCaption').textContent=state.pieces.length?`${state.pieces.length} parade stars are ready for the big day!`:'Make your lineup, then watch it come to life.'}
 function renderDecorate(){const sc=$('scenes');sc.innerHTML='';SCENES.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='scene-option'+(state.scene===s.id?' active':'');b.innerHTML=`<img class="scene-thumb" src="${s.src}" alt="">${s.name}`;b.onclick=()=>{state.scene=s.id;markChanged();renderAll()};sc.appendChild(b)});
 const colors=$('colors');colors.innerHTML='';COLORS.forEach(([name,color])=>{const b=document.createElement('button');b.type='button';b.className='swatch'+(state.color===name?' active':'');b.style.background=color;b.title=name;b.setAttribute('aria-label',name+' banner color');b.onclick=()=>{state.color=name;document.documentElement.style.setProperty('--wine',color);markChanged();renderAll()};colors.appendChild(b)});
 const music=$('musicOptions');music.innerHTML='';MUSIC.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='music-option'+(state.music===m.id?' active':'');b.innerHTML=`♫ ${m.label}<small>${m.sub}</small>`;b.onclick=()=>{state.music=m.id;markChanged();renderAll();};music.appendChild(b)});
 }
-function switchTab(next, design){
+function switchTab(next){
  tab=next;
- if(next==='design')window.PARADE_WORKSHOP?.begin(design);
+ if(tab==='decorate')renderDecorate();
+ else renderGallery();
  renderTabs();
- if(next==='balloons'||next==='floats'){renderGallery();renderCreatedShelf()}
- else if(next==='decorate')renderDecorate();
  document.querySelector('.body-layout')?.scrollTo({top:0});
  window.scrollTo({top:0,behavior:'instant'});
 }
@@ -209,8 +171,8 @@ function startMovie(){
 // All controls remain operable with keyboard and trackpad. Avoid any touch-only interactions.
 document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
 document.querySelectorAll('.grade-pick').forEach(el=>el.addEventListener('click',()=>{state.grade=Number(el.dataset.grade);document.querySelectorAll('.grade-pick').forEach(e=>e.classList.toggle('selected',e===el))}));
-$('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('workshopDoneBtn')?.addEventListener('click',()=>switchTab('balloons'));$('newCreationBtn')?.addEventListener('click',()=>switchTab('design'));$('homeBtn').addEventListener('click',openStudent);$('saveBtn').addEventListener('click',()=>saveParade());$('playBtn').addEventListener('click',startMovie);
-$('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('galleryBack').addEventListener('click',()=>$('gallery').scrollBy({left:-560,behavior:'smooth'}));$('galleryForward').addEventListener('click',()=>$('gallery').scrollBy({left:560,behavior:'smooth'}));$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));$('helpClose').addEventListener('click',()=>$('helpModal').classList.add('hidden'));$('helpGotIt').addEventListener('click',()=>$('helpModal').classList.add('hidden'));
+$('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('homeBtn').addEventListener('click',openStudent);$('saveBtn').addEventListener('click',()=>saveParade());$('playBtn').addEventListener('click',startMovie);
+$('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('galleryBack').addEventListener('click',()=>$('gallery').scrollBy({left:-560,behavior:'smooth'}));$('galleryForward').addEventListener('click',()=>$('gallery').scrollBy({left:560,behavior:'smooth'}));$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...GALLERY_PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));$('helpClose').addEventListener('click',()=>$('helpModal').classList.add('hidden'));$('helpGotIt').addEventListener('click',()=>$('helpModal').classList.add('hidden'));
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.PARADE_PLAYER?.active)$('helpModal').classList.add('hidden');});
 // Teachers can bookmark a class-specific link such as ?class=JOHNSON&grade=1.
 const params=new URLSearchParams(window.location.search);const classFromUrl=(params.get('class')||'').trim().toUpperCase();if(/^[A-Z0-9-]{2,12}$/.test(classFromUrl)){$('classCode').value=classFromUrl;state.classCode=classFromUrl}const gradeFromUrl=Number(params.get('grade'));if(gradeFromUrl===1||gradeFromUrl===2){state.grade=gradeFromUrl;document.querySelectorAll('.grade-pick').forEach(el=>el.classList.toggle('selected',Number(el.dataset.grade)===gradeFromUrl))}
@@ -245,37 +207,9 @@ $('numberEnter').addEventListener('click',()=>submitPortal($('numberOther').valu
 // Original standalone modal is retained for compatibility but the full-screen entrance replaces it.
 $('studentModal').classList.add('hidden');showPortal('grade');
 
-// Students decorate a polished uploaded balloon illustration on a real drawing canvas.
-/* Original outfit workshop; legacy recoloring canvas intentionally retired. */
-function drawDesigner(){window.PARADE_WORKSHOP?.draw()}
-
+// Existing saved creations still render in a student's lineup and parade.
 window.paradeRefreshCreations=()=>{
  renderProgress();
  renderLineup();
- renderCreatedShelf();
  renderPreview();
-};
-window.paradeSaveCreation=async(design, editingId, image)=>{
- if(!state.number)return false;
- const key=storageKey();
- const create=editingId==null;
- if(create&&state.customPieces.length>=50){
-  notify('Your balloon collection is full. Ask your teacher for help.',false);
-  return false;
- }
- const used=new Set(state.customPieces.map(item=>item.id));
- const id=create?Array.from({length:99},(_,i)=>1001+i).find(candidate=>!used.has(candidate)):editingId;
- if(!id||(!create&&!used.has(id)))return false;
- const saved={id,...design};
- try{await window.PARADE_IMAGES?.put(key,saved,image)}
- catch(error){console.warn('The balloon photo will be rebuilt from its saved design.',error)}
- if(!state.number||storageKey()!==key)return false;
- savedImages.set(id,image);
- state.customPieces=create?[...state.customPieces,saved]:state.customPieces.map(item=>item.id===id?saved:item);
- markChanged();
- switchTab('balloons');
- renderAll();
- notify(saved.name+' saved to My Balloons');
- requestAnimationFrame(()=>$('createdShelf')?.scrollIntoView({block:'nearest'}));
- return true;
 };

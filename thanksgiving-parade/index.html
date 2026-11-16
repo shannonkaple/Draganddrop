@@ -27,10 +27,8 @@
    <div class="step-list">
     <button class="step selected" type="button" data-tab="balloons" aria-label="Choose balloons"><img class="step-game-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎈</span><span><b>Choose Balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
     <button class="step" type="button" data-tab="floats" aria-label="Choose floats"><img class="step-game-art" src="assets/ui/floats.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🚚</span><span><b>Choose Floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
-    <button class="step" type="button" data-tab="design" aria-label="Dress up your balloon"><img class="step-game-art" src="assets/ui/dress-up.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎨</span><span><b>Dress Up a Balloon</b><small>Dress a character for your parade</small></span><span class="step-chevron">›</span></button>
     <button class="step" type="button" data-tab="decorate" aria-label="Parade scenes and music"><img class="step-game-art" src="assets/ui/scenes.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🍁</span><span><b>Scenes & Music</b><small>NYC scenes, banner &amp; music</small></span><span class="step-chevron">›</span></button>
    </div>
-    <!-- The official-balloon recoloring tool is intentionally retired. Original design assets will have their own workshop. -->
    <div class="tip-card"><span class="tip-star">🦃</span><div><b>Parade director tip</b><p id="tipText">Start by choosing your favorite balloons. Click any picture to add it to your lineup!</p></div></div>
  </aside>
  <main class="main">
@@ -44,32 +42,8 @@
      <div class="lineup" id="lineup" role="list"></div>
    </section>
    <section class="library-panel" id="libraryPanel">
-    <div class="library-top"><div class="game-library-heading"><img id="libraryHeadingArt" class="library-heading-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="eyebrow sr-only" id="libraryEyebrow">BALLOON COLLECTION</span><h2 id="libraryTitle" class="sr-only">Choose your favorite balloons</h2></div><div class="library-tools"><span id="libraryCount">27 choices</span><button type="button" class="arrow-btn" id="galleryBack" aria-label="Previous choices">‹</button><button type="button" class="arrow-btn" id="galleryForward" aria-label="Next choices">›</button></div></div>
-    <div id="gallery" class="gallery" aria-label="Official parade pieces"></div>
-    <section id="createdShelf" class="created-shelf hidden" aria-label="My saved custom flying balloons">
-      <div class="created-shelf-heading"><div><h3>MY BALLOONS</h3></div><button type="button" id="newCreationBtn" class="light-btn">🎨 MAKE ANOTHER</button></div>
-      <div id="myCreations" class="created-cards" role="list"></div>
-    </section>
-    <div id="designPanel" class="design-panel hidden" aria-label="Design your own flying balloon">
-      <div class="designer-row"><div><img class="workshop-header-art" src="assets/ui/dress-up.webp" alt="Dress Up"><b class="designer-heading sr-only">FLYING BALLOON DRESS-UP STUDIO</b><p>Pick a flying balloon, give it a face, and dress it for the big parade!</p></div><button type="button" id="workshopDoneBtn" class="light-btn"><img class="control-graphic" src="assets/ui/back-control.webp" alt="" aria-hidden="true"><span>BACK TO PARADE</span></button></div>
-      <div class="workshop-layout">
-        <div class="workshop-control-area">
-          <h3>CHOOSE YOUR BALLOON</h3>
-          <div id="workshopBases" class="workshop-bases" aria-label="Choose a flying balloon base"></div>
-          <h3>CHOOSE WHAT TO CHANGE</h3>
-          <div id="workshopTabs" class="workshop-tabs" aria-label="Dress-up categories"></div>
-          <div id="workshopOptions" class="workshop-options" aria-label="Available costumes and facial features"></div>
-        </div>
-        <div class="workshop-preview-area">
-          <div class="workshop-preview-head"><h3>YOUR BALLOON</h3><span>FLYING LEFT</span></div>
-          <div class="workshop-art"><canvas id="workshopCanvas" width="640" height="430" role="img" aria-label="Your customized flying parade balloon"></canvas></div>
-          <p class="workshop-help">The pieces are designed for flying balloons. The parade adds handlers and ropes after you save.</p>
-          <label for="designName">NAME YOUR BALLOON</label><input id="designName" maxlength="26" placeholder="My Balloon" autocomplete="off" aria-label="Balloon name">
-          <p id="workshopStatus" class="workshop-status" role="status"></p>
-          <div class="design-actions"><button id="workshopReset" class="light-btn" type="button">RESET OUTFIT</button><button id="saveCreation" type="button" class="play-btn"><img class="control-graphic" src="assets/ui/save-control.webp" alt="" aria-hidden="true"><span>SAVE TO MY BALLOONS</span></button></div>
-        </div>
-      </div>
-    </div>
+    <div class="library-top"><div class="game-library-heading"><img id="libraryHeadingArt" class="library-heading-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="eyebrow sr-only" id="libraryEyebrow">BALLOON COLLECTION</span><h2 id="libraryTitle" class="sr-only">Choose your favorite balloons</h2></div><div class="library-tools"><span id="libraryCount">30 choices</span><button type="button" class="arrow-btn" id="galleryBack" aria-label="Previous choices">‹</button><button type="button" class="arrow-btn" id="galleryForward" aria-label="Next choices">›</button></div></div>
+    <div id="gallery" class="gallery" aria-label="Parade choices"></div>
     <div id="decoratePanel" class="decorate-panel hidden">
       <div class="design-section"><img src="assets/ui/scenes.webp" class="section-art" alt="Scenes"><b class="sr-only">Choose your New York scene</b><div class="scenes" id="scenes"></div></div>
       <div class="design-section"><b>Parade banner color</b><div class="swatches" id="colors"></div></div>
@@ -159,10 +133,10 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261116-studio" defer></script>
+<script src="app.js?v=20261116-ready-made" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
-<script src="builder.js?v=20261116-studio" defer></script>
+<script src="builder.js?v=20261116-ready-made" defer></script>
 <script src="parade-player.js?v=20261116-studio" defer></script>
 </body>
 </html>

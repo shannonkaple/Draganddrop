@@ -6,8 +6,6 @@
   const LEGACY_BODY = 'assets/custom/parade-bodies-15.webp';
   const LEGACY_ART = window.PARADE_LEGACY_ART;
   const catalog = window.PARADE_CATALOG;
-  const categories = Object.keys(LEGACY_ART);
-  const elements = id => document.getElementById(id);
   const images = new Map();
   const rendered = new Map();
 
@@ -19,15 +17,9 @@
     ['Dragon', -7, 4, 5, -5], ['Chick', -3, 5, 0, 4], ['Squirrel', 0, -5, 2, 6],
     ['Space Robot', -2, 7, -6, -2]
   ];
-  const firstBase = catalog.bases[0].id;
   const bodyById = new Map(catalog.bases.map(base => [base.id, base]));
   const legacyOrder = ['shirts', 'shorts', 'skirts', 'costumes', 'shoes', 'eyes', 'noses', 'mouths', 'hats', 'accessories'];
   const aliases = { noses: 'nose', mouths: 'mouth', hats: 'hat', shirts: 'clothes', accessories: 'prop' };
-  let recipe = { baseId: firstBase, options: {} };
-  let active = 'eyes';
-  let editingId = null;
-  let previewRun = 0;
-  let boardRun = 0;
 
   function loadImage(src) {
     if (!images.has(src)) {
@@ -155,12 +147,6 @@
     return true;
   }
 
-  async function render(canvas, design, resolution = 1) {
-    const layers = layersFor(design);
-    await Promise.all(layers.map(layer => loadImage(layer.path).promise));
-    paint(canvas, layers, resolution);
-  }
-
   function signature(design) {
     return JSON.stringify([design.baseId, design.options]);
   }
@@ -197,188 +183,6 @@
     }
   }
 
-  function setStatus(message) {
-    elements('workshopStatus').textContent = message;
-  }
-
-  function draw() {
-    const drawId = ++previewRun;
-    const snapshot = { baseId: recipe.baseId, options: { ...recipe.options } };
-    const layers = layersFor(snapshot);
-    elements('saveCreation').disabled = true;
-    Promise.all(layers.map(layer => loadImage(layer.path).promise)).then(() => {
-      if (drawId !== previewRun) return;
-      paint(elements('workshopCanvas'), layers, 1);
-      elements('saveCreation').disabled = false;
-      setStatus('');
-    }, () => {
-      if (drawId === previewRun) setStatus('A picture could not load. Try choosing the piece again.');
-    });
-  }
-
-  function choose(buttons, index) {
-    for (const [i, button] of [...buttons].entries()) {
-      button.classList.toggle('chosen', i === index);
-      button.setAttribute('aria-pressed', String(i === index));
-    }
-  }
-
-  function label(text) {
-    const span = document.createElement('span');
-    span.textContent = text;
-    return span;
-  }
-
-  function button(className, text) {
-    const b = document.createElement('button');
-    b.className = className;
-    b.type = 'button';
-    if (text) b.textContent = text;
-    return b;
-  }
-
-  function renderBases() {
-    const root = elements('workshopBases');
-    const choices = [...catalog.bases];
-    if (recipe.baseId < 401) {
-      choices.push({ id: recipe.baseId, name: legacyBases[recipe.baseId - 301][0] });
-    }
-    root.replaceChildren(...choices.map((base, i) => {
-      const b = button('workshop-body');
-      b.dataset.baseId = base.id;
-      if (base.path) {
-        const img = new Image();
-        img.src = base.path;
-        img.alt = '';
-        b.append(img);
-      } else {
-        const canvas = document.createElement('canvas');
-        b.append(canvas);
-        render(canvas, { baseId: base.id, options: {} }, .25).catch(() => {});
-      }
-      b.append(label(base.name));
-      b.onclick = () => {
-        const isModern = bodyById.has(base.id);
-        if (isModern !== bodyById.has(recipe.baseId)) recipe.options = {};
-        recipe.baseId = base.id;
-        choose(root.children, i);
-        renderOptions();
-        draw();
-      };
-      return b;
-    }));
-    choose(root.children, choices.findIndex(base => base.id === recipe.baseId));
-  }
-
-  function renderTabs() {
-    const root = elements('workshopTabs');
-    root.replaceChildren(...categories.map((category, i) => {
-      const b = button('workshop-tab', LEGACY_ART[category].name);
-      b.dataset.category = category;
-      b.onclick = () => {
-        active = category;
-        choose(root.children, i);
-        renderOptions();
-      };
-      return b;
-    }));
-    choose(root.children, categories.indexOf(active));
-  }
-
-  function renderOptions() {
-    const run = ++boardRun;
-    const root = elements('workshopOptions');
-    const modern = bodyById.has(recipe.baseId);
-    const current = active;
-    const items = modern ? catalog.parts[current] : LEGACY_ART[current].names.map((name, i) => ({
-      name, path: legacyPath(current, i + 1)
-    }));
-    root.replaceChildren(...[{ name: 'Remove' }, ...items].map((item, index) => {
-      const b = button('workshop-choice');
-      b.dataset.option = index;
-      const thumb = document.createElement('canvas');
-      thumb.width = 112;
-      thumb.height = 72;
-      if (item.path) loadImage(item.path).promise.then(image => {
-        if (run !== boardRun) return;
-        let bounds = item.bounds ?? [0, 0, image.width, image.height];
-        if (Array.isArray(bounds[0])) {
-          const [left, right] = bounds;
-          const y = Math.min(left[1], right[1]);
-          bounds = [left[0], y, right[0] + right[2] - left[0], Math.max(left[1] + left[3], right[1] + right[3]) - y];
-        }
-        const [, , width, height] = bounds;
-        const scale = Math.min(105 / width, 66 / height);
-        thumb.getContext('2d').drawImage(image, ...bounds, (112 - width * scale) / 2,
-          (72 - height * scale) / 2, width * scale, height * scale);
-      }).catch(() => {
-        if (run === boardRun) {
-          b.disabled = true;
-          b.title = 'Picture unavailable';
-        }
-      });
-      if (item.path) b.append(thumb);
-      b.append(label(item.name));
-      b.onclick = () => {
-        if (modern && current === 'costumes') {
-          const previous = items[recipe.options.costumes - 1];
-          for (const [slot, option] of Object.entries(previous?.equips ?? {})) {
-            if (recipe.options[slot] === option) recipe.options[slot] = 0;
-          }
-          Object.assign(recipe.options, items[index - 1]?.equips);
-        }
-        recipe.options[current] = index;
-        if (current === 'shorts' && index) recipe.options.skirts = 0;
-        if (current === 'skirts' && index) recipe.options.shorts = 0;
-        choose(root.children, index);
-        draw();
-      };
-      return b;
-    }));
-    choose(root.children, recipe.options[current] || 0);
-  }
-
-  function begin(design) {
-    editingId = design?.id ?? null;
-    recipe = { baseId: design?.baseId ?? firstBase, options: { ...design?.options } };
-    for (const [cat, old] of Object.entries(aliases)) {
-      if (recipe.options[cat] == null && recipe.options[old] != null) recipe.options[cat] = recipe.options[old];
-    }
-    active = 'eyes';
-    elements('designName').value = design?.name ?? '';
-    renderBases();
-    renderTabs();
-    renderOptions();
-    draw();
-  }
-
-  function reset() {
-    recipe.options = {};
-    renderOptions();
-    draw();
-  }
-
-  async function save() {
-    const name = elements('designName').value.trim().replace(/[^a-zA-Z0-9 -]/g, '').slice(0, 26) || 'My Balloon';
-    const design = { name, baseId: recipe.baseId, options: { ...recipe.options }, workshop: true };
-    const button = elements('saveCreation');
-    button.disabled = true;
-    setStatus('Saving your balloon…');
-    try {
-      const canvas = document.createElement('canvas');
-      await render(canvas, design, 2);
-      const image = remember(design, canvas.toDataURL('image/webp', .91));
-      if (!await window.paradeSaveCreation?.(design, editingId, image)) setStatus('Your balloon could not be saved.');
-    } catch (error) {
-      console.warn(error);
-      setStatus('The picture could not be saved. Try again.');
-    } finally {
-      button.disabled = false;
-    }
-  }
-
-  elements('workshopReset').addEventListener('click', reset);
-  elements('saveCreation').addEventListener('click', save);
-  window.PARADE_WORKSHOP = { begin, compose, render, draw };
+  window.PARADE_WORKSHOP = { compose };
   window.paradeRefreshCreations?.();
 })();
