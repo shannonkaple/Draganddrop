@@ -18,7 +18,6 @@ const PIECES=[
 [34,'Holiday Countdown','float'],[35,'Tom Turkey','float'],[36,'Santa’s Sleigh','float']
 ].map(([id,name,type])=>({id,name,type,src:(window.PARADE_PIECE_ASSETS||{})[id]||ASSETS+id+'.svg'}));
 const SCENES=[
-{id:'storybook',name:'Storybook Parade',badge:'HERALD SQUARE · STORYBOOK PARADE',src:'assets/scenes/storybook-parade.jpg'},
 {id:'central-park',name:'Central Park West',badge:'CENTRAL PARK WEST · UPPER WEST SIDE',src:(window.PARADE_SCENE_ASSETS||{})['central-park']||'assets/scenes/central-park.svg'},
 {id:'columbus',name:'Columbus Circle',badge:'COLUMBUS CIRCLE · NEW YORK CITY',src:(window.PARADE_SCENE_ASSETS||{})['columbus']||'assets/scenes/columbus.svg'},
 {id:'sixth-avenue',name:'Sixth Avenue',badge:'SIXTH AVENUE · MIDTOWN MANHATTAN',src:(window.PARADE_SCENE_ASSETS||{})['sixth-avenue']||'assets/scenes/sixth-avenue.svg'},
@@ -33,7 +32,7 @@ const MUSIC=[
 ];
 const MAX={1:25,2:25};
 const $=id=>document.getElementById(id);
-let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,color:'cranberry',music:'march',activePiece:null};
+let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'central-park',routeTour:false,color:'cranberry',music:'march',activePiece:null};
 let tab='balloons',saveTimer=null,studentModalOpen=true,movie={active:false,paused:false,elapsed:0,lastFrame:0,raf:null,audio:null,muted:false,playedAudio:false,stageIdx:-1,done:false};
 function cleanId(x){return Number.isInteger(Number(x))&&Number(x)>=1&&Number(x)<=36?Number(x):null;}
 function storageKey(){return `parade_2026_${state.classCode}_${state.grade}_${state.number}`;}
