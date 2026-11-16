@@ -10,19 +10,11 @@
     'ALIEN','FRIENDLY MONSTER','CURLY PUFF GIRL','CURLY-HAIR BOY','PONYTAIL GIRL',
     'UNICORN','DRAGON','CHICK','SQUIRREL','SPACE ROBOT'
   ];
-  const CATEGORIES=[
-    {id:'eyes',name:'EYES',names:['NONE','BRIGHT','ROUND','SWEET','LASHES','SLEEPY','BIG EYES','BOLD','STARRY','WINK','HAPPY BROWS']},
-    {id:'nose',name:'NOSE',names:['NONE','BLACK','PINK','BROWN','GOLD','RED','BLUE','TEAL','ORANGE']},
-    {id:'mouth',name:'MOUTH',names:['NONE','SMILE','GRIN','SURPRISED','TINY SMILE','TONGUE','SILLY','OPEN SMILE']},
-    {id:'hat',name:'HATS',names:['NONE','COWBOY','CROWN','BOW','PARTY HAT','BEANIE','SUPER MASK','VISOR']},
-    {id:'clothes',name:'CLOTHES',names:['NONE','SWEATER','SUPER CAPE','OVERALLS','VEST','RAINCOAT','STAR SHIRT','TUTU']},
-    {id:'shoes',name:'SHOES',names:['NONE','RED SNEAKERS','BLUE SNEAKERS','PINK BOOTS','YELLOW BOOTS','SPACE SHOES','GREEN SNEAKERS']},
-    {id:'prop',name:'HAND ITEMS',names:['NONE','PUMPKIN','STAR WAND','NYC FLAG','FLOWERS','TROPHY','TURKEY SIGN','BALLOONS']}
-  ];
+  const CATEGORIES=[{"id":"eyes","name":"EYES","names":["NONE","CLASSIC","BIG BLUE","SLEEPY","SURPRISED","HAPPY","SPARKLING","LASHES","DETERMINED","SILLY","STARRY"]},{"id":"noses","name":"NOSES","names":["NONE","BLACK BUTTON","BROWN BEAR","PINK BUNNY","CAT","PUPPY","CLOWN","HEART","ALIEN","GOLD","TINY"]},{"id":"mouths","name":"MOUTHS","names":["NONE","SMILE","TOOTHY GRIN","LAUGH","SURPRISED","TONGUE OUT","SWEET","CROOKED","EXCITED","POUT","SILLY"]},{"id":"hats","name":"HATS","names":["NONE","SANTA","BASEBALL CAP","CROWN","BOW","CHEF","PIRATE","WITCH","PARTY","TURKEY","HARD HAT"]},{"id":"shirts","name":"SHIRTS","names":["NONE","BASIC","BLUE STRIPED","RED STAR","SPORT","HEARTS","POLKA DOTS","SWEATER","PUMPKIN","DENIM","RAINBOW"]},{"id":"shorts","name":"SHORTS","names":["NONE","RED SPORT","BLUE SPORT","CARGO","YELLOW DOT","PURPLE STAR","DENIM","PINK","PLAID","NAVY","KHAKI"]},{"id":"skirts","name":"SKIRTS","names":["NONE","PINK","BLUE","TUTU","YELLOW RUFFLE","RED DOT","BLUE STAR","CHEER","RAINBOW","DENIM","AUTUMN"]},{"id":"shoes","name":"SHOES","names":["NONE","RED SNEAKERS","BLUE SNEAKERS","BROWN BOOTS","PINK SHOES","HERO BOOTS","PINK FLATS","RAIN BOOTS","RUNNING","PURPLE HI TOPS","BLACK"]},{"id":"accessories","name":"HAND ITEMS","names":["NONE","STAR WAND","PUMPKIN","PIE","PARADE FLAG","FLOWERS","TRUMPET","FOOTBALL","LOLLIPOP","GIFT","BALLOONS"]},{"id":"costumes","name":"COSTUMES","names":["NONE","SUPERHERO","ASTRONAUT","PIRATE","FAIRY","DINOSAUR","TURKEY","PUMPKIN","CHEF","PRINCESS","CONSTRUCTION"]}];
   const COLORS={red:'#f65d62',pink:'#f38ac6',blue:'#439ce1',yellow:'#ffd05d',green:'#65c39b',purple:'#9f7ada',cream:'#fff3de'};
   const bodyImage=new Image(),featureImage=new Image();
   const cache=new Map();
-  const state={base:0,eyes:0,nose:0,mouth:0,hat:0,clothes:0,shoes:0,prop:0};
+  const state={base:0,eyes:0,noses:0,mouths:0,hats:0,shirts:0,shorts:0,skirts:0,shoes:0,accessories:0,costumes:0};
   let active='eyes',ready=false;
   const $=id=>document.getElementById(id);
   function imageReady(){return bodyImage.complete&&bodyImage.naturalWidth&&featureImage.complete&&featureImage.naturalWidth}
@@ -124,26 +116,80 @@
     ][Math.max(0,Math.min(14,index))];
     return {face:[277+adjust[0],159+adjust[1]],hat:[277+adjust[0],100+adjust[1]],body:[398+adjust[2],282+adjust[3]],feet:[513+adjust[2],315+adjust[3]],hands:[150+adjust[0],287+adjust[1]]};
   }
+  
+  /* Ten separately authored assets per category, zero means NONE.
+     Each .svg is a standalone scene-free asset, never a crop of a sprite sheet.
+     Exported transparent PNG counterparts are in the downloadable asset pack. */
+  const ART_ROOT='assets/customization/';
+  const artCache=new Map();let artRefresh=0;
+  function artPath(category,idx){return ART_ROOT+category+'/'+category+'-'+String(idx).padStart(2,'0')+'.svg'}
+  function artImage(category,idx){
+    const key=category+':'+idx;
+    if(!idx)return null;
+    if(artCache.has(key))return artCache.get(key);
+    const im=new Image();artCache.set(key,im);
+    im.onload=()=>{
+      if(artRefresh)return;
+      artRefresh=requestAnimationFrame(()=>{
+        artRefresh=0;
+        const canvas=$('workshopCanvas');if(canvas)draw();
+        if($('workshopOptions'))options();
+      })
+    };
+    im.onerror=()=>{console.warn('Missing dress-up graphic',key)};
+    im.src=artPath(category,idx);
+    return im;
+  }
+  function visualFit(cat,a,base){
+    const t={
+      eyes:[a.face[0],a.face[1]-4,265,181],
+      noses:[a.face[0],a.face[1]+48,220,150],
+      mouths:[a.face[0],a.face[1]+83,225,155],
+      hats:[a.hat[0],a.hat[1]-37,315,215],
+      shirts:[a.body[0]-18,a.body[1]-9,300,207],
+      shorts:[a.feet[0]-68,a.feet[1]-28,253,174],
+      skirts:[a.feet[0]-87,a.feet[1]-21,275,189],
+      shoes:[a.feet[0]+2,a.feet[1]-13,237,163],
+      accessories:[a.hands[0]+9,a.hands[1]-25,180,124],
+      costumes:[a.body[0]-18,a.body[1]-9,295,203]
+    }[cat];
+    // Species keep their own anatomy: adjustments target logical attachment areas
+    if(!t)return null;
+    const [x,y,w,h]=t;
+    const species=base<7,creature=base===4||base===5||base===6;
+    const scale=(cat==='shoes'&&species)?1.12:(cat==='hats'&&creature)?1.07:1;
+    return [x-w*scale/2,y-h*scale/2,w*scale,h*scale];
+  }
+  function drawSeparate(ctx,cat,idx,a,base){
+    if(!idx)return true;
+    const im=artImage(cat,idx),r=visualFit(cat,a,base);
+    if(!im||!r||!im.complete||!im.naturalWidth)return false;
+    ctx.drawImage(im,...r);return true;
+  }
+  function artworkLoaded(r){
+    return CATEGORIES.every(c=>!Number(r[c.id])||(artImage(c.id,Number(r[c.id]))?.complete&&artImage(c.id,Number(r[c.id]))?.naturalWidth));
+  }
+
   function render(canvas,recipe){
-    if(!canvas)return false;canvas.width=W;canvas.height=H;
+    if(!canvas)return false;
+    canvas.width=W;canvas.height=H;
     const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,H);
     if(!imageReady())return false;
-    const r=recipe||state;const idx=Math.min(14,Math.max(0,Number(r.base)||0));
-    // Five columns and three rows of 512px tiles; crop bottom tether area, keeping the flying balloon.
+    const r=recipe||state, idx=Math.max(0,Math.min(14,Number(r.base)||0));
     ctx.drawImage(bodyImage,(idx%5)*512,Math.floor(idx/5)*512,512,466,55,8,555,400);
     const a=anchors(idx);
-    // Child characters have simple modest base clothes before students choose costumes.
-    if(idx>=7&&idx<=9){
-      glossy(ctx,a.body[0]-66,a.body[1]-48,164,96,idx===7?'#eebdca':idx===8?'#83bde0':'#f4cc8e');
-      glossy(ctx,a.body[0]+42,a.body[1]+17,112,48,'#648fb9');
-    }
-    drawClothes(ctx,Number(r.clothes)||0,a.body);
-    drawShoes(ctx,Number(r.shoes)||0,a.feet);
-    drawEyes(ctx,Number(r.eyes)||0,a.face);
-    drawNose(ctx,Number(r.nose)||0,a.face);
-    drawMouth(ctx,Number(r.mouth)||0,a.face);
-    drawHat(ctx,Number(r.hat)||0,a.hat);
-    drawProp(ctx,Number(r.prop)||0,a.hands);
+    const value=(cat,old)=>Number(r[cat]??r[old]??0);
+    // Dress-up layering matches the forward-reaching flying pose.
+    drawSeparate(ctx,'shirts',value('shirts','clothes'),a,idx);
+    drawSeparate(ctx,'shorts',value('shorts','shorts'),a,idx);
+    drawSeparate(ctx,'skirts',value('skirts','skirts'),a,idx);
+    drawSeparate(ctx,'costumes',value('costumes','costumes'),a,idx);
+    drawSeparate(ctx,'shoes',value('shoes','shoes'),a,idx);
+    drawSeparate(ctx,'eyes',value('eyes','eyes'),a,idx);
+    drawSeparate(ctx,'noses',value('noses','nose'),a,idx);
+    drawSeparate(ctx,'mouths',value('mouths','mouth'),a,idx);
+    drawSeparate(ctx,'hats',value('hats','hat'),a,idx);
+    drawSeparate(ctx,'accessories',value('accessories','prop'),a,idx);
     return true;
   }
   function compose(c){
@@ -151,7 +197,7 @@
     const recipe={base:Math.max(0,Math.min(14,Number(c.baseId)-301)),...c.options};
     const signature=JSON.stringify(recipe);
     if(cache.has(signature))return cache.get(signature);
-    if(!imageReady())return 'assets/custom/parade-bodies-15.webp';
+    if(!imageReady()||!artworkLoaded(recipe))return 'assets/custom/parade-bodies-15.webp';
     const canvas=document.createElement('canvas');render(canvas,recipe);
     const url=canvas.toDataURL('image/webp',.87);cache.set(signature,url);
     return url;
@@ -180,21 +226,22 @@
   function init(){if(!$('workshopCanvas'))return;
     $('saveCreation').addEventListener('click',()=>{
       if(typeof state==='undefined'||!window.PARADE_WORKSHOP)return;
-      if(window.state && window.state.pieces.length>=25)return;
+      if(!artworkLoaded(state)){alert('The accessory artwork is still loading. Please try Save again.');return;}
       // Main game state is a global lexical binding created by app.js.
       if(typeof markChanged!=='function')return;
       if(window.paradeBuilderCount && window.paradeBuilderCount>=99)return;
-      if(typeof maxReached==='function' && maxReached())return;
+      /* Saving to MY BALLOONS is independent of the parade lineup limit. */
       const newId=1002+Math.max(-1,...window.paradeCustomIds());
       const name=String($('designName').value||'My Balloon').trim().replace(/[^A-Za-z0-9 -]/g,'').slice(0,26)||'My Balloon';
-      const c={id:newId,name,baseId:301+state.base,workshop:true,options:{eyes:state.eyes,nose:state.nose,mouth:state.mouth,hat:state.hat,clothes:state.clothes,shoes:state.shoes,prop:state.prop}};
+      const c={id:newId,name,baseId:301+state.base,workshop:true,options:Object.fromEntries(CATEGORIES.map(c=>[c.id,state[c.id]||0]))};
       window.paradeAddCustom(c);
     });
     $('workshopReset').addEventListener('click',()=>{
-      Object.assign(state,{eyes:0,nose:0,mouth:0,hat:0,clothes:0,shoes:0,prop:0});categoryTabs();options();pickBase();draw()
+      for(const c of CATEGORIES)state[c.id]=0;categoryTabs();options();pickBase();draw()
     });
     if(imageReady()){pickBase();categoryTabs();options();draw()}
     else{pickBase();categoryTabs();options()}
+    for(const c of CATEGORIES)for(let n=1;n<=10;n++)artImage(c.id,n);
   }
   window.PARADE_WORKSHOP={compose,draw,render,state,initialize:init,refresh(){pickBase();categoryTabs();options();draw()},get ready(){return ready}};
   // App-side callbacks keep the saved parade data in the existing cloud/local saving system.
