@@ -1603,3 +1603,229 @@ body:not(.workshop-mode) .step-list .step-game-art{
   #onboarding #portalGrade .grade-tiles .guest-tile{grid-column:1/-1!important;min-height:75px!important}
   #onboarding .portal-card .portal-brand-redblue{max-height:80px!important}
 }
+
+
+/* Raster brand V7 — true PNG images + exact sampled red/sky-blue, compact edge-to-edge studio */
+:root{
+  --studio-red:#E7002A;
+  --studio-red-deep:#BA0022;
+  --studio-blue:#9DEFFF;
+  --parade-ice-blue:#9DEFFF;
+  --parade-banner-red:#E7002A;
+}
+html,body{background:#9DEFFF!important;background-image:none!important}
+body:not(.workshop-mode) .app{
+  background:#9DEFFF!important;background-image:none!important;
+  min-height:100vh!important
+}
+body:not(.workshop-mode) header.topbar{
+  background:#9DEFFF!important;background-image:none!important;
+  border-bottom:4px solid #E7002A!important;
+  box-shadow:none!important;
+  height:75px!important;min-height:75px!important;
+  padding:3px clamp(7px,1vw,18px)!important;
+  gap:10px!important
+}
+body:not(.workshop-mode) header.topbar .brand{flex:0 0 auto!important;min-width:0!important}
+body:not(.workshop-mode) header.topbar .game-brand-image{
+  width:clamp(186px,20.5vw,296px)!important;
+  height:69px!important;max-height:69px!important;
+  display:block!important;object-fit:contain!important;
+  filter:none!important
+}
+body:not(.workshop-mode) header.topbar .top-actions{
+  display:flex!important;flex-wrap:nowrap!important;
+  align-items:center!important;justify-content:flex-end!important;
+  gap:clamp(3px,.45vw,8px)!important;min-width:0!important;
+  flex:1 1 auto!important
+}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-util,
+body:not(.workshop-mode) header.topbar .top-actions button#saveBtn.raster-util,
+body:not(.workshop-mode) header.topbar .top-actions button#homeBtn.raster-util{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 1 auto!important;
+  background:transparent!important;background-image:none!important;
+  border:0!important;outline:0!important;border-radius:0!important;
+  padding:0!important;margin:0!important;
+  height:47px!important;min-height:47px!important;
+  box-shadow:none!important;filter:none!important;
+  white-space:nowrap!important;overflow:visible!important;
+  transform:none!important
+}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-util::before,
+body:not(.workshop-mode) header.topbar .top-actions button.raster-util::after{
+  content:none!important;display:none!important
+}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-util img{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;filter:none!important;
+  padding:0!important;margin:0!important
+}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-home{width:84px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-fullscreen{width:120px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-help{width:74px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-change-student{width:143px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-saved-parades{width:136px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-save-parade{width:131px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-util:hover{filter:brightness(1.05)!important;transform:translateY(-1px)!important}
+body:not(.workshop-mode) header.topbar .top-actions button.raster-util:focus-visible{
+  outline:3px solid #155B86!important;outline-offset:2px!important;border-radius:7px!important
+}
+body:not(.workshop-mode) header.topbar .top-actions .saved-note{
+  position:absolute!important;width:1px!important;height:1px!important;
+  padding:0!important;margin:-1px!important;border:0!important;
+  overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
+}
+body:not(.workshop-mode) .body-layout{
+  display:grid!important;grid-template-columns:1fr!important;
+  max-width:none!important;width:100%!important;
+  padding:7px clamp(6px,.6vw,12px) 8px!important;
+  margin:0!important;gap:8px!important
+}
+body:not(.workshop-mode) .sidebar{
+  display:block!important;width:100%!important;min-width:0!important;
+  min-height:0!important;height:auto!important;
+  background:transparent!important;background-image:none!important;
+  border:0!important;border-radius:0!important;
+  padding:0!important;margin:0!important;
+  box-shadow:none!important;filter:none!important
+}
+body:not(.workshop-mode) .sidebar .welcome-card,
+body:not(.workshop-mode) .sidebar .steps-label,
+body:not(.workshop-mode) .sidebar .tip-card{display:none!important}
+body:not(.workshop-mode) .step-list{
+  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:clamp(3px,.7vw,12px)!important;margin:0!important;
+  padding:0!important;width:100%!important
+}
+body:not(.workshop-mode) .step-list .step:nth-child(n){
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;min-width:0!important;
+  height:clamp(63px,6vw,90px)!important;min-height:63px!important;
+  margin:0!important;padding:0!important;
+  border:0!important;background:transparent!important;background-image:none!important;
+  box-shadow:none!important;filter:none!important;border-radius:0!important;
+  overflow:visible!important;transform:none!important
+}
+body:not(.workshop-mode) .step-list .step-game-art{
+  display:block!important;max-width:none!important;width:100%!important;
+  height:100%!important;object-fit:contain!important;object-position:center!important;
+  filter:none!important;transform:none!important
+}
+body:not(.workshop-mode) .step-list .step.selected{
+  box-shadow:none!important;filter:drop-shadow(0 2px 1px #CE0B2E66)!important;
+  transform:none!important
+}
+body:not(.workshop-mode) .step-list .step:hover{transform:translateY(-2px)!important;filter:brightness(1.03)!important}
+body:not(.workshop-mode) .step-list .step:focus-visible{
+  outline:3px solid #1679A5!important;outline-offset:0!important;border-radius:18px!important
+}
+body:not(.workshop-mode) .main{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.74fr) minmax(290px,.94fr)!important;
+  grid-template-rows:auto auto!important;
+  grid-template-areas:'library preview' 'lineup lineup'!important;
+  gap:8px!important;
+  align-items:stretch!important;align-content:start!important;
+  min-width:0!important;width:100%!important
+}
+body:not(.workshop-mode) .main #libraryPanel{
+  grid-area:library!important;height:100%!important;max-height:none!important;
+  min-height:0!important;overflow:visible!important
+}
+body:not(.workshop-mode) .main #paradePreviewPanel{
+  grid-area:preview!important;min-height:0!important;height:100%!important;
+  display:flex!important;flex-direction:column!important;align-self:stretch!important
+}
+body:not(.workshop-mode) .main #paradeLineupPanel{grid-area:lineup!important}
+body:not(.workshop-mode) .main #paradePreviewPanel .stage{
+  display:block!important;flex:1 1 0!important;
+  min-height:190px!important;height:auto!important;max-height:none!important;
+  width:100%!important;aspect-ratio:auto!important;
+}
+body:not(.workshop-mode) .main #paradePreviewPanel .preview-head,
+body:not(.workshop-mode) .main #paradePreviewPanel .preview-foot{flex:0 0 auto!important}
+body:not(.workshop-mode) .preview-panel,
+body:not(.workshop-mode) .library-panel,
+body:not(.workshop-mode) .lineup-panel{
+  background:#fff!important;border:2px solid #E7002A!important;
+  border-radius:16px!important;box-shadow:none!important;
+  outline:0!important
+}
+body:not(.workshop-mode) .preview-panel::before,
+body:not(.workshop-mode) .library-panel::before,
+body:not(.workshop-mode) .lineup-panel::before{content:none!important;display:none!important}
+body:not(.workshop-mode) #libraryPanel .studio-flow-kicker{display:none!important}
+body:not(.workshop-mode) .preview-head .eyebrow,
+body:not(.workshop-mode) .section-heading .eyebrow{display:none!important}
+body:not(.workshop-mode) .preview-head,
+body:not(.workshop-mode) .section-heading{
+  background:#fff!important;border-bottom:1px solid #cae6ef!important
+}
+body:not(.workshop-mode) .preview-head h2,
+body:not(.workshop-mode) .section-heading h2,
+body:not(.workshop-mode) .shelf-heading h2{
+  font-family:Georgia,'Times New Roman',serif!important;
+  font-weight:900!important;color:#E7002A!important;
+  letter-spacing:.02em!important;text-transform:uppercase!important;
+}
+body:not(.workshop-mode) .preview-caption{color:#29465B!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup{
+  scrollbar-width:none!important
+}
+body:not(.workshop-mode) #paradeLineupPanel .lineup::-webkit-scrollbar{display:none!important}
+body:not(.workshop-mode) .footbar{display:none!important}
+#onboarding.overlay,
+#onboarding.overlay:has(#portalGrade:not(.hidden)){
+  background:#9DEFFF url('assets/ui/kaple-2026-raster/entrance-background.jpg') center/cover no-repeat!important;
+  backdrop-filter:none!important
+}
+#onboarding .portal-card{
+  border-color:#fff!important;outline-color:#E7002A!important;
+  background:#ffffffed!important;box-shadow:0 7px 0 #BE0025,0 12px 32px #23516a59!important
+}
+#onboarding .portal-prompt{color:#E7002A!important}
+#onboarding .portal-card .portal-brand-redblue{
+  width:min(560px,96%)!important;height:auto!important;
+  max-height:135px!important;margin:0 auto 6px!important
+}
+@media(max-width:1100px){
+ body:not(.workshop-mode) header.topbar .top-actions{gap:2px!important}
+ body:not(.workshop-mode) header.topbar .game-brand-image{width:clamp(165px,18vw,222px)!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-util{
+   min-width:0!important;height:39px!important;min-height:39px!important
+ }
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-home{width:70px!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-fullscreen{width:98px!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-help{width:64px!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-change-student{width:121px!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-saved-parades{width:117px!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-save-parade{width:108px!important}
+}
+@media(max-width:900px){
+ body:not(.workshop-mode) .body-layout{padding:5px!important;gap:6px!important}
+ body:not(.workshop-mode) .main{
+   grid-template-columns:minmax(0,1fr)!important;
+   grid-template-rows:auto auto auto!important;
+   grid-template-areas:'library' 'preview' 'lineup'!important;
+ }
+ body:not(.workshop-mode) .main #libraryPanel,
+ body:not(.workshop-mode) .main #paradePreviewPanel{height:auto!important}
+ body:not(.workshop-mode) .main #paradePreviewPanel .stage{height:230px!important;flex:0 0 auto!important}
+ body:not(.workshop-mode) .step-list .step:nth-child(n){height:clamp(48px,9vw,70px)!important;min-height:48px!important}
+}
+@media(max-width:640px){
+ body:not(.workshop-mode) header.topbar{
+   height:auto!important;min-height:58px!important;flex-wrap:wrap!important;
+   justify-content:center!important
+ }
+ body:not(.workshop-mode) header.topbar .game-brand-image{height:49px!important;width:235px!important}
+ body:not(.workshop-mode) header.topbar .top-actions{
+   flex-basis:100%!important;justify-content:space-between!important;
+   padding-bottom:2px!important
+ }
+ body:not(.workshop-mode) header.topbar .top-actions button.raster-util{
+   height:32px!important;min-height:32px!important;width:16%!important
+ }
+}
