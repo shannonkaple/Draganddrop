@@ -6,7 +6,7 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>My Thanksgiving Parade | Balloon Parade Studio</title>
 <link rel="icon" href="assets/ui/main-title.webp" type="image/webp">
-<link rel="stylesheet" href="style.css?v=20261116-full-lineup">
+<link rel="stylesheet" href="style.css?v=20261116-guest-mode">
 </head>
 <body>
 <div id="app" class="app" inert>
@@ -98,7 +98,7 @@
   <section class="portal-screen" id="portalGrade">
    <p class="portal-prompt">First, choose your grade!</p>
    <img class="portal-welcome-art" src="assets/ui/welcome.webp" alt="" aria-hidden="true">
-   <div class="grade-tiles"><button type="button" data-portal-grade="1"><span class="tile-number">1</span><b>FIRST GRADE</b><small>CREATE YOUR OWN PARADE</small></button><button type="button" data-portal-grade="2"><span class="tile-number">2</span><b>SECOND GRADE</b><small>CREATE YOUR OWN PARADE</small></button></div>
+   <div class="grade-tiles"><button type="button" data-portal-grade="1"><span class="tile-number">1</span><b>FIRST GRADE</b><small>CREATE YOUR OWN PARADE</small></button><button type="button" data-portal-grade="2"><span class="tile-number">2</span><b>SECOND GRADE</b><small>CREATE YOUR OWN PARADE</small></button><button type="button" class="guest-tile" id="guestModeBtn" aria-label="Guest: create a parade without entering classroom information"><span class="tile-number" aria-hidden="true">★</span><b>GUEST</b><small>PLAY WITHOUT CLASS SETUP</small></button></div>
   </section>
   <section class="portal-screen hidden" id="portalTeacher">
    <p class="portal-prompt">Who is your teacher?</p>
@@ -173,7 +173,7 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261116-full-lineup" defer></script>
+<script src="app.js?v=20261116-guest-mode" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
