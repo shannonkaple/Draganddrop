@@ -38,7 +38,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 </head>
 <body>
 <main class="page">
-<header><div><h1>🎈 Build Your Own Balloon</h1><p>Choose your character. Mix and match. Make it yours!</p></div><span class="tag">BALLOON DESIGN STUDIO · STANDALONE</span></header>
+<header><div><h1>🎈 Build Your Own Balloon</h1><p>Choose your character. Mix and match. Make it yours! Start with their natural face and add features only if you want.</p></div><span class="tag">BALLOON DESIGN STUDIO · STANDALONE</span></header>
 <div class="studio">
 <section class="preview" aria-label="Live balloon preview"><img class="bounce" id="preview" alt="Your designed balloon"><span class="loading" id="loading" role="status">Getting your balloon ready…</span></section>
 <section class="editor"><nav id="tabs" class="toolbar" aria-label="Customization categories"></nav><div id="choices" class="choices"></div></section>
@@ -48,19 +48,19 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 <button class="action pink" id="download">↓ Save Picture</button><button class="action primary" id="save">✓ Save My Balloon</button><span id="message" role="status"></span></div>
 <section class="collection"><h2>My Balloon Collection <span id="count"></span></h2><div class="saved" id="saved"></div><p class="note">Saved balloons stay in this browser. Download pictures to keep them or use them elsewhere. This page is separate from your classroom parade.</p></section>
 </main>
-<script src="workshop-legacy.js"></script><script src="workshop-catalog.js"></script><script src="builder.js"></script>
+<script src="workshop-legacy.js"></script><script src="workshop-catalog.js"></script><script src="balloon-builder.js?v=20261116-fit-v2"></script>
 <script>
 'use strict';
 (()=>{
 const catalog=window.PARADE_CATALOG, $=id=>document.getElementById(id);
 const categories=[['body','Body'],['eyes','Eyes'],['noses','Noses'],['mouths','Mouths'],['hats','Hats'],['shirts','Shirts'],['shorts','Shorts'],['skirts','Skirts'],['shoes','Shoes'],['accessories','Extras']];
-const blank=()=>({eyes:1,noses:0,mouths:1,hats:0,shirts:0,shorts:0,skirts:0,shoes:0,accessories:0});
+const blank=()=>({eyes:0,noses:0,mouths:0,hats:0,shirts:0,shorts:0,skirts:0,shoes:0,accessories:0});
 let design={baseId:401,options:blank()},category='body',editing=null;
 let saved=[];try{const v=JSON.parse(localStorage.getItem('parade_standalone_balloon_designs_v1')||'[]');if(Array.isArray(v))saved=v.slice(0,60)}catch{}
 const renderTabs=()=>{$('tabs').replaceChildren(...categories.map(([key,name])=>{const b=document.createElement('button');b.className='tab'+(category===key?' selected':'');b.type='button';b.textContent=name;b.setAttribute('aria-pressed',String(category===key));b.onclick=()=>{category=key;renderTabs();renderChoices()};return b}))};
 function choice(name,src,on,handler){const b=document.createElement('button');b.type='button';b.className='option'+(on?' selected':'');if(src){const im=document.createElement('img');im.src=src;im.alt='';im.loading='lazy';b.append(im)}const title=document.createElement('b');title.textContent=name;b.append(title);b.onclick=handler;return b}
 function renderChoices(){const root=$('choices');root.replaceChildren();root.scrollTop=0;if(category==='body'){catalog.bases.forEach(base=>root.append(choice(base.name,base.path,design.baseId===base.id,()=>{design.baseId=base.id;renderChoices();renderPreview()})));return}
-root.append(choice('None','',!design.options[category],()=>{design.options[category]=0;renderChoices();renderPreview()}));
+root.append(choice(['eyes','noses','mouths'].includes(category)?'Original Face':'None','',!design.options[category],()=>{design.options[category]=0;renderChoices();renderPreview()}));
 for(const [i,part] of (catalog.parts[category]||[]).entries())root.append(choice(part.name,part.path,design.options[category]===i+1,()=>{design.options[category]=i+1;renderChoices();renderPreview()}));
 for(const [id,part] of Object.entries(catalog.extra?.[category]||{}))root.append(choice(part.name,part.path,design.options[category]===Number(id),()=>{design.options[category]=Number(id);renderChoices();renderPreview()}));
 }
@@ -68,7 +68,7 @@ function renderPreview(){const data=window.PARADE_WORKSHOP.compose(design);if(da
 window.paradeRefreshCreations=renderPreview;
 function persist(){try{localStorage.setItem('parade_standalone_balloon_designs_v1',JSON.stringify(saved))}catch{$('message').textContent='Browser storage is full. Download your picture instead.'}}
 function saveList(){$('count').textContent='('+saved.length+')';const root=$('saved');root.replaceChildren();if(!saved.length){root.textContent='Your creations will appear here.';return}for(const item of saved){const card=document.createElement('div');card.className='saved-item';const img=document.createElement('img');img.alt=item.name;img.src=item.image||'';const div=document.createElement('div');const title=document.createElement('b');title.textContent=item.name;div.append(title);const load=document.createElement('button');load.textContent='Edit';load.onclick=()=>{editing=item.id;design={baseId:item.baseId,options:{...blank(),...item.options}};$('name').value=item.name;category='body';renderTabs();renderChoices();renderPreview();window.scrollTo({top:0,behavior:'smooth'})};const del=document.createElement('button');del.textContent='Delete';del.onclick=()=>{if(!confirm('Delete '+item.name+'?'))return;saved=saved.filter(x=>x.id!==item.id);if(editing===item.id)editing=null;persist();saveList()};div.append(load,del);card.append(img,div);root.append(card)}}
-$('surprise').onclick=()=>{design.baseId=catalog.bases[Math.floor(Math.random()*catalog.bases.length)].id;for(const [key] of categories.slice(1)){const len=(catalog.parts[key]||[]).length;design.options[key]=Math.floor(Math.random()*(len+1))}if(design.options.skirts)design.options.shorts=0;renderChoices();renderPreview()};
+$('surprise').onclick=()=>{design.baseId=catalog.bases[Math.floor(Math.random()*catalog.bases.length)].id;for(const [key] of categories.slice(1)){const len=(catalog.parts[key]||[]).length;design.options[key]=Math.floor(Math.random()*(len+1))}if(design.options.skirts)design.options.shorts=0;design.options.eyes=Math.random()<.65?0:Math.ceil(Math.random()*3);design.options.noses=0;design.options.mouths=Math.random()<.7?0:1;renderChoices();renderPreview()};
 $('reset').onclick=()=>{design={baseId:401,options:blank()};editing=null;category='body';$('name').value='My Balloon';renderTabs();renderChoices();renderPreview();$('message').textContent='Ready for a new design!'};
 $('download').onclick=()=>{const src=window.PARADE_WORKSHOP.compose(design);if(!src){$('message').textContent='Art is still loading; try again.';return}const a=document.createElement('a');a.href=src;a.download=(($('name').value||'my-balloon').trim().replace(/[^a-z0-9-]+/gi,'-').slice(0,35)||'my-balloon')+'.webp';document.body.append(a);a.click();a.remove();$('message').textContent='Picture downloaded!'};
 $('save').onclick=()=>{const src=window.PARADE_WORKSHOP.compose(design);if(!src){$('message').textContent='Artwork is loading. Try Save again.';return}const name=($('name').value||'My Balloon').replace(/[^a-z0-9 -]/gi,'').trim().slice(0,26)||'My Balloon';const id=editing||String(Date.now())+Math.random().toString(36).slice(2,6);const record={id,name,baseId:design.baseId,options:{...design.options},image:src};const index=saved.findIndex(x=>x.id===id);if(index>=0)saved[index]=record;else saved.unshift(record);saved=saved.slice(0,25);editing=id;persist();saveList();$('message').textContent='Saved on this device!'};
