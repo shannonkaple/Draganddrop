@@ -131,6 +131,14 @@ function markChanged(){
 async function saveParade(session=studentSession){
  if(!session)return;
  if(session===studentSession)clearTimeout(saveTimer);
+ if(session.guest){
+  // Guest work is local only; never use a shared student slot or the cloud database.
+  session.dirty=false;
+  store.write(session);
+  const message=session.local?'Saved on this device (guest mode).':'Guest saving is unavailable in this browser.';
+  if(session===studentSession)notify(message,session.local);
+  return message;
+ }
  const message=await store.save(session);
  if(session===studentSession)notify(message);
  return message;
@@ -203,7 +211,7 @@ function showSavedParades(){
 function scene(){return SCENES.find(x=>x.id===state.scene)||SCENES[0]}
 function currentColor(){return COLORS.find(x=>x[0]===state.color)?.[1]||'#a83d5b'}
 function renderAll(){renderProgress();renderLineup();renderGallery();renderDecorate();renderScene();renderPreview();renderTabs();}
-function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
+function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
 const customSrcCache=new Map();
 const savedImages=new Map();
 async function restoreImages(session){
@@ -371,6 +379,30 @@ function submitPortal(number){const num=Number(number);if(!Number.isInteger(num)
  // Retain the original save key so existing Wyckoff student parades reopen.
  const saveClass=portalState.teacher==='Wyckoff'?'Wycoff':portalState.teacher;
  $('classCode').value=saveClass.toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,12);$('studentNumber').value=String(num);document.querySelectorAll('.grade-pick').forEach(el=>el.classList.toggle('selected',Number(el.dataset.grade)===portalState.grade));enterStudent();}
+// Visitors can enter without choosing a grade, teacher, or student number.
+// A separate browser-only save slot keeps guests away from classroom cloud records.
+function enterGuest(){
+ const run=++entryRun;
+ clearTimeout(saveTimer);
+ const identity={classCode:'GUEST',number:0,grade:2};
+ const key='parade_2026_GUEST_2_0';
+ let saved=null;
+ try{saved=JSON.parse(localStorage.getItem(key)||'null')}catch{}
+ const session={identity,key,draft:sanitizeDraft(saved,2),version:null,dirty:false,local:!!saved,sequence:0,guest:true};
+ if(run!==entryRun)return;
+ portalState.grade=2;
+ portalState.teacher='';
+ portalState.number=null;
+ studentSession=session;
+ Object.assign(state,identity,session.draft,{activePiece:null});
+ $('onboarding').classList.add('hidden');
+ $('studentModal').classList.add('hidden');
+ $('app').inert=false;
+ switchTab('balloons');
+ renderAll();
+ notify('Guest mode — parades save on this device only.');
+ restoreImages(session);
+}
 // Decorate the grade menu with the teacher-provided illustrated NYC scenes.
 function decorateGameMenus(){
  const artworks=window.PARADE_SCENE_ASSETS||{};
@@ -384,6 +416,7 @@ function decorateGameMenus(){
 }
 decorateGameMenus();
 document.querySelectorAll('[data-portal-grade]').forEach(b=>b.addEventListener('click',()=>{portalState.grade=Number(b.dataset.portalGrade);portalState.teacher='';showPortal('teacher')}));
+$('guestModeBtn').addEventListener('click',enterGuest);
 document.querySelectorAll('[data-go-back]').forEach(b=>b.addEventListener('click',()=>showPortal(b.dataset.goBack)));
 $('numberEnter').addEventListener('click',()=>submitPortal($('numberOther').value));$('numberOther').addEventListener('keydown',e=>{if(e.key==='Enter')submitPortal(e.target.value)});
 // Original standalone modal is retained for compatibility but the full-screen entrance replaces it.
