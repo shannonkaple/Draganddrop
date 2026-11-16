@@ -269,7 +269,7 @@
       controls();
       endCard.classList.remove('hidden');
       showMessage('Hooray! Your parade is complete.');
-      el('replayBtn').focus({ preventScroll: true });
+      el('endSaveBtn').focus({ preventScroll: true });
       return;
     }
     frame = requestAnimationFrame(advance);
@@ -293,6 +293,7 @@
     backdrop.alt = scene.name + ' parade route';
     el('movieLocation').textContent = scene.name;
     endCard.classList.add('hidden');
+    el('endSaveStatus').textContent = '';
     el('timelineFill').style.width = '0%';
     if (lastTrack !== track.src || audio.getAttribute('src') !== track.src) {
       lastTrack = track.src;
@@ -361,5 +362,5 @@
     if (event.key === 'Escape' && playing && !document.fullscreenElement) close();
   });
   new ResizeObserver(resize).observe(view);
-  window.PARADE_PLAYER = { start, close, get active() { return Boolean(playing); } };
+  window.PARADE_PLAYER = { start, close, get active() { return Boolean(playing); }, get finished() { return Boolean(playing?.done); } };
 })();

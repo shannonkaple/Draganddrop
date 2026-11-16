@@ -69,9 +69,18 @@ const MUSIC=[
 ];
 const MAX={1:25,2:25};
 const $=id=>document.getElementById(id);
-let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,color:'cranberry',music:'march',activePiece:null};
+let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,color:'cranberry',music:'march',activePiece:null,paradeId:null,savedParades:[]};
 let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
-function draft(){return {pieces:[...state.pieces],customPieces:[...state.customPieces],scene:state.scene,routeTour:state.routeTour,color:state.color,music:state.music};}
+function paradeSettings(){
+ return {pieces:[...state.pieces],scene:state.scene,routeTour:state.routeTour,color:state.color,music:state.music};
+}
+function draft(){
+ return {...paradeSettings(),customPieces:state.customPieces,paradeId:state.paradeId,savedParades:state.savedParades};
+}
+function sanitizeSettings(v,validIds,grade){
+ return {pieces:Array.isArray(v.pieces)?v.pieces.map(Number).filter(id=>validIds.has(id)).slice(0,MAX[grade]):[],scene:SCENES.some(x=>x.id===v.scene)?v.scene:SCENES[0].id,routeTour:false,color:COLORS.some(x=>x[0]===v.color)?v.color:'cranberry',music:MUSIC.some(x=>x.id===v.music)?v.music:'march'};
+}
+function validParadeId(id){return typeof id==='string'&&/^[a-f0-9-]{36}$/.test(id);}
 function sanitizeDraft(input,grade=state.grade){
  const v=input&&typeof input==='object'?input:{};
  const customs=Array.isArray(v.customPieces)?v.customPieces.slice(0,50).map(c=>{
@@ -87,7 +96,11 @@ function sanitizeDraft(input,grade=state.grade){
   return {id:c.id,baseId:c.baseId,name,hue:Math.max(0,Math.min(330,Number(c.hue)||0)),strokes:Array.isArray(c.strokes)?c.strokes.slice(0,6).map(st=>({color:['#ffffff','#f8c648','#f66b75','#659bd1','#44b288','#734aa9','#21252d'].includes(st.color)?st.color:'#f66b75',pts:Array.isArray(st.pts)?st.pts.slice(0,40).map(pt=>[Number(pt[0])||0,Number(pt[1])||0]):[]})):[ ]};
  }).filter(Boolean):[];
  const validIds=new Set([...PIECES.map(x=>x.id),...customs.map(x=>x.id)]);
- return {pieces:Array.isArray(v.pieces)?v.pieces.map(Number).filter(id=>validIds.has(id)).slice(0,MAX[grade]):[],customPieces:customs,scene:SCENES.some(x=>x.id===v.scene)?v.scene:SCENES[0].id,routeTour:false,color:COLORS.some(x=>x[0]===v.color)?v.color:'cranberry',music:MUSIC.some(x=>x.id===v.music)?v.music:'march'};
+ const savedParades=(Array.isArray(v.savedParades)?v.savedParades:[])
+  .filter(copy=>copy&&validParadeId(copy.id))
+  .map(copy=>({id:copy.id,...sanitizeSettings(copy,validIds,grade)}))
+  .filter(copy=>copy.pieces.length);
+ return {...sanitizeSettings(v,validIds,grade),customPieces:customs,paradeId:validParadeId(v.paradeId)?v.paradeId:null,savedParades};
 }
 const store=window.createParadeStore(SUPABASE_URL,SUPABASE_KEY,(value,grade)=>sanitizeDraft(value,grade));
 function notify(message,good=true){$('saveStatus').textContent=message;$('saveStatus').style.color=good?'#6d8b6c':'#b75462';}
@@ -105,6 +118,72 @@ async function saveParade(session=studentSession){
  if(session===studentSession)clearTimeout(saveTimer);
  const message=await store.save(session);
  if(session===studentSession)notify(message);
+ return message;
+}
+function archiveCurrent(){
+ if(!state.pieces.length)return;
+ state.paradeId??=crypto.randomUUID();
+ const copy={id:state.paradeId,...paradeSettings()};
+ const index=state.savedParades.findIndex(saved=>saved.id===copy.id);
+ const saved=[...state.savedParades];
+ if(index<0)saved.push(copy);
+ else if(JSON.stringify(saved[index])===JSON.stringify(copy))return;
+ else saved[index]=copy;
+ state.savedParades=saved;
+ markChanged();
+}
+async function saveCopy(){
+ const session=studentSession;
+ if(!session)return false;
+ archiveCurrent();
+ const sequence=session.sequence;
+ const message=await saveParade(session);
+ if(session!==studentSession||sequence!==session.sequence)return false;
+ $('endSaveStatus').textContent=message;
+ return session.local||!session.dirty;
+}
+async function finishParade(startNew){
+ const saveButton=$('endSaveBtn'),newButton=$('newParadeBtn');
+ if(saveButton.disabled)return;
+ saveButton.disabled=newButton.disabled=true;
+ $('endSaveStatus').textContent='Saving…';
+ const session=studentSession;
+ try {
+  const saved=await saveCopy();
+  if(!startNew||!saved||session!==studentSession||!window.PARADE_PLAYER?.finished)return;
+  window.PARADE_PLAYER.close();
+  Object.assign(state,{pieces:[],scene:SCENES[0].id,color:COLORS[0][0],music:MUSIC[0].id,activePiece:null,paradeId:null});
+  markChanged();
+  switchTab('balloons');
+  renderAll();
+  $('realGallery').scrollLeft=0;
+  $('newGallery').scrollLeft=0;
+  document.querySelector('[data-tab="balloons"]').focus({preventScroll:true});
+ } finally {
+  saveButton.disabled=newButton.disabled=false;
+ }
+}
+function showSavedParades(){
+ const list=$('savedParadeList');
+ list.replaceChildren();
+ $('savedParadeEmpty').classList.toggle('hidden',state.savedParades.length>0);
+ state.savedParades.forEach((copy,index)=>{
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='light-btn';
+  button.textContent='Parade '+(index+1)+' · '+copy.pieces.length+' '+(copy.pieces.length===1?'piece':'pieces');
+  button.onclick=()=>{
+   if(copy.id!==state.paradeId)archiveCurrent();
+   const {id,...settings}=copy;
+   Object.assign(state,settings,{paradeId:id,activePiece:null});
+   markChanged();
+   switchTab('balloons');
+   renderAll();
+   $('savedParadesDialog').close();
+  };
+  list.append(button);
+ });
+ $('savedParadesDialog').showModal();
 }
 function scene(){return SCENES.find(x=>x.id===state.scene)||SCENES[0]}
 function currentColor(){return COLORS.find(x=>x[0]===state.color)?.[1]||'#a83d5b'}
@@ -242,7 +321,7 @@ for(const button of document.querySelectorAll('[data-scroll-gallery]')){
 // All controls remain operable with keyboard and trackpad. Avoid any touch-only interactions.
 document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
 document.querySelectorAll('.grade-pick').forEach(el=>el.addEventListener('click',()=>{state.grade=Number(el.dataset.grade);document.querySelectorAll('.grade-pick').forEach(e=>e.classList.toggle('selected',e===el))}));
-$('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('homeBtn').addEventListener('click',openStudent);$('saveBtn').addEventListener('click',()=>saveParade());$('playBtn').addEventListener('click',startMovie);
+$('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('homeBtn').addEventListener('click',openStudent);$('saveBtn').addEventListener('click',saveCopy);$('endSaveBtn').addEventListener('click',()=>finishParade(false));$('newParadeBtn').addEventListener('click',()=>finishParade(true));$('savedParadesBtn').addEventListener('click',showSavedParades);$('playBtn').addEventListener('click',startMovie);
 $('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...GALLERY_PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));$('helpClose').addEventListener('click',()=>$('helpModal').classList.add('hidden'));$('helpGotIt').addEventListener('click',()=>$('helpModal').classList.add('hidden'));
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.PARADE_PLAYER?.active)$('helpModal').classList.add('hidden');});
 // Teachers can bookmark a class-specific link such as ?class=JOHNSON&grade=1.

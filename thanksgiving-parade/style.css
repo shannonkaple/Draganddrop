@@ -573,3 +573,14 @@ html.embedded .workshop-art canvas {
   .step-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
   .stage{max-height:250px}
 }
+
+.saved-parades-dialog{
+  width:min(380px,92vw);max-height:80dvh;padding:18px;border:3px solid #efc0bb;
+  border-radius:18px;color:#713951;background:#fff8ef;box-shadow:0 6px 24px #492c4a66;
+}
+.saved-parades-dialog::backdrop{background:#38203799}
+.saved-parades-dialog h2{margin:0 0 10px}
+.saved-parade-list{display:grid;gap:7px;margin-bottom:12px}
+.end-parade-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+#movieCelebration .end-parade-actions button{padding:8px 12px;min-height:36px}
+#endSaveStatus{font-size:12px;margin:8px 0 2px;max-width:280px;min-height:1em}

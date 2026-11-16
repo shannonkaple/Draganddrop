@@ -6,13 +6,13 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>My Thanksgiving Parade | Balloon Parade Studio</title>
 <link rel="icon" href="assets/ui/main-title.webp" type="image/webp">
-<link rel="stylesheet" href="style.css?v=20261116-compact2">
+<link rel="stylesheet" href="style.css?v=20261116-saved-parades">
 </head>
 <body>
 <div id="app" class="app" inert>
 <header class="topbar">
   <div class="brand"><img src="assets/ui/main-title.webp" class="game-brand-image" alt="My Thanksgiving Parade" decoding="async"><h1 class="sr-only">My Thanksgiving Parade Studio</h1></div>
-  <div class="top-actions"><button type="button" class="home-nav game-icon-btn" id="homeBtn" title="Return to the welcome screen" aria-label="Home"><img src="assets/ui/home.webp" alt="" aria-hidden="true"><span class="sr-only">Home</span></button><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">❔ Help</button><button type="button" class="outline-btn" id="changeStudentBtn">👩‍🏫 Change Student</button><button type="button" class="save-btn" id="saveBtn"><img class="control-graphic" src="assets/ui/save-control.webp" alt="" aria-hidden="true"><span>Save Parade</span></button></div>
+  <div class="top-actions"><button type="button" class="home-nav game-icon-btn" id="homeBtn" title="Return to the welcome screen" aria-label="Home"><img src="assets/ui/home.webp" alt="" aria-hidden="true"><span class="sr-only">Home</span></button><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">❔ Help</button><button type="button" class="outline-btn" id="changeStudentBtn">👩‍🏫 Change Student</button><button type="button" class="outline-btn" id="savedParadesBtn">Saved Parades</button><button type="button" class="save-btn" id="saveBtn"><img class="control-graphic" src="assets/ui/save-control.webp" alt="" aria-hidden="true"><span>Save Parade</span></button></div>
 </header>
 <div class="body-layout">
  <aside class="sidebar">
@@ -111,6 +111,12 @@
  </div>
 </div>
 
+<dialog id="savedParadesDialog" class="saved-parades-dialog" aria-labelledby="savedParadesTitle">
+ <h2 id="savedParadesTitle">Saved Parades</h2>
+ <p id="savedParadeEmpty">Save a parade to see it here.</p>
+ <div id="savedParadeList" class="saved-parade-list"></div>
+ <form method="dialog"><button type="submit" class="light-btn">Close</button></form>
+</dialog>
 <div class="overlay hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal-card help-card"><button type="button" class="modal-close" id="helpClose" aria-label="Close help">×</button><div class="eyebrow">HOW TO PLAY</div><h2 id="helpTitle">You're the parade director!</h2><ol><li><b>Choose</b> your favorite balloons and floats to make a giant Thanksgiving parade.</li><li><b>Arrange</b> your parade. Use the arrows to pick who goes first, second, and last.</li><li><b>Decorate</b> with a New York route, music, and your favorite color.</li><li><b>Save</b> with your classroom code and student number, then press <b>WATCH MY PARADE</b>.</li></ol><p>Press Escape or use the back button to leave the parade movie.</p><button type="button" class="start-btn" id="helpGotIt">I'M READY!</button></div></div>
 <div class="cinema hidden" id="cinema" aria-label="Your parade movie">
  <header class="cinema-top">
@@ -128,7 +134,13 @@
      <img class="movie-background" id="movieBackground" alt="">
      <canvas id="movieStage" aria-label="Your balloons and floats moving along the parade route"></canvas>
    </div>
-   <div class="movie-celebration hidden" id="movieCelebration"><img src="assets/ui/celebration.webp" alt=""><h2>YOU DID IT!</h2></div>
+   <div class="movie-celebration hidden" id="movieCelebration"><img src="assets/ui/celebration.webp" alt=""><h2>YOU DID IT!</h2>
+     <div class="end-parade-actions">
+       <button type="button" class="save-btn" id="endSaveBtn">Save Parade</button>
+       <button type="button" class="light-btn" id="newParadeBtn">NEW PARADE</button>
+     </div>
+     <p id="endSaveStatus" role="status"></p>
+   </div>
  </div>
  <footer class="cinema-bottom">
    <div class="movie-status"><span id="nowPlaying" aria-live="polite">The parade is beginning!</span></div>
@@ -156,11 +168,11 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261116-compact" defer></script>
+<script src="app.js?v=20261116-saved-parades" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
 <script src="music-preview.js?v=20261116-preview1" defer></script>
-<script src="parade-player.js?v=20261116-studio" defer></script>
+<script src="parade-player.js?v=20261116-saved-parades" defer></script>
 </body>
 </html>
