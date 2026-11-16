@@ -352,3 +352,6 @@ body.workshop-mode .designer-row p{margin:0 4px 7px!important}
 .top-actions .home-nav.game-icon-btn img{display:block;width:100%;height:auto;aspect-ratio:1962 / 802;object-fit:contain;filter:drop-shadow(0 4px 3px #562d5688)}
 .top-actions .home-nav.game-icon-btn:hover{transform:translateY(-2px) scale(1.03)}
 @media(max-width:800px){.top-actions .home-nav.game-icon-btn{width:81px}}
+
+/* Saved custom balloons: clear, keyboard-operable delete control */
+.created-delete{font-family:'VAG'!important;font-size:11px!important;min-height:34px!important;margin-top:9px!important;border:2px solid #ffefdf!important;border-radius:12px!important;background:linear-gradient(#fff2e8,#f5bac3)!important;color:#74314b!important;box-shadow:0 3px 0 #c9899a!important;cursor:pointer!important}.created-delete:hover,.created-delete:focus-visible{filter:saturate(1.15);outline:2px solid #8d507a;outline-offset:2px}
