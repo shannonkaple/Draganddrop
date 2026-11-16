@@ -52,16 +52,30 @@
     stopPreview(false);
     active=index;
     const token=++requestToken;
-    status.textContent='Loading full song: '+track.name+'…';
+    // Begin in the click's user gesture, so school Chromebooks permit sound.
+    // Once the complete recording is ready, switch without restarting it.
+    const cached=window.PARADE_FULL_MUSIC?.peek(track.src);
+    audio.src=cached||track.src;
+    audio.loop=false;
+    audio.load();
+    status.textContent=cached?'Starting '+track.name+'…':'Starting '+track.name+' while the full song loads…';
     refresh();
     try{
-      const src=await window.PARADE_FULL_MUSIC.load(track.src);
-      if(token!==requestToken)return;
-      audio.src=src;
-      audio.loop=false;
-      audio.load();
       await audio.play();
       if(token!==requestToken)return;
+      if(!cached){
+        const full=await window.PARADE_FULL_MUSIC.load(track.src);
+        if(token!==requestToken)return;
+        const seconds=Number.isFinite(audio.currentTime)?audio.currentTime:0;
+        audio.src=full;
+        audio.loop=false;
+        audio.addEventListener('loadedmetadata',()=>{
+          if(token===requestToken&&Number.isFinite(audio.duration))
+            audio.currentTime=Math.min(seconds,Math.max(0,audio.duration-.1));
+        },{once:true});
+        await audio.play();
+        if(token!==requestToken)return;
+      }
       status.textContent='Now playing the full song: '+track.name+'. Press STOP to finish.';
     }catch(error){
       if(token!==requestToken)return;
