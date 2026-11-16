@@ -129,7 +129,7 @@
     });
   }
   function categoryTabs(){const root=$('workshopTabs');if(!root)return;root.innerHTML='';
-    CATEGORIES.forEach(({id,name})=>{const b=document.createElement('button');b.type='button';b.className='workshop-tab'+(id===active?' chosen':'');b.textContent=name;b.onclick=()=>{active=id;categoryTabs();options()};root.appendChild(b)})
+    CATEGORIES.forEach(({id,name})=>{const b=document.createElement('button');b.type='button';b.className='workshop-tab'+(id===active?' chosen':'');const icons={eyes:'👀',noses:'👃',mouths:'😁',hats:'👒',shirts:'👕',shorts:'🩳',skirts:'👗',shoes:'👟',accessories:'🎁',costumes:'🎭'};b.textContent=icons[id]+' '+name;b.onclick=()=>{active=id;categoryTabs();options()};root.appendChild(b)})
   }
   function options(){const root=$('workshopOptions');if(!root)return;root.innerHTML='';
     const category=CATEGORIES.find(c=>c.id===active);if(!category)return;
