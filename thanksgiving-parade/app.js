@@ -234,7 +234,69 @@ function customSource(c){
  const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);customSrcCache.set(signature,url);return url;
 }
 function getPiece(id){const standard=PIECES.find(p=>p.id===id);if(standard)return standard;const c=state.customPieces.find(p=>p.id===id);return c?{id:c.id,name:c.name,type:'balloon',src:customSource(c),custom:true}:null;}
-function renderLineup(){const el=$('lineup');const scrollLeft=el.scrollLeft;el.innerHTML='';const max=MAX[state.grade];const visible=Math.min(max,Math.max(5,state.pieces.length+1));el.style.gridTemplateColumns=`repeat(${visible},minmax(var(--slot-min,77px),1fr))`;for(let i=0;i<visible;i++){const id=state.pieces[i];const piece=getPiece(id);const slot=document.createElement('div');slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');slot.setAttribute('role','listitem');slot.innerHTML=`<span class="slot-number">${i+1}</span>`;if(piece){slot.draggable=true;slot.innerHTML+=`<img ${piece.src?'src="'+piece.src+'"':''} alt="${piece.name}" loading="lazy"><span class="slot-label" title="${piece.name.replaceAll('"','')}">${piece.name}</span><div class="slot-controls"><button type="button" data-action="left" aria-label="Move ${piece.name} left" ${i===0?'disabled':''}>◀</button><button type="button" data-action="right" aria-label="Move ${piece.name} right" ${i===state.pieces.length-1?'disabled':''}>▶</button><button type="button" data-action="remove" aria-label="Remove ${piece.name}">×</button></div>`;slot.addEventListener('click',e=>{if(e.target.closest('button')){const act=e.target.dataset.action;if(act==='remove'){state.pieces.splice(i,1);state.activePiece=null;}else if(act==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1;}else if(act==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1;}markChanged();renderAll()}else{state.activePiece=i;renderLineup()}});slot.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',String(i))});slot.addEventListener('dragover',e=>e.preventDefault());slot.addEventListener('drop',e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/plain'));if(Number.isInteger(from)&&from>=0&&from<state.pieces.length&&from!==i&&i<state.pieces.length){const [x]=state.pieces.splice(from,1);state.pieces.splice(i,0,x);markChanged();renderAll()}})}else{slot.innerHTML+='<span class="slot-empty">+</span><span class="slot-empty-text">EMPTY</span>';slot.addEventListener('click',()=>switchTab('balloons'))}el.appendChild(slot)}el.scrollLeft=scrollLeft}
+function renderLineup(){
+ const el=$('lineup'),previousScroll=el.scrollLeft;
+ const max=MAX[state.grade];
+ // Show seven full-size slots before scrolling; never shrink the move/delete controls.
+ const visible=Math.min(max,Math.max(7,state.pieces.length+1));
+ el.style.gridTemplateColumns='repeat('+visible+',minmax(var(--slot-min,154px),1fr))';
+ const leftIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 6-6m-6 6 6 6"/></svg>';
+ const rightIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>';
+ const trashIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v6m4-6v6"/></svg>';
+ const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+ const cards=[];
+ for(let i=0;i<visible;i++){
+  const id=state.pieces[i],piece=getPiece(id);
+  const slot=document.createElement('div');
+  slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');
+  slot.setAttribute('role','listitem');
+  if(piece){
+   const safeName=escapeHTML(piece.name);
+   slot.draggable=true;
+   slot.innerHTML='<span class="slot-number">'+(i+1)+'</span>'
+    +'<div class="slot-art"><img '+(piece.src?'src="'+escapeHTML(piece.src)+'"':'')+' alt="'+safeName+'" loading="lazy"></div>'
+    +'<span class="slot-label" title="'+safeName+'">'+safeName+'</span>'
+    +'<div class="slot-controls" role="group" aria-label="Arrange '+safeName+'">'
+    +'<button type="button" class="slot-move" data-action="left" title="Move left" aria-label="Move '+safeName+' left" '+(i===0?'disabled':'')+'>'+leftIcon+'</button>'
+    +'<button type="button" class="slot-move" data-action="right" title="Move right" aria-label="Move '+safeName+' right" '+(i===state.pieces.length-1?'disabled':'')+'>'+rightIcon+'</button>'
+    +'<button type="button" class="slot-remove" data-action="remove" title="Delete from parade" aria-label="Delete '+safeName+' from parade">'+trashIcon+'<span>DELETE</span></button></div>';
+   slot.addEventListener('click',event=>{
+    const button=event.target.closest('button[data-action]');
+    if(!button){state.activePiece=i;renderLineup();return;}
+    const action=button.dataset.action;
+    if(action==='remove'){state.pieces.splice(i,1);state.activePiece=null}
+    else if(action==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1}
+    else if(action==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1}
+    else return;
+    markChanged();renderAll();
+   });
+   slot.addEventListener('dragstart',event=>event.dataTransfer.setData('text/plain',String(i)));
+   slot.addEventListener('dragover',event=>event.preventDefault());
+   slot.addEventListener('drop',event=>{
+    event.preventDefault();
+    const from=Number(event.dataTransfer.getData('text/plain'));
+    if(Number.isInteger(from)&&from>=0&&from<state.pieces.length&&from!==i&&i<state.pieces.length){
+     const [item]=state.pieces.splice(from,1);state.pieces.splice(i,0,item);
+     state.activePiece=i;markChanged();renderAll();
+    }
+   });
+  }else{
+   slot.innerHTML='<span class="slot-number">'+(i+1)+'</span><span class="slot-empty">＋</span><span class="slot-empty-text">ADD NEXT</span>';
+   slot.setAttribute('aria-label','Empty parade spot '+(i+1)+'. Choose a balloon.');
+   slot.addEventListener('click',()=>switchTab('balloons'));
+  }
+  cards.push(slot);
+ }
+ el.replaceChildren(...cards);
+ el.scrollLeft=previousScroll;
+ // Keep an actively moved item visible as the horizontal lineup grows.
+ const active=state.activePiece;
+ if(Number.isInteger(active)&&active>=0&&active<cards.length){
+  const item=cards[active];
+  if(item.offsetLeft+item.offsetWidth>el.scrollLeft+el.clientWidth)el.scrollLeft=item.offsetLeft+item.offsetWidth-el.clientWidth+12;
+  else if(item.offsetLeft<el.scrollLeft)el.scrollLeft=Math.max(0,item.offsetLeft-12);
+ }
+}
 const newBalloons=GALLERY_PIECES.filter(piece=>piece.original);
 const featuredBalloons=[37,59,60,61,62,67,68,69];
 const newChoices=[
@@ -287,6 +349,7 @@ function renderTabs(){
  $('floatShelf').classList.toggle('hidden',tab!=='floats');
  $('bandShelf').classList.toggle('hidden',tab!=='bands');
  $('decoratePanel').classList.toggle('hidden',tab!=='decorate');
+ const label=$('libraryChoiceLabel');if(label)label.textContent=({balloons:'1 · PICK YOUR BALLOONS',floats:'1 · PICK YOUR FLOATS',bands:'1 · PICK A MARCHING BAND',decorate:'1 · PICK SCENES & MUSIC'})[tab]||'1 · PICK YOUR PARADE STARS';
 }
 function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge;$('stageHeading').textContent=state.grade===1?'Your magical NYC parade':'Your own NYC parade'}
 function renderPreview(){const g=$('stageCharacters');g.innerHTML='';$('stageEmpty').classList.toggle('hidden',state.pieces.length>0);let items=state.pieces.slice(0,2);items.forEach((id,i)=>{const p=getPiece(id);if(!p?.src)return;if(p.members){const group=document.createElement('div');group.className='stage-band';group.style.left=(i*50)+'%';group.style.bottom=(scene().id==='storybook'?7.5:11)+'%';group.setAttribute('role','img');group.setAttribute('aria-label',p.name);for(const src of p.members){const musician=document.createElement('img');musician.src=src;musician.alt='';group.append(musician)}g.append(group);return}const el=document.createElement('img');el.src=p.src;el.alt=p.name;el.style.cssText=`position:absolute;bottom:${p.id===36?'-21%':p.type==='float'?'-8%':'18%'};left:${i===0?0:50}%;width:${p.type==='float'?'55%':'47%'};height:${p.type==='float'?'93%':'77%'};object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #33253675);${p.type==='float'?'':`animation:bob ${2.5+i*.31}s ease-in-out infinite;`}`;el.loading='lazy';g.appendChild(el)});$('previewCaption').textContent=state.pieces.length?`${state.pieces.length} parade stars are ready for the big day!`:'Make your lineup, then watch it come to life.'}
