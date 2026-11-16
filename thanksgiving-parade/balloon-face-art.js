@@ -24,7 +24,7 @@
  }
  const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
  function ellipse(ctx,x,y,rx,ry,fill){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill()}
- function line(ctx,pts,color,width=2){ctx.beginPath();ctx.moveTo(...pts[0]);for(let i=1;i<pts.length;i++)ctx.quadraticCurveTo(...pts[i]);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.stroke()}
+ function line(ctx,pts,color,width=2){ctx.beginPath();ctx.moveTo(...pts[0]);if(pts.length===3)ctx.quadraticCurveTo(pts[1][0],pts[1][1],pts[2][0],pts[2][1]);else for(let i=1;i<pts.length;i++)ctx.lineTo(...pts[i]);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.stroke()}
  function sample(ctx,x,y){try{const d=ctx.getImageData(Math.round(x*1.5),Math.round(y*1.5),1,1).data;return d[3]>175?[d[0],d[1],d[2]]:null}catch{return null}}
  function tone(ctx,x,y){
   const candidates=[[x-48,y+14],[x-35,y+28],[x+33,y+24],[x-46,y-5]];
