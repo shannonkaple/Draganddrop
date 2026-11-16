@@ -1,36 +1,25 @@
-# My Thanksgiving Parade Studio
+# Thanksgiving Parade Studio
 
-A standalone, Chromebook-friendly Thanksgiving parade design website for elementary students. Built without Replit.
+First- and second-grade students choose a grade, teacher, and student number. They can add official balloons or street floats, arrange the lineup with the arrow buttons, and choose a New York scene and instrumental track. The same lineup limit applies to both grades.
 
-## Classroom instructions
+The workshop saves to **My Balloons**. A saved design enters the parade when a student selects **Add to Parade**. Students can reopen an editable design, replace or remove an individual piece, and delete a creation with confirmation.
 
-1. Read *Balloons Over Broadway* (Melissa Sweet), then introduce students to the parade.
-2. Give each homeroom a distinct classroom code (for example JOHNSON, TOLER, or BASSO). All students in a homeroom use the same code, and each student uses their assigned number (1–99).
-3. First grade: five parade pieces. Second grade: ten pieces.
-4. Students select from 27 balloon/balloonicle illustrations and 9 floats/parade units from the teacher's original uploaded SVG collection, arrange their order, select a New York route scene, choose music and a banner color, then press **WATCH MY PARADE**.
-5. The Save Parade button stores each classroom code + grade + student number combination online in Supabase, with a local browser backup when connectivity is unavailable.
+## Published entry points
 
-## Classroom-specific links
+- [Parade Studio](https://shannonkaple.github.io/Draganddrop/thanksgiving-parade/)
+- [Embedded mode](https://shannonkaple.github.io/Draganddrop/thanksgiving-parade/?embed=1)
+- [STEM Classroom Screen](https://stem-classroom-screen.pages.dev/), under Canva → Thanksgiving Parade
 
-You can preselect the class and grade using URL parameters after publishing, e.g. `?class=JOHNSON&grade=1` or `?class=TOLER&grade=2`. Students then need only type their student number.
+## Assets and code
 
-## Files
+- `workshop-catalog.js` records the ten individual characters and their fitting coordinates, independently rendered accessory PNGs, artwork variants and coordinated costume sets.
+- `workshop-legacy.js` keeps the original numbered forms and artwork available to existing saved recipes. Modern recipes use base IDs 401–410.
+- `parade-player.js` uses the newer Storybook Parade scene and the four original NYC paintings, scene-specific street coordinates, animated balloon tethers and handlers, and a shared playback timeline.
+- `assets/music/` contains 28.5-second classroom loops from the four uploaded scores, four original instrumental fallback loops, and the full uploaded audio in its original numbered segments.
+- The site uses the original Homebody Club and VAG Rounded font files. Keep the applicable font web licenses with school deployment records.
 
-- `index.html`: browser interface
-- `style.css`: responsive styling
-- `app.js`: game logic, scene transitions, music synthesis, and cloud saving
-- `bundles/*.js`: optimized standalone illustrations and New York scene assets (no external CDN required)
+## Student saves
 
-The artwork is embedded in individual image data URLs at build time, and remains individually selectable and rendered on transparent backgrounds. The full original SVG art stays with the teacher's ZIP backup.
+The existing Supabase project stores lineup order, scene, song and editable recipes under the original grade, classroom and student number. The Chromebook also keeps a local draft and a high-resolution image of each custom balloon. If the local and online versions conflict, the app retains both and alerts the student. An online recipe can be rendered again when opened on another device.
 
-## Privacy
-
-Projects do not collect names, emails, or student accounts. Only a teacher-selected classroom code, grade number, numbered seat/student ID, and parade selections are stored. The class code is an organizational label, **not** a password; do not use student real names, confidential identifiers, or personal information in the code or student number. This is a classroom creative activity, not a private student record system.
-
-## Hosting
-
-Static HTML/CSS/JS website. Can be hosted on GitHub Pages, Cloudflare Pages, or any static web host; no Node server is required. GitHub source is in `shannonkaple/Draganddrop/thanksgiving-parade`.
-
-## Rights
-
-Uses classroom-provided parade asset artwork and includes characters/trademarks belonging to their respective rights holders. It is an unofficial classroom learning project, not affiliated with or endorsed by Macy's or those rights holders. The original embedded images should not be redistributed commercially.
+Classroom and student numbers are pseudonymous selection labels. The existing cloud service does not authenticate the student selected on the entrance screen. Use classroom-assigned numbers and keep names and other personal information out of designs.

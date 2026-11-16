@@ -5,13 +5,14 @@
 <meta name="color-scheme" content="light">
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>My Thanksgiving Parade | Balloon Parade Studio</title>
-<link rel="stylesheet" href="style.css">
+<link rel="icon" href="assets/ui/main-title.webp" type="image/webp">
+<link rel="stylesheet" href="style.css?v=20261116-studio">
 </head>
 <body>
-<div id="app" class="app">
+<div id="app" class="app" inert>
 <header class="topbar">
   <div class="brand"><img src="assets/ui/main-title.webp" class="game-brand-image" alt="My Thanksgiving Parade" decoding="async"><h1 class="sr-only">My Thanksgiving Parade Studio</h1></div>
-  <div class="top-actions"><button type="button" class="home-nav game-icon-btn" id="homeBtn" title="Return to the welcome screen" aria-label="Home"><img src="assets/ui/home.webp" alt="" aria-hidden="true"><span class="sr-only">Home</span></button><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">❔ Help</button><button type="button" class="outline-btn" id="changeStudentBtn">👩‍🏫 Change Student</button><button type="button" class="save-btn" id="saveBtn">💾 Save Parade</button></div>
+  <div class="top-actions"><button type="button" class="home-nav game-icon-btn" id="homeBtn" title="Return to the welcome screen" aria-label="Home"><img src="assets/ui/home.webp" alt="" aria-hidden="true"><span class="sr-only">Home</span></button><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">❔ Help</button><button type="button" class="outline-btn" id="changeStudentBtn">👩‍🏫 Change Student</button><button type="button" class="save-btn" id="saveBtn"><img class="control-graphic" src="assets/ui/save-control.webp" alt="" aria-hidden="true"><span>Save Parade</span></button></div>
 </header>
 <div class="body-layout">
  <aside class="sidebar">
@@ -46,11 +47,11 @@
     <div class="library-top"><div class="game-library-heading"><img id="libraryHeadingArt" class="library-heading-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="eyebrow sr-only" id="libraryEyebrow">BALLOON COLLECTION</span><h2 id="libraryTitle" class="sr-only">Choose your favorite balloons</h2></div><div class="library-tools"><span id="libraryCount">27 choices</span><button type="button" class="arrow-btn" id="galleryBack" aria-label="Previous choices">‹</button><button type="button" class="arrow-btn" id="galleryForward" aria-label="Next choices">›</button></div></div>
     <div id="gallery" class="gallery" aria-label="Official parade pieces"></div>
     <section id="createdShelf" class="created-shelf hidden" aria-label="My saved custom flying balloons">
-      <div class="created-shelf-heading"><div><span class="eyebrow">YOUR CREATIONS</span><h3>MY BALLOONS</h3><p>These are yours to keep. Choose one to add it to your parade.</p></div><button type="button" id="newCreationBtn" class="light-btn">🎨 MAKE ANOTHER</button></div>
+      <div class="created-shelf-heading"><div><h3>MY BALLOONS</h3></div><button type="button" id="newCreationBtn" class="light-btn">🎨 MAKE ANOTHER</button></div>
       <div id="myCreations" class="created-cards" role="list"></div>
     </section>
     <div id="designPanel" class="design-panel hidden" aria-label="Design your own flying balloon">
-      <div class="designer-row"><div><img class="workshop-header-art" src="assets/ui/dress-up.webp" alt="Dress Up"><b class="designer-heading sr-only">FLYING BALLOON DRESS-UP STUDIO</b><p>Pick a flying balloon, give it a face, and dress it for the big parade!</p></div><button type="button" id="workshopDoneBtn" class="light-btn">🏠 BACK TO PARADE</button></div>
+      <div class="designer-row"><div><img class="workshop-header-art" src="assets/ui/dress-up.webp" alt="Dress Up"><b class="designer-heading sr-only">FLYING BALLOON DRESS-UP STUDIO</b><p>Pick a flying balloon, give it a face, and dress it for the big parade!</p></div><button type="button" id="workshopDoneBtn" class="light-btn"><img class="control-graphic" src="assets/ui/back-control.webp" alt="" aria-hidden="true"><span>BACK TO PARADE</span></button></div>
       <div class="workshop-layout">
         <div class="workshop-control-area">
           <h3>CHOOSE YOUR BALLOON</h3>
@@ -61,10 +62,11 @@
         </div>
         <div class="workshop-preview-area">
           <div class="workshop-preview-head"><h3>YOUR BALLOON</h3><span>FLYING LEFT</span></div>
-          <div class="workshop-art"><canvas id="workshopCanvas" width="640" height="430" aria-label="Your customized flying parade balloon"></canvas></div>
+          <div class="workshop-art"><canvas id="workshopCanvas" width="640" height="430" role="img" aria-label="Your customized flying parade balloon"></canvas></div>
           <p class="workshop-help">The pieces are designed for flying balloons. The parade adds handlers and ropes after you save.</p>
-          <label for="designName">NAME YOUR BALLOON</label><input id="designName" maxlength="26" value="My Dream Balloon" autocomplete="off" aria-label="Balloon name">
-          <div class="design-actions"><button id="workshopReset" class="light-btn" type="button">RESET OUTFIT</button><button id="saveCreation" type="button" class="play-btn">💾 SAVE TO MY BALLOONS</button></div>
+          <label for="designName">NAME YOUR BALLOON</label><input id="designName" maxlength="26" placeholder="My Balloon" autocomplete="off" aria-label="Balloon name">
+          <p id="workshopStatus" class="workshop-status" role="status"></p>
+          <div class="design-actions"><button id="workshopReset" class="light-btn" type="button">RESET OUTFIT</button><button id="saveCreation" type="button" class="play-btn"><img class="control-graphic" src="assets/ui/save-control.webp" alt="" aria-hidden="true"><span>SAVE TO MY BALLOONS</span></button></div>
         </div>
       </div>
     </div>
@@ -88,34 +90,55 @@
 <!-- Student-friendly entrance: grade → teacher → student number. -->
 <div class="overlay portal" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="portalTitle">
  <div class="portal-card">
-  <img id="portalArt" class="portal-art" src="assets/ui/choose-grade.webp" alt="Choose your grade"><div class="portal-kicker">THE LITTLE PARADE COMPANY · NYC</div>
+  <img id="portalArt" class="portal-art" src="assets/ui/choose-grade.webp" alt="Choose your grade">
   <h2 id="portalTitle" class="sr-only">Your Parade Starts Here!</h2>
   <div class="portal-progress" aria-label="Entrance progress"><span id="portalDot1" class="current">1</span><i></i><span id="portalDot2">2</span><i></i><span id="portalDot3">3</span></div>
   <section class="portal-screen" id="portalGrade">
    <p class="portal-prompt">First, choose your grade!</p>
+   <img class="portal-welcome-art" src="assets/ui/welcome.webp" alt="" aria-hidden="true">
    <div class="grade-tiles"><button type="button" data-portal-grade="1"><span class="tile-number">1</span><b>FIRST GRADE</b><small>CREATE YOUR OWN PARADE</small></button><button type="button" data-portal-grade="2"><span class="tile-number">2</span><b>SECOND GRADE</b><small>CREATE YOUR OWN PARADE</small></button></div>
   </section>
   <section class="portal-screen hidden" id="portalTeacher">
    <p class="portal-prompt">Who is your teacher?</p>
    <div class="teacher-grid" id="teacherChoices"></div>
-   <button type="button" class="portal-back" data-go-back="grade">← Change grade</button>
+   <button type="button" class="portal-back" data-go-back="grade"><img class="control-graphic" src="assets/ui/back-control.webp" alt="" aria-hidden="true"><span>Change grade</span></button>
   </section>
   <section class="portal-screen hidden" id="portalNumber">
    <p class="portal-prompt">What's your student number?</p><div class="portal-summary" id="portalSummary"></div>
    <div class="number-grid" id="numberChoices"></div>
    <div class="number-other"><label for="numberOther">Or type another number (1–99)</label><input id="numberOther" type="number" min="1" max="99" inputmode="numeric" placeholder="Student number"><button type="button" id="numberEnter" class="save-btn">LET'S GO! →</button></div>
    <div id="portalError" class="form-error" role="alert"></div>
-   <button type="button" class="portal-back" data-go-back="teacher">← Change teacher</button>
+   <button type="button" class="portal-back" data-go-back="teacher"><img class="control-graphic" src="assets/ui/back-control.webp" alt="" aria-hidden="true"><span>Change teacher</span></button>
   </section>
-  <div class="portal-footer">Choose · Create · Celebrate!</div>
+
  </div>
 </div>
 
 <div class="overlay hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="modal-card help-card"><button type="button" class="modal-close" id="helpClose" aria-label="Close help">×</button><div class="eyebrow">HOW TO PLAY</div><h2 id="helpTitle">You're the parade director!</h2><ol><li><b>Choose</b> your favorite balloons and floats to make a giant Thanksgiving parade.</li><li><b>Arrange</b> your parade. Use the arrows to pick who goes first, second, and last.</li><li><b>Decorate</b> with a New York route, music, and your favorite color.</li><li><b>Save</b> with your classroom code and student number, then press <b>WATCH MY PARADE</b>.</li></ol><p>Press Escape or use the back button to leave the parade movie.</p><button type="button" class="start-btn" id="helpGotIt">I'M READY!</button></div></div>
 <div class="cinema hidden" id="cinema" aria-label="Your parade movie">
- <div class="cinema-top"><div class="cinema-brand">★ YOUR THANKSGIVING PARADE <span id="movieSubtitle">New York City</span></div><div class="cinema-controls"><button type="button" id="soundBtn">♫ Sound On</button><button type="button" id="playMovieBtn" class="movie-play" aria-label="Play or resume parade" title="Play or resume parade">▶️ Play</button><button type="button" id="pauseBtn" class="movie-pause" aria-label="Pause parade" title="Pause parade">⏸️ Pause</button><button type="button" id="fullscreenBtn">⛶ Full Screen</button><button type="button" id="closeMovieBtn">🏠 Back to Studio</button></div></div>
- <div class="movie-scene" id="movieScene"><div class="movie-background" id="movieBackground"></div><div class="movie-crowd" aria-hidden="true"></div><div class="movie-road" aria-hidden="true"></div><div class="movie-characters" id="movieCharacters"></div><div class="movie-bottom-banner" id="movieLocation">CENTRAL PARK WEST • NEW YORK CITY</div><div class="confetti" id="confetti" aria-hidden="true"></div></div>
- <div class="cinema-bottom"><div class="movie-status"><span class="live-dot"></span><span id="nowPlaying">The parade is beginning!</span></div><div class="timeline"><div class="timeline-fill" id="timelineFill"></div></div><button type="button" id="replayBtn">🔁 Replay</button></div>
+ <header class="cinema-top">
+   <div><h2 class="cinema-brand">YOUR PARADE</h2><span id="movieLocation"></span></div>
+   <div class="cinema-controls">
+     <button type="button" id="soundBtn" aria-pressed="true"><img class="control-graphic" src="assets/ui/sound-control.webp" alt="" aria-hidden="true"><span>Sound On</span></button>
+     <button type="button" id="playMovieBtn" class="movie-play" aria-label="Resume parade"><img class="control-graphic" src="assets/ui/play-control.webp" alt="" aria-hidden="true"><span>Resume</span></button>
+     <button type="button" id="pauseBtn" class="movie-pause" aria-label="Pause parade"><img class="control-graphic" src="assets/ui/pause-control.webp" alt="" aria-hidden="true"><span>Pause</span></button>
+     <button type="button" id="fullscreenBtn"><img class="control-graphic" src="assets/ui/fullscreen-control.webp" alt="" aria-hidden="true"><span>Full Screen</span></button>
+     <button type="button" id="closeMovieBtn"><img class="control-graphic" src="assets/ui/back-control.webp" alt="" aria-hidden="true"><span>Back to Studio</span></button>
+   </div>
+ </header>
+ <div class="movie-scene" id="movieScene">
+   <div class="movie-world" id="movieWorld">
+     <img class="movie-background" id="movieBackground" alt="">
+     <canvas id="movieStage" aria-label="Your balloons and floats moving along the parade route"></canvas>
+   </div>
+   <div class="movie-celebration hidden" id="movieCelebration"><img src="assets/ui/celebration.webp" alt=""><h2>YOU DID IT!</h2></div>
+ </div>
+ <footer class="cinema-bottom">
+   <div class="movie-status"><span id="nowPlaying" aria-live="polite">The parade is beginning!</span></div>
+   <div class="timeline"><div class="timeline-fill" id="timelineFill"></div></div>
+   <button type="button" id="replayBtn"><img class="control-graphic" src="assets/ui/replay-control.webp" alt="" aria-hidden="true"><span>Replay</span></button>
+ </footer>
+ <audio id="paradeAudio" loop preload="none"></audio>
 </div>
 <script src="bundles/pieces-1.js" defer></script>
 <script src="bundles/pieces-2.js" defer></script>
@@ -134,7 +157,12 @@
 <script src="bundles/scene-sixth-avenue.js" defer></script>
 <script src="bundles/scene-herald-square.js" defer></script>
 <script src="bundles/menu-art-2026.js" defer></script>
-<script src="app.js" defer></script>
-<script src="builder.js" defer></script>
+<script src="parade-saves.js?v=20261116-studio" defer></script>
+<script src="balloon-images.js?v=20261116-studio" defer></script>
+<script src="app.js?v=20261116-studio" defer></script>
+<script src="workshop-legacy.js?v=20261116-studio" defer></script>
+<script src="workshop-catalog.js?v=20261116-studio" defer></script>
+<script src="builder.js?v=20261116-studio" defer></script>
+<script src="parade-player.js?v=20261116-studio" defer></script>
 </body>
 </html>

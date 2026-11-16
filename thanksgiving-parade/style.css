@@ -353,10 +353,125 @@ body.workshop-mode .designer-row p{margin:0 4px 7px!important}
 .top-actions .home-nav.game-icon-btn:hover{transform:translateY(-2px) scale(1.03)}
 @media(max-width:800px){.top-actions .home-nav.game-icon-btn{width:81px}}
 
-/* Saved custom balloons: clear, keyboard-operable delete control */
-.created-delete{font-family:'VAG'!important;font-size:11px!important;min-height:34px!important;margin-top:9px!important;border:2px solid #ffefdf!important;border-radius:12px!important;background:linear-gradient(#fff2e8,#f5bac3)!important;color:#74314b!important;box-shadow:0 3px 0 #c9899a!important;cursor:pointer!important}.created-delete:hover,.created-delete:focus-visible{filter:saturate(1.15);outline:2px solid #8d507a;outline-offset:2px}
+/* Keep the entire dressing surface and the Save button within a Chromebook frame. */
+body.workshop-mode .body-layout { padding: 8px 16px 18px !important; }
+body.workshop-mode .library-panel { padding: 10px 12px 16px !important; }
+body.workshop-mode #designPanel { padding: 0 !important; }
+body.workshop-mode .designer-row { padding: 4px 12px !important; margin-bottom: 12px !important; min-height: 62px; }
+body.workshop-mode .designer-row p,
+body.workshop-mode .workshop-help,
+.workshop-preview-head span,
+body.workshop-mode .footbar { display: none; }
+.workshop-header-art { width: 225px; height: 64px; }
+body.workshop-mode .workshop-control-area,
+body.workshop-mode .workshop-preview-area { padding: 12px !important; }
+.workshop-body img, .workshop-body canvas { display: block; width: 100%; height: 58px; max-width: 100%; object-fit: contain; }
+.workshop-body span { min-height: 14px; }
+.workshop-bases { margin-bottom: 12px; }
+.workshop-tab { min-height: 38px; padding: 6px 10px; font-size: 12px; }
+.workshop-options { grid-template-columns: repeat(5, minmax(0, 1fr)); max-height: clamp(110px, 27dvh, 245px); }
+.workshop-choice { min-height: 76px; justify-content: center; }
+.workshop-choice canvas { height: 54px; object-fit: contain; }
+.workshop-choice span { min-height: 12px; }
+.workshop-art canvas { object-fit: contain; max-height: min(40dvh, 360px); }
+.workshop-status { color: #854260; font-size: 12px; margin: 1px 0 7px; min-height: 1em; }
+.design-actions button:disabled { cursor: wait; opacity: .6; }
+.created-actions { display: flex; gap: 7px; margin-top: 7px; }
+.created-actions button { flex: 1; min-height: 40px; padding: 6px; }
+html.embedded body.workshop-mode .app { height: 100dvh; }
+@media(max-height: 710px) {
+ .workshop-body img, .workshop-body canvas { height: 46px; }
+ .workshop-header-art { height: 48px; }
+ body.workshop-mode .designer-row { min-height: 50px; }
+ .workshop-options { max-height: clamp(90px, 24dvh, 210px); }
+}
+@media(max-width: 940px) {
+ body.workshop-mode .workshop-layout { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr) !important; gap: 10px !important; }
+}
+@media(max-width: 620px) {
+ body.workshop-mode .workshop-layout { grid-template-columns: 1fr !important; }
+ .workshop-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 
-/* Storybook illustration belongs to the GRADE SELECTION entrance, never the parade street. */
+/* The four supplied paintings share one aspect ratio. The parade stage fits one
+   entire painting and uses its own coordinate space for the road and sprites. */
+.stage .stage-scene { background-size: contain !important; background-repeat: no-repeat; }
+body.parade-playing { overflow: hidden; }
+.cinema {
+ position: fixed; inset: 0; z-index: 40; width: 100%; height: 100dvh;
+ display: grid; grid-template-rows: auto minmax(0, 1fr) auto;
+ background: #37243f; overflow: hidden;
+}
+.cinema-top, .cinema-bottom { min-width: 0; }
+.cinema-top { padding: 7px 16px !important; }
+.cinema-brand { margin: 0; font-size: clamp(15px, 2.2vw, 26px) !important; line-height: 1; }
+#movieLocation {
+ display: block; color: #fff4d0; margin-top: 4px;
+ font-size: clamp(11px, 1.4vw, 16px); line-height: 1.1;
+}
+.cinema-controls button, .cinema-bottom button {
+ min-height: 42px; min-width: 44px;
+ padding: 6px 11px; font-size: clamp(12px, 1.25vw, 17px) !important;
+}
+.cinema .movie-scene {
+ display: grid; place-items: center; min-height: 0; width: 100%; height: auto;
+ padding: 0; border-radius: 0; background: #3c2945;
+}
+.movie-world { position: relative; flex-shrink: 0; max-width: 100%; overflow: hidden; }
+.movie-world .movie-background {
+ position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+ object-fit: contain; object-position: center; transform: none !important;
+}
+#movieStage { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.cinema .movie-celebration {
+ position: absolute; z-index: 4; top: 24%; left: 50%; transform: translateX(-50%);
+ padding: 8px 24px; text-align: center; color: #452851; border-radius: 25px;
+ background: #fff3d5ee; box-shadow: 0 10px 30px #342e494f;
+}
+.cinema .movie-celebration h2 { margin: 5px 0; }
+.cinema-bottom { min-height: 53px; gap: 10px; }
+@media (max-width: 820px) {
+ .cinema-top { min-height: 0 !important; }
+ .cinema-brand { font-size: 17px !important; }
+ .cinema-controls { flex-wrap: wrap; justify-content: flex-end; }
+ .cinema-controls button { min-height: 35px; padding: 5px 7px !important; }
+}
+
+.portal-welcome-art { display: block; width:min(580px,90%); max-height: clamp(62px, 14dvh, 130px); margin: -3px auto 12px; object-fit:contain; }
+.portal-back, #saveBtn, #saveCreation, #workshopDoneBtn, .cinema-controls button, #replayBtn {
+ display:inline-flex; align-items:center; justify-content:center; gap: 6px;
+}
+.control-graphic { width: 30px; height: 30px; display:block; object-fit:contain; flex:none; }
+#saveCreation .control-graphic { width: 34px; height: 34px; }
+.portal-back .control-graphic, #workshopDoneBtn .control-graphic { width:25px; height:25px; }
+.created-shelf-heading h3 {
+ width: min(246px, 100%); min-width:160px; height: 73px; display:flex; align-items:center;
+ padding:5px 30px 0 18px; color:#fff8e8!important;
+ background: url("assets/ui/my-balloons.webp") center left / contain no-repeat;
+ text-shadow: 0 2px 3px #301641;
+}
+.cinema .movie-celebration {
+ display:grid; place-items:center; min-width: min(350px,80vw); top:50%; transform: translate(-50%, -50%);
+ background:radial-gradient(ellipse,#fff7d9,#fddff0f0 72%,#eaccffdf);
+}
+.cinema .movie-celebration img { width:min(32dvh,265px); object-fit:contain; }
+.cinema .movie-celebration h2 { margin-top:0; font-size:clamp(24px,4vw,40px); }
+@media (max-width: 820px) {
+ .cinema-controls .control-graphic { width:23px; height:23px; }
+}
+@media (max-height:700px) {
+ .portal-welcome-art { max-height: min(13dvh, 90px); }
+}
+
+html.embedded .workshop-art canvas {
+ max-height: min(40dvh, max(100px, calc(100dvh - 418px)));
+}
+
+.created-actions .created-delete { color:#74314b; background:linear-gradient(#fff2e8,#f5bac3); }
+.created-actions .created-delete:focus-visible { outline:3px solid #b84e78; }
+
+
+/* Storybook backdrop behind grade selection. */
 #onboarding.overlay:has(#portalGrade:not(.hidden)){
   background:linear-gradient(110deg,rgba(38,30,62,.28),rgba(44,33,48,.19)),
     url('assets/scenes/storybook-parade.jpg') center center / cover no-repeat!important;

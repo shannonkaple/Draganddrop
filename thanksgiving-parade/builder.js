@@ -1,167 +1,384 @@
 'use strict';
-/* THE LITTLE PARADE COMPANY — flying balloon dress-up workshop.
-   Original balloon and glossy face atlasses, no background, no baked-on ropes. */
-(function(){
-  const BODY_SRC='assets/custom/parade-bodies-15.webp';
-  const W=640,H=430;
-  const BODIES=[
-    'TEDDY BEAR','PUPPY','PINK BUNNY','WHITE CAT','DINOSAUR',
-    'ALIEN','FRIENDLY MONSTER','CURLY PUFF GIRL','CURLY-HAIR BOY','PONYTAIL GIRL',
-    'UNICORN','DRAGON','CHICK','SQUIRREL','SPACE ROBOT'
+
+(() => {
+  const WIDTH = 640;
+  const HEIGHT = 430;
+  const LEGACY_BODY = 'assets/custom/parade-bodies-15.webp';
+  const LEGACY_ART = window.PARADE_LEGACY_ART;
+  const catalog = window.PARADE_CATALOG;
+  const categories = Object.keys(LEGACY_ART);
+  const elements = id => document.getElementById(id);
+  const images = new Map();
+  const rendered = new Map();
+
+  const legacyBases = [
+    ['Teddy Bear', 0, 0, 0, 0], ['Puppy', 5, -4, -4, 4], ['Pink Bunny', 4, 8, 0, 0],
+    ['White Cat', -4, -1, 0, 0], ['Dinosaur', -9, 4, 12, -4], ['Alien', 2, -2, 0, 0],
+    ['Friendly Monster', 5, -4, 0, 4], ['Curly Puff Girl', -8, 7, -10, 1],
+    ['Curly-Hair Boy', 4, -5, 0, 5], ['Ponytail Girl', 1, 5, 0, 3], ['Unicorn', -5, -8, 0, -1],
+    ['Dragon', -7, 4, 5, -5], ['Chick', -3, 5, 0, 4], ['Squirrel', 0, -5, 2, 6],
+    ['Space Robot', -2, 7, -6, -2]
   ];
-  const CATEGORIES=[{"id":"eyes","name":"EYES","names":["NONE","CLASSIC","BIG BLUE","SLEEPY","SURPRISED","HAPPY","SPARKLING","LASHES","DETERMINED","SILLY","STARRY"]},{"id":"noses","name":"NOSES","names":["NONE","BLACK BUTTON","BROWN BEAR","PINK BUNNY","CAT","PUPPY","CLOWN","HEART","ALIEN","GOLD","TINY"]},{"id":"mouths","name":"MOUTHS","names":["NONE","SMILE","TOOTHY GRIN","LAUGH","SURPRISED","TONGUE OUT","SWEET","CROOKED","EXCITED","POUT","SILLY"]},{"id":"hats","name":"HATS","names":["NONE","SANTA","BASEBALL CAP","CROWN","BOW","CHEF","PIRATE","WITCH","PARTY","TURKEY","HARD HAT"]},{"id":"shirts","name":"SHIRTS","names":["NONE","BASIC","BLUE STRIPED","RED STAR","SPORT","HEARTS","POLKA DOTS","SWEATER","PUMPKIN","DENIM","RAINBOW"]},{"id":"shorts","name":"SHORTS","names":["NONE","RED SPORT","BLUE SPORT","CARGO","YELLOW DOT","PURPLE STAR","DENIM","PINK","PLAID","NAVY","KHAKI"]},{"id":"skirts","name":"SKIRTS","names":["NONE","PINK","BLUE","TUTU","YELLOW RUFFLE","RED DOT","BLUE STAR","CHEER","RAINBOW","DENIM","AUTUMN"]},{"id":"shoes","name":"SHOES","names":["NONE","RED SNEAKERS","BLUE SNEAKERS","BROWN BOOTS","PINK SHOES","HERO BOOTS","PINK FLATS","RAIN BOOTS","RUNNING","PURPLE HI TOPS","BLACK"]},{"id":"accessories","name":"HAND ITEMS","names":["NONE","STAR WAND","PUMPKIN","PIE","PARADE FLAG","FLOWERS","TRUMPET","FOOTBALL","LOLLIPOP","GIFT","BALLOONS"]},{"id":"costumes","name":"COSTUMES","names":["NONE","SUPERHERO","ASTRONAUT","PIRATE","FAIRY","DINOSAUR","TURKEY","PUMPKIN","CHEF","PRINCESS","CONSTRUCTION"]}];
-  const COLORS={red:'#f65d62',pink:'#f38ac6',blue:'#439ce1',yellow:'#ffd05d',green:'#65c39b',purple:'#9f7ada',cream:'#fff3de'};
-  const bodyImage=new Image();
-  const cache=new Map();
-  const state={base:0,eyes:0,noses:0,mouths:0,hats:0,shirts:0,shorts:0,skirts:0,shoes:0,accessories:0,costumes:0};
-  let active='eyes',ready=false;
-  const $=id=>document.getElementById(id);
-  function imageReady(){return bodyImage.complete&&bodyImage.naturalWidth}
-  function loadReady(){if(imageReady()){
-    ready=true;cache.clear();pickBase();categoryTabs();options();draw();
-    if(typeof renderAll==='function')renderAll();
-  }}
-  bodyImage.onload=loadReady;
-  bodyImage.src=BODY_SRC;
-  /* Old placeholder drawings and feature-sheet crops retired; all accessories load individually. */
-  function anchors(index){
-    // All fifteen are left-facing, prone in flight; per-form anchor corrections.
-    const adjust=[
-      [0,0,0,0],[5,-4,-4,4],[4,8,0,0],[-4,-1,0,0],[-9,4,12,-4],
-      [2,-2,0,0],[5,-4,0,4],[-8,7,-10,1],[4,-5,0,5],[1,5,0,3],
-      [-5,-8,0,-1],[-7,4,5,-5],[-3,5,0,4],[0,-5,2,6],[-2,7,-6,-2]
-    ][Math.max(0,Math.min(14,index))];
-    return {face:[277+adjust[0],159+adjust[1]],hat:[277+adjust[0],100+adjust[1]],body:[398+adjust[2],282+adjust[3]],feet:[513+adjust[2],315+adjust[3]],hands:[150+adjust[0],287+adjust[1]]};
-  }
-  
-  /* Each accessory is a separate transparent PNG. No SVG assets are loaded. */
-  const ART_FILES={"accessories":["accessories-01-star-wand.png","accessories-02-pumpkin-basket.png","accessories-03-pie.png","accessories-04-parade-flag.png","accessories-05-bouquet.png","accessories-06-trumpet.png","accessories-07-football.png","accessories-08-lollipop.png","accessories-09-gift.png","accessories-10-balloon-bunch.png"],"costumes":["costumes-01-superhero.png","costumes-02-astronaut.png","costumes-03-pirate.png","costumes-04-fairy.png","costumes-05-dinosaur.png","costumes-06-turkey.png","costumes-07-pumpkin.png","costumes-08-chef.png","costumes-09-princess.png","costumes-10-construction-worker.png"],"eyes":["eyes-01-classic-brown.png","eyes-02-big-blue.png","eyes-03-sleepy.png","eyes-04-surprised.png","eyes-05-happy.png","eyes-06-sparkling.png","eyes-07-lashes.png","eyes-08-determined.png","eyes-09-silly.png","eyes-10-starry.png"],"hats":["hats-01-santa.png","hats-02-baseball-cap.png","hats-03-crown.png","hats-04-red-bow.png","hats-05-chef.png","hats-06-pirate.png","hats-07-witch.png","hats-08-party.png","hats-09-turkey-headband.png","hats-10-hard-hat.png"],"mouths":["mouth-01-closed-smile.png","mouth-02-toothy-grin.png","mouth-03-laugh.png","mouth-04-surprised.png","mouth-05-tongue-out.png","mouth-06-sweet-smile.png","mouth-07-crooked-grin.png","mouth-08-excited.png","mouth-09-pout.png","mouth-10-silly-w.png"],"noses":["noses-01-black-button.png","noses-02-brown-bear.png","noses-03-pink-bunny.png","noses-04-cat-triangle.png","noses-05-puppy.png","noses-06-clown-red.png","noses-07-heart.png","noses-08-alien-green.png","noses-09-gold-button.png","noses-10-little-human.png"],"shirts":["shirts-01-white-basic.png","shirts-02-blue-striped.png","shirts-03-red-star.png","shirts-04-green-sport.png","shirts-05-pink-hearts.png","shirts-06-purple-polka-dot.png","shirts-07-yellow-sweater.png","shirts-08-orange-pumpkin.png","shirts-09-blue-denim.png","shirts-10-rainbow.png","shirts-11-base-white.png"],"shoes":["shoes-01-red-sneakers.png","shoes-02-blue-sneakers.png","shoes-03-brown-boots.png","shoes-04-pink-mary-janes.png","shoes-05-red-superhero.png","shoes-06-pink-flats.png","shoes-07-yellow-rainboots.png","shoes-08-running-shoes.png","shoes-09-purple-high-tops.png","shoes-10-black-dress-shoes.png"],"shorts":["shorts-01-red-sport.png","shorts-02-blue-sport.png","shorts-03-green-cargo.png","shorts-04-yellow-dot.png","shorts-05-purple-star.png","shorts-06-denim.png","shorts-07-pink-ruffle.png","shorts-08-orange-plaid.png","shorts-09-navy-stripe.png","shorts-10-khaki-pocket.png","shorts-11-base-white.png"],"skirts":["skirts-01-pink-pleats.png","skirts-02-blue-pleats.png","skirts-03-lavender-tutu.png","skirts-04-yellow-ruffles.png","skirts-05-red-dot.png","skirts-06-blue-star.png","skirts-07-white-red-cheer.png","skirts-08-rainbow-layered.png","skirts-09-denim.png","skirts-10-autumn-plaid.png"]};
-  const ART_ROOT='assets/customization/';
-  const artCache=new Map();let artRefresh=0;
-  function artPath(category,idx){const name=ART_FILES[category]?.[idx-1];return name?ART_ROOT+category+'/'+name:''}
-  function artImage(category,idx){
-    const key=category+':'+idx;
-    if(!idx)return null;
-    if(artCache.has(key))return artCache.get(key);
-    const im=new Image();artCache.set(key,im);
-    im.onload=()=>{
-      if(artRefresh)return;
-      artRefresh=requestAnimationFrame(()=>{
-        artRefresh=0;
-        const canvas=$('workshopCanvas');if(canvas)draw();
-        if($('workshopOptions'))options();
-      })
-    };
-    im.onerror=()=>{console.warn('Missing dress-up graphic',key)};
-    im.src=artPath(category,idx);
-    return im;
-  }
-  function visualFit(cat,a,base){
-    const t={
-      eyes:[a.face[0],a.face[1]-4,265,181],
-      noses:[a.face[0],a.face[1]+48,220,150],
-      mouths:[a.face[0],a.face[1]+83,142,108],
-      hats:[a.hat[0],a.hat[1]-37,315,215],
-      shirts:[a.body[0]-18,a.body[1]-9,300,207],
-      shorts:[a.feet[0]-68,a.feet[1]-28,253,174],
-      skirts:[a.feet[0]-87,a.feet[1]-21,275,189],
-      shoes:[a.feet[0]+2,a.feet[1]-13,237,163],
-      accessories:[a.hands[0]+9,a.hands[1]-25,180,124],
-      costumes:[a.body[0]-18,a.body[1]-9,295,203]
-    }[cat];
-    // Species keep their own anatomy: adjustments target logical attachment areas
-    if(!t)return null;
-    const [x,y,w,h]=t;
-    const species=base<7,creature=base===4||base===5||base===6;
-    const scale=(cat==='shoes'&&species)?1.12:(cat==='hats'&&creature)?1.07:1;
-    return [x-w*scale/2,y-h*scale/2,w*scale,h*scale];
-  }
-  function drawSeparate(ctx,cat,idx,a,base){
-    if(!idx)return true;
-    const im=artImage(cat,idx),r=visualFit(cat,a,base);
-    if(!im||!r||!im.complete||!im.naturalWidth)return false;
-    ctx.drawImage(im,...r);return true;
-  }
-  function artworkLoaded(r){
-    return CATEGORIES.every(c=>!Number(r[c.id])||(artImage(c.id,Number(r[c.id]))?.complete&&artImage(c.id,Number(r[c.id]))?.naturalWidth));
+  const firstBase = catalog.bases[0].id;
+  const bodyById = new Map(catalog.bases.map(base => [base.id, base]));
+  const legacyOrder = ['shirts', 'shorts', 'skirts', 'costumes', 'shoes', 'eyes', 'noses', 'mouths', 'hats', 'accessories'];
+  const aliases = { noses: 'nose', mouths: 'mouth', hats: 'hat', shirts: 'clothes', accessories: 'prop' };
+  let recipe = { baseId: firstBase, options: {} };
+  let active = 'eyes';
+  let editingId = null;
+  let previewRun = 0;
+  let boardRun = 0;
+
+  function loadImage(src) {
+    if (!images.has(src)) {
+      const image = new Image();
+      const entry = { image, complete: false };
+      entry.promise = new Promise((resolve, reject) => {
+        image.onload = () => {
+          entry.complete = true;
+          resolve(image);
+        };
+        image.onerror = () => reject(new Error('This picture could not load: ' + src));
+      });
+      images.set(src, entry);
+      image.src = src;
+      entry.promise.catch(() => images.delete(src));
+    }
+    return images.get(src);
   }
 
-  function render(canvas,recipe){
-    if(!canvas)return false;
-    canvas.width=W;canvas.height=H;
-    const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,H);
-    if(!imageReady())return false;
-    const r=recipe||state, idx=Math.max(0,Math.min(14,Number(r.base)||0));
-    ctx.drawImage(bodyImage,(idx%5)*512,Math.floor(idx/5)*512,512,466,55,8,555,400);
-    const a=anchors(idx);
-    // Children ALWAYS wear modest plain white base clothing, even with no outfit selected.
-    if(idx===7||idx===8||idx===9){drawSeparate(ctx,'shirts',11,a,idx);drawSeparate(ctx,'shorts',11,a,idx)}
-    const value=(cat,old)=>Number(r[cat]??r[old]??0);
-    // Dress-up layering matches the forward-reaching flying pose.
-    drawSeparate(ctx,'shirts',value('shirts','clothes'),a,idx);
-    drawSeparate(ctx,'shorts',value('shorts','shorts'),a,idx);
-    drawSeparate(ctx,'skirts',value('skirts','skirts'),a,idx);
-    drawSeparate(ctx,'costumes',value('costumes','costumes'),a,idx);
-    drawSeparate(ctx,'shoes',value('shoes','shoes'),a,idx);
-    drawSeparate(ctx,'eyes',value('eyes','eyes'),a,idx);
-    drawSeparate(ctx,'noses',value('noses','nose'),a,idx);
-    drawSeparate(ctx,'mouths',value('mouths','mouth'),a,idx);
-    drawSeparate(ctx,'hats',value('hats','hat'),a,idx);
-    drawSeparate(ctx,'accessories',value('accessories','prop'),a,idx);
+  function legacyPath(category, option) {
+    const filename = LEGACY_ART[category].files[option - 1];
+    return filename && 'assets/customization/' + category + '/' + filename;
+  }
+
+  function legacyLayers(design) {
+    const i = design.baseId - 301;
+    const [, dx, dy, torsoX, torsoY] = legacyBases[i];
+    const layers = [{ path: LEGACY_BODY, rect: [(i % 5) * 512, Math.floor(i / 5) * 512, 512, 466], box: [55, 8, 555, 400] }];
+    const centers = {
+      eyes: [277 + dx, 155 + dy, 265, 181],
+      noses: [277 + dx, 207 + dy, 220, 150],
+      mouths: [277 + dx, 242 + dy, 142, 108],
+      hats: [277 + dx, 63 + dy, 315 * (i >= 4 && i < 7 ? 1.07 : 1), 215 * (i >= 4 && i < 7 ? 1.07 : 1)],
+      shirts: [380 + torsoX, 273 + torsoY, 300, 207],
+      shorts: [445 + torsoX, 287 + torsoY, 253, 174],
+      skirts: [426 + torsoX, 294 + torsoY, 275, 189],
+      shoes: [515 + torsoX, 302 + torsoY, 237 * (i < 7 ? 1.12 : 1), 163 * (i < 7 ? 1.12 : 1)],
+      accessories: [159 + dx, 262 + dy, 180, 124],
+      costumes: [380 + torsoX, 273 + torsoY, 295, 203]
+    };
+    function append(category, option) {
+      const path = legacyPath(category, option);
+      if (!path) return;
+      const [x, y, w, h] = centers[category];
+      layers.push({ path, box: [x - w / 2, y - h / 2, w, h] });
+    }
+    if (i >= 7 && i <= 9) {
+      append('shirts', 11);
+      append('shorts', 11);
+    }
+    for (const category of legacyOrder) {
+      append(category, design.options[category] ?? design.options[aliases[category]] ?? 0);
+    }
+    return layers;
+  }
+
+  function fitPart(part, anchor, index = 0) {
+    const { path, bounds, rotation = 0, pivot = [.5, .5] } = part;
+    const [x, y, maxWidth, maxHeight, angle = 0] = anchor;
+    const source = Array.isArray(bounds[0]) ? bounds[index] : bounds;
+    const widthRatio = maxWidth / source[2];
+    const heightRatio = maxHeight / source[3];
+    const multiplier = part.scale ?? 1;
+    const width = source[2] * Math.min(widthRatio, heightRatio) * multiplier;
+    const height = source[3] * Math.min(widthRatio, heightRatio) * multiplier;
+    const [offsetX, offsetY] = part.offset ?? [0, 0];
+    return { path, rect: source, box: [-pivot[0] * width, -pivot[1] * height, width, height], transform: [x + offsetX, y + offsetY, angle + rotation] };
+  }
+
+  function modernLayers(design, base) {
+    const back = [];
+    const front = [];
+    for (const category of legacyOrder) {
+      if (category === 'costumes') continue;
+      const option = design.options[category];
+      const picked = catalog.parts[category][option - 1] ?? catalog.extra?.[category]?.[option];
+      if (!picked) continue;
+      const part = { ...picked, ...picked.variants?.[base.family], ...picked.variants?.[base.id] };
+      const target = part.layer === 'back' ? back : front;
+      const fitting = part.anchor ?? category;
+      if (part.placement === 'body-canvas') {
+        target.push({ path: part.path, box: [0, 0, WIDTH, HEIGHT] });
+      } else if (fitting === 'feet') {
+        target.push(fitPart(part, base.fit.farFoot, 0), fitPart(part, base.fit.nearFoot, 1));
+      } else if (base.fit[fitting]) {
+        const anchor = base.fit[fitting];
+        target.push(fitPart(part, anchor));
+        if (part.grip) {
+          const [x, y] = anchor;
+          front.push({ path: base.path, box: [0, 0, WIDTH, HEIGHT], clip: [x, y + 3, 11, 8] });
+        }
+      }
+    }
+    return [...back, { path: base.path, box: [0, 0, WIDTH, HEIGHT] }, ...front];
+  }
+
+  function layersFor(design) {
+    const base = bodyById.get(design.baseId);
+    return base ? modernLayers(design, base) : legacyLayers(design);
+  }
+
+  function paint(canvas, layers, resolution) {
+    canvas.width = WIDTH * resolution;
+    canvas.height = HEIGHT * resolution;
+    const context = canvas.getContext('2d');
+    context.scale(resolution, resolution);
+    context.imageSmoothingQuality = 'high';
+    for (const layer of layers) {
+      const asset = images.get(layer.path);
+      if (!asset?.complete) return false;
+      context.save();
+      if (layer.clip) {
+        context.beginPath();
+        context.ellipse(...layer.clip, 0, 0, Math.PI * 2);
+        context.clip();
+      }
+      if (layer.transform) {
+        const [x, y, angle] = layer.transform;
+        context.translate(x, y);
+        context.rotate(angle * Math.PI / 180);
+      }
+      context.drawImage(asset.image, ...(layer.rect ?? []), ...layer.box);
+      context.restore();
+    }
     return true;
   }
-  function compose(c){
-    if(!c||!c.workshop)return null;
-    const recipe={base:Math.max(0,Math.min(14,Number(c.baseId)-301)),...c.options};
-    const signature=JSON.stringify(recipe);
-    if(cache.has(signature))return cache.get(signature);
-    if(!imageReady()||!artworkLoaded(recipe))return 'assets/custom/parade-bodies-15.webp';
-    const canvas=document.createElement('canvas');render(canvas,recipe);
-    const url=canvas.toDataURL('image/webp',.87);cache.set(signature,url);
-    return url;
+
+  async function render(canvas, design, resolution = 1) {
+    const layers = layersFor(design);
+    await Promise.all(layers.map(layer => loadImage(layer.path).promise));
+    paint(canvas, layers, resolution);
   }
-  function draw(){render($('workshopCanvas'),state)}
-  function pickBase(){const root=$('workshopBases');if(!root)return;root.innerHTML='';
-    BODIES.forEach((name,i)=>{
-      const b=document.createElement('button');b.className='workshop-body'+(state.base===i?' chosen':'');b.type='button';
-      const cv=document.createElement('canvas');render(cv,{base:i});
-      const span=document.createElement('span');span.textContent=name;b.append(cv,span);
-      b.onclick=()=>{state.base=i;pickBase();draw()};root.appendChild(b);
+
+  function signature(design) {
+    return JSON.stringify([design.baseId, design.options]);
+  }
+
+  function remember(design, image) {
+    rendered.set(signature(design), image);
+    if (rendered.size > 58) rendered.delete(rendered.keys().next().value);
+    return image;
+  }
+
+  function compose(design) {
+    const cached = rendered.get(signature(design));
+    if (cached) return cached;
+    const layers = layersFor(design);
+    const pending = layers.map(layer => loadImage(layer.path)).filter(entry => !entry.complete);
+    if (pending.length) {
+      queueShelfUpdate(pending);
+      return '';
+    }
+    const canvas = document.createElement('canvas');
+    paint(canvas, layers, 1.5);
+    return remember(design, canvas.toDataURL('image/webp', .89));
+  }
+
+  const updates = new Set();
+  function queueShelfUpdate(pending) {
+    for (const entry of pending) {
+      if (updates.has(entry)) continue;
+      updates.add(entry);
+      entry.promise.then(() => {
+        updates.delete(entry);
+        if (updates.size === 0) window.paradeRefreshCreations?.();
+      }, () => updates.delete(entry));
+    }
+  }
+
+  function setStatus(message) {
+    elements('workshopStatus').textContent = message;
+  }
+
+  function draw() {
+    const drawId = ++previewRun;
+    const snapshot = { baseId: recipe.baseId, options: { ...recipe.options } };
+    const layers = layersFor(snapshot);
+    elements('saveCreation').disabled = true;
+    Promise.all(layers.map(layer => loadImage(layer.path).promise)).then(() => {
+      if (drawId !== previewRun) return;
+      paint(elements('workshopCanvas'), layers, 1);
+      elements('saveCreation').disabled = false;
+      setStatus('');
+    }, () => {
+      if (drawId === previewRun) setStatus('A picture could not load. Try choosing the piece again.');
     });
   }
-  function categoryTabs(){const root=$('workshopTabs');if(!root)return;root.innerHTML='';
-    CATEGORIES.forEach(({id,name})=>{const b=document.createElement('button');b.type='button';b.className='workshop-tab'+(id===active?' chosen':'');const icons={eyes:'👀',noses:'👃',mouths:'😁',hats:'👒',shirts:'👕',shorts:'🩳',skirts:'👗',shoes:'👟',accessories:'🎁',costumes:'🎭'};b.textContent=icons[id]+' '+name;b.onclick=()=>{active=id;categoryTabs();options()};root.appendChild(b)})
+
+  function choose(buttons, index) {
+    for (const [i, button] of [...buttons].entries()) {
+      button.classList.toggle('chosen', i === index);
+      button.setAttribute('aria-pressed', String(i === index));
+    }
   }
-  function options(){const root=$('workshopOptions');if(!root)return;root.innerHTML='';
-    const category=CATEGORIES.find(c=>c.id===active);if(!category)return;
-    category.names.forEach((name,i)=>{
-      const b=document.createElement('button');b.className='workshop-choice'+(state[active]===i?' chosen':'');b.type='button';
-      const cv=document.createElement('canvas');const sample={...state,[active]:i};render(cv,sample);
-      const label=document.createElement('span');label.textContent=name;b.append(cv,label);
-      b.onclick=()=>{state[active]=i;options();draw()};root.appendChild(b)
-    });
+
+  function label(text) {
+    const span = document.createElement('span');
+    span.textContent = text;
+    return span;
   }
-  function init(){if(!$('workshopCanvas'))return;
-    $('saveCreation').addEventListener('click',()=>{
-      if(typeof state==='undefined'||!window.PARADE_WORKSHOP)return;
-      if(!artworkLoaded(state)||((state.base===7||state.base===8||state.base===9)&&!(artImage('shirts',11)?.complete&&artImage('shirts',11)?.naturalWidth&&artImage('shorts',11)?.complete&&artImage('shorts',11)?.naturalWidth))){alert('The costume artwork is loading. Please try Save again.');return;}
-      // Main game state is a global lexical binding created by app.js.
-      if(typeof markChanged!=='function')return;
-      if(window.paradeBuilderCount && window.paradeBuilderCount>=99)return;
-      /* Saving to MY BALLOONS is independent of the parade lineup limit. */
-      const newId=1002+Math.max(-1,...window.paradeCustomIds());
-      const name=String($('designName').value||'My Balloon').trim().replace(/[^A-Za-z0-9 -]/g,'').slice(0,26)||'My Balloon';
-      const c={id:newId,name,baseId:301+state.base,workshop:true,options:Object.fromEntries(CATEGORIES.map(c=>[c.id,state[c.id]||0]))};
-      window.paradeAddCustom(c);
-    });
-    $('workshopReset').addEventListener('click',()=>{
-      for(const c of CATEGORIES)state[c.id]=0;categoryTabs();options();pickBase();draw()
-    });
-    if(imageReady()){pickBase();categoryTabs();options();draw()}
-    else{pickBase();categoryTabs();options()}
-    for(const c of CATEGORIES)for(let n=1;n<=10;n++)artImage(c.id,n);artImage('shirts',11);artImage('shorts',11);
+
+  function button(className, text) {
+    const b = document.createElement('button');
+    b.className = className;
+    b.type = 'button';
+    if (text) b.textContent = text;
+    return b;
   }
-  window.PARADE_WORKSHOP={compose,draw,render,state,initialize:init,refresh(){pickBase();categoryTabs();options();draw()},get ready(){return ready}};
-  // App-side callbacks keep the saved parade data in the existing cloud/local saving system.
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+
+  function renderBases() {
+    const root = elements('workshopBases');
+    const choices = [...catalog.bases];
+    if (recipe.baseId < 401) {
+      choices.push({ id: recipe.baseId, name: legacyBases[recipe.baseId - 301][0] });
+    }
+    root.replaceChildren(...choices.map((base, i) => {
+      const b = button('workshop-body');
+      b.dataset.baseId = base.id;
+      if (base.path) {
+        const img = new Image();
+        img.src = base.path;
+        img.alt = '';
+        b.append(img);
+      } else {
+        const canvas = document.createElement('canvas');
+        b.append(canvas);
+        render(canvas, { baseId: base.id, options: {} }, .25).catch(() => {});
+      }
+      b.append(label(base.name));
+      b.onclick = () => {
+        const isModern = bodyById.has(base.id);
+        if (isModern !== bodyById.has(recipe.baseId)) recipe.options = {};
+        recipe.baseId = base.id;
+        choose(root.children, i);
+        renderOptions();
+        draw();
+      };
+      return b;
+    }));
+    choose(root.children, choices.findIndex(base => base.id === recipe.baseId));
+  }
+
+  function renderTabs() {
+    const root = elements('workshopTabs');
+    root.replaceChildren(...categories.map((category, i) => {
+      const b = button('workshop-tab', LEGACY_ART[category].name);
+      b.dataset.category = category;
+      b.onclick = () => {
+        active = category;
+        choose(root.children, i);
+        renderOptions();
+      };
+      return b;
+    }));
+    choose(root.children, categories.indexOf(active));
+  }
+
+  function renderOptions() {
+    const run = ++boardRun;
+    const root = elements('workshopOptions');
+    const modern = bodyById.has(recipe.baseId);
+    const current = active;
+    const items = modern ? catalog.parts[current] : LEGACY_ART[current].names.map((name, i) => ({
+      name, path: legacyPath(current, i + 1)
+    }));
+    root.replaceChildren(...[{ name: 'Remove' }, ...items].map((item, index) => {
+      const b = button('workshop-choice');
+      b.dataset.option = index;
+      const thumb = document.createElement('canvas');
+      thumb.width = 112;
+      thumb.height = 72;
+      if (item.path) loadImage(item.path).promise.then(image => {
+        if (run !== boardRun) return;
+        let bounds = item.bounds ?? [0, 0, image.width, image.height];
+        if (Array.isArray(bounds[0])) {
+          const [left, right] = bounds;
+          const y = Math.min(left[1], right[1]);
+          bounds = [left[0], y, right[0] + right[2] - left[0], Math.max(left[1] + left[3], right[1] + right[3]) - y];
+        }
+        const [, , width, height] = bounds;
+        const scale = Math.min(105 / width, 66 / height);
+        thumb.getContext('2d').drawImage(image, ...bounds, (112 - width * scale) / 2,
+          (72 - height * scale) / 2, width * scale, height * scale);
+      }).catch(() => {
+        if (run === boardRun) {
+          b.disabled = true;
+          b.title = 'Picture unavailable';
+        }
+      });
+      if (item.path) b.append(thumb);
+      b.append(label(item.name));
+      b.onclick = () => {
+        if (modern && current === 'costumes') {
+          const previous = items[recipe.options.costumes - 1];
+          for (const [slot, option] of Object.entries(previous?.equips ?? {})) {
+            if (recipe.options[slot] === option) recipe.options[slot] = 0;
+          }
+          Object.assign(recipe.options, items[index - 1]?.equips);
+        }
+        recipe.options[current] = index;
+        if (current === 'shorts' && index) recipe.options.skirts = 0;
+        if (current === 'skirts' && index) recipe.options.shorts = 0;
+        choose(root.children, index);
+        draw();
+      };
+      return b;
+    }));
+    choose(root.children, recipe.options[current] || 0);
+  }
+
+  function begin(design) {
+    editingId = design?.id ?? null;
+    recipe = { baseId: design?.baseId ?? firstBase, options: { ...design?.options } };
+    for (const [cat, old] of Object.entries(aliases)) {
+      if (recipe.options[cat] == null && recipe.options[old] != null) recipe.options[cat] = recipe.options[old];
+    }
+    active = 'eyes';
+    elements('designName').value = design?.name ?? '';
+    renderBases();
+    renderTabs();
+    renderOptions();
+    draw();
+  }
+
+  function reset() {
+    recipe.options = {};
+    renderOptions();
+    draw();
+  }
+
+  async function save() {
+    const name = elements('designName').value.trim().replace(/[^a-zA-Z0-9 -]/g, '').slice(0, 26) || 'My Balloon';
+    const design = { name, baseId: recipe.baseId, options: { ...recipe.options }, workshop: true };
+    const button = elements('saveCreation');
+    button.disabled = true;
+    setStatus('Saving your balloon…');
+    try {
+      const canvas = document.createElement('canvas');
+      await render(canvas, design, 2);
+      const image = remember(design, canvas.toDataURL('image/webp', .91));
+      if (!await window.paradeSaveCreation?.(design, editingId, image)) setStatus('Your balloon could not be saved.');
+    } catch (error) {
+      console.warn(error);
+      setStatus('The picture could not be saved. Try again.');
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  elements('workshopReset').addEventListener('click', reset);
+  elements('saveCreation').addEventListener('click', save);
+  window.PARADE_WORKSHOP = { begin, compose, render, draw };
+  window.paradeRefreshCreations?.();
 })();
