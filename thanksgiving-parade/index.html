@@ -6,13 +6,13 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>My Thanksgiving Parade | Balloon Parade Studio</title>
 <link rel="icon" href="assets/ui/main-title.webp" type="image/webp">
-<link rel="stylesheet" href="style.css?v=20261116-saved-parades">
+<link rel="stylesheet" href="style.css?v=20261116-bands">
 </head>
 <body>
 <div id="app" class="app" inert>
 <header class="topbar">
   <div class="brand"><img src="assets/ui/main-title.webp" class="game-brand-image" alt="My Thanksgiving Parade" decoding="async"><h1 class="sr-only">My Thanksgiving Parade Studio</h1></div>
-  <div class="top-actions"><button type="button" class="home-nav game-icon-btn" id="homeBtn" title="Return to the welcome screen" aria-label="Home"><img src="assets/ui/home.webp" alt="" aria-hidden="true"><span class="sr-only">Home</span></button><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">❔ Help</button><button type="button" class="outline-btn" id="changeStudentBtn">👩‍🏫 Change Student</button><button type="button" class="outline-btn" id="savedParadesBtn">Saved Parades</button><button type="button" class="save-btn" id="saveBtn"><img class="control-graphic" src="assets/ui/save-control.webp" alt="" aria-hidden="true"><span>Save Parade</span></button></div>
+  <div class="top-actions"><button type="button" class="home-nav game-icon-btn" id="homeBtn" title="Return to the welcome screen" aria-label="Home"><img src="assets/ui/home.webp" alt="" aria-hidden="true"><span class="sr-only">Home</span></button><button type="button" class="outline-btn" id="studioFullscreenBtn"><img class="control-graphic" src="assets/ui/fullscreen-control.webp" alt=""><span>Full Screen</span></button><span class="saved-note" id="saveStatus" role="status">Ready to create</span><button type="button" class="ghost-btn" id="helpBtn" aria-label="Instructions">❔ Help</button><button type="button" class="outline-btn" id="changeStudentBtn">👩‍🏫 Change Student</button><button type="button" class="outline-btn" id="savedParadesBtn">Saved Parades</button><button type="button" class="save-btn" id="saveBtn"><img class="control-graphic" src="assets/ui/save-control.webp" alt="" aria-hidden="true"><span>Save Parade</span></button></div>
 </header>
 <div class="body-layout">
  <aside class="sidebar">
@@ -27,6 +27,7 @@
    <div class="step-list">
     <button class="step selected" type="button" data-tab="balloons" aria-label="Choose balloons"><img class="step-game-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎈</span><span><b>Choose Balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
     <button class="step" type="button" data-tab="floats" aria-label="Choose floats"><img class="step-game-art" src="assets/ui/floats.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🚚</span><span><b>Choose Floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
+    <button class="step band-menu" type="button" data-tab="bands"><strong>♫ Marching Bands</strong></button>
     <button class="step" type="button" data-tab="decorate" aria-label="Parade scenes and music"><img class="step-game-art" src="assets/ui/scenes.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🍁</span><span><b>Scenes & Music</b><small>NYC scenes, banner &amp; music</small></span><span class="step-chevron">›</span></button>
    </div>
    <div class="tip-card"><span class="tip-star">🦃</span><div><b>Parade director tip</b><p id="tipText">Start by choosing your favorite balloons. Click any picture to add it to your lineup!</p></div></div>
@@ -67,6 +68,10 @@
       <div id="floatGallery" class="gallery" aria-labelledby="floatGalleryTitle"></div>
     </section>
     </div>
+    <section id="bandShelf" class="balloon-shelf hidden" aria-labelledby="bandGalleryTitle">
+      <div class="shelf-heading"><h2 id="bandGalleryTitle">Marching Bands</h2><span id="bandGalleryCount">3 choices</span></div>
+      <div id="bandGallery" class="gallery" aria-labelledby="bandGalleryTitle"></div>
+    </section>
     <div id="decoratePanel" class="decorate-panel hidden">
       <div class="design-section"><img src="assets/ui/scenes.webp" class="section-art" alt="Scenes"><b class="sr-only">Choose your New York scene</b><div class="scenes" id="scenes"></div></div>
       <div class="design-section"><b>Parade banner color</b><div class="swatches" id="colors"></div></div>
@@ -168,11 +173,11 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261116-saved-parades" defer></script>
+<script src="app.js?v=20261116-bands" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
 <script src="music-preview.js?v=20261116-preview1" defer></script>
-<script src="parade-player.js?v=20261116-saved-parades" defer></script>
+<script src="parade-player.js?v=20261116-bands" defer></script>
 </body>
 </html>

@@ -584,3 +584,14 @@ html.embedded .workshop-art canvas {
 .end-parade-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 #movieCelebration .end-parade-actions button{padding:8px 12px;min-height:36px}
 #endSaveStatus{font-size:12px;margin:8px 0 2px;max-width:280px;min-height:1em}
+
+#studioFullscreenBtn{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+#studioFullscreenBtn .control-graphic{width:20px;height:20px}
+.band-menu>strong{color:#773957;font:700 13px/1.2 var(--font-vag);padding:3px}
+#bandGallery .asset-card{flex:1 0 126px;max-width:190px;height:123px}
+.band-members{display:flex;align-items:end;justify-content:center;width:100%;height:86px}
+#bandGallery .band-members img{width:33%;height:82px;object-position:bottom center}
+.stage-band{position:absolute;width:50%;height:26%;display:flex;justify-content:center;align-items:end;gap:4%}
+.stage-band img{width:23%;height:100%;object-fit:contain;object-position:bottom}
+@media(max-width:900px){.step-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){#studioFullscreenBtn span{position:absolute;clip-path:inset(50%)}.top-actions .saved-note{display:none}}

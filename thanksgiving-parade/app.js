@@ -52,6 +52,15 @@ const PIECES=[
 ].map(([id,name,type,art])=>({
  id,name,type,original:Boolean(art),src:art?ASSETS+art+'.webp':(window.PARADE_PIECE_ASSETS||{})[id]||ASSETS+id+'.svg'
 }));
+const BANDS=[
+ [70,'Royal Blue Band','blue'],
+ [71,'Cranberry Band','cranberry'],
+ [72,'Evergreen Band','evergreen']
+].map(([id,name,color])=>{
+ const members=['trumpet','drum','tuba'].map(instrument=>'assets/bands/'+color+'-'+instrument+'.webp');
+ return {id,name,type:'band',src:members[0],members};
+});
+PIECES.push(...BANDS);
 const GALLERY_PIECES=PIECES.filter(piece=>piece.id!==8);
 const SCENES=[
 {id:'storybook',name:'Storybook Parade',badge:'HERALD SQUARE · STORYBOOK PARADE',src:'assets/scenes/storybook-parade.jpg'},
@@ -228,7 +237,8 @@ function renderShelf(id,choices){
   button.type='button';
   button.title=piece.name;
   button.setAttribute('aria-label',`Add ${piece.name} to your parade`);
-  button.innerHTML=`<span class="add-dot">${selected?'✓':'+'}</span><img src="${piece.src}" alt="" loading="lazy"><span class="asset-name">${piece.name}</span>`;
+  const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="" loading="lazy">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
+  button.innerHTML='<span class="add-dot">'+(selected?'✓':'+')+'</span>'+pictures+'<span class="asset-name">'+piece.name+'</span>';
   button.disabled=state.pieces.length>=MAX[state.grade];
   button.onclick=()=>{
    if(state.pieces.length>=MAX[state.grade])return;
@@ -249,6 +259,8 @@ function renderGallery(){
   renderShelf('newGallery',newChoices);
  } else if(tab==='floats'){
   renderShelf('floatGallery',GALLERY_PIECES.filter(piece=>piece.type==='float'));
+ } else if(tab==='bands'){
+  renderShelf('bandGallery',BANDS);
  }
 }
 function renderTabs(){
@@ -259,10 +271,11 @@ function renderTabs(){
  });
  $('balloonShelves').classList.toggle('hidden',tab!=='balloons');
  $('floatShelf').classList.toggle('hidden',tab!=='floats');
+ $('bandShelf').classList.toggle('hidden',tab!=='bands');
  $('decoratePanel').classList.toggle('hidden',tab!=='decorate');
 }
 function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge;$('stageHeading').textContent=state.grade===1?'Your magical NYC parade':'Your own NYC parade'}
-function renderPreview(){const g=$('stageCharacters');g.innerHTML='';$('stageEmpty').classList.toggle('hidden',state.pieces.length>0);let items=state.pieces.slice(0,2);items.forEach((id,i)=>{const p=getPiece(id);if(!p?.src)return;const el=document.createElement('img');el.src=p.src;el.alt=p.name;el.style.cssText=`position:absolute;bottom:${p.type==='float'?'-8%':'18%'};left:${i===0?0:50}%;width:${p.type==='float'?'55%':'47%'};height:${p.type==='float'?'93%':'77%'};object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #33253675);${p.type==='float'?'':`animation:bob ${2.5+i*.31}s ease-in-out infinite;`}`;el.loading='lazy';g.appendChild(el)});$('previewCaption').textContent=state.pieces.length?`${state.pieces.length} parade stars are ready for the big day!`:'Make your lineup, then watch it come to life.'}
+function renderPreview(){const g=$('stageCharacters');g.innerHTML='';$('stageEmpty').classList.toggle('hidden',state.pieces.length>0);let items=state.pieces.slice(0,2);items.forEach((id,i)=>{const p=getPiece(id);if(!p?.src)return;if(p.members){const group=document.createElement('div');group.className='stage-band';group.style.left=(i*50)+'%';group.style.bottom=(scene().id==='storybook'?7.5:11)+'%';group.setAttribute('role','img');group.setAttribute('aria-label',p.name);for(const src of p.members){const musician=document.createElement('img');musician.src=src;musician.alt='';group.append(musician)}g.append(group);return}const el=document.createElement('img');el.src=p.src;el.alt=p.name;el.style.cssText=`position:absolute;bottom:${p.type==='float'?'-8%':'18%'};left:${i===0?0:50}%;width:${p.type==='float'?'55%':'47%'};height:${p.type==='float'?'93%':'77%'};object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #33253675);${p.type==='float'?'':`animation:bob ${2.5+i*.31}s ease-in-out infinite;`}`;el.loading='lazy';g.appendChild(el)});$('previewCaption').textContent=state.pieces.length?`${state.pieces.length} parade stars are ready for the big day!`:'Make your lineup, then watch it come to life.'}
 function renderDecorate(){const sc=$('scenes');sc.innerHTML='';SCENES.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='scene-option'+(state.scene===s.id?' active':'');b.innerHTML=`<img class="scene-thumb" src="${s.src}" alt="">${s.name}`;b.onclick=()=>{state.scene=s.id;markChanged();renderAll()};sc.appendChild(b)});
 const colors=$('colors');colors.innerHTML='';COLORS.forEach(([name,color])=>{const b=document.createElement('button');b.type='button';b.className='swatch'+(state.color===name?' active':'');b.style.background=color;b.title=name;b.setAttribute('aria-label',name+' banner color');b.onclick=()=>{state.color=name;document.documentElement.style.setProperty('--wine',color);markChanged();renderAll()};colors.appendChild(b)});
 const music=$('musicOptions');music.innerHTML='';MUSIC.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='music-option'+(state.music===m.id?' active':'');b.innerHTML=`♫ ${m.label}<small>${m.sub}</small>`;b.onclick=()=>{state.music=m.id;markChanged();renderAll();};music.appendChild(b)});
@@ -318,6 +331,17 @@ for(const button of document.querySelectorAll('[data-scroll-gallery]')){
   gallery.scrollBy({left:Number(button.dataset.direction)*gallery.clientWidth*.85,behavior:'smooth'});
  });
 }
+const studioFullscreen=$('studioFullscreenBtn');
+studioFullscreen.onclick=async()=>{
+ try {
+  if(document.fullscreenElement)await document.exitFullscreen();
+  else if(document.fullscreenEnabled)await document.documentElement.requestFullscreen();
+  else notify('Open the parade in its own tab to use full screen.',false);
+ } catch {notify('Full screen is unavailable here.',false);}
+};
+document.addEventListener('fullscreenchange',()=>{
+ studioFullscreen.querySelector('span').textContent=document.fullscreenElement?'Exit Full Screen':'Full Screen';
+});
 // All controls remain operable with keyboard and trackpad. Avoid any touch-only interactions.
 document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
 document.querySelectorAll('.grade-pick').forEach(el=>el.addEventListener('click',()=>{state.grade=Number(el.dataset.grade);document.querySelectorAll('.grade-pick').forEach(e=>e.classList.toggle('selected',e===el))}));
@@ -330,7 +354,7 @@ window.addEventListener('beforeunload',localSave);renderAll();
 
 // Student entrance: grade → teacher → number. Names reflect the school's saved STEM roster groups.
 const TEACHERS={
- 1:['Arceneaux','Basso','Bell','Boyle','Brice','Canatella','Haney','Hicks','LaCroix','Messer','Ricketts','Simon','Sims','Juvenal','Rizzutto','Vannoy','Williams','Wycoff'],
+ 1:['Arceneaux','Basso','Bell','Boyle','Brice','Canatella','Haney','Hicks','LaCroix','Messer','Ricketts','Simon','Sims','Juvenal','Rizzutto','Vannoy','Williams','Wyckoff'],
  2:['Campbell','Dupuy','Ensminger','Flotte','Gremillion','Jeansonne','Johnson','Lord','Mansur','Monte','Satterwhite','Sims','Juvenal','Rizzutto','Thomas','Toler','Tucker']
 };
 const portalState={grade:1,teacher:'',number:null,step:'grade'};
@@ -338,7 +362,9 @@ function showPortal(step){entryRun++;$('app').inert=true;portalState.step=step;$
 function renderTeacherChoices(){const root=$('teacherChoices');root.innerHTML='';TEACHERS[portalState.grade].slice().sort((a,b)=>a.localeCompare(b)).forEach(name=>{let button=document.createElement('button');button.type='button';button.textContent=name.toUpperCase();button.onclick=()=>{portalState.teacher=name;showPortal('number')};root.appendChild(button)})}
 function renderNumberChoices(){const root=$('numberChoices');root.innerHTML='';for(let n=1;n<=30;n++){const b=document.createElement('button');b.type='button';b.textContent=n;b.onclick=()=>submitPortal(n);root.appendChild(b)}}
 function submitPortal(number){const num=Number(number);if(!Number.isInteger(num)||num<1||num>99){$('portalError').textContent='Choose a number from 1 to 99.';return;}portalState.number=num;
- $('classCode').value=portalState.teacher.toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,12);$('studentNumber').value=String(num);document.querySelectorAll('.grade-pick').forEach(el=>el.classList.toggle('selected',Number(el.dataset.grade)===portalState.grade));enterStudent();}
+ // Retain the original save key so existing Wyckoff student parades reopen.
+ const saveClass=portalState.teacher==='Wyckoff'?'Wycoff':portalState.teacher;
+ $('classCode').value=saveClass.toUpperCase().replace(/[^A-Z0-9-]/g,'').slice(0,12);$('studentNumber').value=String(num);document.querySelectorAll('.grade-pick').forEach(el=>el.classList.toggle('selected',Number(el.dataset.grade)===portalState.grade));enterStudent();}
 // Decorate the grade menu with the teacher-provided illustrated NYC scenes.
 function decorateGameMenus(){
  const artworks=window.PARADE_SCENE_ASSETS||{};

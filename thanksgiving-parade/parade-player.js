@@ -148,10 +148,9 @@
     context.restore();
   }
 
-  function drawCrew(entry, x, ground, width, height, step) {
+  function drawCrew(entry, x, ground, width, height, step, split = .68) {
     const [sourceX, sourceY, sourceW, sourceH] = entry.crop;
     // Keep the head and rope hand stable while the legs take short marching steps.
-    const split = .68;
     const travel = Math.sin(step) * width * .075;
     context.drawImage(entry.image, sourceX, sourceY, sourceW, sourceH * split,
       x, ground - height, width, height * split);
@@ -206,6 +205,20 @@
     sprite(entry, x, y, width, height);
   }
 
+  function drawBand(members, center, ground, time) {
+    const { width: W, height: H } = bounds;
+    const height = H * .25;
+    const spacing = Math.min(W * .125, H * .245);
+    members.forEach((asset, index) => {
+      if (!asset.ready) return;
+      const width = height * asset.crop[2] / asset.crop[3];
+      const x = center + (index - 1) * spacing;
+      const y = ground + H * (index % 2 === 0 ? .014 : -.005);
+      groundShadow(x, y, width * .32, H * .005);
+      drawCrew(asset, x - width / 2, y, width, height, time * 14 + index * 1.55, .78);
+    });
+  }
+
   function paint() {
     if (!playing) return;
     const { width: W, height: H } = bounds;
@@ -213,11 +226,12 @@
     const { elapsed, pieces, scene } = playing;
     const street = STREETS[scene.id] ?? STREETS['central-park'];
     pieces.forEach((piece, i) => {
-      if (!piece.art.ready) return;
+      if (piece.type !== 'band' && !piece.art.ready) return;
       const localTime = elapsed - i * INTERVAL;
       const center = W * (1.16 - SPEED * localTime);
       if (center < -W * .28 || center > W * 1.25) return;
-      if (piece.type === 'float') drawFloat(piece.art, center, H * street.floats);
+      if (piece.type === 'band') drawBand(piece.musicians, center, H * street.handlers, elapsed);
+      else if (piece.type === 'float') drawFloat(piece.art, center, H * street.floats);
       else drawBalloon(piece.art, center, H * street.handlers, i, elapsed);
     });
   }
@@ -284,7 +298,7 @@
       el('app').inert = true;
     }
     cancelAnimationFrame(frame);
-    playing = { pieces: pieces.map(piece => ({ ...piece, art: picture(piece.src) })), scene, track, elapsed: 0, last: 0, announced: -1, done: false, paused: false };
+    playing = { pieces: pieces.map(piece => ({ ...piece, art: picture(piece.src), musicians: piece.members?.map(picture) })), scene, track, elapsed: 0, last: 0, announced: -1, done: false, paused: false };
     CREW.forEach(person => picture(person.path));
     if (lastImage !== scene.src) {
       lastImage = scene.src;
@@ -315,7 +329,7 @@
     cinema.classList.add('hidden');
     document.body.classList.remove('parade-playing');
     el('app').inert = false;
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    if (document.fullscreenElement === cinema) document.exitFullscreen().catch(() => {});
     el('playBtn').focus({ preventScroll: true });
   }
 
