@@ -5,7 +5,7 @@
 <text x="490" y="95" text-anchor="middle" fill="#ce0e2d" font-family="Georgia,serif" font-weight="bold" font-style="italic" font-size="48" letter-spacing="1">Ms. Kaple’s</text>
 <path d="M127 105Q490 85 853 105L853 172Q490 149 127 172Z" fill="#d60a2d"/>
 <text x="490" y="148" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-size="43" font-weight="900" letter-spacing="3">THANKSGIVING DAY</text>
-<text x="490" y="214" text-anchor="middle" fill="#d60a2d" stroke="#e1f5fb" stroke-width="5" paint-order="stroke" font-family="Georgia,serif" font-weight="900" font-size="80" letter-spacing="6">PARADE</text>
+<path d="M135 163Q490 156 845 163L845 226Q490 235 135 226Z" fill="#d60a2d"/><text x="490" y="214" text-anchor="middle" fill="#fff" stroke="#d60a2d" stroke-width="3" paint-order="stroke" font-family="Georgia,serif" font-weight="900" font-size="80" letter-spacing="6">PARADE</text>
 <rect x="382" y="218" width="216" height="37" rx="17" fill="#d60a2d"/>
 <text x="490" y="245" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-style="italic" font-size="28" font-weight="bold">Maker</text>
 </svg>
