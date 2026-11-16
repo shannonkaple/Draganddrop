@@ -621,3 +621,26 @@ html.embedded .workshop-art canvas {
   .portal-card .teacher-grid button{min-height:34px;padding:7px}
   .portal-card .number-grid button{min-height:30px;padding:5px}
 }
+
+/* Guest enters the parade without a classroom login; keep all three choices
+   as matching, keyboard-friendly picture buttons on the opening screen. */
+#portalGrade .grade-tiles{grid-template-columns:repeat(3,minmax(0,1fr));max-width:700px;gap:12px}
+#portalGrade .grade-tiles button{min-width:0}
+#portalGrade .grade-tiles .guest-tile{
+  background-image:linear-gradient(180deg,rgba(255,250,243,.10),rgba(63,39,92,.87)),url('assets/scenes/storybook-parade.jpg');
+  background-size:cover;background-position:center;
+  border-color:#bba0da;color:#fff8eb;box-shadow:0 7px 0 #9477ab;
+  text-shadow:0 2px 3px #342045;
+}
+#portalGrade .guest-tile .tile-number{font-family:var(--font-homebody);font-size:clamp(40px,5vw,70px)}
+#portalGrade .guest-tile small{color:#fff2d9}
+#portalGrade .guest-tile:focus-visible{outline:4px solid #754391;outline-offset:4px}
+@media(max-width:620px){
+  #portalGrade .grade-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  #portalGrade .grade-tiles .guest-tile{grid-column:1/-1;min-height:78px!important;padding:7px}
+  #portalGrade .guest-tile .tile-number{font-size:31px}
+}
+@media(max-height:650px){
+  #portalGrade .grade-tiles button{min-height:104px!important}
+  #portalGrade .guest-tile .tile-number{font-size:39px}
+}
