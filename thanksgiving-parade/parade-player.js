@@ -235,17 +235,18 @@
     cinema.classList.toggle('parade-paused', Boolean(playing?.paused));
   }
 
+  // Never silently substitute an older song for one of the four student-selected tracks.
   audio.addEventListener('error', () => {
-    const track = playing?.track;
-    if (!track?.fallback || audio.getAttribute('src') === track.fallback) return;
-    audio.src = track.fallback;
-    if (!playing.paused && !playing.done) playAudio();
+    if (playing && !playing.done)
+      showMessage('This song could not load. Return to Scenes & Music to pick another.');
   });
 
   function playAudio() {
     audio.muted = muted;
     audio.play().catch(error => {
-      if (error.name === 'NotAllowedError' && playing && !muted) showMessage('Press Sound Off and Sound On to hear the music.');
+      if (!playing || muted || playing.done) return;
+      if (error.name === 'NotAllowedError') showMessage('Press Sound Off and Sound On to hear the music.');
+      else if (error.name !== 'AbortError') showMessage('Music could not start. Please choose another song.');
     });
   }
 
@@ -276,6 +277,7 @@
 
   function start(pieces, scene, track) {
     if (!pieces.length) return;
+    window.PARADE_STOP_MUSIC_PREVIEW?.();
     if (!playing) {
       cinema.classList.remove('hidden');
       document.body.classList.add('parade-playing');
