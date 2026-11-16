@@ -6,7 +6,7 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>My Thanksgiving Parade | Balloon Parade Studio</title>
 <link rel="icon" href="assets/ui/main-title.webp" type="image/webp">
-<link rel="stylesheet" href="style.css?v=20261116-studio-refresh1">
+<link rel="stylesheet" href="style.css?v=20261116-gallery-pages1">
 </head>
 <body>
 <div id="app" class="app" inert>
@@ -44,27 +44,31 @@
    </section>
    <section class="library-panel" id="libraryPanel" aria-label="Choose parade items">
     <div class="studio-flow-kicker" id="libraryChoiceLabel">1 · PICK YOUR BALLOONS</div>
+    <div class="balloon-group-nav" id="balloonGroupNav" role="group" aria-label="Choose balloon pictures">
+      <button type="button" id="realBalloonTab" class="balloon-group-tab is-active" data-balloon-group="real" aria-pressed="true">ORIGINAL BALLOONS <span>26</span></button>
+      <button type="button" id="newBalloonTab" class="balloon-group-tab" data-balloon-group="new" aria-pressed="false">NEW CHARACTERS <span>33</span></button>
+    </div>
     <div id="balloonShelves">
     <section class="balloon-shelf" aria-labelledby="realGalleryTitle">
-      <div class="shelf-heading"><h2 id="realGalleryTitle">Original Parade Balloons</h2><span id="realGalleryCount">26 choices</span>
-        <button type="button" class="arrow-btn" data-scroll-gallery="realGallery" data-direction="-1" aria-label="Previous original parade balloons">←</button>
-        <button type="button" class="arrow-btn" data-scroll-gallery="realGallery" data-direction="1" aria-label="Next original parade balloons">→</button>
+      <div class="shelf-heading"><h2 id="realGalleryTitle">Original Parade Balloons</h2><span id="realGalleryCount">26 choices</span><span class="gallery-page-status" id="realPageStatus" aria-live="polite">Page 1</span>
+        <button type="button" class="arrow-btn" data-page-gallery="realGallery" data-direction="-1" aria-label="Previous original parade balloons">←</button>
+        <button type="button" class="arrow-btn" data-page-gallery="realGallery" data-direction="1" aria-label="Next original parade balloons">→</button>
       </div>
       <div id="realGallery" class="gallery" aria-labelledby="realGalleryTitle"></div>
     </section>
     <section class="balloon-shelf" aria-labelledby="newGalleryTitle">
-      <div class="shelf-heading"><h2 id="newGalleryTitle">New Character Balloons</h2><span id="newGalleryCount">33 choices</span>
-        <button type="button" class="arrow-btn" data-scroll-gallery="newGallery" data-direction="-1" aria-label="Previous new character balloons">←</button>
-        <button type="button" class="arrow-btn" data-scroll-gallery="newGallery" data-direction="1" aria-label="Next new character balloons">→</button>
+      <div class="shelf-heading"><h2 id="newGalleryTitle">New Character Balloons</h2><span id="newGalleryCount">33 choices</span><span class="gallery-page-status" id="newPageStatus" aria-live="polite">Page 1</span>
+        <button type="button" class="arrow-btn" data-page-gallery="newGallery" data-direction="-1" aria-label="Previous new character balloons">←</button>
+        <button type="button" class="arrow-btn" data-page-gallery="newGallery" data-direction="1" aria-label="Next new character balloons">→</button>
       </div>
       <div id="newGallery" class="gallery" aria-labelledby="newGalleryTitle"></div>
     </section>
     </div>
     <div id="floatShelf" class="hidden">
     <section class="balloon-shelf" aria-labelledby="floatGalleryTitle">
-      <div class="shelf-heading"><h2 id="floatGalleryTitle">Parade Floats</h2><span id="floatGalleryCount">23 choices</span>
-        <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="-1" aria-label="Previous parade floats">←</button>
-        <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="1" aria-label="Next parade floats">→</button>
+      <div class="shelf-heading"><h2 id="floatGalleryTitle">Parade Floats</h2><span id="floatGalleryCount">23 choices</span><span class="gallery-page-status" id="floatPageStatus" aria-live="polite">Page 1</span>
+        <button type="button" class="arrow-btn" data-page-gallery="floatGallery" data-direction="-1" aria-label="Previous parade floats">←</button>
+        <button type="button" class="arrow-btn" data-page-gallery="floatGallery" data-direction="1" aria-label="Next parade floats">→</button>
       </div>
       <div id="floatGallery" class="gallery" aria-labelledby="floatGalleryTitle"></div>
     </section>
@@ -174,7 +178,7 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261116-studio-refresh2" defer></script>
+<script src="app.js?v=20261116-gallery-pages1" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
