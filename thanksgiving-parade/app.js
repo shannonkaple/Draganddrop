@@ -39,8 +39,8 @@ function sanitizeDraft(input){
   const name=String(c.name||'My Balloon').replace(/[^a-z0-9 -]/gi,'').slice(0,26);
   if(c.workshop&&Number.isInteger(c.baseId)&&c.baseId>=301&&c.baseId<=315){
    const o=c.options&&typeof c.options==='object'?c.options:{};
-   const caps={eyes:10,nose:8,mouth:7,hat:7,clothes:7,shoes:6,prop:7};
-   const options={};for(const [key,max] of Object.entries(caps))options[key]=Math.max(0,Math.min(max,Number(o[key])||0));
+   const caps={eyes:10,noses:10,mouths:10,hats:10,shirts:10,shorts:10,skirts:10,shoes:10,accessories:10,costumes:10,nose:8,mouth:7,hat:7,clothes:7,prop:7};
+   const options={};for(const [key,max] of Object.entries(caps)){if(Object.prototype.hasOwnProperty.call(o,key))options[key]=Math.max(0,Math.min(max,Number(o[key])||0));}
    return {id:c.id,name,baseId:c.baseId,workshop:true,options};
   }
   if(!Number.isInteger(c.baseId)||c.baseId<1||c.baseId>27)return null;
