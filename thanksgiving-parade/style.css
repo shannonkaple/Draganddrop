@@ -505,3 +505,7 @@ html.embedded .workshop-art canvas {
 .music-preview-btn:focus-visible,.music-choice .music-option:focus-visible{outline:3px solid #8d4b9f;outline-offset:3px}
 .music-preview-status{color:#795571;font:12px 'VAG',sans-serif;padding:9px 6px;line-height:1.4;min-height:34px}
 @media(max-width:620px){.music-options{grid-template-columns:repeat(2,minmax(0,1fr))}.music-choice .music-option{min-height:88px}}
+
+.balloon-collections{display:flex;flex-wrap:wrap;gap:8px;padding:0 12px 10px}
+.balloon-collections.hidden{display:none}
+.balloon-collections [aria-pressed="true"]{background:#713951;color:white;border-color:#713951}
