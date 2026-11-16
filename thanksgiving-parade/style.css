@@ -587,7 +587,6 @@ html.embedded .workshop-art canvas {
 
 #studioFullscreenBtn{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 #studioFullscreenBtn .control-graphic{width:20px;height:20px}
-.band-menu>strong{color:#773957;font:700 13px/1.2 var(--font-vag);padding:3px}
 #bandGallery .asset-card{flex:1 0 126px;max-width:190px;height:123px}
 .band-members{display:flex;align-items:end;justify-content:center;width:100%;height:86px}
 #bandGallery .band-members img{width:33%;height:82px;object-position:bottom center}
@@ -595,3 +594,30 @@ html.embedded .workshop-art canvas {
 .stage-band img{width:23%;height:100%;object-fit:contain;object-position:bottom}
 @media(max-width:900px){.step-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:700px){#studioFullscreenBtn span{position:absolute;clip-path:inset(50%)}.top-actions .saved-note{display:none}}
+
+.lineup{grid-auto-flow:column;overflow-x:auto;overflow-y:hidden;max-height:none}
+.lineup-actions{display:flex;gap:5px}
+.lineup-actions .arrow-btn{width:29px;height:29px;min-width:29px;padding:0;line-height:1;font-size:19px}
+@media(min-width:901px){
+  .body-layout{grid-template-columns:156px minmax(0,1fr);gap:9px!important;padding:9px!important}
+  .main{grid-template-columns:minmax(0,1.04fr) minmax(0,1fr);grid-template-rows:auto auto;align-items:start;align-content:start;gap:8px}
+  .preview-panel{grid-area:1/1}
+  .lineup-panel{grid-area:2/1}
+  .library-panel{grid-area:1/2/span 2}
+  .preview-panel .stage{width:min(100%,80dvh);margin-inline:auto}
+  .lineup{--slot-min:74px}
+}
+@media(max-height:760px) and (min-width:901px){
+  .sidebar .tip-card{display:none}
+  .preview-panel .stage{width:min(100%,76dvh)}
+  .preview-actions .light-btn{min-height:36px;height:auto;padding:6px 9px!important}
+  .decorate-panel{padding:4px!important;display:grid;gap:6px}
+  .decorate-panel .design-section{padding:5px 7px!important;margin:0!important}
+  .decorate-panel .section-art{width:120px;height:35px;margin:0}
+  .decorate-panel .scene-thumb{height:37px}
+  .decorate-panel .music-choice{gap:3px}
+  .decorate-panel .music-option{min-height:48px;font-size:11px}
+  .decorate-panel .music-preview-btn{min-height:28px}
+  .portal-card .teacher-grid button{min-height:34px;padding:7px}
+  .portal-card .number-grid button{min-height:30px;padding:5px}
+}

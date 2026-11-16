@@ -150,16 +150,24 @@
 
   function drawCrew(entry, x, ground, width, height, step, split = .68) {
     const [sourceX, sourceY, sourceW, sourceH] = entry.crop;
-    // Keep the head and rope hand stable while the legs take short marching steps.
-    const travel = Math.sin(step) * width * .075;
+    const upperHeight = height * split;
+    const legHeight = height - upperHeight;
+    const sourceLegHeight = sourceH * (1 - split);
+    const seamY = ground - legHeight;
     context.drawImage(entry.image, sourceX, sourceY, sourceW, sourceH * split,
-      x, ground - height, width, height * split);
-    const lowerY = sourceY + sourceH * split;
-    const lowerH = sourceH * (1 - split);
-    context.drawImage(entry.image, sourceX, lowerY, sourceW / 2, lowerH,
-      x + travel, ground - height * (1 - split), width / 2, height * (1 - split));
-    context.drawImage(entry.image, sourceX + sourceW / 2, lowerY, sourceW / 2, lowerH,
-      x + width / 2 - travel, ground - height * (1 - split), width / 2, height * (1 - split));
+      x, ground - height, width, upperHeight);
+    // Anchor both legs at the seam, then taper the reach down toward each foot.
+    for (let leg = 0; leg < 2; leg++) {
+      const phase = step + leg * Math.PI;
+      const reach = Math.sin(phase) * width * .085;
+      const lift = Math.max(0, Math.cos(phase)) * legHeight * .065;
+      context.save();
+      context.transform(1, 0, reach / legHeight, 1 - lift / legHeight,
+        x + leg * width / 2, seamY);
+      context.drawImage(entry.image, sourceX + leg * sourceW / 2, sourceY + sourceH * split,
+        sourceW / 2, sourceLegHeight, 0, 0, width / 2, legHeight);
+      context.restore();
+    }
   }
 
   function drawBalloon(entry, center, ground, index, time) {
@@ -171,7 +179,7 @@
     if (x > W + 24 || x + width < -24) return;
     const y = H * .095 + H * .014 * Math.sin(time * 1.85 + index * .87);
     const crewHeight = H * .145;
-    const crew = [.16, .36, .64, .84].map((percent, person) => {
+    const crew = [.10, .25, .42, .58, .75, .90].map((percent, person) => {
       const design = CREW[(index + person) % CREW.length];
       const asset = picture(design.path);
       if (!asset.ready) return null;
@@ -185,8 +193,12 @@
     });
     crew.forEach((person, i) => {
       if (!person) return;
-      const ropeX = x + [.22, .40, .60, .78][i] * width;
-      const ropeY = y + entry.tetherY[i] * height;
+      const tether = i * (entry.tetherY.length - 1) / (crew.length - 1);
+      const before = Math.floor(tether);
+      const after = Math.ceil(tether);
+      const attachY = entry.tetherY[before] + (entry.tetherY[after] - entry.tetherY[before]) * (tether - before);
+      const ropeX = x + (.22 + .56 * i / (crew.length - 1)) * width;
+      const ropeY = y + attachY * height;
       context.beginPath();
       context.moveTo(ropeX, ropeY);
       context.quadraticCurveTo((ropeX + person.gripX) / 2 + H * .012, (ropeY + person.gripY) / 2 + H * .02, person.gripX, person.gripY);
@@ -200,23 +212,28 @@
     crew.forEach((person, i) => {
       if (!person) return;
       groundShadow(person.x + person.wide / 2, person.y, person.wide * .36, H * .004);
-      drawCrew(person.asset, person.x, person.y, person.wide, crewHeight, time * 14 + i * 1.6);
+      drawCrew(person.asset, person.x, person.y, person.wide, crewHeight, time * 9.5 + i * 1.6);
     });
     sprite(entry, x, y, width, height);
   }
 
   function drawBand(members, center, ground, time) {
     const { width: W, height: H } = bounds;
-    const height = H * .25;
-    const spacing = Math.min(W * .125, H * .245);
-    members.forEach((asset, index) => {
-      if (!asset.ready) return;
-      const width = height * asset.crop[2] / asset.crop[3];
-      const x = center + (index - 1) * spacing;
-      const y = ground + H * (index % 2 === 0 ? .014 : -.005);
-      groundShadow(x, y, width * .32, H * .005);
-      drawCrew(asset, x - width / 2, y, width, height, time * 14 + index * 1.55, .78);
-    });
+    const spacing = Math.min(W * .095, H * .23);
+    // Draw the far rank first so the front rank naturally overlaps it.
+    for (let rank = 0; rank < 3; rank++) {
+      const height = H * (.185 + rank * .017);
+      for (let file = 0; file < 4; file++) {
+        const asset = members[(rank + file) % members.length];
+        if (!asset.ready) continue;
+        const width = height * asset.crop[2] / asset.crop[3];
+        const x = center + (file - 1.5 + (rank - 1) * .25) * spacing;
+        const y = ground + H * (-.049 + rank * .033);
+        groundShadow(x, y, width * .32, H * .005);
+        drawCrew(asset, x - width / 2, y, width, height,
+          time * 9.5 + file * 1.45 + rank * .85, .78);
+      }
+    }
   }
 
   function paint() {
@@ -231,7 +248,7 @@
       const center = W * (1.16 - SPEED * localTime);
       if (center < -W * .28 || center > W * 1.25) return;
       if (piece.type === 'band') drawBand(piece.musicians, center, H * street.handlers, elapsed);
-      else if (piece.type === 'float') drawFloat(piece.art, center, H * street.floats);
+      else if (piece.type === 'float') drawFloat(piece.art, center, H * (street.floats + (piece.id === 36 ? .11 : 0)));
       else drawBalloon(piece.art, center, H * street.handlers, i, elapsed);
     });
   }

@@ -6,7 +6,7 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>My Thanksgiving Parade | Balloon Parade Studio</title>
 <link rel="icon" href="assets/ui/main-title.webp" type="image/webp">
-<link rel="stylesheet" href="style.css?v=20261116-bands">
+<link rel="stylesheet" href="style.css?v=20261116-full-lineup">
 </head>
 <body>
 <div id="app" class="app" inert>
@@ -27,7 +27,7 @@
    <div class="step-list">
     <button class="step selected" type="button" data-tab="balloons" aria-label="Choose balloons"><img class="step-game-art" src="assets/ui/balloons.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🎈</span><span><b>Choose Balloons</b><small>Big, colorful parade stars</small></span><span class="step-chevron">›</span></button>
     <button class="step" type="button" data-tab="floats" aria-label="Choose floats"><img class="step-game-art" src="assets/ui/floats.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🚚</span><span><b>Choose Floats</b><small>Mix and match your favorites</small></span><span class="step-chevron">›</span></button>
-    <button class="step band-menu" type="button" data-tab="bands"><strong>♫ Marching Bands</strong></button>
+    <button class="step" type="button" data-tab="bands" aria-label="Marching Bands"><img class="step-game-art" src="assets/ui/bands.webp" alt=""></button>
     <button class="step" type="button" data-tab="decorate" aria-label="Parade scenes and music"><img class="step-game-art" src="assets/ui/scenes.webp" alt="" aria-hidden="true"><span class="step-icon" aria-hidden="true">🍁</span><span><b>Scenes & Music</b><small>NYC scenes, banner &amp; music</small></span><span class="step-chevron">›</span></button>
    </div>
    <div class="tip-card"><span class="tip-star">🦃</span><div><b>Parade director tip</b><p id="tipText">Start by choosing your favorite balloons. Click any picture to add it to your lineup!</p></div></div>
@@ -35,11 +35,11 @@
  <main class="main">
    <section class="preview-panel" id="paradePreviewPanel" aria-label="Animated parade preview">
     <div class="preview-head"><div><span class="eyebrow">LIVE PREVIEW</span><h2 id="stageHeading">Your own NYC parade</h2></div><div class="head-controls"><span class="scene-chip" id="sceneChip">Central Park West</span><button type="button" id="previewSceneNext" class="circle-btn" aria-label="Switch scene">↻</button></div></div>
-    <div id="stage" class="stage central-park" aria-label="Parade street background"><div id="stageScene" class="stage-scene"></div><div id="stageCharacters" class="stage-characters"></div><div class="stage-sign" id="stageSign">CENTRAL PARK WEST · NEW YORK CITY</div><div class="road-strip" aria-hidden="true"></div><div id="stageEmpty" class="stage-empty"><span class="empty-icon">✦</span><b>Your parade starts here!</b><span>Choose a balloon or float from below.</span></div></div>
+    <div id="stage" class="stage central-park" aria-label="Parade street background"><div id="stageScene" class="stage-scene"></div><div id="stageCharacters" class="stage-characters"></div><div class="stage-sign" id="stageSign">CENTRAL PARK WEST · NEW YORK CITY</div><div class="road-strip" aria-hidden="true"></div><div id="stageEmpty" class="stage-empty"><span class="empty-icon">✦</span><b>Your parade starts here!</b><span>Choose a balloon, float, or band.</span></div></div>
     <div class="preview-foot"><span class="preview-caption" id="previewCaption">Make your lineup, then watch it come to life.</span><div class="preview-actions"><button type="button" id="shuffleBtn" class="light-btn">✳ Surprise Me</button><button type="button" id="playBtn" class="play-btn game-play-art" aria-label="Watch my parade"><img src="assets/ui/watch-parade.webp" alt="" aria-hidden="true"><span class="sr-only">Watch my parade</span></button></div></div>
    </section>
    <section class="lineup-panel" id="paradeLineupPanel" aria-label="Parade lineup">
-     <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2>Put your parade in order <span class="muted" id="lineupCount">Your parade</span></h2></div><div class="tiny-help">Use ◀ ▶ to move a piece</div></div>
+     <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2>Put your parade in order <span class="muted" id="lineupCount">Your parade</span></h2></div><div class="lineup-actions"><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="-1" aria-label="Previous lineup slots">‹</button><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="1" aria-label="Next lineup slots">›</button></div></div>
      <div class="lineup" id="lineup" role="list"></div>
    </section>
    <section class="library-panel" id="libraryPanel">
@@ -61,7 +61,7 @@
     </div>
     <div id="floatShelf" class="hidden">
     <section class="balloon-shelf" aria-labelledby="floatGalleryTitle">
-      <div class="shelf-heading"><h2 id="floatGalleryTitle">Parade Floats</h2><span id="floatGalleryCount">9 choices</span>
+      <div class="shelf-heading"><h2 id="floatGalleryTitle">Parade Floats</h2><span id="floatGalleryCount">23 choices</span>
         <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="-1" aria-label="Previous parade floats">‹</button>
         <button type="button" class="arrow-btn" data-scroll-gallery="floatGallery" data-direction="1" aria-label="Next parade floats">›</button>
       </div>
@@ -173,11 +173,11 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261116-bands" defer></script>
+<script src="app.js?v=20261116-full-lineup" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
 <script src="music-preview.js?v=20261116-preview1" defer></script>
-<script src="parade-player.js?v=20261116-bands" defer></script>
+<script src="parade-player.js?v=20261116-full-lineup" defer></script>
 </body>
 </html>
