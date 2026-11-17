@@ -130,3 +130,26 @@ body:not(.workshop-mode) .step-list .step.selected{background:#fff!important;bor
  body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-art{height:40px!important;flex-basis:40px!important}
  body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-art img{height:38px!important;max-height:38px!important}
 }
+
+/* Master SVG heading graphics: identical shapes/lettering, words only differ. */
+body:not(.workshop-mode) .step-list .step:nth-child(n){border:2px solid #fff!important;background:transparent!important;border-radius:12px!important;box-shadow:none!important}
+body:not(.workshop-mode) .step-list .step.selected{background:#fff!important;border-color:#e7002a!important;box-shadow:0 2px 0 #ae0022!important}
+body:not(.workshop-mode) .step-list .step .step-game-art{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;background:transparent!important}
+body:not(.workshop-mode) #stageHeading::after,body:not(.workshop-mode) #paradeLineupPanel .section-heading h2::before{content:none!important;display:none!important}
+body:not(.workshop-mode) #stageHeading img{display:block!important;max-height:50px!important;height:50px!important;width:215px!important}
+body:not(.workshop-mode) #paradeLineupPanel .heading-put-your-parade-in-order{display:block!important;width:290px!important;height:50px!important;max-height:50px!important}
+body:not(.workshop-mode) .play-btn.game-play-art::after{content:none!important;display:none!important}
+body:not(.workshop-mode) .play-btn.game-play-art{width:175px!important;height:49px!important;border:none!important;padding:0!important;background:transparent!important;box-shadow:none!important}
+body:not(.workshop-mode) .play-btn.game-play-art img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important}
+body:not(.workshop-mode) header.topbar .top-actions button.unified-top-control{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;height:34px!important;min-height:34px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.unified-top-control > span{display:none!important}
+body:not(.workshop-mode) header.topbar .top-actions button.unified-top-control > img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;max-width:190px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.unified-top-control{width:128px!important;min-width:70px!important}
+body:not(.workshop-mode) header.topbar .top-actions #homeBtn.unified-top-control{width:78px!important}
+body:not(.workshop-mode) header.topbar .top-actions #helpBtn.unified-top-control{width:74px!important}
+body:not(.workshop-mode) header.topbar .top-actions #changeStudentBtn.unified-top-control{width:150px!important}
+body:not(.workshop-mode) header.topbar .top-actions #savedParadesBtn.unified-top-control{width:142px!important}
+#cinema .cinema-controls button.unified-image-button,#cinema #replayBtn.unified-image-button{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;border-radius:8px!important;min-width:110px!important;height:42px!important}
+#cinema .unified-image-button span{display:none!important}
+#cinema .cinema-controls button.unified-image-button img,#cinema #replayBtn.unified-image-button img{display:block!important;max-width:none!important;max-height:none!important;width:100%!important;height:100%!important;object-fit:contain!important}
+#cinema .cinema-controls{gap:5px!important;flex-wrap:nowrap!important}
