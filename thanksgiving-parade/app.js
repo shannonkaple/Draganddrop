@@ -322,7 +322,7 @@ function renderShelf(id,choices){
   button.type='button';
   button.title=piece.name;
   button.setAttribute('aria-label',(selected?'Add another ':'Add ')+piece.name+' to your parade');
-  const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="" loading="lazy">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
+  const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="" loading="eager">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
   button.innerHTML='<span class="add-dot">'+(selected?'✓':'+')+'</span>'+pictures+'<span class="asset-name">'+piece.name+'</span>';
   button.disabled=state.pieces.length>=MAX[state.grade];
   button.onclick=()=>{
