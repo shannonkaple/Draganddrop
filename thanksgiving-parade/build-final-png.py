@@ -42,7 +42,10 @@ def save(im,name):
  im.save(OUT/name,optimize=True,compress_level=9)
  print("PNG",name,im.size,(OUT/name).stat().st_size)
 W,H=850,194
-def tab(label,name):
+def tab(label,name,active=False):
+ surface=(228,0,42,255) if active else (174,240,255,255)
+ ink=WHITE if active else RED
+ outline=(158,0,34,255) if active else WHITE
  im=Image.new("RGBA",(W,H),(0,0,0,0)); d=ImageDraw.Draw(im)
  # One shared flat-bottom cloud tab silhouette.
  cloud=[(42,83,106,142),(76,46,155,130),(143,36,221,116),(214,31,291,119),(292,37,367,115),
@@ -51,11 +54,11 @@ def tab(label,name):
  d.rounded_rectangle((29,69,821,183),radius=33,fill=(255,255,255,255))
  for bb in cloud:d.ellipse(bb,fill=WHITE)
  d.rectangle((30,101,820,186),fill=WHITE)
- d.rounded_rectangle((35,77,815,180),radius=27,fill=(174,240,255,255))
+ d.rounded_rectangle((35,77,815,180),radius=27,fill=surface)
  for bb in cloud:
   b=(bb[0]+6,bb[1]+6,bb[2]-6,bb[3]-4)
-  d.ellipse(b,fill=(174,240,255,255))
- d.rectangle((37,109,813,179),fill=(174,240,255,255))
+  d.ellipse(b,fill=surface)
+ d.rectangle((37,109,813,179),fill=surface)
  # Deco: clouds/NYC skyline built into PNG pixels, not webpage CSS.
  for cx,top,ww in [(69,119,18),(92,102,21),(116,133,17),(143,110,24),
                     (676,109,21),(700,95,18),(723,128,22),(750,109,19),(779,123,18)]:
@@ -70,13 +73,13 @@ def tab(label,name):
  if label=="PUT YOUR PARADE IN ORDER":lines=["PUT YOUR PARADE","IN ORDER"]
  if len(lines)==1:
   f=textfit(d,label,FONTS,80,730)
-  centerline(d,label,91,RED,WHITE,6,f)
+  centerline(d,label,91,ink,outline,6,f)
  else:
   f=textfit(d,lines[0],FONTS,58,720)
-  centerline(d,lines[0],76,RED,WHITE,5,f)
+  centerline(d,lines[0],76,ink,outline,5,f)
   f=textfit(d,lines[1],FONTS,62,720)
-  centerline(d,lines[1],123,RED,WHITE,5,f)
- save(im,name+".png")
+  centerline(d,lines[1],123,ink,outline,5,f)
+ save(im,name+("-active" if active else "")+".png")
 # Every element shares this exact tab artwork; only the type changes.
 for label,name in [
  ("BALLOONS","tab-balloons"),("FLOATS","tab-floats"),("MUSIC","tab-music"),
@@ -84,6 +87,7 @@ for label,name in [
  ("YOUR PARADE","tab-your-parade"),("PUT YOUR PARADE IN ORDER","tab-lineup"),
  ("MARCHING BANDS","tab-marching-bands")]:
  tab(label,name)
+ tab(label,name,True)
 
 # Same physical size, light, shading, white uppercase and border for all 8 utilities.
 W,H=670,142
@@ -93,8 +97,48 @@ def red_button(label,name):
  d.rounded_rectangle((13,7,656,127),radius=30,fill=(230,3,41,255),outline=WHITE,width=7)
  d.rounded_rectangle((23,16,646,119),radius=23,outline=(255,124,141,195),width=3)
  d.arc((40,14,627,115),200,342,fill=(255,134,153,125),width=5)
- f=textfit(d,label,SANS,54,590)
- centerline(d,label,46,WHITE,(163,0,26,255),2,f)
+ # Every red button is a real PNG containing its own icon, not a CSS symbol.
+ x,y=91,72
+ if label in ("HOME","BACK TO STUDIO"):
+  d.polygon([(x-35,y-3),(x,y-35),(x+35,y-3),(x+25,y-3),(x+25,y+32),(x-25,y+32),(x-25,y-3)],fill=WHITE)
+  d.rectangle((x-8,y+7,x+8,y+32),fill=(230,3,41,255))
+ elif label=="FULL SCREEN":
+  for dx,dy in [(-28,-24),(28,-24),(-28,24),(28,24)]:
+   d.line([(x+dx,y+dy+(8 if dy<0 else -8)),(x+dx,y+dy),(x+dx+(-9 if dx<0 else 9),y+dy)],fill=WHITE,width=7,joint="curve")
+ elif label=="HELP":
+  d.ellipse((x-31,y-31,x+31,y+31),outline=WHITE,width=7)
+  d.text((x-15,y-33),"?",font=font(SANS,55),fill=WHITE)
+ elif label=="CHANGE STUDENT":
+  d.ellipse((x-17,y-30,x+17,y+4),fill=WHITE)
+  d.rounded_rectangle((x-30,y+11,x+30,y+33),radius=12,fill=WHITE)
+ elif label in ("SAVE PARADES","ORIGINAL BALLOONS","NEW CHARACTERS"):
+  d.rounded_rectangle((x-37,y-19,x+38,y+28),radius=7,outline=WHITE,width=6)
+  d.rectangle((x-29,y-30,x+8,y-19),fill=WHITE)
+ elif label=="SAVE PARADE":
+  d.line([(x-31,y),(x-9,y+22),(x+32,y-25)],fill=WHITE,width=13,joint="curve")
+ elif label=="SOUND ON":
+  d.rectangle((x-30,y-11,x-12,y+13),fill=WHITE)
+  d.polygon([(x-13,y-11),(x+11,y-28),(x+11,y+28),(x-13,y+13)],fill=WHITE)
+  d.arc((x-4,y-25,x+37,y+26),-60,60,fill=WHITE,width=7)
+ elif label in ("PAUSE",):
+  d.rounded_rectangle((x-24,y-28,x-9,y+29),radius=4,fill=WHITE)
+  d.rounded_rectangle((x+8,y-28,x+23,y+29),radius=4,fill=WHITE)
+ elif label in ("RESUME","PLAY AGAIN","YES"):
+  if label=="PLAY AGAIN":
+   d.arc((x-27,y-27,x+27,y+27),38,320,fill=WHITE,width=8)
+   d.polygon([(x+30,y-19),(x+37,y+10),(x+9,y+4)],fill=WHITE)
+  elif label=="RESUME":d.polygon([(x-20,y-29),(x-20,y+29),(x+31,y)],fill=WHITE)
+  else:d.line([(x-31,y),(x-8,y+22),(x+29,y-26)],fill=WHITE,width=12,joint="curve")
+ elif label=="NO":
+  d.line([(x-22,y-23),(x+22,y+23)],fill=WHITE,width=12)
+  d.line([(x+22,y-23),(x-22,y+23)],fill=WHITE,width=12)
+ if label in ("ORIGINAL BALLOONS","NEW CHARACTERS"):
+  f=textfit(d,label,SANS,48,480)
+ else:
+  f=textfit(d,label,SANS,51,475)
+ bb=d.textbbox((0,0),label,font=f)
+ tw=bb[2]-bb[0]
+ d.text((round(405-tw/2-bb[0]),round(73-(bb[3]-bb[1])/2-bb[1])),label,font=f,fill=WHITE,stroke_width=2,stroke_fill=(163,0,26,255))
  save(im,name+".png")
 for label,name in [
  ("HOME","btn-home"),("FULL SCREEN","btn-full-screen"),("HELP","btn-help"),
