@@ -1868,3 +1868,122 @@ body:not(.workshop-mode) #libraryPanel .hidden { display:none!important; }
 body:not(.workshop-mode) #libraryPanel:not([data-active-tab="balloons"]) #balloonGroupNav,
 body:not(.workshop-mode) #libraryPanel:not([data-active-tab="balloons"]) #balloonShelves,
 body:not(.workshop-mode) #libraryPanel #balloonGroupNav[hidden]{display:none!important}
+
+
+/* Classroom launch — red and ice blue artwork, centered title, readable VAG menu */
+:root{--kaple-ice:#9DEFFF;--kaple-red:#E7002A}
+body:not(.workshop-mode) header.topbar{
+ background:#9DEFFF!important;border:0!important;border-bottom:4px solid #E7002A!important;
+ height:auto!important;min-height:0!important;padding:5px 8px 9px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;gap:5px!important;width:100%!important;
+}
+body:not(.workshop-mode) header.topbar .kaple-brand{
+ width:100%!important;max-width:940px!important;margin:0 auto!important;min-width:0!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:clamp(5px,2vw,23px)!important
+}
+body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{
+ display:block!important;width:min(65vw,605px)!important;height:clamp(74px,10vw,128px)!important;
+ max-height:128px!important;max-width:605px!important;object-fit:contain!important;filter:none!important
+}
+body:not(.workshop-mode) header.topbar .float-balloon{
+ display:block!important;flex:0 0 auto!important;font-size:clamp(39px,6vw,70px)!important;
+ line-height:1!important;filter:drop-shadow(0 3px 3px #579aae40);
+ animation:kaple-float 3s ease-in-out infinite;transform-origin:center 90%
+}
+body:not(.workshop-mode) header.topbar .float-right{animation-delay:-1.6s;animation-duration:3.6s}
+@keyframes kaple-float{0%,100%{transform:translateY(2px) rotate(-6deg)}50%{transform:translateY(-6px) rotate(5deg)}}
+@media(prefers-reduced-motion:reduce){body:not(.workshop-mode) header.topbar .float-balloon{animation:none!important}}
+body:not(.workshop-mode) header.topbar .top-actions{
+ width:100%!important;display:flex!important;flex-basis:auto!important;flex-wrap:wrap!important;
+ gap:5px!important;justify-content:center!important;align-items:center!important;padding:0!important
+}
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util{
+ display:inline-flex!important;flex:0 1 auto!important;width:auto!important;min-width:0!important;
+ height:38px!important;min-height:38px!important;gap:5px!important;align-items:center!important;
+ justify-content:center!important;padding:5px clamp(8px,1vw,18px)!important;
+ border:2px solid #fff!important;border-radius:9px!important;background:#E7002A!important;
+ color:#fff!important;box-shadow:0 2px 0 #a30022!important;
+ font-family:'VAG',sans-serif!important;font-size:clamp(10px,1vw,14px)!important;
+ font-weight:900!important;letter-spacing:.02em!important;white-space:nowrap!important;
+ text-shadow:none!important;filter:none!important
+}
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util::before,
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util::after{display:none!important;content:none!important}
+body:not(.workshop-mode) header.topbar .kaple-icon{font:800 18px/1 system-ui,sans-serif!important;color:#fff!important}
+body:not(.workshop-mode) header.topbar .kaple-label{font-family:'VAG',sans-serif!important;font-size:inherit!important;color:#fff!important;display:inline!important}
+body:not(.workshop-mode) .step-list .step:nth-child(n){
+ height:clamp(61px,6.6vw,93px)!important;min-height:61px!important;
+ padding:3px!important;overflow:hidden!important;border:0!important;border-radius:11px!important;
+ background:transparent!important;box-shadow:none!important
+}
+body:not(.workshop-mode) .step-list .step .step-game-art{
+ display:block!important;width:100%!important;height:100%!important;max-height:none!important;
+ object-fit:contain!important;filter:none!important
+}
+body:not(.workshop-mode) .step-list .step > span{display:none!important}
+body:not(.workshop-mode) .step-list .step.selected{
+ box-shadow:inset 0 0 0 3px #E7002A!important;background:#fff!important
+}
+body:not(.workshop-mode) .step-list .step:focus-visible{outline:3px solid #E7002A!important}
+body:not(.workshop-mode) .play-btn.game-play-art{
+ width:clamp(160px,19vw,255px)!important;height:clamp(57px,7vw,90px)!important;
+ background:transparent!important;box-shadow:none!important;border:0!important;padding:0!important
+}
+body:not(.workshop-mode) .play-btn.game-play-art img{
+ display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;filter:none!important
+}
+body:not(.workshop-mode) #stageHeading .parade-heading-art{display:block!important;width:300px!important;max-width:100%!important;height:66px!important;object-fit:contain!important}
+body:not(.workshop-mode) #paradeLineupPanel .heading-put-your-parade-in-order{
+ width:min(470px,63vw)!important;max-width:100%!important;height:74px!important;object-fit:contain!important
+}
+body:not(.workshop-mode) .body-layout{max-width:none!important;margin:0!important;padding:6px 9px 9px!important;gap:8px!important}
+body:not(.workshop-mode) .sidebar{gap:5px!important}
+body:not(.workshop-mode) .welcome-card{padding:8px 9px!important}
+body:not(.workshop-mode) .tip-card,body:not(.workshop-mode) .steps-label{display:none!important}
+#onboarding.overlay,#onboarding.overlay:has(#portalGrade:not(.hidden)){
+ background:#9DEFFF!important;backdrop-filter:none!important
+}
+#onboarding .portal-card{
+ width:min(820px,96vw)!important;background:#f0fcff!important;border:5px solid white!important;
+ outline:4px solid #E7002A!important;border-radius:19px!important;padding:12px 16px!important;
+ box-shadow:0 6px 0 #d5022a45!important;max-height:calc(100dvh - 20px)!important
+}
+#onboarding .portal-card::before,#onboarding .portal-card::after{content:none!important;display:none!important}
+#onboarding .portal-card .portal-brand-redblue{
+ display:block!important;width:min(650px,94%)!important;max-height:170px!important;
+ height:auto!important;object-fit:contain!important;margin:0 auto 5px!important;filter:none!important
+}
+#onboarding .portal-card .portal-prompt{
+ color:#E7002A!important;font-family:'VAG',sans-serif!important;font-size:clamp(22px,3vw,32px)!important;
+ font-weight:900!important;letter-spacing:.02em!important;text-transform:uppercase!important;
+ text-shadow:none!important;margin:6px 0 12px!important
+}
+#onboarding .portal-card .grade-tiles button:nth-child(n){
+ background:#E7002A!important;background-image:none!important;color:#fff!important;
+ border:3px solid #fff!important;box-shadow:0 4px 0 #b50020!important;
+ min-height:132px!important;border-radius:17px!important;padding:12px 5px!important
+}
+#onboarding .portal-card .grade-tiles button:nth-child(2){background:#c7f5ff!important;color:#E7002A!important}
+#onboarding .portal-card .grade-tiles button:nth-child(3){background:#fff!important;color:#E7002A!important}
+#onboarding .portal-card .grade-tiles button b,
+#onboarding .portal-card .grade-tiles button .tile-number{
+ color:inherit!important;font-family:'VAG',sans-serif!important;text-shadow:none!important
+}
+#onboarding .portal-card .teacher-grid button{
+ font-family:'VAG',sans-serif!important;background:#fff!important;border:2px solid #E7002A!important;
+ color:#E7002A!important;box-shadow:none!important;border-radius:11px!important
+}
+#onboarding .portal-card .teacher-grid button:hover{background:#E7002A!important;color:white!important}
+@media(max-width:900px){
+ body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{height:90px!important;width:min(75vw,440px)!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.kaple-util{height:34px!important;min-height:34px!important;font-size:10px!important;padding:4px 8px!important}
+ body:not(.workshop-mode) .step-list .step:nth-child(n){height:67px!important}
+}
+@media(max-width:600px){
+ body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{height:75px!important;width:min(72vw,350px)!important}
+ body:not(.workshop-mode) header.topbar .float-balloon{font-size:36px!important}
+ body:not(.workshop-mode) header.topbar .top-actions button.kaple-util{height:31px!important;min-height:31px!important;font-size:9px!important;padding:3px 5px!important}
+ body:not(.workshop-mode) header.topbar .top-actions{gap:3px!important}
+ body:not(.workshop-mode) .step-list .step:nth-child(n){height:61px!important}
+}
