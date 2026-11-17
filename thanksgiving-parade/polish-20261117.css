@@ -153,3 +153,13 @@ body:not(.workshop-mode) header.topbar .top-actions #savedParadesBtn.unified-top
 #cinema .unified-image-button span{display:none!important}
 #cinema .cinema-controls button.unified-image-button img,#cinema #replayBtn.unified-image-button img{display:block!important;max-width:none!important;max-height:none!important;width:100%!important;height:100%!important;object-fit:contain!important}
 #cinema .cinema-controls{gap:5px!important;flex-wrap:nowrap!important}
+
+/* User-supplied red stripe direction for the outer movie screen. */
+#cinema{background:repeating-linear-gradient(90deg,#d70b2a 0 18px,#ee1735 18px 37px)!important}
+#cinema .movie-scene{border-left:12px solid #9defff!important;border-right:12px solid #9defff!important}
+#cinema .cinema-top,#cinema .cinema-bottom{background:#9defff!important}
+#cinema .movie-world{overflow:hidden!important}
+/* Keep centered logo above decoration, without floating emoji balloons. */
+body:not(.workshop-mode) header.topbar .kaple-brand{position:relative!important;isolation:isolate!important}
+body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{position:relative!important;z-index:3!important;margin-left:auto!important;margin-right:auto!important}
+body:not(.workshop-mode) header.topbar .float-balloon{display:none!important}
