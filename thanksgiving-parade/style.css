@@ -1103,7 +1103,7 @@ body:not(.workshop-mode) .welcome-card .progress-bar{background:linear-gradient(
  }
 }
 body:not(.workshop-mode) #libraryPanel{max-height:none!important;height:auto!important;padding:8px!important;overflow:visible!important}
-body:not(.workshop-mode) #libraryPanel .balloon-group-nav{
+body:not(.workshop-mode) #libraryPanel .balloon-group-nav:not(.hidden){
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;margin:0 1px 8px
 }
 body:not(.workshop-mode) .balloon-group-tab{
@@ -1853,3 +1853,13 @@ body:not(.workshop-mode) .footbar{display:none!important}
   padding-bottom:3px!important
  }
 }
+
+/* Category visibility must win over themed display rules. */
+body:not(.workshop-mode) #libraryPanel .hidden { display:none!important; }
+.parade-heading-art { display:block; width:auto; max-width:100%; height:50px; object-fit:contain; }
+#stageHeading .parade-heading-art { width:100%; height:auto; max-height:66px; }
+.preview-head > div:first-child { min-width:0; flex:1; }
+#paradeLineupPanel .section-heading h2 { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+#paradeLineupPanel .heading-put-your-parade-in-order { width:min(460px,65vw); height:auto; max-height:76px; }
+#bandGalleryTitle .parade-heading-art { width:290px; height:64px; }
+.band-music-heading .parade-heading-art,.design-section > .parade-heading-art { height:55px; width:180px; }
