@@ -576,3 +576,20 @@ html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list button.ste
  width:100%!important;height:100%!important;max-height:56px!important;
  clip-path:inset(0 0 5% 0)!important;
 }
+
+/* NYC ice-blue entrance background — 2026-11-17 */
+#onboarding.overlay,
+#onboarding.overlay:has(#portalGrade:not(.hidden)){
+  background-color:#ffffff!important;
+  background-image:url('assets/ui/kaple-2026-raster/entrance-iceblue-nyc-20261117.webp')!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  backdrop-filter:none!important;
+}
+#onboarding .portal-card,
+#onboarding.overlay:has(#portalGrade:not(.hidden)) .portal-card {
+  background:rgba(255,255,255,.87)!important;
+  background-image:none!important;
+  backdrop-filter:none!important;
+}
