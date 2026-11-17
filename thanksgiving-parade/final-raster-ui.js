@@ -5,10 +5,11 @@
 (()=>{
 'use strict';
 const root='assets/ui/final-png-20261117/';
+const version='?v=20261117-png-icons-and-tabs-v2';
 const $=id=>document.getElementById(id);
 function img(path,alt='',cls=''){
  const el=document.createElement('img');
- el.src=root+path+'.png';
+ el.src=root+path+'.png'+version;
  el.alt=alt;
  if(cls)el.className=cls;
  el.decoding='async';el.draggable=false;
@@ -123,7 +124,7 @@ for(const tab of document.querySelectorAll('.step[data-tab]')){
  const base=tabPaths[tab.dataset.tab];
  if(!art||!base)continue;
  function sync(){
-  const src=root+base+(tab.classList.contains('selected')?'-active':'')+'.png';
+  const src=root+base+(tab.classList.contains('selected')?'-active':'')+'.png'+version;
   if(art.getAttribute('src')!==src)art.src=src;
  }
  sync();
