@@ -498,3 +498,24 @@ html.parade-raster-ready #cinema .end-parade-actions .raster-answer-button img{
   grid-template-columns:repeat(4,minmax(0,1fr))!important
  }
 }
+
+/* Hidden section safety: the active category must never render behind another. */
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #balloonShelves.hidden,
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #floatShelf.hidden,
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #bandShelf.hidden,
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #decoratePanel.hidden{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #balloonGroupNav.hidden{
+ display:none!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #realGallery.closest-hidden,
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #newGallery.closest-hidden{
+ display:none!important;
+}
+/* Prevent legacy floating badges and SVG headers sneaking back in. */
+html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .float-balloon,
+html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .parade-header-scenery,
+html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .header-floating-piece{
+ display:none!important;
+}
