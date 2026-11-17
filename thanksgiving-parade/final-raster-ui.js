@@ -45,7 +45,7 @@ function buttonGraphic(id,file,label,spareSpan=false){
   el.appendChild(span);
  }
  el.setAttribute('aria-label',label);
- el.classList.add('raster-control-button');
+ el.className='raster-control-button';
 }
 [
  ['homeBtn','btn-home','HOME'],['studioFullscreenBtn','btn-full-screen','FULL SCREEN'],
@@ -111,12 +111,7 @@ const brand=document.querySelector('header.topbar .kaple-brand');
 if(brand){
  brand.querySelectorAll('.float-balloon,.parade-header-scenery,.header-floating-piece').forEach(el=>el.remove());
  for(const [file,cls] of [
-  ['header-left-city','raster-city raster-city-left'],
-  ['header-right-city','raster-city raster-city-right'],
-  ['header-confetti','raster-confetti'],
-  ['header-worm','raster-header-balloon raster-header-worm'],
-  ['header-bear','raster-header-balloon raster-header-bear'],
-  ['header-icecream','raster-header-balloon raster-header-ice']
+  ['header-confetti','raster-confetti']
  ]){
   brand.appendChild(img(file,'',cls));
  }
