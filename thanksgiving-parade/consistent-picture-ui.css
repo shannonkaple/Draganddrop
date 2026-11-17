@@ -283,3 +283,29 @@ html.parade-graphic-cleanup-ready #cinema .end-parade-actions button.parade-unif
  }
  html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-members img{height:38px!important}
 }
+
+
+/* Priority override: legacy rules must never hide or crop these actual image headings. */
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #stageHeading img,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradeLineupPanel .heading-put-your-parade-in-order,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #bandGalleryTitle img,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #bandMusicPanel img,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #decoratePanel img.heading-scenes{
+ display:block!important;visibility:visible!important;opacity:1!important;
+ background:transparent!important;filter:none!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandGalleryTitle img,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandMusicPanel img{
+ width:205px!important;height:43px!important;max-width:205px!important;max-height:43px!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-music-heading{
+ height:44px!important;min-height:44px!important;flex:0 0 44px!important
+}
+/* User-provided original scenic background should not be obscured by the temporary dark vignette. */
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .stage-scene{
+ opacity:1!important;filter:none!important;mix-blend-mode:normal!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #stageEmpty,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #stageEmpty .stage-empty{
+ background:rgba(255,255,255,.94)!important;filter:none!important
+}
