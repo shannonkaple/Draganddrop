@@ -30,3 +30,7 @@ jobs:
         run: python3 -m http.server 8765 -d thanksgiving-parade >/tmp/parade-server.log 2>&1 &
       - name: Test class selection and hidden TV
         run: node thanksgiving-parade/classroom-entry-smoke.cjs
+      - name: Test published classroom flow on GitHub Pages
+        env:
+          PARADE_TEST_URL: 'https://shannonkaple.github.io/Draganddrop/thanksgiving-parade/?qa=classroom-fix-20261117'
+        run: node thanksgiving-parade/classroom-entry-smoke.cjs
