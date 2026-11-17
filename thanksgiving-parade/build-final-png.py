@@ -130,3 +130,43 @@ for i in range(24):
 f=textfit(d,"YOUR PARADE",FONTS,124,1020)
 centerline(d,"YOUR PARADE",68,RED,WHITE,9,f)
 save(im,"tv-title-your-parade.png")
+
+# Clean PNG header pieces, cut from the actual user-supplied parade collage
+# currently embedded in the original header code, not substituted artwork.
+import re,base64,io
+source=(ROOT/"header-art-20261117.js").read_text(encoding="utf8")
+match=re.search(r"data:image/webp;base64,([A-Za-z0-9+/=]+)",source)
+if match:
+ original=Image.open(io.BytesIO(base64.b64decode(match.group(1)))).convert("RGBA")
+ # Preserve native proportions to prevent another blurry stretched banner.
+ for name,area in [
+  ("header-worm",(88,0,225,104)),
+  ("header-bear",(304,0,440,104)),
+  ("header-icecream",(960,0,1096,104)),
+  ("header-left-city",(0,40,480,105)),
+  ("header-right-city",(720,40,1200,105)),
+  ("header-confetti",(0,0,1200,54))
+ ]:
+  image=original.crop(area)
+  image.save(OUT/(name+".png"),optimize=True)
+  print("PNG",name,image.size)
+# Small blue arrow and red trash buttons are raster files too.
+W,H=160,100
+def action_button(kind,name):
+ im=Image.new("RGBA",(W,H),(0,0,0,0))
+ d=ImageDraw.Draw(im)
+ colour=(39,139,197,255) if kind in ("left","right") else (229,0,42,255)
+ d.rounded_rectangle((5,6,W-5,H-8),radius=23,fill=colour,outline=WHITE,width=7)
+ if kind=="left":
+  d.line([(104,48),(51,48)],fill=WHITE,width=10)
+  d.line([(74,22),(46,48),(74,74)],fill=WHITE,width=10,joint="curve")
+ elif kind=="right":
+  d.line([(51,48),(107,48)],fill=WHITE,width=10)
+  d.line([(84,22),(112,48),(84,74)],fill=WHITE,width=10,joint="curve")
+ else:
+  d.rectangle((60,30,100,76),fill=WHITE)
+  d.rectangle((50,23,111,29),fill=WHITE)
+  d.rectangle((70,17,90,22),fill=WHITE)
+  for x in (72,88):d.line((x,42,x,65),fill=colour,width=4)
+ save(im,name+".png")
+for kind in ("left","right","trash"):action_button(kind,"btn-"+kind)
