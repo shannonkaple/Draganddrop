@@ -9,7 +9,7 @@ function picture(label){
  const longest=Math.max(...lines.map(l=>l.length));
  const size=lines.length>1?30:longest>16?27:longest>11?34:46;
  const y=lines.length>1?[56,91]:[77];
- const texts=lines.map((str,i)=>'<text x="240" y="'+y[i]+'" text-anchor="middle" textLength="'+Math.min(410,Math.max(130,str.length*size*.58))+'" lengthAdjust="spacingAndGlyphs" paint-order="stroke" stroke="#ffffff" stroke-width="6" stroke-linejoin="round" fill="#cf002b" font-size="'+size+'" font-weight="1000" font-family="Georgia,Times New Roman,serif">'+escape(str)+'</text>').join('');
+ const texts=lines.map((str,i)=>'<text x="240" y="'+y[i]+'" text-anchor="middle" paint-order="stroke" stroke="#ffffff" stroke-width="6" stroke-linejoin="round" fill="#cf002b" font-size="'+size+'" font-weight="1000" font-family="Georgia,Times New Roman,serif">'+escape(str)+'</text>').join('');
  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="480" height="126" viewBox="0 0 480 126">'+
  '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c4f9ff"/><stop offset=".6" stop-color="#94ebff"/><stop offset="1" stop-color="#46c6ec"/></linearGradient></defs>'+
  '<path d="M28 103Q8 101 11 81Q4 62 25 53Q26 34 52 34Q65 13 91 26Q108 6 137 23Q164 2 193 16Q219 -2 242 16Q272 -1 294 17Q323 4 346 24Q375 10 389 30Q421 17 434 43Q463 40 466 65Q481 92 459 102Q253 126 28 103Z" fill="url(#sky)" stroke="white" stroke-width="5" stroke-linejoin="round"/>'+
@@ -26,7 +26,7 @@ const headings=[
  ['.step[data-tab="floats"] img.step-game-art','FLOATS'],
  ['.step[data-tab="bands"] img.step-game-art','MUSIC'],
  ['.step[data-tab="decorate"] img.step-game-art','SCENES'],
- ['#stageHeading img','YOUR PARADE'],
+ ['#stageHeading img','MY PARADE'],
  ['#paradeLineupPanel .heading-put-your-parade-in-order','PUT YOUR PARADE IN ORDER'],
  ['#bandGalleryTitle img','MARCHING BANDS'],
  ['#bandMusicPanel .band-music-heading img','MUSIC'],
