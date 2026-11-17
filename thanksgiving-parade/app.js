@@ -209,7 +209,7 @@ function showSavedParades(){
 }
 function scene(){return SCENES.find(x=>x.id===state.scene)||SCENES[0]}
 function renderAll(){renderProgress();renderLineup();renderGallery();renderDecorate();renderScene();renderPreview();renderTabs();}
-function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
+function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0; $('playBtn').setAttribute('aria-label',count?'Watch my parade now':'Add one balloon, float, or band to play');$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
 const customSrcCache=new Map();
 const savedImages=new Map();
 async function restoreImages(session){
@@ -429,9 +429,10 @@ function openStudent(){
 }
 function startMovie(){
  const pieces=state.pieces.map(getPiece).filter(piece=>piece?.src);
- if(!pieces.length)return;
+ if(!pieces.length){notify('Choose a balloon, float, or band first.');return;}
  const track=MUSIC.find(song=>song.id===state.music)??MUSIC[0];
- window.PARADE_PLAYER?.start(pieces,scene(),track);
+ if(!window.PARADE_PLAYER?.start){notify('Parade player is loading. Please try Play again.');return;}
+ try{window.PARADE_PLAYER.start(pieces,scene(),track);}catch(error){console.error('Parade play failed:',error);notify('Could not start the parade. Try Play again.');}
 }
 document.querySelectorAll('[data-balloon-group]').forEach(button=>button.addEventListener('click',()=>{
  balloonGroup=button.dataset.balloonGroup;
