@@ -309,3 +309,18 @@ html.parade-graphic-cleanup-ready body:not(.workshop-mode) #stageEmpty,
 html.parade-graphic-cleanup-ready body:not(.workshop-mode) #stageEmpty .stage-empty{
  background:rgba(255,255,255,.94)!important;filter:none!important
 }
+
+
+/* Remove the old faded decorative image and emoji overlay behind the main studio. */
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #app.app::before,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #app.app::after{
+ content:none!important;display:none!important;opacity:0!important;
+ background:none!important;background-image:none!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #app.app{
+ background:#a5edff!important;background-image:none!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #app.app .sidebar,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #app.app .step-list{
+ background:transparent!important;background-image:none!important;box-shadow:none!important
+}
