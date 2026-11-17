@@ -407,7 +407,7 @@ async function enterStudent(){
  const {session,message}=await store.load(identity);
  if(run!==entryRun)return;
  studentSession=session;
- Object.assign(state,identity,session.draft,{activePiece:null});
+ Object.assign(state,identity,session.draft,{pieces:[],paradeId:null,activePiece:null});
  $('entryError').textContent='';
  $('onboarding').classList.add('hidden');
  $('studentModal').classList.add('hidden');
@@ -503,7 +503,7 @@ function enterGuest(){
  portalState.teacher='';
  portalState.number=null;
  studentSession=session;
- Object.assign(state,identity,session.draft,{activePiece:null});
+ Object.assign(state,identity,session.draft,{pieces:[],paradeId:null,activePiece:null});
  $('onboarding').classList.add('hidden');
  $('studentModal').classList.add('hidden');
  $('app').inert=false;
