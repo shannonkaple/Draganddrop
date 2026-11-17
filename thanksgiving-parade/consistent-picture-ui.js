@@ -33,9 +33,15 @@ const headings=[
  ['#decoratePanel img.heading-scenes','SCENES'],
  ['#playBtn img','WATCH MY PARADE']
 ];
+const originalCircusArt={
+ '.step[data-tab="balloons"] img.step-game-art':'assets/ui/kaple-2026-raster/brand-20261117/balloons.png',
+ '.step[data-tab="floats"] img.step-game-art':'assets/ui/kaple-2026-raster/brand-20261117/floats.png',
+ '.step[data-tab="bands"] img.step-game-art':'assets/ui/kaple-2026-raster/brand-20261117/music.png',
+ '.step[data-tab="decorate"] img.step-game-art':'assets/ui/kaple-2026-raster/brand-20261117/scenes.png'
+};
 for(const [selector,label] of headings){
  document.querySelectorAll(selector).forEach(el=>{
-  el.src=picture(label);
+  el.src=originalCircusArt[selector]||picture(label);
   el.alt=label;
   el.setAttribute('decoding','async');
   el.classList.add('parade-uniform-graphic');
