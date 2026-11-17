@@ -289,3 +289,26 @@ body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-controls button{min-he
   width:105px!important;max-width:105px!important;flex-basis:105px!important;height:31px!important;min-height:31px!important
  }
 }
+
+/* Definitive specificity guard against old stacked menu rules. */
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util.brand-picture-button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 125px!important;width:125px!important;max-width:125px!important;
+ height:35px!important;min-height:35px!important;
+ border:0!important;border-radius:0!important;padding:0!important;margin:0!important;
+ background:transparent!important;background-image:none!important;box-shadow:none!important;
+}
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util.brand-picture-button > img{
+ display:block!important;object-fit:contain!important;width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important
+}
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util.brand-picture-button > span{display:none!important}
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util.brand-picture-button::before,
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util.brand-picture-button::after{
+ display:none!important;content:none!important
+}
+@media(max-width:1100px){
+ body:not(.workshop-mode) header.topbar .top-actions button.kaple-util.brand-picture-button{
+  flex-basis:103px!important;width:103px!important;max-width:103px!important;height:30px!important;min-height:30px!important
+ }
+}
