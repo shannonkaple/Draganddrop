@@ -407,7 +407,17 @@ async function enterStudent(){
  const {session,message}=await store.load(identity);
  if(run!==entryRun)return;
  studentSession=session;
- Object.assign(state,identity,session.draft,{pieces:[],paradeId:null,activePiece:null});
+ const prior=session.draft||{};
+ const keep=Array.isArray(prior.savedParades)?[...prior.savedParades]:[];
+ if(Array.isArray(prior.pieces)&&prior.pieces.length){
+  const hasCopy=keep.some(copy=>JSON.stringify(copy.pieces)===JSON.stringify(prior.pieces));
+  if(!hasCopy)keep.push({
+   id:prior.paradeId||crypto.randomUUID(),
+   pieces:[...prior.pieces],scene:prior.scene||'storybook',
+   routeTour:false,music:prior.music||'march'
+  });
+ }
+ Object.assign(state,identity,prior,{pieces:[],paradeId:null,activePiece:null,savedParades:keep});
  $('entryError').textContent='';
  $('onboarding').classList.add('hidden');
  $('studentModal').classList.add('hidden');
@@ -503,7 +513,17 @@ function enterGuest(){
  portalState.teacher='';
  portalState.number=null;
  studentSession=session;
- Object.assign(state,identity,session.draft,{pieces:[],paradeId:null,activePiece:null});
+ const prior=session.draft||{};
+ const keep=Array.isArray(prior.savedParades)?[...prior.savedParades]:[];
+ if(Array.isArray(prior.pieces)&&prior.pieces.length){
+  const hasCopy=keep.some(copy=>JSON.stringify(copy.pieces)===JSON.stringify(prior.pieces));
+  if(!hasCopy)keep.push({
+   id:prior.paradeId||crypto.randomUUID(),
+   pieces:[...prior.pieces],scene:prior.scene||'storybook',
+   routeTour:false,music:prior.music||'march'
+  });
+ }
+ Object.assign(state,identity,prior,{pieces:[],paradeId:null,activePiece:null,savedParades:keep});
  $('onboarding').classList.add('hidden');
  $('studentModal').classList.add('hidden');
  $('app').inert=false;
