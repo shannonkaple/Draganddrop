@@ -1,14 +1,15 @@
-/* Entrance-only artwork: infinitely sharp vector, strictly matching logo ice blue + white. */
+/* Entrance-only: user-selected real JPEG with bows, softly faded. No code-drawn artwork. */
 #onboarding.overlay.portal,
-#onboarding.overlay.portal:has(#portalGrade:not(.hidden)){
-  background-color:#94ECF8!important;
-  background-image:url('assets/ui/nyc-street-iceblue-sharp-20261117.svg')!important;
-  background-position:center center!important;
-  background-repeat:no-repeat!important;
-  background-size:cover!important;
-  backdrop-filter:none!important;
+#onboarding.overlay.portal:has(#portalGrade:not(.hidden)) {
+ background-color:#94ECF8!important;
+ background-image:linear-gradient(rgba(255,255,255,.29),rgba(255,255,255,.29)),url('assets/ui/nyc-parade-bows-iceblue-20261117.jpg')!important;
+ background-position:center center!important;
+ background-size:cover!important;
+ background-repeat:no-repeat!important;
+ background-attachment:scroll!important;
+ backdrop-filter:none!important;
 }
-#onboarding.overlay.portal .portal-card{
-  background:rgba(255,255,255,.91)!important;
-  background-image:none!important;
+#onboarding.overlay.portal .portal-card {
+ background:rgba(255,255,255,.91)!important;
+ background-image:none!important;
 }
