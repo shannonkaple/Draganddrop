@@ -114,3 +114,20 @@ html.parade-television-ready #cinema.cinema{
  background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAABCAIAAAAEkfosAAAAFElEQVR42mO8IKrFQG0gzEp1IxkAupwBKeTeSnMAAAAASUVORK5CYII=")!important;
  background-repeat:repeat!important;background-size:56px 100%!important;
 }
+
+/* CRITICAL RESTORE: keep the movie and end-card out of the way until PLAY.
+   Previously #cinema.cinema display:flex!important overrode .hidden and
+   covered the grade picker on first load. */
+html.parade-television-ready #cinema.cinema.hidden,
+html.parade-graphic-cleanup-ready #cinema.cinema.hidden,
+#cinema.cinema.hidden{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+#cinema #movieCelebration.hidden,
+html.parade-television-ready #cinema #movieCelebration.hidden{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
