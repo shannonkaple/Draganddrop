@@ -108,3 +108,9 @@ html.parade-television-ready #cinema .cinema-bottom{
   flex-basis:63px!important;height:63px!important;min-height:63px!important
  }
 }
+
+/* The stripes are a PNG crop of the user-supplied red artwork, not generated CSS bands. */
+html.parade-television-ready #cinema.cinema{
+ background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAABCAIAAAAEkfosAAAAFElEQVR42mO8IKrFQG0gzEp1IxkAupwBKeTeSnMAAAAASUVORK5CYII=")!important;
+ background-repeat:repeat!important;background-size:56px 100%!important;
+}
