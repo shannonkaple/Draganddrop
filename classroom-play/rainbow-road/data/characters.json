@@ -1,0 +1,250 @@
+[
+  {
+    "id": "astro_ace",
+    "name": "Astro Ace",
+    "themeColor": "#168BFC",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/astro_ace.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/astro_ace.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Jet Boots",
+        "image": "/game-assets/characters/power_up/png_512/astro_ace.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/astro_ace.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Galaxy Hero",
+        "image": "/game-assets/characters/super_power/png_512/astro_ace.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/astro_ace.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "dizzy_dino",
+    "name": "Dizzy Dino",
+    "themeColor": "#67C52A",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/dizzy_dino.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/dizzy_dino.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Adventure Dino",
+        "image": "/game-assets/characters/power_up/png_512/dizzy_dino.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/dizzy_dino.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Stomp Dino",
+        "image": "/game-assets/characters/super_power/png_512/dizzy_dino.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/dizzy_dino.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "rainbow_rocket_unicorn",
+    "name": "Rainbow Unicorn",
+    "themeColor": "#E84BA9",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/rainbow_rocket_unicorn.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/rainbow_rocket_unicorn.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Rainbow Rider",
+        "image": "/game-assets/characters/power_up/png_512/rainbow_rocket_unicorn.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/rainbow_rocket_unicorn.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Magic Star Unicorn",
+        "image": "/game-assets/characters/super_power/png_512/rainbow_rocket_unicorn.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/rainbow_rocket_unicorn.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "poppy_pup",
+    "name": "Poppy Pup",
+    "themeColor": "#EAA84E",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/poppy_pup.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/poppy_pup.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Explorer Pup",
+        "image": "/game-assets/characters/power_up/png_512/poppy_pup.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/poppy_pup.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Pup",
+        "image": "/game-assets/characters/super_power/png_512/poppy_pup.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/poppy_pup.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "sunny_kitten",
+    "name": "Sunny Kitten",
+    "themeColor": "#FF9D21",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/sunny_kitten.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/sunny_kitten.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Bow Kitty",
+        "image": "/game-assets/characters/power_up/png_512/sunny_kitten.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/sunny_kitten.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Sunshine Queen",
+        "image": "/game-assets/characters/super_power/png_512/sunny_kitten.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/sunny_kitten.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "beep_bop_robot",
+    "name": "Beep-Bop Robot",
+    "themeColor": "#199CFA",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/beep_bop_robot.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/beep_bop_robot.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Rocket Robot",
+        "image": "/game-assets/characters/power_up/png_512/beep_bop_robot.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/beep_bop_robot.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Bot",
+        "image": "/game-assets/characters/super_power/png_512/beep_bop_robot.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/beep_bop_robot.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "penny_penguin",
+    "name": "Penny Penguin",
+    "themeColor": "#495C83",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/penny_penguin.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/penny_penguin.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Snow Day Penguin",
+        "image": "/game-assets/characters/power_up/png_512/penny_penguin.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/penny_penguin.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Ice Power Penguin",
+        "image": "/game-assets/characters/super_power/png_512/penny_penguin.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/penny_penguin.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  },
+  {
+    "id": "twinkle_fairy",
+    "name": "Twinkle Fairy",
+    "themeColor": "#A656DE",
+    "levels": [
+      {
+        "level": 1,
+        "id": "starter",
+        "name": "Starter",
+        "image": "/game-assets/characters/starter/png_512/twinkle_fairy.png",
+        "thumbnail": "/game-assets/characters/starter/png_256/twinkle_fairy.png"
+      },
+      {
+        "level": 2,
+        "id": "power_up",
+        "name": "Sparkle Fairy",
+        "image": "/game-assets/characters/power_up/png_512/twinkle_fairy.png",
+        "thumbnail": "/game-assets/characters/power_up/png_256/twinkle_fairy.png"
+      },
+      {
+        "level": 3,
+        "id": "super_power",
+        "name": "Super Magic Fairy",
+        "image": "/game-assets/characters/super_power/png_512/twinkle_fairy.png",
+        "thumbnail": "/game-assets/characters/super_power/png_256/twinkle_fairy.png"
+      }
+    ],
+    "rescuable": true,
+    "isStarterOption": true,
+    "friendUpgradesEnabled": true
+  }
+]

@@ -1,0 +1,231 @@
+/* MY STUFF: scene-first workspace, 2026-10-30.
+   Only visual structure changes. All original item IDs, image sources,
+   purchased worlds, saved positions and purchase handlers stay intact. */
+html body.guided.adventure-mode.lab-collection-active #app>.my-stuff-full-room,
+html body.guided.adventure-mode.lab-collection-active #app>.lab-collection-page.my-stuff-full-room {
+ box-sizing:border-box!important;
+ display:grid!important;
+ grid-template-columns:clamp(156px,15vw,192px) minmax(0,1fr)!important;
+ grid-template-rows:minmax(0,1fr) 164px!important;
+ column-gap:9px!important;row-gap:6px!important;
+ flex:1 1 auto!important;
+ width:100%!important;height:100%!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;
+ padding:4px 7px 6px!important;margin:0!important;
+ overflow:hidden!important;align-items:stretch!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel{
+ box-sizing:border-box!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ grid-column:1!important;grid-row:1 / 3!important;
+ min-width:0!important;min-height:0!important;max-height:100%!important;
+ padding:12px 9px!important;margin:0!important;gap:12px!important;
+ border:2px solid #9e7dd0!important;border-radius:20px!important;
+ background:linear-gradient(180deg,#fff8fe,#eef6ff)!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+ touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-direction-panel{
+ display:flex!important;flex-direction:column!important;
+ flex:0 0 auto!important;min-height:0!important;gap:7px!important;
+ padding:4px!important;margin:0!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-direction-panel>strong{
+ font:700 20px/1.15 VAG,Arial,sans-serif!important;
+ color:#382160!important;letter-spacing:.3px!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #collection-report{
+ display:block!important;position:static!important;
+ flex:0 0 auto!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ margin:0!important;padding:0!important;
+ font:600 clamp(12px,1.05vw,15px)/1.4 VAG,Arial,sans-serif!important;
+ color:#29234a!important;text-align:left!important;
+ overflow-wrap:anywhere!important;white-space:normal!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel .my-stuff-unified-tabs{
+ box-sizing:border-box!important;display:flex!important;flex:0 0 auto!important;
+ flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;
+ width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+ margin:0!important;padding:0!important;gap:9px!important;
+ overflow:visible!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel .my-stuff-unified-tabs>button{
+ box-sizing:border-box!important;display:flex!important;flex:0 0 auto!important;
+ align-items:center!important;justify-content:center!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:auto!important;min-height:52px!important;max-height:none!important;
+ padding:8px 6px!important;margin:0!important;
+ font:700 clamp(12px,1.1vw,15px)/1.15 VAG,Arial,sans-serif!important;
+ line-height:1.17!important;white-space:normal!important;
+ overflow-wrap:anywhere!important;text-align:center!important;
+ background:#fff!important;border:2px solid #7658a5!important;
+ border-radius:18px!important;color:#2f2053!important;cursor:pointer!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel .my-stuff-unified-tabs>button[aria-pressed=true]{
+ background:#ffedaa!important;border-color:#c87f25!important;
+ box-shadow:0 0 0 2px #fff5d6!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel .my-stuff-unified-tabs>button:focus-visible{
+ outline:3px solid #e9a228!important;outline-offset:2px!important;
+}
+/* Freed lower scene area makes room for a substantially larger inventory. */
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-stage{
+ box-sizing:border-box!important;display:flex!important;
+ grid-column:2!important;grid-row:1!important;
+ flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ flex:0 1 auto!important;width:100%!important;height:100%!important;
+ min-width:0!important;min-height:0!important;max-height:100%!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;gap:0!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-stage>.collection-world-showcase{
+ display:flex!important;flex:1 1 0!important;
+ width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+ max-width:100%!important;max-height:100%!important;
+ align-items:center!important;justify-content:center!important;
+ overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-stage #collection-scene{
+ display:block!important;position:relative!important;flex:0 0 auto!important;
+ max-width:100%!important;max-height:100%!important;min-width:0!important;min-height:0!important;
+ margin:auto!important;padding:0!important;
+ aspect-ratio:1672/941!important;object-fit:contain!important;
+ background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important;
+ border:2px solid #fff!important;border-radius:16px!important;
+}
+/* The three tabs are now on the LEFT, so the bottom shelf belongs to pictures. */
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-unified-shelf{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ grid-column:2!important;grid-row:2!important;flex:0 0 auto!important;
+ width:100%!important;max-width:100%!important;
+ height:164px!important;min-height:164px!important;max-height:164px!important;
+ padding:5px 7px!important;margin:0!important;gap:0!important;
+ border:2px solid #8054aa!important;border-radius:18px!important;
+ background:#f6faff!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-unified-shelf .my-stuff-tray-controls{
+ box-sizing:border-box!important;display:flex!important;flex:1 1 0!important;
+ height:148px!important;min-height:0!important;max-height:148px!important;
+ width:100%!important;align-items:stretch!important;
+ padding:0!important;margin:0!important;gap:6px!important;
+ overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-tray-controls>button{
+ flex:0 0 40px!important;width:40px!important;min-width:40px!important;
+ height:138px!important;min-height:0!important;max-height:138px!important;
+ padding:4px!important;margin:0!important;
+ font:700 20px/1 VAG,Arial,sans-serif!important;
+ border-radius:16px!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray{
+ box-sizing:border-box!important;display:block!important;flex:1 1 0!important;
+ width:auto!important;height:148px!important;min-height:0!important;max-height:148px!important;
+ padding:2px!important;margin:0!important;
+ overflow-x:auto!important;overflow-y:hidden!important;
+ scrollbar-width:thin!important;touch-action:pan-x!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page{
+ display:flex!important;flex-direction:row!important;align-items:stretch!important;flex-wrap:nowrap!important;
+ width:max-content!important;min-width:100%!important;
+ height:141px!important;min-height:141px!important;max-height:141px!important;
+ gap:8px!important;padding:2px 0!important;margin:0!important;
+ white-space:nowrap!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page[hidden]{
+ display:none!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ flex:0 0 153px!important;width:153px!important;min-width:153px!important;max-width:153px!important;
+ height:137px!important;min-height:137px!important;max-height:137px!important;
+ align-items:center!important;justify-content:space-between!important;gap:2px!important;
+ padding:5px 7px!important;margin:0!important;
+ border:2px solid #d7c8eb!important;border-radius:16px!important;
+ background:#fff!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item :is(img,.friend-art,.world-friend-art,.shop-decoration){
+ display:block!important;
+ flex:0 1 auto!important;width:auto!important;max-width:100%!important;
+ height:70px!important;min-height:0!important;max-height:70px!important;
+ object-fit:contain!important;margin:0 auto!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item :is(strong,small){
+ display:block!important;width:100%!important;
+ font:700 12px/1.15 VAG,Arial,sans-serif!important;
+ min-height:0!important;max-height:28px!important;
+ text-align:center!important;white-space:normal!important;
+ overflow-wrap:anywhere!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item button{
+ box-sizing:border-box!important;display:flex!important;flex:0 0 auto!important;
+ align-items:center!important;justify-content:center!important;
+ width:100%!important;height:29px!important;min-height:29px!important;max-height:29px!important;
+ padding:3px!important;margin:0!important;
+ font:700 11px/1.1 VAG,Arial,sans-serif!important;
+ white-space:normal!important;overflow:hidden!important;border-radius:10px!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-quickworlds button{
+ flex:0 0 146px!important;width:146px!important;height:134px!important;
+ min-height:134px!important;max-height:134px!important;
+ gap:4px!important;padding:4px!important;
+ border-radius:15px!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-quickworlds img{
+ height:84px!important;max-height:84px!important;max-width:140px!important;
+ object-fit:contain!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #stuff-world-select{
+ flex:0 0 150px!important;max-width:150px!important;
+ height:42px!important;min-height:42px!important;font-size:12px!important;
+ align-self:center!important;
+}
+@media(max-width:900px){
+ html body.guided.adventure-mode.lab-collection-active #app>.my-stuff-full-room{
+  grid-template-columns:145px minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr) 145px!important;
+  column-gap:5px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-unified-shelf{
+  height:145px!important;min-height:145px!important;max-height:145px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray{
+  height:130px!important;max-height:130px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page{
+  height:123px!important;min-height:123px!important;max-height:123px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item{
+  height:119px!important;min-height:119px!important;max-height:119px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item :is(img,.friend-art,.world-friend-art,.shop-decoration){
+  height:55px!important;max-height:55px!important;
+ }
+}
+@media(max-width:650px){
+ html body.guided.adventure-mode.lab-collection-active #app>.my-stuff-full-room{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto minmax(0,1fr) 145px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel{
+  grid-column:1!important;grid-row:1!important;
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  gap:8px!important;padding:5px!important;max-height:110px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel .my-stuff-direction-panel{
+  flex:1 1 0!important;min-width:0!important;max-height:98px!important;overflow-y:auto!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel .my-stuff-unified-tabs{
+  flex:1.5 1 0!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;gap:3px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-side-panel .my-stuff-unified-tabs>button{
+  min-height:45px!important;font-size:10px!important;padding:3px!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-stage{
+  grid-column:1!important;grid-row:2!important;
+ }
+ html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-unified-shelf{
+  grid-column:1!important;grid-row:3!important;
+ }
+}

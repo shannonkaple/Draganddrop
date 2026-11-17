@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "description": "Optional overrides keyed by the existing lab_WORLD_STAGE level IDs. No generated or emoji collectibles. Existing approved raster art is used until each Art Agent package is integrated.",
+  "levels": {}
+}

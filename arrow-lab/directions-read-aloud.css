@@ -1,0 +1,18 @@
+/* Accessible, consistent read-aloud icons for both K–2 adventures. */
+#app .read-directions-button,
+dialog .read-directions-button{
+ display:inline-flex!important;vertical-align:middle!important;
+ align-items:center!important;justify-content:center!important;
+ flex:0 0 36px!important;width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;
+ margin:2px 3px 2px 9px!important;padding:3px!important;
+ font:20px/1 Arial,sans-serif!important;background:#fff!important;color:#25204b!important;
+ border:2px solid #70468e!important;border-radius:11px!important;
+ cursor:pointer!important;box-shadow:0 1px 3px #0002!important;
+}
+#app .read-directions-button:focus-visible,
+dialog .read-directions-button:focus-visible{
+ outline:3px solid #ffb400!important;outline-offset:2px!important;
+}
+#app .read-directions-button:disabled,
+dialog .read-directions-button:disabled{opacity:.65!important;cursor:not-allowed!important;}
+#app .activity-instructions p .read-directions-button{margin-left:8px!important}

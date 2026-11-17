@@ -1,0 +1,173 @@
+/* MY STUFF scene + single horizontal inventory shelf.
+   Last-loaded correction: the earlier 2x2 grid hid every item after the first
+   four while JavaScript tried to scroll horizontally. This is a real shelf,
+   with the entire earned inventory accessible by touch, trackpad or buttons.
+   No student save or asset format changes. */
+html body.guided.adventure-mode.lab-collection-active .my-stuff-room{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:40px minmax(180px,1fr) 42px minmax(145px,180px)!important;
+  gap:5px!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-heading{
+  grid-column:1!important;grid-row:1!important;
+  min-width:0!important;min-height:0!important;
+  overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-stage{
+  grid-column:1!important;grid-row:2!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;
+  overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-stage .collection-world-showcase{
+  flex:1 1 auto!important;width:100%!important;height:100%!important;
+  min-height:0!important;min-width:0!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-world-quickstrip{
+  grid-column:1!important;grid-row:3!important;
+  width:100%!important;min-width:0!important;
+  height:42px!important;max-height:42px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  white-space:nowrap!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-quickworlds{
+  display:flex!important;flex-wrap:nowrap!important;min-width:0!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-quickworlds button{
+  flex:0 0 auto!important;max-height:38px!important;min-height:32px!important;
+  padding:2px 6px!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-quickworlds img{
+  max-height:24px!important;max-width:38px!important;object-fit:contain!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-toolbox{
+  grid-column:1!important;grid-row:4!important;
+  display:flex!important;flex-direction:column!important;
+  width:100%!important;height:100%!important;
+  min-width:0!important;min-height:0!important;
+  padding:3px 5px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-toolbox>h3{
+  display:none!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-tray-panel{
+  display:flex!important;flex-direction:column!important;
+  flex:1 1 auto!important;width:100%!important;
+  height:auto!important;min-height:0!important;
+  padding:2px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-tray-controls{
+  flex:0 0 30px!important;min-height:30px!important;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray{
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  flex:1 1 auto!important;
+  width:100%!important;height:auto!important;min-height:0!important;
+  gap:8px!important;padding:3px 4px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  overscroll-behavior-x:contain;scroll-snap-type:x proximity;
+  scrollbar-width:thin;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item{
+  flex:0 0 clamp(135px,16vw,184px)!important;
+  display:grid!important;
+  grid-template-rows:minmax(26px,1fr) auto auto!important;
+  width:clamp(135px,16vw,184px)!important;
+  min-width:135px!important;height:100%!important;
+  min-height:0!important;scroll-snap-align:start;
+  overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item[hidden]{
+  display:none!important;
+}
+html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-empty{
+  flex:1 1 auto!important;align-self:center!important;
+  text-align:center!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-shop-actions{
+  flex:0 0 auto!important;max-height:32px!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-shop-actions button{
+  min-height:28px!important;max-height:32px!important;
+}
+/* Phones/tablets get the whole screen for the maze; never reserve 190px
+   for the teacher sidebar. Keep touch arrows and bottom controls reachable.
+   The fixed viewport scrolls INSIDE #app, not the document. */
+html body.mobile-touch-enabled #kaple-guide{display:none!important}
+html body.mobile-touch-enabled.guided.adventure-mode.playing #app{
+  overflow-y:auto!important;overflow-x:hidden!important;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+}
+html body.mobile-touch-enabled.guided.adventure-mode.playing #app>.adventure-layout{
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:clamp(240px,45dvh,420px)!important;
+  min-height:240px!important;
+  overflow:hidden!important;
+}
+html body.mobile-touch-enabled.guided.adventure-mode.playing #app>.adventure-layout>section{
+  height:100%!important;min-height:0!important;
+}
+html body.mobile-touch-enabled.guided.adventure-mode.playing #app>.mobile-arrow-pad{
+  flex:0 0 auto!important;align-self:center!important;
+  margin:5px auto 8px!important;
+}
+html body.mobile-touch-enabled.guided.adventure-mode.playing #app>.maze-controls{
+  flex:0 0 auto!important;max-height:none!important;
+  overflow:visible!important;
+}
+/* The playroom is a scene ABOVE its item shelf on narrow screens too.
+   Its viewport can scroll rather than shrinking a scene into a tiny strip. */
+@media(max-width:720px){
+  html body.guided.adventure-mode.lab-collection-active #app{
+    overflow-y:auto!important;overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-room{
+    display:flex!important;flex-direction:column!important;
+    flex:0 0 auto!important;height:auto!important;min-height:0!important;
+    overflow:visible!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-heading{
+    flex:0 0 auto!important;min-height:42px!important;height:auto!important;
+    flex-wrap:wrap!important;overflow:visible!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-scene-actions{
+    flex-wrap:wrap!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-stage{
+    flex:0 0 auto!important;height:clamp(220px,55vw,340px)!important;
+    min-height:220px!important;overflow:hidden!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-stage .collection-world-showcase{
+    flex:1 1 auto!important;height:100%!important;min-height:0!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-world-quickstrip{
+    flex:0 0 42px!important;height:42px!important;min-height:42px!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-toolbox{
+    flex:0 0 auto!important;height:225px!important;min-height:225px!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-tray-panel{
+    height:100%!important;min-height:0!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active #my-stuff-tray .my-stuff-item{
+    flex-basis:142px!important;width:142px!important;
+  }
+}
+@media(max-height:620px) and (min-width:721px){
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-room{
+    grid-template-rows:36px minmax(140px,1fr) 34px minmax(115px,135px)!important;
+  }
+  html body.guided.adventure-mode.lab-collection-active .my-stuff-world-quickstrip{
+    height:34px!important;max-height:34px!important;
+  }
+}

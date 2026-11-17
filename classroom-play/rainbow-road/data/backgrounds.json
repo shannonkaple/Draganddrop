@@ -1,0 +1,74 @@
+[
+  {
+    "id": "rainbow_meadow_day",
+    "image": "/game-assets/backgrounds/rainbow_meadow_day.webp",
+    "worldId": "rainbow_meadow",
+    "style": "day"
+  },
+  {
+    "id": "rainbow_meadow_twilight",
+    "image": "/game-assets/backgrounds/rainbow_meadow_twilight.webp",
+    "worldId": "rainbow_meadow",
+    "style": "twilight"
+  },
+  {
+    "id": "cloud_kingdom_day",
+    "image": "/game-assets/backgrounds/cloud_kingdom_day.webp",
+    "worldId": "cloud_kingdom",
+    "style": "day"
+  },
+  {
+    "id": "cloud_kingdom_twilight",
+    "image": "/game-assets/backgrounds/cloud_kingdom_twilight.webp",
+    "worldId": "cloud_kingdom",
+    "style": "twilight"
+  },
+  {
+    "id": "candy_clouds_day",
+    "image": "/game-assets/backgrounds/candy_clouds_day.webp",
+    "worldId": "candy_clouds",
+    "style": "day"
+  },
+  {
+    "id": "candy_clouds_twilight",
+    "image": "/game-assets/backgrounds/candy_clouds_twilight.webp",
+    "worldId": "candy_clouds",
+    "style": "twilight"
+  },
+  {
+    "id": "rainbow_reef_day",
+    "image": "/game-assets/backgrounds/rainbow_reef_day.webp",
+    "worldId": "rainbow_reef",
+    "style": "day"
+  },
+  {
+    "id": "rainbow_reef_twilight",
+    "image": "/game-assets/backgrounds/rainbow_reef_twilight.webp",
+    "worldId": "rainbow_reef",
+    "style": "twilight"
+  },
+  {
+    "id": "galaxy_gardens_day",
+    "image": "/game-assets/backgrounds/galaxy_gardens_day.webp",
+    "worldId": "galaxy_gardens",
+    "style": "day"
+  },
+  {
+    "id": "galaxy_gardens_twilight",
+    "image": "/game-assets/backgrounds/galaxy_gardens_twilight.webp",
+    "worldId": "galaxy_gardens",
+    "style": "twilight"
+  },
+  {
+    "id": "star_trophy_land_day",
+    "image": "/game-assets/backgrounds/star_trophy_land_day.webp",
+    "worldId": "star_trophy_land",
+    "style": "day"
+  },
+  {
+    "id": "star_trophy_land_twilight",
+    "image": "/game-assets/backgrounds/star_trophy_land_twilight.webp",
+    "worldId": "star_trophy_land",
+    "style": "twilight"
+  }
+]

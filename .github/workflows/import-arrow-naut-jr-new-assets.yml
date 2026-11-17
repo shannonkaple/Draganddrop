@@ -1,0 +1,61 @@
+name: Import Arrow-Naut Jr Move and Find PNGs
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-arrow-naut-jr-new-assets.yml'
+      - 'arrow-naut-jr/move-find-import-sources.json'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import-space-pngs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Prepare image verification
+        run: python -m pip install --disable-pip-version-check pillow
+      - name: Download and validate 12 individual transparent PNG images
+        run: |
+          python - <<'PY'
+          import json,urllib.request,time,io
+          from pathlib import Path
+          from PIL import Image
+          source=json.loads(Path('arrow-naut-jr/move-find-import-sources.json').read_text())
+          output=Path('arrow-naut-jr/assets/move-find')
+          output.mkdir(parents=True,exist_ok=True)
+          assets=source['assets']
+          assert len(assets)==12
+          for entry in assets:
+              name=entry['name']
+              assert name.replace('_','').isalnum()
+              req=urllib.request.Request(entry['url'],headers={'User-Agent':'Mozilla/5.0'})
+              data=None
+              for attempt in range(4):
+                  try:
+                      with urllib.request.urlopen(req,timeout=30) as response:
+                          data=response.read()
+                      break
+                  except Exception:
+                      if attempt==3: raise
+                      time.sleep(2*(attempt+1))
+              image=Image.open(io.BytesIO(data)).convert('RGBA')
+              assert image.width>=128 and image.height>=128,(name,image.size)
+              assert image.getchannel('A').getextrema()[0]==0,name+' is not transparent'
+              dest=output/(name+'.png')
+              image.save(dest,optimize=True)
+              print('Validated',dest,image.size)
+          PY
+      - name: Commit the actual PNG binary assets into the project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add arrow-naut-jr/assets/move-find/*.png
+          if git diff --cached --quiet; then
+            echo "Assets already present"
+          else
+            git commit -m "Import 12 original Arrow-Naut Jr transparent PNG move-and-find assets"
+            git push origin HEAD:main
+          fi

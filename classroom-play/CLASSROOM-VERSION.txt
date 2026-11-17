@@ -1,0 +1,6 @@
+CLASSROOM EDITION - FROZEN OCTOBER 26 2026 7:36 AM CENTRAL
+Snapshot: 74703ffe5e519a11e922d5aa5a3e74de8070ad37
+Published separately at https://shannonkaple.github.io/Draganddrop/classroom-play/
+Students should use the classroom-play link; the actively edited trackpad-adventure.html stays separate.
+Progress saves to dedicated classroom keys, initially copying existing progress per teacher and student number when available.
+This frozen version predates the later central reporting and eight-world map updates. It does not send central telemetry.

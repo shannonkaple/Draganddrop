@@ -1,0 +1,90 @@
+/* Arrow Lab artifact safety: map JPEGs and single-level backgrounds are drawn
+   once, centered, with their native aspect. All preexisting coordinate overlays
+   stay in the same image-local coordinate system. Never tile or distort art. */
+
+/* The overview is an <img> with separate clickable DOM world nodes.
+   Legacy CSS backgrounds must never print a SECOND stretched world map behind it. */
+html body.guided.adventure-mode.lab-map-active .lab-map-art-frame{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ min-height:0!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas{
+ display:block!important;position:relative!important;
+ box-sizing:border-box!important;aspect-ratio:2048/682!important;
+ background-image:none!important;background-repeat:no-repeat!important;
+ background-size:contain!important;background-position:center center!important;
+ overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas>.lab-main-map-art{
+ display:block!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;
+ max-width:100%!important;max-height:100%!important;
+ min-width:0!important;min-height:0!important;transform:none!important;
+ image-rendering:auto!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-world{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ min-height:0!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-scenery{
+ display:block!important;position:relative!important;
+ box-sizing:border-box!important;aspect-ratio:2048/682!important;
+ max-width:100%!important;max-height:100%!important;
+ background-image:none!important;background-size:contain!important;
+ background-position:center!important;background-repeat:no-repeat!important;
+ overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-scenery>.lab-candy-map-art{
+ display:block!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;
+ max-width:100%!important;max-height:100%!important;
+ transform:none!important;image-rendering:auto!important;
+}
+/* An older visual hotfix painted a duplicate copy on ::before, leading to
+   doubled and repeated art. Remove this layer without altering maze tiles. */
+html body.guided.adventure-mode.playing .scenic-board::before,
+html body.guided.adventure-mode.playing .scenic-board::after{
+ display:none!important;content:none!important;background-image:none!important;
+}
+html body.guided.adventure-mode.playing .scenic-board,
+html body.guided.adventure-mode.playing .scenic-board.lab-candy-maze,
+html body.guided.adventure-mode.playing .scenic-board.lab-individual-maze{
+ background-repeat:no-repeat!important;background-size:contain!important;
+ background-position:center center!important;background-color:#c4e9ff!important;
+}
+html body.guided.adventure-mode.playing .scenic-board>.maze{
+ z-index:1!important;position:relative!important;
+}
+/* Never stretch the approved JPEG header; show a single centered image only
+   on teacher/student selection, and if the entry-page rules choose to show it
+   on the first 8-world homepage. No hover/reveal effects. */
+html body>header.lab-image-header .brand{
+ background-image:none!important;background-repeat:no-repeat!important;
+ background-size:contain!important;background-position:center!important;
+}
+html body>header.lab-image-header .brand>img#lab-jpeg-banner{
+ display:block!important;position:static!important;inset:auto!important;
+ width:auto!important;height:auto!important;max-width:100%!important;
+ max-height:100%!important;object-fit:contain!important;
+ object-position:center center!important;transform:none!important;
+ background-image:none!important;
+}
+html body.guided.adventure-mode:is(.lab-world-active,.playing,.lab-collection-active)>header.lab-image-header .brand,
+html body.guided.adventure-mode:is(.lab-world-active,.playing,.lab-collection-active)>header.lab-image-header #lab-jpeg-banner{
+ display:none!important;height:0!important;min-height:0!important;
+}
+/* Header controls should wrap instead of occupying the same physical pixels. */
+html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar,
+html body.guided.adventure-mode>header.lab-image-header .toolbar-center{
+ overflow:visible!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .back-to-world{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:44px!important;height:44px!important;max-height:44px!important;
+ white-space:nowrap!important;flex:0 0 auto!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .back-to-world[hidden]{
+ display:none!important;
+}

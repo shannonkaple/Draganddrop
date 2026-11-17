@@ -1,0 +1,46 @@
+name: Parade Classroom Entry Smoke Test
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'thanksgiving-parade/index.html'
+      - 'thanksgiving-parade/television-png-layout.css'
+      - 'thanksgiving-parade/app.js'
+      - 'thanksgiving-parade/final-raster-layout.css'
+      - 'thanksgiving-parade/final-raster-ui.js'
+      - 'thanksgiving-parade/classroom-entry-smoke.cjs'
+      - '.github/workflows/parade-classroom-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  browser-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Serve real Parade Maker
+        run: python3 -m http.server 8765 -d thanksgiving-parade >/tmp/parade-server.log 2>&1 &
+      - name: Test class selection and hidden TV
+        run: node thanksgiving-parade/classroom-entry-smoke.cjs
+      - name: Commit latest visual QA screenshots
+        if: always()
+        run: |
+          git config user.name "parade-qa-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add thanksgiving-parade/qa-*.png thanksgiving-parade/qa-*.jpg || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Save current parade visual QA screenshots [skip ci]"
+            git push origin HEAD:main
+          fi
+      - name: Test published classroom flow on GitHub Pages
+        env:
+          PARADE_TEST_URL: 'https://shannonkaple.github.io/Draganddrop/thanksgiving-parade/?qa=classroom-fix-20261117'
+        run: node thanksgiving-parade/classroom-entry-smoke.cjs

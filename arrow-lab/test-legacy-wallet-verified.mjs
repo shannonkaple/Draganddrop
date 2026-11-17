@@ -1,0 +1,42 @@
+// Run: node arrow-lab/test-legacy-wallet-verified.mjs
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {writeVerifiedStudentRecord} from './verified-student-write.mjs';
+const source=fs.readFileSync(new URL('./adventure.mjs',import.meta.url),'utf8');
+const start=source.indexOf('if(stars>0&&saved){',source.indexOf('function finish(){'));
+const end=source.indexOf('\n }\n function afterLevel',start);
+assert.ok(start>0&&end>start,'locate actual secondary wallet write');
+const actual=source.slice(start,end);
+const perform=new Function('stars','saved','localStorage','key','writeVerifiedStudentRecord','showStorageWarning',actual+';return saved;');
+function check({saved=true,mode='normal',record={wallet:{total:12,earned:7,finished:1},adventure:{progress:123},other:'keep'}}={}){
+ let raw=JSON.stringify(record),writes=0,warn=false;
+ const storage={getItem:()=>raw,setItem(_key,value){writes++;if(mode==='quota')throw Error('quota');if(mode!=='silent')raw=value;}};
+ const result=perform(9,saved,storage,'student',writeVerifiedStudentRecord,()=>{warn=true});
+ return {record:JSON.parse(raw),writes,warn,result};
+}
+const success=check();
+assert.equal(success.record.wallet.total,17);
+assert.equal(success.record.wallet.earned,12);
+assert.equal(success.record.wallet.finished,2);
+assert.equal(success.record.other,'keep');
+assert.deepEqual(success.record.adventure,{progress:123});
+assert.equal(success.warn,false);
+assert.equal(success.result,true);
+const rejected=check({mode:'silent'});
+assert.equal(rejected.result,false);
+assert.equal(rejected.warn,true);
+assert.equal(rejected.record.wallet.total,12);
+const failedFirst=check({saved:false});
+assert.equal(failedFirst.writes,0,'never overwrite after failed adventure save');
+assert.equal(failedFirst.result,false);
+const quota=check({mode:'quota'});
+assert.equal(quota.result,false);
+assert.equal(quota.warn,true);
+const noWallet=check({record:{adventure:{progress:123}}});
+assert.equal(noWallet.writes,0);
+assert.equal(noWallet.result,true);
+const malformed=check({record:{wallet:[]}});
+assert.equal(malformed.writes,0);
+assert.equal(malformed.result,false);
+assert.equal(malformed.warn,true);
+console.log('PASS: secondary wallet save verified and all six safety scenarios');

@@ -1,0 +1,92 @@
+{
+  "purpose": "New standalone Arrow Adventure character art — not published until actual, correctly named image files exist",
+  "requirements": [
+    "Each character image must be generated separately as its own PNG file, not a collage or cropped sprite sheet",
+    "Full body, complete ears, feet, wings, tails and props in frame",
+    "Cartoon style matches existing game mascot illustrations; no SVG, canvas drawing or generated shapes",
+    "Each new character species differs from the eight original character types: astronaut human, dinosaur, unicorn, dog, kitten, robot, penguin, fairy",
+    "Only add a character to choices after confirming the corresponding PNG exists and looks correct"
+  ],
+  "characters": [
+    {
+      "id": "luna_axolotl",
+      "name": "Luna Axolotl",
+      "species": "axolotl",
+      "description": "pink aquatic explorer with feathery gills",
+      "expectedImage": "/game-assets/characters/new/png_512/luna_axolotl.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "cosmo_fox",
+      "name": "Cosmo Fox",
+      "species": "fox",
+      "description": "orange cosmic explorer with fox ears and bushy tail",
+      "expectedImage": "/game-assets/characters/new/png_512/cosmo_fox.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "nova_panda",
+      "name": "Nova Panda",
+      "species": "panda",
+      "description": "black-and-white scientist with panda eye patches",
+      "expectedImage": "/game-assets/characters/new/png_512/nova_panda.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "pixel_pig",
+      "name": "Pixel Pig",
+      "species": "pig",
+      "description": "pink pig computer inventor with a snout and curly tail",
+      "expectedImage": "/game-assets/characters/new/png_512/pixel_pig.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "zippy_turtle",
+      "name": "Zippy Turtle",
+      "species": "turtle",
+      "description": "green turtle with rounded shell and speedy shoes",
+      "expectedImage": "/game-assets/characters/new/png_512/zippy_turtle.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "coco_koala",
+      "name": "Coco Koala",
+      "species": "koala",
+      "description": "grey engineer with broad koala ears and nose",
+      "expectedImage": "/game-assets/characters/new/png_512/coco_koala.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "berry_bunny",
+      "name": "Berry Bunny",
+      "species": "rabbit",
+      "description": "lavender rabbit scientist with long ears",
+      "expectedImage": "/game-assets/characters/new/png_512/berry_bunny.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "sparky_dragon",
+      "name": "Sparky Dragon",
+      "species": "dragon",
+      "description": "teal dragon inventor with horns and wings",
+      "expectedImage": "/game-assets/characters/new/png_512/sparky_dragon.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "mochi_otter",
+      "name": "Mochi Otter",
+      "species": "otter",
+      "description": "brown otter explorer with whiskers and paddle tail",
+      "expectedImage": "/game-assets/characters/new/png_512/mochi_otter.png",
+      "status": "missing artwork"
+    },
+    {
+      "id": "buzzy_bee",
+      "name": "Buzzy Bee",
+      "species": "bee",
+      "description": "yellow-striped bee inventor with antennae and tiny wings",
+      "expectedImage": "/game-assets/characters/new/png_512/buzzy_bee.png",
+      "status": "missing artwork"
+    }
+  ]
+}

@@ -1,0 +1,330 @@
+/* Arrow Adventure aligns to Drag & Drop's in-game layout.
+   Only the teacher/student entry may display a JPEG heading. No dropdown,
+   hover, focus, expanded, or animated banner image. Maze gameplay remains Arrow. */
+html body.guided.adventure-mode>header.lab-image-header{
+  box-sizing:border-box!important;
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  position:fixed!important;inset:0 0 auto!important;
+  width:100%!important;max-height:none!important;height:auto!important;min-height:0!important;
+  margin:0!important;padding:0!important;gap:0!important;overflow:visible!important;
+  background:linear-gradient(100deg,#f9b4dd,#ffe8ac 24%,#aff0bd 48%,#a7e2fa 73%,#dfb6fc)!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .brand,
+html body.guided.adventure-mode>header.lab-image-header:is(:hover,:focus-within) .brand,
+html body.guided.adventure-mode>header.lab-image-header .brand img,
+html body.guided.adventure-mode>header.lab-image-header:is(:hover,:focus-within) .brand img{
+  display:none!important;visibility:hidden!important;
+  height:0!important;min-height:0!important;max-height:0!important;
+  width:0!important;min-width:0!important;max-width:0!important;
+  opacity:0!important;pointer-events:none!important;
+  overflow:hidden!important;padding:0!important;margin:0!important;
+  background-image:none!important;content:none!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar{
+  box-sizing:border-box!important;
+  position:static!important;
+  display:grid!important;grid-template-columns:minmax(150px,1fr) minmax(245px,1.2fr) auto auto!important;
+  grid-auto-rows:minmax(44px,auto)!important;
+  align-items:center!important;justify-items:stretch!important;
+  width:100%!important;max-width:none!important;
+  height:auto!important;min-height:64px!important;max-height:none!important;
+  padding:9px 12px!important;margin:0!important;gap:7px 10px!important;
+  overflow:visible!important;
+  background:linear-gradient(100deg,#f9b4dd,#ffe8ac 24%,#aff0bd 48%,#a7e2fa 73%,#dfb6fc)!important;
+}
+html body.guided.adventure-mode>header.lab-image-header #lab-student-header{
+  display:flex!important;grid-column:1!important;grid-row:1!important;
+  flex-direction:row!important;flex-wrap:wrap!important;
+  justify-content:flex-start!important;align-items:center!important;
+  position:static!important;width:auto!important;min-width:0!important;
+  height:auto!important;min-height:0!important;margin:0!important;padding:0!important;
+  gap:6px!important;overflow:visible!important;
+}
+html body.guided.adventure-mode>header.lab-image-header :is(#lab-student-header.hidden,#lab-student-header[hidden]){display:none!important}
+html body.guided.adventure-mode>header.lab-image-header .lab-header-progress{
+  box-sizing:border-box!important;display:flex!important;
+  grid-column:2!important;grid-row:1!important;
+  position:static!important;flex:none!important;
+  flex-direction:row!important;align-items:center!important;
+  width:100%!important;min-width:0!important;max-width:none!important;
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  padding:2px 5px!important;margin:0!important;gap:5px!important;
+  overflow:hidden!important;border:2px solid #9168be!important;border-radius:11px!important;background:#fff!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-header-progress[hidden]{display:none!important}
+html body.guided.adventure-mode>header.lab-image-header .toolbar-center{
+  display:flex!important;grid-column:3!important;grid-row:1!important;
+  flex-direction:row!important;flex-wrap:wrap!important;
+  align-items:center!important;justify-content:center!important;
+  position:static!important;width:auto!important;min-width:0!important;
+  height:auto!important;margin:0!important;padding:0!important;gap:6px!important;overflow:visible!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .toolbar-right{
+  display:flex!important;grid-column:4!important;grid-row:1!important;
+  flex-direction:row!important;flex-wrap:wrap!important;
+  align-items:center!important;justify-content:flex-end!important;
+  position:static!important;width:auto!important;min-width:0!important;
+  height:auto!important;margin:0!important;padding:0!important;gap:6px!important;overflow:visible!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar button:not([hidden]):not(.hidden){
+  box-sizing:border-box!important;display:inline-flex!important;position:static!important;
+  flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;min-width:48px!important;max-width:none!important;
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  padding:6px 10px!important;margin:0!important;
+  font:700 clamp(12px,1vw,15px)/1.1 VAG,Arial,sans-serif!important;
+  white-space:nowrap!important;color:#1c1941!important;background:#fff!important;
+  border:2px solid #282047!important;border-radius:12px!important;
+  box-shadow:0 2px 3px #2020443b!important;transform:none!important;
+  opacity:1!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar :is(button[hidden],button.hidden){display:none!important}
+html body.guided.adventure-mode>header.lab-image-header .lab-header-progress button:not([hidden]){
+  height:36px!important;min-height:36px!important;max-height:36px!important;
+  min-width:43px!important;padding:3px 6px!important;font-size:11px!important;border-radius:9px!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-header-progress .lab-top-player-art{
+  box-sizing:border-box!important;flex:0 0 35px!important;
+  height:37px!important;width:35px!important;margin:0!important;padding:0!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-header-progress .lab-top-player-art img{
+  display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-top-progress-details{
+  display:flex!important;flex:1 1 auto!important;flex-direction:column!important;
+  min-width:0!important;gap:1px!important;line-height:1.05!important;
+}
+html body.guided.adventure-mode>header.lab-image-header .lab-top-meter{height:6px!important;min-height:6px!important}
+html body.guided.adventure-mode>header.lab-image-header .back-to-world:not([hidden]){
+  display:inline-flex!important;position:static!important;min-width:0!important;max-width:none!important;
+}
+html body.guided.adventure-mode>header.lab-image-header :is(#heading-toggle,.heading-toggle){display:none!important;}
+/* Similar wrapping to Drag & Drop on Chromebook widths. Prevent clipped buttons. */
+@media(max-width:1450px){
+ html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar{
+  grid-template-columns:minmax(160px,1fr) minmax(240px,1.15fr) auto!important;
+ }
+ html body.guided.adventure-mode>header.lab-image-header .toolbar-right{
+  grid-column:1/-1!important;grid-row:2!important;justify-content:center!important;
+ }
+}
+@media(max-width:900px){
+ html body.guided.adventure-mode>header.lab-image-header .lab-reference-toolbar{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:5px!important;padding:7px!important;
+ }
+ html body.guided.adventure-mode>header.lab-image-header #lab-student-header{grid-column:1!important;grid-row:1!important}
+ html body.guided.adventure-mode>header.lab-image-header .lab-header-progress{grid-column:2!important;grid-row:1!important}
+ html body.guided.adventure-mode>header.lab-image-header .toolbar-center{grid-column:1/-1!important;grid-row:2!important}
+ html body.guided.adventure-mode>header.lab-image-header .toolbar-right{grid-column:1/-1!important;grid-row:3!important}
+}
+
+/* Homepage and world maps use every free pixel beneath the same banner. */
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing,.lab-collection-active) #app{
+  box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+  justify-content:flex-start!important;align-items:stretch!important;
+  min-height:0!important;max-height:none!important;
+  padding:3px 5px!important;margin:0!important;gap:2px!important;
+  overflow:hidden!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing,.lab-collection-active) #app>.adventure-title,
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active,.playing,.lab-collection-active) #app>.adventure-nav{
+  display:none!important;height:0!important;min-height:0!important;
+  margin:0!important;padding:0!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-home,
+html body.guided.adventure-mode.lab-world-active .lab-candy-world{
+  box-sizing:border-box!important;
+  display:flex!important;flex:1 1 0!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;max-height:100%!important;
+  min-height:0!important;gap:2px!important;padding:2px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-heading{
+  display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-scenery{
+  box-sizing:border-box!important;flex:1 1 auto!important;
+  width:min(100%,calc((var(--screen-height,610px) - 25px)*3.00293))!important;
+  height:auto!important;min-height:0!important;max-height:100%!important;aspect-ratio:2048/682!important;
+  margin:auto!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-world-active .lab-candy-scenery>.lab-candy-map-art{
+  display:block!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-art-frame{
+  display:flex!important;flex:1 1 0!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;min-height:0!important;max-height:100%!important;margin:0!important;padding:0!important;
+}
+html body.guided.adventure-mode.lab-map-active .lab-map-canvas{
+  box-sizing:border-box!important;flex:0 1 auto!important;
+  width:min(100%,calc((var(--screen-height,610px) - 25px)*3.00293))!important;
+  height:auto!important;min-height:0!important;max-height:100%!important;aspect-ratio:2048/682!important;
+  margin:auto!important;
+}
+html body.guided.adventure-mode:is(.lab-map-active,.lab-world-active) :is(.lab-main-nav,.activity-map-legend,.lab-next-play,.lab-overflow){
+  display:none!important;
+}
+/* Arrow mazes keep their arrow-grid mechanics. Only enlarge the presentation
+   to match the full-width Drag & Drop activity screen. */
+html body.guided.adventure-mode.playing #app>.quest-strip{
+  display:flex!important;flex:0 0 auto!important;
+  align-items:center!important;justify-content:center!important;flex-wrap:wrap!important;
+  width:100%!important;min-height:36px!important;max-height:82px!important;
+  padding:3px 8px!important;margin:0!important;gap:6px!important;
+  font:700 clamp(12px,1.1vw,15px)/1.1 VAG,Arial,sans-serif!important;
+}
+html body.guided.adventure-mode.playing #app>.play-layout{
+  display:flex!important;flex:1 1 0!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+  padding:0!important;margin:0!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.playing .play-layout>section{
+  display:flex!important;flex:1 1 0!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+  padding:0!important;margin:0!important;gap:3px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.playing .scenic-board{
+  box-sizing:border-box!important;flex:1 1 0!important;
+  position:relative!important;
+  width:min(100%,calc((var(--screen-height,610px) - 70px)*1672/941))!important;
+  height:auto!important;min-height:0!important;max-height:100%!important;
+  aspect-ratio:1672/941!important;
+  margin:auto!important;padding:2px!important;
+  background-size:contain!important;background-repeat:no-repeat!important;
+  background-position:center!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.playing .scenic-board #adventure-maze{
+  margin:auto!important;max-width:100%!important;max-height:100%!important;
+}
+html body.guided.adventure-mode.playing #app #adventure-status{
+  flex:0 0 auto!important;max-height:36px!important;overflow:hidden!important;
+  margin:0!important;padding:2px 8px!important;
+  font:700 clamp(11px,1vw,14px)/1.1 VAG,Arial,sans-serif!important;
+}
+/* MY STUFF uses the identical full-scene and one-shelf structure as Drag & Drop. */
+html body.guided.adventure-mode.lab-collection-active #app>.lab-collection-page.my-stuff-full-room{
+  box-sizing:border-box!important;display:flex!important;flex:1 1 0!important;
+  flex-direction:column!important;
+  width:100%!important;max-width:100%!important;
+  height:100%!important;max-height:100%!important;min-height:0!important;
+  padding:2px 4px!important;margin:0!important;gap:3px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-stage{
+  box-sizing:border-box!important;display:flex!important;flex:1 1 0!important;
+  grid-column:auto!important;grid-row:auto!important;
+  flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:auto!important;max-height:100%!important;min-height:0!important;
+  margin:0!important;padding:0!important;gap:2px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .collection-world-showcase{
+  display:flex!important;flex:1 1 0!important;align-items:center!important;justify-content:center!important;
+  width:100%!important;height:100%!important;min-height:0!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #collection-scene{
+  position:relative!important;flex:0 1 auto!important;
+  max-width:100%!important;max-height:100%!important;min-height:0!important;
+  margin:auto!important;background-size:contain!important;background-repeat:no-repeat!important;
+  background-position:center center!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-unified-shelf{
+  box-sizing:border-box!important;display:flex!important;flex:0 0 auto!important;
+  flex-direction:column!important;
+  width:100%!important;max-width:100%!important;height:108px!important;min-height:0!important;
+  max-height:108px!important;
+  padding:2px 4px!important;margin:0!important;gap:2px!important;
+  border:2px solid #8752ae!important;border-radius:11px!important;
+  background:#f0f8ff!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-unified-tabs{
+  display:flex!important;flex:0 0 27px!important;align-items:center!important;
+  width:100%!important;height:27px!important;min-height:27px!important;
+  padding:0!important;margin:0!important;gap:4px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-unified-tabs button{
+  flex:1 1 0!important;height:27px!important;min-height:27px!important;max-height:27px!important;
+  padding:2px 4px!important;margin:0!important;
+  font:700 clamp(10px,1vw,13px)/1 VAG,Arial,sans-serif!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room>.my-stuff-unified-shelf .my-stuff-tray-controls{
+  box-sizing:border-box!important;display:flex!important;flex:1 1 0!important;
+  align-items:center!important;width:100%!important;height:72px!important;min-height:0!important;
+  padding:0!important;margin:0!important;gap:3px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room .my-stuff-tray-controls>button{
+  flex:0 0 38px!important;box-sizing:border-box!important;
+  width:38px!important;height:69px!important;min-height:69px!important;
+  padding:1px!important;margin:0!important;border-radius:9px!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray{
+  box-sizing:border-box!important;display:block!important;flex:1 1 0!important;
+  width:auto!important;height:69px!important;min-height:0!important;
+  padding:0!important;margin:0!important;
+  overflow-x:auto!important;overflow-y:hidden!important;
+  white-space:nowrap!important;scrollbar-width:thin!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page{
+  display:flex!important;flex-direction:row!important;align-items:stretch!important;flex-wrap:nowrap!important;
+  width:max-content!important;min-width:100%!important;height:69px!important;min-height:0!important;
+  gap:3px!important;margin:0!important;padding:0!important;white-space:nowrap!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page[hidden]{
+  display:none!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item{
+  box-sizing:border-box!important;display:flex!important;flex:0 0 111px!important;
+  flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  width:111px!important;max-width:111px!important;min-width:111px!important;
+  height:67px!important;max-height:67px!important;min-height:0!important;
+  padding:1px 2px!important;margin:0!important;gap:1px!important;overflow:hidden!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item :is(img,.friend-art,.world-friend-art){
+  display:block!important;height:25px!important;min-height:0!important;max-height:25px!important;
+  max-width:100%!important;width:auto!important;object-fit:contain!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item :is(strong,small){
+  display:block!important;font:700 10px/1 VAG,Arial,sans-serif!important;
+  text-overflow:ellipsis!important;overflow:hidden!important;white-space:nowrap!important;
+  width:100%!important;text-align:center!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-shelf-page .my-stuff-item button{
+  box-sizing:border-box!important;display:inline-flex!important;flex:0 0 auto!important;
+  align-items:center!important;justify-content:center!important;
+  height:21px!important;min-height:21px!important;max-height:21px!important;
+  width:100%!important;padding:1px 2px!important;margin:0!important;
+  font:700 9px/1 VAG,Arial,sans-serif!important;white-space:nowrap!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-quickworlds{
+  display:flex!important;flex:0 0 auto!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  align-items:center!important;gap:4px!important;padding:0!important;margin:0!important;
+  min-width:0!important;width:max-content!important;overflow:visible!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-quickworlds button{
+  display:flex!important;flex:0 0 100px!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;
+  width:100px!important;height:65px!important;min-height:65px!important;
+  padding:2px!important;margin:0!important;gap:1px!important;
+  font:700 10px/1 VAG,Arial,sans-serif!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #my-stuff-tray .my-stuff-quickworlds img{
+  display:block!important;max-width:90px!important;height:33px!important;max-height:33px!important;
+  object-fit:contain!important;
+}
+html body.guided.adventure-mode.lab-collection-active .my-stuff-full-room #stuff-world-select{
+  align-self:center!important;flex:0 0 125px!important;
+  max-width:125px!important;height:30px!important;min-height:30px!important;
+  font:700 10px VAG,Arial,sans-serif!important;
+}
+/* Character info modal uses the approved original PNGs, never generated art. */
+dialog.my-stuff-character-dialog .my-stuff-character-profile{
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;max-width:330px!important;gap:8px!important;
+  margin:0!important;padding:10px!important;text-align:center!important;
+}
+dialog.my-stuff-character-dialog .my-stuff-character-profile img{
+  width:min(225px,60vw)!important;height:min(235px,42dvh)!important;
+  max-width:100%!important;object-fit:contain!important;
+}

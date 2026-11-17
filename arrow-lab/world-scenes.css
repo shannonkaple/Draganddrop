@@ -1,0 +1,7 @@
+/* Original 1672 x 941 artwork; no crop, stretch, sprite zoom, or upscaling. */
+html body.guided.adventure-mode .scenic-board{background-size:min(100%,1672px) auto!important;background-position:center!important;background-repeat:no-repeat!important}
+html body.guided.adventure-mode .scenic-board{background-size:contain!important;max-width:1672px;max-height:941px}
+html body.guided.adventure-mode #collection-scene{aspect-ratio:1672/941!important;max-width:1672px!important;max-height:941px!important;background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important}
+html body.guided.activity-playing .activity-board{background:#e8f6ff!important;aspect-ratio:1672/941!important;max-width:1672px!important;max-height:941px!important}
+html body.guided.activity-playing .activity-background{object-fit:contain!important;object-position:center!important;opacity:1!important;filter:none!important}
+html body.guided.lab-collection-active .my-stuff-stage .collection-world-showcase{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;min-height:0!important}

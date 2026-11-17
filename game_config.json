@@ -1,0 +1,101 @@
+{
+  "gameId": "amazing_arrow_adventure",
+  "title": "Ms. Kaple’s A-Mazing Arrow Adventure",
+  "targetGrade": "first",
+  "assetRoot": "/game-assets",
+  "levelCount": 12,
+  "startingCharacterOptions": 8,
+  "controls": {
+    "move": [
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight"
+    ],
+    "duckHold": [
+      "Space"
+    ],
+    "duckTouchButton": true,
+    "interact": [
+      "mouse_click",
+      "touchpad_click"
+    ],
+    "dragAndDrop": true,
+    "mobileFallback": true
+  },
+  "ducksUnder": "visibly_marked_low_barriers_only",
+  "progression": {
+    "saveAfterEachLevel": true,
+    "starRewards": {
+      "completion": 1,
+      "itemCollection": 1,
+      "skillChallenge": 1
+    },
+    "upgradeCost": {
+      "power_up": 2,
+      "super_power_additional": 4
+    },
+    "starWalletIsShared": true,
+    "allowReplayForMoreStars": true,
+    "firstCompletionGivesAtLeastOneStar": true,
+    "neverSpendRealMoney": true
+  },
+  "friends": {
+    "initialRosterSize": 1,
+    "totalFriends": 8,
+    "rescueLevels": [
+      2,
+      3,
+      5,
+      6,
+      8,
+      10,
+      12
+    ],
+    "rescueMode": "choose_from_unrescued_and_assign_world",
+    "friendsCanBeMovedBetweenLands": true,
+    "eachFriendUpgradeIndependent": true,
+    "duplicateRescues": false
+  },
+  "rainbowLands": {
+    "allAvailableAtStart": true,
+    "choosePrimaryHomeAtStart": true,
+    "placeRescuedFriendsInAnyLand": true,
+    "allowChangeLater": true,
+    "decorateWithEarnedStarsOptional": true
+  },
+  "enemyContact": {
+    "action": "return_to_last_safe_checkpoint",
+    "removeHearts": false,
+    "lives": null,
+    "scaryEffects": false
+  },
+  "learning": {
+    "arrowKeys": true,
+    "click": true,
+    "doubleClick": true,
+    "typing": true,
+    "trackpadMouse": true,
+    "dragDropOptional": true,
+    "duck": true
+  },
+  "accessibility": {
+    "reducedMotion": true,
+    "soundToggle": true,
+    "bigClickTargets": true,
+    "largeReadableLabels": true,
+    "noTimePressure": true,
+    "keyboardAccessibleMenus": true,
+    "noFlashingEffects": true,
+    "visualAudioFeedback": true
+  },
+  "preserveExistingApp": [
+    "existing_studies_lessons",
+    "homeroom_class_assignments",
+    "teacher_reports",
+    "current_student_data",
+    "github_deployment",
+    "arrow_key_input",
+    "any_existing_skills_tracking"
+  ]
+}
