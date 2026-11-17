@@ -116,5 +116,18 @@ if(brand){
   brand.appendChild(img(file,'',cls));
  }
 }
+// Switch whole illustrated raster picture on selection; no text/shape drawn in the DOM.
+const tabPaths={balloons:'tab-balloons',floats:'tab-floats',bands:'tab-music',decorate:'tab-scenes'};
+for(const tab of document.querySelectorAll('.step[data-tab]')){
+ const art=tab.querySelector('img.step-game-art');
+ const base=tabPaths[tab.dataset.tab];
+ if(!art||!base)continue;
+ function sync(){
+  const src=root+base+(tab.classList.contains('selected')?'-active':'')+'.png';
+  if(art.getAttribute('src')!==src)art.src=src;
+ }
+ sync();
+ new MutationObserver(sync).observe(tab,{attributes:true,attributeFilter:['class']});
+}
 document.documentElement.classList.add('parade-raster-ready');
 })();
