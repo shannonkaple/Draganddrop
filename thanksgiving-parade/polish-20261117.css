@@ -1,0 +1,84 @@
+
+/* Parade Studio visual cleanup — 17 Nov 2026. Shared, consistent style overrides. */
+:root{--clean-red:#e7002a;--clean-sky:#9defff;--clean-blue:#c7f5ff;--clean-ink:#173b54}
+html,body{margin:0!important;background:var(--clean-sky)!important}
+body:not(.workshop-mode) .app{min-height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
+body:not(.workshop-mode) header.topbar{height:113px!important;min-height:113px!important;padding:2px 8px 5px!important;gap:0!important;box-sizing:border-box!important}
+body:not(.workshop-mode) header.topbar .kaple-brand{height:75px!important;max-width:none!important;justify-content:center!important;gap:0!important;margin:0 auto!important}
+body:not(.workshop-mode) header.topbar .float-balloon{display:none!important}
+body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{width:360px!important;height:76px!important;max-height:76px!important;margin:auto!important;object-fit:contain!important}
+body:not(.workshop-mode) header.topbar .top-actions{min-height:32px!important;gap:5px!important}
+body:not(.workshop-mode) header.topbar .top-actions button.kaple-util{height:31px!important;min-height:31px!important;font-size:11px!important;padding:3px 11px!important;border-radius:8px!important;box-shadow:0 2px 0 #9f0020!important}
+body:not(.workshop-mode) header.topbar #saveBtn.kaple-util{background:#e7002a!important;border-color:white!important}
+body:not(.workshop-mode) .body-layout{height:calc(100dvh - 113px)!important;min-height:0!important;padding:4px 8px 7px!important;gap:5px!important;display:grid!important;grid-template-rows:65px minmax(0,1fr)!important;box-sizing:border-box!important}
+body:not(.workshop-mode) .sidebar{min-height:0!important;height:65px!important;overflow:hidden!important}
+body:not(.workshop-mode) .step-list{height:65px!important;gap:7px!important}
+/* Each category is the same button, typography and proportions, without raster backgrounds. */
+body:not(.workshop-mode) .step-list .step:nth-child(n){height:62px!important;min-height:62px!important;border:2px solid #fff!important;border-radius:12px!important;background:linear-gradient(#e5faff,#b6efff)!important;box-shadow:0 2px 0 #7cb9cc!important;overflow:hidden!important;filter:none!important}
+body:not(.workshop-mode) .step-list .step.selected{background:#fff!important;border-color:var(--clean-red)!important;box-shadow:inset 0 0 0 1px var(--clean-red)!important}
+body:not(.workshop-mode) .step-list .step .step-game-art{display:none!important}
+body:not(.workshop-mode) .step-list .step::after{display:block!important;color:#db0029!important;font-family:Georgia,'Times New Roman',serif!important;font-weight:1000!important;font-size:clamp(19px,2.6vw,37px)!important;letter-spacing:.01em!important;line-height:1!important;text-shadow:1px 2px #fff,-1px -1px #fff!important}
+body:not(.workshop-mode) .step-list .step[data-tab="balloons"]::after{content:"BALLOONS"!important}
+body:not(.workshop-mode) .step-list .step[data-tab="floats"]::after{content:"FLOATS"!important}
+body:not(.workshop-mode) .step-list .step[data-tab="bands"]::after{content:"MUSIC"!important}
+body:not(.workshop-mode) .step-list .step[data-tab="decorate"]::after{content:"SCENES"!important}
+body:not(.workshop-mode) .main{min-height:0!important;height:100%!important;grid-template-columns:minmax(0,1.66fr) minmax(330px,.95fr)!important;grid-template-rows:minmax(0,1fr) 168px!important;gap:7px!important;overflow:hidden!important}
+body:not(.workshop-mode) #libraryPanel,body:not(.workshop-mode) #paradePreviewPanel,body:not(.workshop-mode) #paradeLineupPanel{min-height:0!important;max-height:none!important;height:100%!important;overflow:hidden!important;border-radius:12px!important}
+body:not(.workshop-mode) #libraryPanel{display:flex!important;flex-direction:column!important;padding:7px!important}
+body:not(.workshop-mode) #balloonGroupNav{flex:0 0 40px!important;gap:6px!important;margin:0 0 5px!important}
+body:not(.workshop-mode) #balloonShelves,body:not(.workshop-mode) #floatShelf,body:not(.workshop-mode) #bandShelf,body:not(.workshop-mode) #decoratePanel{min-height:0!important;flex:1 1 auto!important;overflow:hidden!important}
+body:not(.workshop-mode) #libraryPanel .balloon-shelf{height:100%!important;min-height:0!important;padding:4px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+body:not(.workshop-mode) #libraryPanel .shelf-heading{flex:0 0 32px!important;margin:0!important;padding:2px 4px!important;min-height:0!important}
+body:not(.workshop-mode) #libraryPanel .gallery{flex:1 1 auto!important;min-height:0!important;max-height:none!important;height:auto!important;overflow:hidden!important;align-content:stretch!important;grid-auto-rows:minmax(0,1fr)!important;gap:6px!important}
+body:not(.workshop-mode) #libraryPanel .gallery .gallery-card,body:not(.workshop-mode) #libraryPanel .gallery .gallery-item{min-height:0!important;height:100%!important}
+body:not(.workshop-mode) .preview-head{min-height:50px!important;padding:4px 9px!important}
+body:not(.workshop-mode) #stageHeading .parade-heading-art{display:none!important}
+body:not(.workshop-mode) #stageHeading::after{content:"YOUR PARADE"!important;font-family:Georgia,serif!important;font-size:25px!important;font-weight:900!important;color:var(--clean-red)!important;letter-spacing:.02em!important}
+body:not(.workshop-mode) .preview-foot{min-height:52px!important;padding:4px 9px!important;gap:6px!important}
+body:not(.workshop-mode) .play-btn.game-play-art{background:#e7002a!important;width:auto!important;min-width:150px!important;height:40px!important;border:2px solid white!important;border-radius:10px!important;box-shadow:0 2px 0 #a00020!important;padding:0 13px!important}
+body:not(.workshop-mode) .play-btn.game-play-art img{display:none!important}
+body:not(.workshop-mode) .play-btn.game-play-art::after{content:"▶ WATCH MY PARADE"!important;color:white!important;font-family:'VAG',Arial,sans-serif!important;font-size:13px!important;font-weight:900!important;white-space:nowrap!important}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading{padding:4px 9px!important;min-height:48px!important}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading h2{margin:0!important;gap:10px!important}
+body:not(.workshop-mode) #paradeLineupPanel .heading-put-your-parade-in-order{display:none!important}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading h2::before{content:"PUT YOUR PARADE IN ORDER"!important;font-family:Georgia,serif!important;color:var(--clean-red)!important;font-size:clamp(16px,1.7vw,24px)!important;font-weight:900!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup{height:105px!important;min-height:0!important;padding:4px 9px!important;overflow-x:auto!important;overflow-y:hidden!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup > *{min-height:90px!important}
+body:not(.workshop-mode) .parade-heading-art[src$=".jpg"]{display:none!important}
+body:not(.workshop-mode) #bandGalleryTitle::after{content:"MARCHING BANDS"!important}
+body:not(.workshop-mode) .band-music-heading h2::after{content:"MUSIC"!important}
+body:not(.workshop-mode) #bandGalleryTitle::after,body:not(.workshop-mode) .band-music-heading h2::after{font:900 24px Georgia,serif!important;color:var(--clean-red)!important}
+body:not(.workshop-mode) #decoratePanel .design-section::before{content:"CHOOSE YOUR SCENE";font:900 24px Georgia,serif;color:var(--clean-red);display:block;margin-bottom:6px}
+body:not(.workshop-mode) #libraryPanel .hidden{display:none!important}
+/* Playback uses the same clean palette, not the unrelated plum/mauve theme. */
+#cinema{background:var(--clean-sky)!important;color:var(--clean-ink)!important}
+#cinema .cinema-top{background:var(--clean-sky)!important;border-bottom:4px solid var(--clean-red)!important;color:var(--clean-red)!important;box-shadow:none!important}
+#cinema .cinema-brand{font:900 clamp(20px,2.3vw,32px) Georgia,serif!important;color:var(--clean-red)!important;text-shadow:none!important}
+#cinema #movieLocation{background:#fff!important;color:var(--clean-ink)!important;border-radius:10px!important;padding:2px 8px!important}
+#cinema .cinema-controls button,#cinema #replayBtn{background:#fff!important;border:2px solid var(--clean-red)!important;color:var(--clean-red)!important;border-radius:10px!important;box-shadow:none!important;font-family:'VAG',Arial,sans-serif!important}
+#cinema .cinema-controls button img,#cinema #replayBtn img{max-width:26px!important;max-height:26px!important}
+#cinema .cinema-bottom{background:var(--clean-sky)!important;border-top:3px solid var(--clean-red)!important;color:var(--clean-ink)!important}
+#cinema .timeline{background:#fff!important;border:1px solid #86cddb!important}
+#cinema .timeline-fill{background:var(--clean-red)!important}
+#cinema .movie-scene{background:#e3f9ff!important}
+/* On short Chromebook displays, preserve all three working areas in one viewport. */
+@media(max-height:780px) and (min-width:901px){
+ body:not(.workshop-mode) header.topbar{height:97px!important;min-height:97px!important}
+ body:not(.workshop-mode) header.topbar .kaple-brand{height:62px!important}
+ body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{height:62px!important;width:300px!important}
+ body:not(.workshop-mode) .body-layout{height:calc(100dvh - 97px)!important;grid-template-rows:57px minmax(0,1fr)!important}
+ body:not(.workshop-mode) .sidebar,body:not(.workshop-mode) .step-list{height:57px!important}
+ body:not(.workshop-mode) .step-list .step:nth-child(n){height:54px!important;min-height:54px!important}
+ body:not(.workshop-mode) .main{grid-template-rows:minmax(0,1fr) 145px!important}
+ body:not(.workshop-mode) #paradeLineupPanel .lineup{height:83px!important}
+ body:not(.workshop-mode) #paradeLineupPanel .lineup > *{min-height:75px!important}
+}
+@media(max-width:900px){
+ body:not(.workshop-mode) .app{max-height:none!important;overflow:auto!important}
+ body:not(.workshop-mode) .body-layout{height:auto!important;display:block!important}
+ body:not(.workshop-mode) .sidebar{margin-bottom:6px!important}
+ body:not(.workshop-mode) .main{height:auto!important;display:flex!important;flex-direction:column!important;overflow:visible!important}
+ body:not(.workshop-mode) #libraryPanel{height:330px!important}
+ body:not(.workshop-mode) #paradePreviewPanel{height:320px!important}
+ body:not(.workshop-mode) #paradeLineupPanel{height:160px!important}
+}
