@@ -187,3 +187,105 @@ body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{
 @media(max-width:900px){
  body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery{height:62px!important;width:98vw!important}
 }
+
+/* 2026-11-17 urgent graphic and layout correction. Final override. */
+:root{--brand-blue:#a8edff;--brand-red:#e7002a}
+body:not(.workshop-mode) header.topbar{padding:1px 9px 5px!important}
+body:not(.workshop-mode) header.topbar .kaple-brand{overflow:hidden!important;max-width:none!important;position:relative!important;isolation:isolate!important}
+body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{
+ position:relative!important;z-index:9!important;
+ width:330px!important;height:72px!important;max-height:72px!important;
+ object-fit:contain!important;margin:0 auto!important;pointer-events:none!important;
+}
+body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery,
+body:not(.workshop-mode) header.topbar .kaple-brand .header-floating-piece{
+ position:absolute!important;left:50%!important;top:50%!important;
+ display:block!important;width:min(1100px,96vw)!important;height:78px!important;
+ max-width:none!important;max-height:none!important;
+ object-fit:contain!important;pointer-events:none!important;
+ transform:translate(-50%,-50%)!important;
+}
+body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery.fixed-skyline{
+ z-index:1!important;clip-path:inset(48% 0 0 0)!important;animation:none!important;
+}
+body:not(.workshop-mode) header.topbar .kaple-brand .header-floating-piece{z-index:2!important;animation:paradeBalloonBob 3.2s ease-in-out infinite!important}
+body:not(.workshop-mode) header.topbar .kaple-brand .header-worm{
+ clip-path:polygon(6% 0,27% 0,27% 82%,6% 82%)!important;animation-duration:3s!important
+}
+body:not(.workshop-mode) header.topbar .kaple-brand .header-bear{
+ clip-path:polygon(27% 0,45% 0,45% 95%,27% 95%)!important;
+ animation-duration:3.7s!important;animation-delay:-1.1s!important
+}
+body:not(.workshop-mode) header.topbar .kaple-brand .header-ice{
+ clip-path:polygon(78% 0,96% 0,96% 82%,78% 82%)!important;
+ animation-duration:3.3s!important;animation-delay:-.6s!important
+}
+@keyframes paradeBalloonBob{0%,100%{translate:0 2px}50%{translate:0 -5px}}
+@media(prefers-reduced-motion:reduce){body:not(.workshop-mode) header.topbar .kaple-brand .header-floating-piece{animation:none!important}}
+body:not(.workshop-mode) .step-list .step:nth-child(n){
+ height:61px!important;min-height:61px!important;
+ background:transparent!important;border:2px solid transparent!important;border-radius:12px!important;
+ padding:1px!important;overflow:hidden!important;box-shadow:none!important;
+}
+body:not(.workshop-mode) .step-list .step.selected{background:white!important;border-color:var(--brand-red)!important}
+body:not(.workshop-mode) .step-list .step .step-game-art{
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;max-height:61px!important;
+ filter:none!important;transform:none!important;
+}
+body:not(.workshop-mode) .step-list .step::after{display:none!important;content:none!important}
+body:not(.workshop-mode) .top-actions .brand-picture-button{
+ width:125px!important;height:34px!important;min-height:34px!important;max-width:125px!important;
+ padding:0!important;border:0!important;background:transparent!important;
+ border-radius:0!important;box-shadow:none!important;flex:0 0 125px!important;
+}
+body:not(.workshop-mode) .top-actions .brand-picture-button .kaple-label,
+body:not(.workshop-mode) .top-actions .brand-picture-button .kaple-icon{display:none!important}
+body:not(.workshop-mode) .top-actions .brand-picture-button img{
+ display:block!important;width:100%!important;height:100%!important;max-width:100%!important;
+ object-fit:contain!important;background:transparent!important;pointer-events:none!important;
+}
+body:not(.workshop-mode) .top-actions .brand-picture-button:hover{filter:brightness(1.06)!important}
+body:not(.workshop-mode) .top-actions .brand-picture-button:focus-visible{outline:3px solid #1e79b3!important}
+body:not(.workshop-mode) #stageHeading::after,
+body:not(.workshop-mode) #paradeLineupPanel .section-heading h2::before,
+body:not(.workshop-mode) #bandGalleryTitle::after,
+body:not(.workshop-mode) .band-music-heading h2::after,
+body:not(.workshop-mode) #decoratePanel .design-section::before{content:none!important;display:none!important}
+body:not(.workshop-mode) #stageHeading img{display:block!important;width:255px!important;height:52px!important;max-height:52px!important;object-fit:contain!important}
+body:not(.workshop-mode) #paradeLineupPanel .heading-put-your-parade-in-order{display:block!important;width:320px!important;height:48px!important;max-height:48px!important;object-fit:contain!important}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading h2{flex-wrap:nowrap!important}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading .muted{font-size:12px!important}
+body:not(.workshop-mode) .play-btn.game-play-art{
+ background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+ width:180px!important;height:52px!important;padding:0!important
+}
+body:not(.workshop-mode) .play-btn.game-play-art img{
+ display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;
+}
+body:not(.workshop-mode) .play-btn.game-play-art::after{display:none!important;content:none!important}
+body:not(.workshop-mode) .parade-heading-art.brand-illustrated-image{display:block!important;background:transparent!important;object-fit:contain!important}
+body:not(.workshop-mode) #bandGalleryTitle .parade-heading-art{height:55px!important;max-height:55px!important;width:270px!important}
+body:not(.workshop-mode) .band-music-heading .parade-heading-art,body:not(.workshop-mode) #decoratePanel .parade-heading-art{
+ height:55px!important;max-height:55px!important;width:250px!important
+}
+#cinema .cinema-controls button.brand-picture-button,#cinema #replayBtn.brand-picture-button{
+ width:122px!important;height:40px!important;min-width:122px!important;min-height:40px!important;
+ padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;
+}
+#cinema .brand-picture-button span{display:none!important}
+#cinema .cinema-controls button.brand-picture-button img,#cinema #replayBtn.brand-picture-button img{
+ display:block!important;width:100%!important;height:100%!important;max-height:none!important;max-width:none!important;
+ object-fit:contain!important;pointer-events:none!important
+}
+#cinema .cinema-controls{gap:5px!important}
+#cinema .cinema-bottom{min-height:50px!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-controls{height:43px!important;min-height:43px!important;flex-shrink:0!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-controls button{min-height:39px!important;opacity:1!important}
+@media(max-width:1100px){
+ body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery,
+ body:not(.workshop-mode) header.topbar .kaple-brand .header-floating-piece{width:930px!important;height:78px!important}
+ body:not(.workshop-mode) .top-actions .brand-picture-button{
+  width:105px!important;max-width:105px!important;flex-basis:105px!important;height:31px!important;min-height:31px!important
+ }
+}
