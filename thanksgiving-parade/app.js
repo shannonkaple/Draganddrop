@@ -75,7 +75,6 @@ const SCENES=[
 {id:'sixth-avenue',name:'Sixth Avenue',badge:'SIXTH AVENUE · MIDTOWN MANHATTAN',src:(window.PARADE_SCENE_ASSETS||{})['sixth-avenue']||'assets/scenes/sixth-avenue.svg'},
 {id:'herald-square',name:'Herald Square',badge:'HERALD SQUARE · 34TH STREET',src:(window.PARADE_SCENE_ASSETS||{})['herald-square']||'assets/scenes/herald-square.svg'}
 ];
-const COLORS=[['cranberry','#a83d5b'],['pumpkin','#ee853f'],['gold','#f3b83c'],['forest','#357c62'],['blue','#397cb6'],['purple','#9470b1']];
 const MUSIC=[
  {id:'march',label:'Balloons Over the Boulevard',sub:'Festive brass & drums',src:'assets/music/balloons_over_the_boulevard-classroom-loop.ogg',fallback:'assets/music/grand-parade-march.ogg'},
  {id:'bouncy',label:'The Tinsel Cadence',sub:'Upbeat parade music',src:'assets/music/the_tinsel_cadence-classroom-loop.ogg',fallback:'assets/music/silly-balloon-bounce.ogg'},
@@ -84,16 +83,16 @@ const MUSIC=[
 ];
 const MAX={1:25,2:25};
 const $=id=>document.getElementById(id);
-let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,color:'cranberry',music:'march',activePiece:null,paradeId:null,savedParades:[]};
+let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,music:'march',activePiece:null,paradeId:null,savedParades:[]};
 let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
 function paradeSettings(){
- return {pieces:[...state.pieces],scene:state.scene,routeTour:state.routeTour,color:state.color,music:state.music};
+ return {pieces:[...state.pieces],scene:state.scene,routeTour:state.routeTour,music:state.music};
 }
 function draft(){
  return {...paradeSettings(),customPieces:state.customPieces,paradeId:state.paradeId,savedParades:state.savedParades};
 }
 function sanitizeSettings(v,validIds,grade){
- return {pieces:Array.isArray(v.pieces)?v.pieces.map(Number).filter(id=>validIds.has(id)).slice(0,MAX[grade]):[],scene:SCENES.some(x=>x.id===v.scene)?v.scene:SCENES[0].id,routeTour:false,color:COLORS.some(x=>x[0]===v.color)?v.color:'cranberry',music:MUSIC.some(x=>x.id===v.music)?v.music:'march'};
+ return {pieces:Array.isArray(v.pieces)?v.pieces.map(Number).filter(id=>validIds.has(id)).slice(0,MAX[grade]):[],scene:SCENES.some(x=>x.id===v.scene)?v.scene:SCENES[0].id,routeTour:false,music:MUSIC.some(x=>x.id===v.music)?v.music:'march'};
 }
 function validParadeId(id){return typeof id==='string'&&/^[a-f0-9-]{36}$/.test(id);}
 function sanitizeDraft(input,grade=state.grade){
@@ -175,7 +174,7 @@ async function finishParade(startNew){
   const saved=await saveCopy();
   if(!startNew||!saved||session!==studentSession||!window.PARADE_PLAYER?.finished)return;
   window.PARADE_PLAYER.close();
-  Object.assign(state,{pieces:[],scene:SCENES[0].id,color:COLORS[0][0],music:MUSIC[0].id,activePiece:null,paradeId:null});
+  Object.assign(state,{pieces:[],scene:SCENES[0].id,music:MUSIC[0].id,activePiece:null,paradeId:null});
   markChanged();
   switchTab('balloons');
   renderAll();
@@ -209,7 +208,6 @@ function showSavedParades(){
  $('savedParadesDialog').showModal();
 }
 function scene(){return SCENES.find(x=>x.id===state.scene)||SCENES[0]}
-function currentColor(){return COLORS.find(x=>x[0]===state.color)?.[1]||'#a83d5b'}
 function renderAll(){renderProgress();renderLineup();renderGallery();renderDecorate();renderScene();renderPreview();renderTabs();}
 function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
 const customSrcCache=new Map();
@@ -364,14 +362,22 @@ function renderTabs(){
   button.classList.toggle('selected',active);
   button.setAttribute('aria-pressed',String(active));
  });
- $('balloonShelves').classList.toggle('hidden',tab!=='balloons');
+ const showBalloons=tab==='balloons';
+ const libraryPanel=$('libraryPanel');
+ libraryPanel.dataset.activeTab=tab;
+ const balloonGroupNav=$('balloonGroupNav');
+ // Keep balloon-only subcategories out of every other section, even if a themed rule overrides .hidden.
+ balloonGroupNav.classList.toggle('hidden',!showBalloons);
+ balloonGroupNav.hidden=!showBalloons;
+ balloonGroupNav.inert=!showBalloons;
+ balloonGroupNav.setAttribute('aria-hidden',String(!showBalloons));
+ $('balloonShelves').classList.toggle('hidden',!showBalloons);
  document.querySelectorAll('[data-balloon-group]').forEach(button=>{
   const active=button.dataset.balloonGroup===balloonGroup;
   button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active));
  });
  $('realGallery').closest('.balloon-shelf').classList.toggle('hidden',balloonGroup!=='real');
  $('newGallery').closest('.balloon-shelf').classList.toggle('hidden',balloonGroup!=='new');
- $('balloonGroupNav').classList.toggle('hidden',tab!=='balloons');
  $('floatShelf').classList.toggle('hidden',tab!=='floats');
  $('bandShelf').classList.toggle('hidden',tab!=='bands');
  $('decoratePanel').classList.toggle('hidden',tab!=='decorate');
