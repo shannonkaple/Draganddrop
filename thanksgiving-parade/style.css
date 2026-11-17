@@ -1863,3 +1863,8 @@ body:not(.workshop-mode) #libraryPanel .hidden { display:none!important; }
 #paradeLineupPanel .heading-put-your-parade-in-order { width:min(460px,65vw); height:auto; max-height:76px; }
 #bandGalleryTitle .parade-heading-art { width:290px; height:64px; }
 .band-music-heading .parade-heading-art,.design-section > .parade-heading-art { height:55px; width:180px; }
+
+/* Parade category isolation: balloon-specific controls never appear on floats, bands or scenes. */
+body:not(.workshop-mode) #libraryPanel:not([data-active-tab="balloons"]) #balloonGroupNav,
+body:not(.workshop-mode) #libraryPanel:not([data-active-tab="balloons"]) #balloonShelves,
+body:not(.workshop-mode) #libraryPanel #balloonGroupNav[hidden]{display:none!important}
