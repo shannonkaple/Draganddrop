@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
   const page = await browser.newPage({viewport:{width:1366,height:768}});
   const errors=[];
   page.on('pageerror',e=>errors.push(String(e)));
-  await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+  await page.goto(process.env.PARADE_TEST_URL || 'http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
   await page.waitForSelector('#portalGrade [data-portal-grade="1"]');
   async function tvHidden(label){
     const state=await page.locator('#cinema').evaluate(el=>({
