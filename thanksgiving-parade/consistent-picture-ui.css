@@ -1,0 +1,285 @@
+/* UNIFIED CLASSROOM STUDIO: one illustrated image design and one red utility design.
+   Loaded after ALL historical styles to eliminate conflicting overrides. */
+:root{--parade-red:#e50029;--parade-sky:#a5edff;--parade-ink:#123e5a}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar{
+  background:#a7edff!important;
+  border-bottom:3px solid var(--parade-red)!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .kaple-brand{
+  overflow:hidden!important;
+  justify-content:center!important;position:relative!important;isolation:isolate!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{
+  width:330px!important;height:73px!important;max-height:73px!important;
+  object-fit:contain!important;display:block!important;margin:0 auto!important;z-index:9!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery{
+ width:min(980px,91vw)!important;height:87px!important;max-height:87px!important;
+ object-fit:contain!important;opacity:1!important;filter:none!important;
+ transform:translate(-50%,-50%)!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .kaple-brand .header-floating-piece{
+ width:min(980px,91vw)!important;height:87px!important;max-height:87px!important;object-fit:contain!important;
+ transform:translate(-50%,-50%)!important;filter:none!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:6px!important;height:65px!important;min-height:65px!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list button.step:nth-child(n){
+ box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;height:63px!important;min-height:63px!important;max-height:63px!important;
+ padding:2px!important;border:2px solid transparent!important;box-shadow:none!important;
+ border-radius:12px!important;background:transparent!important;filter:none!important;overflow:hidden!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list button.step.selected{
+ border-color:var(--parade-red)!important;background:#fff!important;box-shadow:0 2px 0 #a60a28!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list .step img.step-game-art{
+ box-sizing:border-box!important;display:block!important;width:100%!important;height:59px!important;
+ max-height:59px!important;object-fit:contain!important;object-position:center!important;
+ padding:0!important;margin:0!important;background:transparent!important;filter:none!important;transform:none!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list .step span,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list .step::after{
+ display:none!important;content:none!important;
+}
+/* Utility category: same red button silhouette, same height and WIDTH, white uppercase. */
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions{
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ gap:5px!important;flex-wrap:nowrap!important;min-height:37px!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions button.parade-uniform-utility{
+ box-sizing:border-box!important;position:relative!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 137px!important;width:137px!important;min-width:137px!important;max-width:137px!important;
+ height:36px!important;min-height:36px!important;max-height:36px!important;
+ margin:0!important;padding:2px 7px!important;
+ background:var(--parade-red)!important;color:#fff!important;
+ border:2px solid #fff!important;border-radius:9px!important;
+ box-shadow:0 3px 0 #a60024!important;text-shadow:none!important;
+ font:900 11px/1 'VAG','Trebuchet MS',Arial,sans-serif!important;
+ letter-spacing:0!important;text-transform:uppercase!important;white-space:nowrap!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions .parade-uniform-utility .kaple-label{
+ display:block!important;color:white!important;white-space:nowrap!important;font-size:inherit!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions .parade-uniform-utility .kaple-icon,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions .parade-uniform-utility img{
+ display:none!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions button.parade-uniform-utility:hover{
+ filter:brightness(1.08)!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions button.parade-uniform-utility:focus-visible{
+ outline:3px solid #064b80!important;outline-offset:2px!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #balloonGroupNav{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;height:41px!important;min-height:41px!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #balloonGroupNav.hidden{display:none!important}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #balloonGroupNav button.parade-uniform-subutility{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;height:39px!important;min-height:39px!important;max-height:39px!important;
+ padding:2px 10px!important;background:var(--parade-red)!important;color:white!important;
+ border:2px solid #fff!important;border-radius:10px!important;
+ box-shadow:0 3px 0 #a60024!important;font:900 12px/1 'VAG','Trebuchet MS',Arial,sans-serif!important;
+ text-shadow:none!important;text-transform:uppercase!important;white-space:nowrap!important;letter-spacing:0!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #balloonGroupNav button.parade-uniform-subutility:not(.is-active){
+ background:#cf2447!important;color:#fff!important;filter:saturate(.8)!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #balloonGroupNav button span{
+ background:#fff!important;color:var(--parade-red)!important;border-radius:12px!important;margin-left:8px!important
+}
+/* Every remaining title uses the identical transparent picture plaque. */
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .parade-uniform-graphic{
+ display:block!important;object-fit:contain!important;object-position:center!important;
+ background:transparent!important;filter:none!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #stageHeading::after,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradeLineupPanel .section-heading h2::before,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #bandGalleryTitle::after,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #decoratePanel .design-section::before{
+ content:none!important;display:none!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #stageHeading img,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradeLineupPanel .heading-put-your-parade-in-order,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #bandGalleryTitle img,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #bandMusicPanel img.heading-music,
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #decoratePanel img.heading-scenes{
+ width:232px!important;max-width:232px!important;height:53px!important;max-height:53px!important;
+ object-fit:contain!important;background:transparent!important;margin:0!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradeLineupPanel .section-heading{
+ min-height:57px!important;max-height:57px!important;flex:0 0 57px!important;
+ display:flex!important;align-items:center!important;padding:1px 8px!important;gap:8px!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradeLineupPanel .section-heading h2{margin:0!important}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradeLineupPanel .section-heading .eyebrow{display:none!important}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradePreviewPanel .preview-head{
+ height:58px!important;min-height:58px!important;flex:0 0 58px!important;padding:1px 8px!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradePreviewPanel .preview-head .eyebrow{
+ display:none!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradePreviewPanel #stageSign{display:none!important}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradePreviewPanel .preview-actions #shuffleBtn{
+ display:none!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradePreviewPanel #playBtn{
+ width:192px!important;max-width:192px!important;height:55px!important;min-height:55px!important;
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ padding:0!important;margin:0!important;position:relative!important;z-index:30!important;
+ cursor:pointer!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradePreviewPanel #playBtn img{
+ width:100%!important;height:100%!important;max-height:100%!important;display:block!important;
+ object-fit:contain!important;pointer-events:none!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #paradePreviewPanel #playBtn::after{
+ content:none!important;display:none!important
+}
+/* Bands and all four song choices must fit at once without scrolling. */
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf:not(.hidden){
+ display:flex!important;flex-direction:column!important;
+ overflow:hidden!important;min-height:0!important;height:100%!important;
+ max-height:100%!important;padding:3px 7px!important;gap:3px!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .shelf-heading{
+ height:40px!important;min-height:40px!important;flex:0 0 40px!important;margin:0!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandGallery{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-flow:row!important;grid-auto-rows:88px!important;gap:6px!important;
+ height:88px!important;min-height:88px!important;max-height:88px!important;
+ overflow:hidden!important;flex:0 0 88px!important;padding:1px!important;margin:0!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandGallery .asset-card{
+ display:flex!important;width:100%!important;max-width:none!important;
+ height:86px!important;min-height:86px!important;max-height:86px!important;
+ padding:2px!important;margin:0!important;box-sizing:border-box!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-members{
+ height:55px!important;min-height:55px!important;max-height:55px!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-members img{
+ height:54px!important;max-height:54px!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-music-panel{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ flex:1 1 auto!important;min-height:0!important;max-height:none!important;
+ overflow:hidden!important;margin:2px 0!important;padding:4px 7px!important;gap:2px!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-music-heading{
+ min-height:28px!important;height:28px!important;flex:0 0 28px!important;
+ padding:0!important;margin:0!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-music-heading img{
+ height:27px!important;max-height:27px!important;width:160px!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #musicOptions{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ grid-template-rows:repeat(2,minmax(44px,1fr))!important;gap:6px!important;
+ flex:1 1 auto!important;min-height:88px!important;overflow:hidden!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #musicOptions .music-option{
+ display:flex!important;flex-direction:column!important;justify-content:center!important;
+ height:100%!important;min-height:44px!important;padding:3px 7px!important;
+ font-size:11px!important;line-height:1.1!important;white-space:normal!important;overflow:hidden!important
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #musicOptions .music-option small{
+ font-size:9px!important;margin-top:2px!important
+}
+/* Playback: red stripes framing the scene, matching illustrated title and red controls at bottom. */
+html.parade-graphic-cleanup-ready #cinema{
+ background:repeating-linear-gradient(90deg,#d20a2c 0 24px,#ed1736 24px 48px)!important;
+ color:var(--parade-ink)!important
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-top{
+ background:#a7edff!important;height:67px!important;flex:0 0 67px!important;
+ border-bottom:3px solid var(--parade-red)!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;padding:2px 12px!important
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-brand{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ margin:0!important;height:60px!important;line-height:1!important;
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-brand .parade-movie-title{
+ width:250px!important;height:58px!important;max-height:58px!important;object-fit:contain!important
+}
+html.parade-graphic-cleanup-ready #cinema #movieLocation{display:none!important}
+html.parade-graphic-cleanup-ready #cinema .movie-scene{
+ box-sizing:border-box!important;width:min(95%,1600px)!important;margin:0 auto!important;
+ background:#d9f4ff!important;border-left:5px solid #fff!important;border-right:5px solid #fff!important;
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-bottom{
+ box-sizing:border-box!important;height:68px!important;min-height:68px!important;flex:0 0 68px!important;
+ display:flex!important;flex-wrap:nowrap!important;align-items:center!important;
+ gap:8px!important;padding:4px 10px!important;background:#a7edff!important;
+ border-top:3px solid var(--parade-red)!important
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-bottom .cinema-controls{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:5px!important;flex:0 0 auto!important
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-bottom button.parade-uniform-control,
+html.parade-graphic-cleanup-ready #cinema .end-parade-actions button.parade-uniform-control{
+ box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ width:124px!important;min-width:124px!important;max-width:124px!important;
+ height:40px!important;min-height:40px!important;max-height:40px!important;
+ background:var(--parade-red)!important;color:white!important;
+ border:2px solid white!important;border-radius:9px!important;
+ box-shadow:0 3px 0 #a00021!important;padding:2px 5px!important;
+ font:900 10px/1 'VAG','Trebuchet MS',Arial,sans-serif!important;
+ text-transform:uppercase!important;white-space:nowrap!important;letter-spacing:0!important;
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-bottom button.parade-uniform-control:disabled{
+ background:#bd8390!important;opacity:.65!important;box-shadow:none!important
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-bottom button.parade-uniform-control span{
+ display:block!important;color:#fff!important;text-transform:uppercase!important;font-size:inherit!important
+}
+html.parade-graphic-cleanup-ready #cinema .cinema-bottom button.parade-uniform-control img{display:none!important}
+html.parade-graphic-cleanup-ready #cinema .movie-status{display:none!important}
+html.parade-graphic-cleanup-ready #cinema .timeline{height:9px!important;min-width:45px!important}
+html.parade-graphic-cleanup-ready #cinema .timeline-fill{background:var(--parade-red)!important}
+html.parade-graphic-cleanup-ready #cinema #movieCelebration{
+ background:#fffdf4ee!important;backdrop-filter:none!important;border:3px solid var(--parade-red)!important;
+ color:var(--parade-red)!important;border-radius:17px!important
+}
+html.parade-graphic-cleanup-ready #cinema #movieCelebration img{display:none!important}
+html.parade-graphic-cleanup-ready #cinema #movieCelebration h2{
+ font:900 clamp(24px,4vw,45px)/1.1 Georgia,serif!important;color:var(--parade-red)!important
+}
+html.parade-graphic-cleanup-ready #cinema .end-parade-actions{display:flex!important;gap:10px!important;justify-content:center!important}
+html.parade-graphic-cleanup-ready #cinema .end-parade-actions #endSaveBtn,
+html.parade-graphic-cleanup-ready #cinema .end-parade-actions #newParadeBtn{display:none!important}
+html.parade-graphic-cleanup-ready #cinema .end-parade-actions button.parade-uniform-control{
+ width:160px!important;min-width:160px!important;max-width:160px!important;height:45px!important
+}
+@media(max-width:1000px){
+ html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .top-actions button.parade-uniform-utility{
+  flex-basis:105px!important;width:105px!important;min-width:105px!important;max-width:105px!important;font-size:9px!important
+ }
+ html.parade-graphic-cleanup-ready #cinema .cinema-bottom button.parade-uniform-control{
+  width:95px!important;min-width:95px!important;max-width:95px!important;font-size:9px!important
+ }
+}
+@media(max-height:700px) and (min-width:901px){
+ html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-music-heading{
+  flex-basis:22px!important;height:22px!important;min-height:22px!important
+ }
+ html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandGallery{
+  flex-basis:70px!important;height:70px!important;min-height:70px!important;max-height:70px!important;grid-auto-rows:69px!important
+ }
+ html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandGallery .asset-card{
+  height:68px!important;min-height:68px!important;max-height:68px!important
+ }
+ html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-members{
+  height:40px!important;min-height:40px!important;max-height:40px!important
+ }
+ html.parade-graphic-cleanup-ready body:not(.workshop-mode) #libraryPanel #bandShelf .band-members img{height:38px!important}
+}
