@@ -163,3 +163,27 @@ body:not(.workshop-mode) header.topbar .top-actions #savedParadesBtn.unified-top
 body:not(.workshop-mode) header.topbar .kaple-brand{position:relative!important;isolation:isolate!important}
 body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{position:relative!important;z-index:3!important;margin-left:auto!important;margin-right:auto!important}
 body:not(.workshop-mode) header.topbar .float-balloon{display:none!important}
+
+/* Original user-supplied balloon and handler artwork, skyline and confetti in transparent header image. */
+body:not(.workshop-mode) header.topbar .kaple-brand{
+ position:relative!important;isolation:isolate!important;
+ max-width:none!important;width:100%!important;overflow:visible!important
+}
+body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery{
+ position:absolute!important;left:50%!important;top:50%!important;
+ transform:translate(-50%,-50%)!important;z-index:1!important;
+ display:block!important;width:min(98vw,1350px)!important;height:79px!important;
+ max-width:none!important;max-height:none!important;
+ object-fit:fill!important;pointer-events:none!important;
+ animation:header-scenery-float 4.8s ease-in-out infinite alternate!important
+}
+@keyframes header-scenery-float{from{translate:0 1px}to{translate:0 -3px}}
+body:not(.workshop-mode) header.topbar .kaple-brand .game-brand-image{
+ z-index:3!important;position:relative!important;isolation:isolate!important
+}
+@media(prefers-reduced-motion:reduce){
+ body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery{animation:none!important}
+}
+@media(max-width:900px){
+ body:not(.workshop-mode) header.topbar .kaple-brand .parade-header-scenery{height:62px!important;width:98vw!important}
+}
