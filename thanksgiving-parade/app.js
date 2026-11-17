@@ -209,7 +209,7 @@ function showSavedParades(){
 }
 function scene(){return SCENES.find(x=>x.id===state.scene)||SCENES[0]}
 function renderAll(){renderProgress();renderLineup();renderGallery();renderDecorate();renderScene();renderPreview();renderTabs();}
-function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0; $('playBtn').setAttribute('aria-label',count?'Watch my parade now':'Add one balloon, float, or band to play');$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
+function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
 const customSrcCache=new Map();
 const savedImages=new Map();
 async function restoreImages(session){
@@ -238,9 +238,9 @@ function renderLineup(){
  // Show seven full-size slots before scrolling; never shrink the move/delete controls.
  const visible=Math.min(max,Math.max(7,state.pieces.length+1));
  el.style.gridTemplateColumns='repeat('+visible+',minmax(var(--slot-min,154px),1fr))';
- const leftIcon='<img src="assets/ui/final-png-20261117/btn-left.png" alt="" aria-hidden="true">';
- const rightIcon='<img src="assets/ui/final-png-20261117/btn-right.png" alt="" aria-hidden="true">';
- const trashIcon='<img src="assets/ui/final-png-20261117/btn-trash.png" alt="" aria-hidden="true">';
+ const leftIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 6-6m-6 6 6 6"/></svg>';
+ const rightIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>';
+ const trashIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v6m4-6v6"/></svg>';
  const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
  const cards=[];
  for(let i=0;i<visible;i++){
@@ -257,7 +257,7 @@ function renderLineup(){
     +'<div class="slot-controls" role="group" aria-label="Arrange '+safeName+'">'
     +'<button type="button" class="slot-move" data-action="left" title="Move left" aria-label="Move '+safeName+' left" '+(i===0?'disabled':'')+'>'+leftIcon+'</button>'
     +'<button type="button" class="slot-move" data-action="right" title="Move right" aria-label="Move '+safeName+' right" '+(i===state.pieces.length-1?'disabled':'')+'>'+rightIcon+'</button>'
-    +'<button type="button" class="slot-remove" data-action="remove" title="Delete from parade" aria-label="Delete '+safeName+' from parade">'+trashIcon+'</button></div>';
+    +'<button type="button" class="slot-remove" data-action="remove" title="Delete from parade" aria-label="Delete '+safeName+' from parade">'+trashIcon+'<span>DELETE</span></button></div>';
    slot.addEventListener('click',event=>{
     const button=event.target.closest('button[data-action]');
     if(!button){state.activePiece=i;renderLineup();return;}
@@ -322,7 +322,7 @@ function renderShelf(id,choices){
   button.type='button';
   button.title=piece.name;
   button.setAttribute('aria-label',(selected?'Add another ':'Add ')+piece.name+' to your parade');
-  const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="" loading="eager">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
+  const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="" loading="lazy">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
   button.innerHTML='<span class="add-dot">'+(selected?'✓':'+')+'</span>'+pictures+'<span class="asset-name">'+piece.name+'</span>';
   button.disabled=state.pieces.length>=MAX[state.grade];
   button.onclick=()=>{
@@ -407,17 +407,7 @@ async function enterStudent(){
  const {session,message}=await store.load(identity);
  if(run!==entryRun)return;
  studentSession=session;
- const prior=session.draft||{};
- const keep=Array.isArray(prior.savedParades)?[...prior.savedParades]:[];
- if(Array.isArray(prior.pieces)&&prior.pieces.length){
-  const hasCopy=keep.some(copy=>JSON.stringify(copy.pieces)===JSON.stringify(prior.pieces));
-  if(!hasCopy)keep.push({
-   id:prior.paradeId||crypto.randomUUID(),
-   pieces:[...prior.pieces],scene:prior.scene||'storybook',
-   routeTour:false,music:prior.music||'march'
-  });
- }
- Object.assign(state,identity,prior,{pieces:[],paradeId:null,activePiece:null,savedParades:keep});
+ Object.assign(state,identity,session.draft,{activePiece:null});
  $('entryError').textContent='';
  $('onboarding').classList.add('hidden');
  $('studentModal').classList.add('hidden');
@@ -439,10 +429,9 @@ function openStudent(){
 }
 function startMovie(){
  const pieces=state.pieces.map(getPiece).filter(piece=>piece?.src);
- if(!pieces.length){notify('Choose a balloon, float, or band first.');return;}
+ if(!pieces.length)return;
  const track=MUSIC.find(song=>song.id===state.music)??MUSIC[0];
- if(!window.PARADE_PLAYER?.start){notify('Parade player is loading. Please try Play again.');return;}
- try{window.PARADE_PLAYER.start(pieces,scene(),track);}catch(error){console.error('Parade play failed:',error);notify('Could not start the parade. Try Play again.');}
+ window.PARADE_PLAYER?.start(pieces,scene(),track);
 }
 document.querySelectorAll('[data-balloon-group]').forEach(button=>button.addEventListener('click',()=>{
  balloonGroup=button.dataset.balloonGroup;
@@ -473,12 +462,12 @@ studioFullscreen.onclick=async()=>{
  } catch {notify('Full screen is unavailable here.',false);}
 };
 document.addEventListener('fullscreenchange',()=>{
- studioFullscreen.querySelector('.kaple-label').textContent=document.fullscreenElement?'EXIT FULL SCREEN':'FULL SCREEN';
+ studioFullscreen.querySelector('span').textContent=document.fullscreenElement?'Exit Full Screen':'Full Screen';
 });
 // All controls remain operable with keyboard and trackpad. Avoid any touch-only interactions.
 document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
 document.querySelectorAll('.grade-pick').forEach(el=>el.addEventListener('click',()=>{state.grade=Number(el.dataset.grade);document.querySelectorAll('.grade-pick').forEach(e=>e.classList.toggle('selected',e===el))}));
-$('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('homeBtn').addEventListener('click',()=>{if(window.PARADE_PLAYER?.active)window.PARADE_PLAYER.close();$('onboarding').classList.add('hidden');$('app').inert=false;switchTab('balloons')});$('saveBtn').addEventListener('click',saveCopy);$('endSaveBtn').addEventListener('click',()=>finishParade(false));$('newParadeBtn').addEventListener('click',()=>finishParade(true));$('savedParadesBtn').addEventListener('click',showSavedParades);$('playBtn').addEventListener('click',startMovie);
+$('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('homeBtn').addEventListener('click',openStudent);$('saveBtn').addEventListener('click',saveCopy);$('endSaveBtn').addEventListener('click',()=>finishParade(false));$('newParadeBtn').addEventListener('click',()=>finishParade(true));$('savedParadesBtn').addEventListener('click',showSavedParades);$('playBtn').addEventListener('click',startMovie);
 $('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...GALLERY_PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));$('helpClose').addEventListener('click',()=>$('helpModal').classList.add('hidden'));$('helpGotIt').addEventListener('click',()=>$('helpModal').classList.add('hidden'));
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.PARADE_PLAYER?.active)$('helpModal').classList.add('hidden');});
 // Teachers can bookmark a class-specific link such as ?class=JOHNSON&grade=1.
@@ -513,17 +502,7 @@ function enterGuest(){
  portalState.teacher='';
  portalState.number=null;
  studentSession=session;
- const prior=session.draft||{};
- const keep=Array.isArray(prior.savedParades)?[...prior.savedParades]:[];
- if(Array.isArray(prior.pieces)&&prior.pieces.length){
-  const hasCopy=keep.some(copy=>JSON.stringify(copy.pieces)===JSON.stringify(prior.pieces));
-  if(!hasCopy)keep.push({
-   id:prior.paradeId||crypto.randomUUID(),
-   pieces:[...prior.pieces],scene:prior.scene||'storybook',
-   routeTour:false,music:prior.music||'march'
-  });
- }
- Object.assign(state,identity,prior,{pieces:[],paradeId:null,activePiece:null,savedParades:keep});
+ Object.assign(state,identity,session.draft,{activePiece:null});
  $('onboarding').classList.add('hidden');
  $('studentModal').classList.add('hidden');
  $('app').inert=false;

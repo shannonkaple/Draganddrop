@@ -109,11 +109,8 @@
 
   function resize() {
     if (!playing) return;
-    // When the PNG television bezel is present, size the moving parade
-    // to its transparent screen cutout rather than the entire TV picture.
-    const onTV = document.documentElement.classList.contains('parade-television-ready');
-    const available = (onTV ? el('movieWorld') : view).getBoundingClientRect();
-    const ratio = onTV && available.height > 0 ? available.width / available.height : 1800 / 763;
+    const available = view.getBoundingClientRect();
+    const ratio = 1800 / 763;
     const width = Math.min(available.width, available.height * ratio);
     const height = width / ratio;
     const scale = Math.min(2, devicePixelRatio || 1);

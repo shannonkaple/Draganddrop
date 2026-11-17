@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#783e57">
+<title>Build Your Own Balloon | Balloon Design Studio</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:ui-rounded,"Trebuchet MS",system-ui,sans-serif;color:#533249}body{background:radial-gradient(circle at 15% 8%,#fff6d7,transparent 34%),linear-gradient(140deg,#f8d9ce,#e6dced 70%,#f2d9ab)}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid #217aaf;outline-offset:2px}
+.page{width:min(1240px,98vw);min-height:100dvh;margin:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}header h1{margin:0;color:#73374d;font-size:clamp(23px,3vw,37px);letter-spacing:-.8px}header p{margin:3px 0 0;font-size:14px}header .tag{background:white;border-radius:20px;padding:10px 14px;font-weight:800;font-size:12px}
+.studio{display:grid;grid-template-columns:minmax(260px,43%) minmax(0,1fr);gap:12px;flex:1;min-height:540px}
+.preview{position:relative;background:linear-gradient(180deg,#c8e8fa 0%,#ecf8ec 67%,#f9d7b4 100%);border:4px solid #fffaf3;border-radius:23px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px #73556b20;overflow:hidden;min-height:390px}
+.preview:before{content:"YOUR GIANT PARADE BALLOON";position:absolute;top:15px;left:0;right:0;text-align:center;font-size:13px;font-weight:900;letter-spacing:1px;color:#5e5972}
+.preview:after{content:"✦  ✦  ✦";position:absolute;bottom:16px;left:0;right:0;text-align:center;color:#b17561;letter-spacing:16px}
+.preview img{width:100%;height:76%;object-fit:contain;filter:drop-shadow(0 10px 7px #46354945)}
+.bounce{animation:bob 2.6s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-10px)}}
+.loading{position:absolute;bottom:45px;font-size:13px;font-weight:800;color:#68495a}
+.editor{display:flex;flex-direction:column;min-height:0;gap:9px}.toolbar,.choices,.footer,.collection{background:#fffaf4;border-radius:18px;border:2px solid #fff;box-shadow:0 5px 15px #6e556520}
+.toolbar{padding:10px;display:flex;flex-wrap:wrap;gap:7px}
+.tab{background:white;color:#75455b;border:2px solid #ecd6d0;border-radius:12px;padding:9px 12px;font-size:13px;font-weight:900}
+.tab.selected{background:#ffe4a3;border-color:#ba7953}
+.choices{flex:1;min-height:380px;max-height:580px;overflow-y:auto;padding:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-content:start}
+.option{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:106px;padding:7px;background:white;border:2px solid #eadad3;border-radius:14px;color:#583d52}
+.option.selected{background:#fff0c9;border:3px solid #b76c72}
+.option img{width:100%;height:78px;object-fit:contain}
+.option b{font-size:12px;text-align:center;overflow-wrap:anywhere}
+.footer{padding:12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.footer label{font-weight:900;font-size:13px}.footer input{width:165px;min-width:80px;padding:11px;border:2px solid #dec5c3;border-radius:11px}
+.action{border:0;border-radius:12px;background:#e6d8d0;color:#55384b;padding:11px 13px;font-weight:900;font-size:13px}
+.action.primary{background:#317b65;color:white}.action.pink{background:#a34d66;color:white}
+#message{min-height:18px;color:#4e765c;font-weight:800;font-size:13px}
+.collection{padding:10px 13px}.collection h2{margin:0 0 8px;font-size:17px}.saved{display:flex;flex-wrap:wrap;gap:10px}
+.saved-item{background:white;border:2px solid #ebd6cd;border-radius:12px;padding:7px;display:flex;align-items:center;gap:8px}.saved-item img{width:84px;height:70px;object-fit:contain}.saved-item b{font-size:12px;display:block}.saved-item button{border:0;border-radius:8px;background:#f0e5db;color:#634356;font-weight:800;padding:6px;font-size:11px;margin:2px}
+.note{font-size:12px;color:#6d5a6b;margin:0 0 4px}
+@media(max-width:750px){.page{padding:6px}.studio{grid-template-columns:38% 1fr;gap:6px;min-height:460px}.preview{min-height:310px}.choices{grid-template-columns:repeat(2,minmax(0,1fr));max-height:440px;min-height:250px;padding:5px;gap:5px}.option{min-height:84px}.option img{height:55px}.tab{padding:6px 8px;font-size:11px}.toolbar{padding:6px}.footer{padding:8px}.footer input{width:118px}.action{padding:8px 9px}header .tag{display:none}}
+</style>
+</head>
+<body>
+<main class="page">
+<header><div><h1>🎈 Build Your Own Balloon</h1><p>Choose your character. Mix and match. Make it yours! Start with their natural face and add features only if you want.</p></div><span class="tag">BALLOON DESIGN STUDIO · STANDALONE</span></header>
+<div class="studio">
+<section class="preview" aria-label="Live balloon preview"><img class="bounce" id="preview" alt="Your designed balloon"><span class="loading" id="loading" role="status">Getting your balloon ready…</span></section>
+<section class="editor"><nav id="tabs" class="toolbar" aria-label="Customization categories"></nav><div id="choices" class="choices"></div></section>
+</div>
+<div class="footer"><label for="name">Balloon name</label><input id="name" maxlength="26" value="My Balloon" spellcheck="false" autocomplete="off">
+<button class="action" id="surprise">✳ Surprise Me</button><button class="action" id="reset">↺ Start Over</button>
+<button class="action pink" id="download">↓ Save Picture</button><button class="action primary" id="save">✓ Save My Balloon</button><span id="message" role="status"></span></div>
+<section class="collection"><h2>My Balloon Collection <span id="count"></span></h2><div class="saved" id="saved"></div><p class="note">Saved balloons stay in this browser. Download pictures to keep them or use them elsewhere. This page is separate from your classroom parade.</p></section>
+</main>
+<script src="workshop-legacy.js"></script><script src="workshop-catalog.js"></script><script src="balloon-face-art.js?v=20261116-friendly-face-1"></script><script src="balloon-builder.js?v=20261116-friendly-face-1"></script>
+<script>
+'use strict';
+(()=>{
+const catalog=window.PARADE_CATALOG, $=id=>document.getElementById(id);
+const categories=[['body','Body'],['eyes','Eyes'],['noses','Noses'],['mouths','Mouths'],['hats','Hats'],['shirts','Shirts'],['shorts','Shorts'],['skirts','Skirts'],['shoes','Shoes'],['accessories','Extras']];
+const blank=()=>({eyes:0,noses:0,mouths:0,hats:0,shirts:0,shorts:0,skirts:0,shoes:0,accessories:0});
+let design={baseId:401,options:blank()},category='body',editing=null;
+let saved=[];try{const v=JSON.parse(localStorage.getItem('parade_standalone_balloon_designs_v1')||'[]');if(Array.isArray(v))saved=v.slice(0,60)}catch{}
+const renderTabs=()=>{$('tabs').replaceChildren(...categories.map(([key,name])=>{const b=document.createElement('button');b.className='tab'+(category===key?' selected':'');b.type='button';b.textContent=name;b.setAttribute('aria-pressed',String(category===key));b.onclick=()=>{category=key;renderTabs();renderChoices()};return b}))};
+function choice(name,src,on,handler){const b=document.createElement('button');b.type='button';b.className='option'+(on?' selected':'');if(src){const im=document.createElement('img');im.src=src;im.alt='';im.loading='lazy';b.append(im)}const title=document.createElement('b');title.textContent=name;b.append(title);b.onclick=handler;return b}
+function renderChoices(){const root=$('choices');root.replaceChildren();root.scrollTop=0;if(category==='body'){catalog.bases.forEach(base=>root.append(choice(base.name,base.path,design.baseId===base.id,()=>{design.baseId=base.id;renderChoices();renderPreview()})));return}
+root.append(choice(['eyes','noses','mouths'].includes(category)?'Original Face':'None','',!design.options[category],()=>{design.options[category]=0;renderChoices();renderPreview()}));
+for(const [i,part] of (catalog.parts[category]||[]).entries())root.append(choice(part.name,part.path,design.options[category]===i+1,()=>{design.options[category]=i+1;renderChoices();renderPreview()}));
+for(const [id,part] of Object.entries(catalog.extra?.[category]||{}))root.append(choice(part.name,part.path,design.options[category]===Number(id),()=>{design.options[category]=Number(id);renderChoices();renderPreview()}));
+}
+function renderPreview(){const data=window.PARADE_WORKSHOP.compose(design);if(data){$('preview').src=data;$('loading').textContent=''}else $('loading').textContent='Loading artwork…'}
+window.paradeRefreshCreations=renderPreview;
+function persist(){try{localStorage.setItem('parade_standalone_balloon_designs_v1',JSON.stringify(saved))}catch{$('message').textContent='Browser storage is full. Download your picture instead.'}}
+function saveList(){$('count').textContent='('+saved.length+')';const root=$('saved');root.replaceChildren();if(!saved.length){root.textContent='Your creations will appear here.';return}for(const item of saved){const card=document.createElement('div');card.className='saved-item';const img=document.createElement('img');img.alt=item.name;img.src=item.image||'';const div=document.createElement('div');const title=document.createElement('b');title.textContent=item.name;div.append(title);const load=document.createElement('button');load.textContent='Edit';load.onclick=()=>{editing=item.id;design={baseId:item.baseId,options:{...blank(),...item.options}};$('name').value=item.name;category='body';renderTabs();renderChoices();renderPreview();window.scrollTo({top:0,behavior:'smooth'})};const del=document.createElement('button');del.textContent='Delete';del.onclick=()=>{if(!confirm('Delete '+item.name+'?'))return;saved=saved.filter(x=>x.id!==item.id);if(editing===item.id)editing=null;persist();saveList()};div.append(load,del);card.append(img,div);root.append(card)}}
+$('surprise').onclick=()=>{design.baseId=catalog.bases[Math.floor(Math.random()*catalog.bases.length)].id;for(const [key] of categories.slice(1)){const len=(catalog.parts[key]||[]).length;design.options[key]=Math.floor(Math.random()*(len+1))}if(design.options.skirts)design.options.shorts=0;design.options.eyes=Math.random()<.65?0:1+Math.floor(Math.random()*8);design.options.noses=0;design.options.mouths=Math.random()<.7?0:1+Math.floor(Math.random()*6);renderChoices();renderPreview()};
+$('reset').onclick=()=>{design={baseId:401,options:blank()};editing=null;category='body';$('name').value='My Balloon';renderTabs();renderChoices();renderPreview();$('message').textContent='Ready for a new design!'};
+$('download').onclick=()=>{const src=window.PARADE_WORKSHOP.compose(design);if(!src){$('message').textContent='Art is still loading; try again.';return}const a=document.createElement('a');a.href=src;a.download=(($('name').value||'my-balloon').trim().replace(/[^a-z0-9-]+/gi,'-').slice(0,35)||'my-balloon')+'.webp';document.body.append(a);a.click();a.remove();$('message').textContent='Picture downloaded!'};
+$('save').onclick=()=>{const src=window.PARADE_WORKSHOP.compose(design);if(!src){$('message').textContent='Artwork is loading. Try Save again.';return}const name=($('name').value||'My Balloon').replace(/[^a-z0-9 -]/gi,'').trim().slice(0,26)||'My Balloon';const id=editing||String(Date.now())+Math.random().toString(36).slice(2,6);const record={id,name,baseId:design.baseId,options:{...design.options},image:src};const index=saved.findIndex(x=>x.id===id);if(index>=0)saved[index]=record;else saved.unshift(record);saved=saved.slice(0,25);editing=id;persist();saveList();$('message').textContent='Saved on this device!'};
+renderTabs();renderChoices();renderPreview();saveList();
+})();
+</script></body></html>
