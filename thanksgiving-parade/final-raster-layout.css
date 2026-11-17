@@ -519,3 +519,55 @@ html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .parade-header-sc
 html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .header-floating-piece{
  display:none!important;
 }
+
+
+/* Browser screenshot fixes: controls and band artwork, 2026-11-17 */
+html.parade-raster-ready body:not(.workshop-mode) header.topbar .top-actions button.raster-top-button,
+html.parade-raster-ready body:not(.workshop-mode) header.topbar .top-actions button.raster-control-button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important;
+ padding:0!important;margin:0!important;border-radius:0!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandGallery .band-members{
+ display:flex!important;align-items:flex-end!important;justify-content:space-around!important;
+ width:100%!important;min-width:0!important;min-height:0!important;height:64px!important;max-height:64px!important;
+ margin:0 auto!important;padding:0!important;opacity:1!important;visibility:visible!important;
+ overflow:visible!important;flex:1 1 64px!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #bandShelf #bandGallery .band-members img{
+ display:block!important;position:static!important;opacity:1!important;visibility:visible!important;
+ width:31%!important;min-width:0!important;height:64px!important;max-height:64px!important;
+ object-fit:contain!important;object-position:center bottom!important;
+ flex:0 0 31%!important;filter:none!important
+}
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #bandShelf #musicOptions .music-option.active{
+ color:#103a53!important;background:#d5f4ff!important;border:2px solid #007ba9!important;
+ box-shadow:inset 0 0 0 1px #fff!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #libraryPanel #bandShelf #musicOptions .music-option.active small{
+ color:#103a53!important
+}
+html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .raster-city,
+html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .raster-confetti,
+html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .raster-header-balloon{
+ display:none!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) .kaple-brand .game-brand-image{
+ width:min(515px,55vw)!important;height:91px!important;max-height:91px!important;
+ object-fit:contain!important;object-position:center!important
+}
+html.parade-raster-ready body:not(.workshop-mode) #paradeLineupPanel .slot .slot-controls{
+ align-items:center!important;justify-items:stretch!important;
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:3px!important;width:100%!important;min-height:32px!important;height:32px!important;max-height:32px!important;
+ padding:0!important;margin:0!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #paradeLineupPanel .slot .slot-controls button{
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ box-sizing:border-box!important;height:32px!important;min-height:32px!important;max-height:32px!important;
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #paradeLineupPanel .slot .slot-controls button img{
+ display:block!important;width:100%!important;height:100%!important;max-height:32px!important;
+ object-fit:contain!important;margin:0!important;padding:0!important
+}
