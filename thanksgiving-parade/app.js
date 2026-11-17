@@ -238,9 +238,9 @@ function renderLineup(){
  // Show seven full-size slots before scrolling; never shrink the move/delete controls.
  const visible=Math.min(max,Math.max(7,state.pieces.length+1));
  el.style.gridTemplateColumns='repeat('+visible+',minmax(var(--slot-min,154px),1fr))';
- const leftIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 6-6m-6 6 6 6"/></svg>';
- const rightIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>';
- const trashIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v6m4-6v6"/></svg>';
+ const leftIcon='<img src="assets/ui/final-png-20261117/btn-left.png" alt="" aria-hidden="true">';
+ const rightIcon='<img src="assets/ui/final-png-20261117/btn-right.png" alt="" aria-hidden="true">';
+ const trashIcon='<img src="assets/ui/final-png-20261117/btn-trash.png" alt="" aria-hidden="true">';
  const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
  const cards=[];
  for(let i=0;i<visible;i++){
@@ -257,7 +257,7 @@ function renderLineup(){
     +'<div class="slot-controls" role="group" aria-label="Arrange '+safeName+'">'
     +'<button type="button" class="slot-move" data-action="left" title="Move left" aria-label="Move '+safeName+' left" '+(i===0?'disabled':'')+'>'+leftIcon+'</button>'
     +'<button type="button" class="slot-move" data-action="right" title="Move right" aria-label="Move '+safeName+' right" '+(i===state.pieces.length-1?'disabled':'')+'>'+rightIcon+'</button>'
-    +'<button type="button" class="slot-remove" data-action="remove" title="Delete from parade" aria-label="Delete '+safeName+' from parade">'+trashIcon+'<span>DELETE</span></button></div>';
+    +'<button type="button" class="slot-remove" data-action="remove" title="Delete from parade" aria-label="Delete '+safeName+' from parade">'+trashIcon+'</button></div>';
    slot.addEventListener('click',event=>{
     const button=event.target.closest('button[data-action]');
     if(!button){state.activePiece=i;renderLineup();return;}
