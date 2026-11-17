@@ -82,3 +82,51 @@ body:not(.workshop-mode) #libraryPanel .hidden{display:none!important}
  body:not(.workshop-mode) #paradePreviewPanel{height:320px!important}
  body:not(.workshop-mode) #paradeLineupPanel{height:160px!important}
 }
+
+/* Critical lineup interaction fix: never clip move/delete buttons. */
+body:not(.workshop-mode) .main{grid-template-rows:minmax(0,1fr) 235px!important}
+body:not(.workshop-mode) #paradeLineupPanel{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+body:not(.workshop-mode) #paradeLineupPanel .section-heading{flex:0 0 52px!important;min-height:52px!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup{
+ flex:1 1 auto!important;height:auto!important;min-height:0!important;
+ padding:5px 9px 12px!important;overflow-x:auto!important;overflow-y:hidden!important;
+ align-items:stretch!important;grid-auto-rows:1fr!important
+}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot{
+ box-sizing:border-box!important;height:100%!important;min-height:0!important;
+ max-height:160px!important;padding:4px!important;
+ justify-content:flex-start!important
+}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-art{
+ height:55px!important;min-height:0!important;flex:0 0 55px!important
+}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-art img{height:52px!important;max-height:52px!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-label{flex:0 0 14px!important;font-size:10px!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-controls{
+ display:grid!important;grid-template-columns:1fr 1fr 1.1fr!important;position:static!important;
+ width:100%!important;height:43px!important;min-height:43px!important;
+ margin-top:auto!important;gap:3px!important
+}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-controls button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ height:39px!important;min-height:39px!important;width:100%!important;
+ padding:2px!important;opacity:1!important;visibility:visible!important
+}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-controls button:disabled{opacity:.28!important}
+body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-controls button svg{width:20px!important;height:20px!important}
+/* Real artwork, rather than unstyled text, for every category button. */
+body:not(.workshop-mode) .step-list .step::after{display:none!important;content:none!important}
+body:not(.workshop-mode) .step-list .step .step-game-art{
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;background:transparent!important
+}
+body:not(.workshop-mode) .step-list .step:nth-child(n){
+ background:#c7f5ff!important;border:2px solid white!important;border-radius:12px!important
+}
+body:not(.workshop-mode) .step-list .step.selected{background:#fff!important;border-color:#e7002a!important}
+@media(max-height:780px) and (min-width:901px){
+ body:not(.workshop-mode) .main{grid-template-rows:minmax(0,1fr) 195px!important}
+ body:not(.workshop-mode) #paradeLineupPanel .section-heading{flex-basis:44px!important;min-height:44px!important}
+ body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-art{height:40px!important;flex-basis:40px!important}
+ body:not(.workshop-mode) #paradeLineupPanel .lineup .slot-art img{height:38px!important;max-height:38px!important}
+}
