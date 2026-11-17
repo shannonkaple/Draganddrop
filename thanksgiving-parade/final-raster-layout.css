@@ -571,3 +571,23 @@ html.parade-raster-ready body:not(.workshop-mode) #paradeLineupPanel .slot .slot
  display:block!important;width:100%!important;height:100%!important;max-height:32px!important;
  object-fit:contain!important;margin:0!important;padding:0!important
 }
+
+/* Final image-button parity: never expose the old button backing layers. */
+html.parade-raster-ready body:not(.workshop-mode) header.topbar .top-actions #saveBtn.raster-control-button,
+html.parade-raster-ready body:not(.workshop-mode) header.topbar .top-actions #savedParadesBtn.raster-control-button,
+html.parade-raster-ready body:not(.workshop-mode) header.topbar .top-actions .raster-control-button.kaple-util,
+html.parade-raster-ready body:not(.workshop-mode) header.topbar .top-actions .raster-control-button{
+ background:transparent!important;background-image:none!important;
+ border:0!important;outline:0!important;border-radius:0!important;
+ box-shadow:none!important;text-shadow:none!important;filter:none!important;
+ padding:0!important;margin:0!important;
+}
+html.parade-raster-ready body:not(.workshop-mode) #balloonGroupNav button.raster-group-button,
+html.parade-raster-ready body:not(.workshop-mode) #balloonGroupNav button.raster-group-button:not(.is-active){
+ background:transparent!important;background-image:none!important;
+ border:0!important;box-shadow:none!important;opacity:1!important;
+ filter:none!important;padding:0!important
+}
+html.parade-raster-ready body:not(.workshop-mode) #balloonGroupNav button.raster-group-button.is-active{
+ outline:2px solid #e7002a!important;outline-offset:-3px!important;border-radius:10px!important
+}
