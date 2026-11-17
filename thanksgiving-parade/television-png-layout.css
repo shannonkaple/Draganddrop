@@ -131,3 +131,13 @@ html.parade-television-ready #cinema #movieCelebration.hidden{
  visibility:hidden!important;
  pointer-events:none!important;
 }
+
+/* CRITICAL: The cinema must NEVER display until the player opens it.
+   Earlier rule #cinema.cinema {display:flex!important} defeated .hidden.
+   Keep the original app's hidden/onboarding state authoritative. */
+html.parade-television-ready #cinema.cinema.hidden,
+html.parade-television-ready #cinema.cinema[hidden],
+#cinema.cinema.hidden,
+#cinema.cinema[hidden]{
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
