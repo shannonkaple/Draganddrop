@@ -6,7 +6,7 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>Ms. Kaple’s Thanksgiving Day Parade Maker</title>
 <link rel="icon" href="assets/ui/kaple-2026-raster/parade-logo.png" type="image/png">
-<link rel="stylesheet" href="style.css?v=20261117-category-headings-1">
+<link rel="stylesheet" href="style.css?v=20261117-category-visibility-2">
 </head>
 <body>
 <div id="app" class="app" inert>
@@ -42,7 +42,7 @@
      <div class="section-heading"><div><span class="eyebrow">THE BIG LINEUP</span><h2><img class="parade-heading-art heading-put-your-parade-in-order" src="assets/ui/headings-20261117/put-your-parade-in-order.jpg" alt="Put your parade in order"> <span class="muted" id="lineupCount">Your parade</span></h2><span class="lineup-instructions">BLUE ARROWS = MOVE &nbsp; • &nbsp; RED TRASH CAN = DELETE</span></div><div class="lineup-actions"><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="-1" aria-label="Previous lineup slots">←</button><button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="1" aria-label="Next lineup slots">→</button></div></div>
      <div class="lineup" id="lineup" role="list"></div>
    </section>
-   <section class="library-panel" id="libraryPanel" aria-label="Choose parade items">
+   <section class="library-panel" id="libraryPanel" data-active-tab="balloons" aria-label="Choose parade items">
     <div class="studio-flow-kicker" id="libraryChoiceLabel">1 · PICK YOUR BALLOONS</div>
     <div class="balloon-group-nav" id="balloonGroupNav" role="group" aria-label="Choose balloon pictures">
       <button type="button" id="realBalloonTab" class="balloon-group-tab is-active" data-balloon-group="real" aria-pressed="true">ORIGINAL BALLOONS <span>26</span></button>
@@ -180,7 +180,7 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261116-studio" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261117-category-headings-1" defer></script>
+<script src="app.js?v=20261117-category-visibility-2" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
