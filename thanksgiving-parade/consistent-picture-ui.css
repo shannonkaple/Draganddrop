@@ -560,3 +560,19 @@ html.parade-graphic-cleanup-ready #cinema #movieCelebration h2{
 @media(prefers-reduced-motion:reduce){
  html.parade-graphic-cleanup-ready body:not(.workshop-mode) header.topbar .header-floating-piece{animation:none!important}
 }
+
+/* Physical tab silhouette: straight lower edge, scalloped illustration above it. */
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list button.step:nth-child(n){
+ background:linear-gradient(180deg,#e5fcff 0%,#a8efff 100%)!important;
+ border:2px solid white!important;border-bottom:4px solid #e4002b!important;
+ border-radius:19px 19px 0 0!important;box-shadow:none!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list button.step.selected{
+ background:#fff!important;border:2px solid #e4002b!important;
+ border-bottom:4px solid #e4002b!important;border-radius:19px 19px 0 0!important;
+}
+html.parade-graphic-cleanup-ready body:not(.workshop-mode) .step-list button.step img.step-game-art{
+ object-fit:contain!important;object-position:50% 50%!important;
+ width:100%!important;height:100%!important;max-height:56px!important;
+ clip-path:inset(0 0 5% 0)!important;
+}
