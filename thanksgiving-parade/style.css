@@ -1455,11 +1455,10 @@ body:not(.workshop-mode) .step-list .step-game-art{
   width:100%!important;height:51px!important;object-fit:contain!important;
   filter:none!important
 }
-/* Use a clean flat, fully illustrated New York skyline as the entire entrance,
-   rather than the prior pink/purple storybook backgrounds and cards. */
+/* Use the user-selected real JPEG for the entrance; never SVG artwork. */
 #onboarding.overlay,
 #onboarding.overlay:has(#portalGrade:not(.hidden)){
-  background:#a8eafa url('assets/ui/kaple-parade-entrance-redblue-2026.svg') center / cover no-repeat!important;
+  background:#94ECF8 linear-gradient(rgba(255,255,255,.29),rgba(255,255,255,.29)),url('assets/ui/nyc-parade-bows-iceblue-20261117.jpg') center / cover no-repeat!important;
   backdrop-filter:none!important;
 }
 #onboarding .portal-card,
