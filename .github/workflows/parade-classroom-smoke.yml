@@ -12,7 +12,7 @@ on:
       - '.github/workflows/parade-classroom-smoke.yml'
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   browser-test:
     runs-on: ubuntu-24.04
@@ -30,6 +30,16 @@ jobs:
         run: python3 -m http.server 8765 -d thanksgiving-parade >/tmp/parade-server.log 2>&1 &
       - name: Test class selection and hidden TV
         run: node thanksgiving-parade/classroom-entry-smoke.cjs
+      - name: Commit latest visual QA screenshots
+        if: always()
+        run: |
+          git config user.name "parade-qa-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add thanksgiving-parade/qa-*.png || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Save current parade visual QA screenshots [skip ci]"
+            git push origin HEAD:main
+          fi
       - name: Test published classroom flow on GitHub Pages
         env:
           PARADE_TEST_URL: 'https://shannonkaple.github.io/Draganddrop/thanksgiving-parade/?qa=classroom-fix-20261117'
