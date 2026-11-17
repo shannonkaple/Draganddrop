@@ -60,7 +60,7 @@ for(const [selector,label] of [['#balloonGroupNav [data-balloon-group="real"]','
 const primaryPlay=$('playBtn')?.querySelector('img');
 if(primaryPlay){ primaryPlay.src='assets/ui/watch-parade-red-picture.svg';primaryPlay.alt='WATCH MY PARADE';}
 const removedInstructions=document.querySelector('.lineup-instructions');if(removedInstructions)removedInstructions.remove();
-const previewCaption=document.querySelector('#paradePreviewPanel .preview-caption');if(previewCaption)previewCaption.remove();
+const previewCaption=document.querySelector('#paradePreviewPanel .preview-caption');if(previewCaption)previewCaption.style.display='none';
 const paradeLabel=$('cinema')?.querySelector('.cinema-brand');
 if(paradeLabel){
  paradeLabel.replaceChildren();
