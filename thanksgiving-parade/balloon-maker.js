@@ -10,6 +10,7 @@
   const defaults = () => ({eyes:1,noses:0,mouths:1,hats:0,shirts:0,shorts:0,skirts:0,shoes:0,accessories:0});
   let design = {baseId:401,options:defaults()};
   let current = 'body', editing = null, renderTicket = 0;
+  let optionPage=0, categoryPage=0, madePage=0;
   const css = document.createElement('style');
   css.textContent = `
   .balloon-maker-entry{margin:12px 0;border:0;border-radius:17px;padding:14px 20px;background:#f9c967;color:#50253b;font-size:17px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #bd8645;display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
@@ -52,7 +53,7 @@
   overlay.innerHTML = `<section class="balloon-maker" role="dialog" aria-modal="true" aria-labelledby="balloonMakerHeading">
     <div class="balloon-maker-head"><h2 id="balloonMakerHeading">🎈 Design Your Own Balloon</h2><button type="button" id="balloonMakerClose">✕ Back to Parade</button></div>
     <div class="balloon-maker-layout"><div class="balloon-maker-preview"><img id="balloonMakerImage" alt="Your balloon design"><small>Choose a body, then mix and match!</small></div>
-      <div class="balloon-maker-control"><nav class="balloon-maker-tabs" id="balloonMakerTabs" aria-label="Choose what to customize"></nav><div class="balloon-maker-options" id="balloonMakerOptions"></div></div></div>
+      <div class="balloon-maker-control"><nav class="balloon-maker-tabs" id="balloonMakerTabs" aria-label="Choose what to customize"></nav><div class="balloon-maker-options" id="balloonMakerOptions"></div><div class="balloon-maker-pager"><button id="balloonMakerPrev" type="button" aria-label="Previous choices page">‹</button><span id="balloonMakerPageLabel" aria-live="polite">Page 1 of 1</span><button id="balloonMakerNext" type="button" aria-label="Next choices page">›</button></div></div></div>
     <div class="balloon-maker-bottom"><label for="balloonMakerName">Balloon name</label><input id="balloonMakerName" maxlength="26" autocomplete="off" value="My Balloon" aria-label="Balloon name"><button id="balloonMakerSurprise" type="button">✳ Surprise Me</button><button id="balloonMakerReset" type="button">↺ Start Over</button><span id="balloonMakerMessage" role="status"></span><button id="balloonMakerFinish" type="button">✓ Add to My Parade</button></div>
   </section>`;
   document.body.append(overlay);
@@ -63,7 +64,7 @@
   document.querySelector('#balloonShelves')?.prepend(makeButton);
   const ownShelf = document.createElement('section');
   ownShelf.className='balloon-shelf';ownShelf.id='myBalloonShelf';
-  ownShelf.innerHTML='<div class="shelf-heading"><h2>My Created Balloons</h2><span id="myBalloonCount">0 creations</span></div><div id="myBalloonGallery" class="gallery"></div>';
+  ownShelf.innerHTML='<div class="shelf-heading"><h2>My Created Balloons</h2><span id="myBalloonCount">0 creations</span><button class="arrow-btn" id="myBalloonPrev" type="button" aria-label="Previous saved balloon page">‹</button><button class="arrow-btn" id="myBalloonNext" type="button" aria-label="Next saved balloon page">›</button></div><div id="myBalloonGallery" class="gallery"></div>';
   makeButton.after(ownShelf);
   function optionButton(name, src, selected, action) {
     const b=document.createElement('button');b.type='button';
@@ -73,23 +74,61 @@
     return b;
   }
   function options(){
-    const pane=el('balloonMakerOptions');pane.replaceChildren();
+    const pane=el('balloonMakerOptions');
+    const cards=[];
     if(current==='body'){
-      catalog.bases.forEach(base=>pane.append(optionButton(base.name,base.path,design.baseId===base.id,()=>{design.baseId=base.id;options();preview()})));
+      catalog.bases.forEach(base=>cards.push(optionButton(base.name,base.path,design.baseId===base.id,()=>{
+        design.baseId=base.id;options();preview();
+      })));
     }else{
-      pane.append(optionButton('None / Remove','',!design.options[current],()=>{design.options[current]=0;options();preview()}));
+      cards.push(optionButton('None / Remove','',!design.options[current],()=>{
+        design.options[current]=0;options();preview();
+      }));
       const parts=catalog.parts[current]||[];
-      parts.forEach((part,i)=>pane.append(optionButton(part.name,part.path,design.options[current]===i+1,()=>{design.options[current]=i+1;options();preview()})));
-      Object.entries(catalog.extra?.[current]||{}).forEach(([id,part])=>pane.append(optionButton(part.name,part.path,design.options[current]===Number(id),()=>{design.options[current]=Number(id);options();preview()})));
+      parts.forEach((part,i)=>cards.push(optionButton(part.name,part.path,design.options[current]===i+1,()=>{
+        design.options[current]=i+1;options();preview();
+      })));
+      Object.entries(catalog.extra?.[current]||{}).forEach(([id,part])=>cards.push(
+        optionButton(part.name,part.path,design.options[current]===Number(id),()=>{
+          design.options[current]=Number(id);options();preview();
+        })
+      ));
     }
+    const perPage=window.innerWidth<=720?4:6;
+    const pages=Math.max(1,Math.ceil(cards.length/perPage));
+    optionPage=Math.min(Math.max(0,optionPage),pages-1);
+    pane.replaceChildren(...cards.slice(optionPage*perPage,(optionPage+1)*perPage));
+    el('balloonMakerPageLabel').textContent='Page '+(optionPage+1)+' of '+pages;
+    el('balloonMakerPrev').disabled=optionPage===0;
+    el('balloonMakerNext').disabled=optionPage>=pages-1;
   }
+  el('balloonMakerPrev').onclick=()=>{optionPage=Math.max(0,optionPage-1);options()};
+  el('balloonMakerNext').onclick=()=>{optionPage++;options()};
   function tabs(){
-    const panel=el('balloonMakerTabs');panel.replaceChildren();
-    [['body','Body'],...cats].forEach(([key,name])=>{
+    const panel=el('balloonMakerTabs');
+    const choices=[['body','Body'],...cats];
+    const perPage=4;
+    const pages=Math.max(1,Math.ceil(choices.length/perPage));
+    categoryPage=Math.min(Math.max(0,categoryPage),pages-1);
+    panel.replaceChildren();
+    const makeArrow=(direction)=>{
+      const b=document.createElement('button');
+      b.type='button';b.className='maker-category-arrow';
+      b.textContent=direction<0?'‹':'›';
+      b.setAttribute('aria-label',direction<0?'Previous customization categories':'Next customization categories');
+      b.disabled=direction<0?categoryPage===0:categoryPage>=pages-1;
+      b.onclick=()=>{categoryPage+=direction;tabs()};
+      return b;
+    };
+    panel.append(makeArrow(-1));
+    choices.slice(categoryPage*perPage,(categoryPage+1)*perPage).forEach(([key,name])=>{
       const b=document.createElement('button');b.type='button';b.textContent=name;
-      b.className=current===key?'active':'';b.setAttribute('aria-pressed',String(current===key));
-      b.onclick=()=>{current=key;tabs();options()};panel.append(b);
+      b.className=current===key?'active':'';
+      b.setAttribute('aria-pressed',String(current===key));
+      b.onclick=()=>{current=key;optionPage=0;tabs();options()};
+      panel.append(b);
     });
+    panel.append(makeArrow(1));
   }
   function preview(){
     const ticket=++renderTicket;
@@ -107,7 +146,7 @@
     if(!studentSession)return;
     editing=existing?.id??null;
     design=existing?{baseId:existing.baseId,options:{...defaults(),...existing.options}}:{baseId:401,options:defaults()};
-    current='body';el('balloonMakerName').value=existing?.name||'My Balloon';
+    current='body';optionPage=0;categoryPage=0;el('balloonMakerName').value=existing?.name||'My Balloon';
     overlay.classList.add('open');tabs();options();preview();el('balloonMakerClose').focus();
   }
   function closeMaker(){overlay.classList.remove('open');renderTicket++;makeButton.focus()}
@@ -120,7 +159,7 @@
     if(design.options.skirts)design.options.shorts=0;
     tabs();options();preview();
   };
-  el('balloonMakerReset').onclick=()=>{design={baseId:401,options:defaults()};editing=null;el('balloonMakerName').value='My Balloon';current='body';tabs();options();preview()};
+  el('balloonMakerReset').onclick=()=>{design={baseId:401,options:defaults()};editing=null;el('balloonMakerName').value='My Balloon';current='body';optionPage=0;categoryPage=0;tabs();options();preview()};
   function nextId(){
     const used=new Set(state.customPieces.map(c=>c.id));
     for(let i=1001;i<=1099;i++)if(!used.has(i))return i;
@@ -148,8 +187,14 @@
   function renderMade(){
     const gallery=el('myBalloonGallery');gallery.replaceChildren();
     const creations=state.customPieces.filter(c=>c.workshop);
-    el('myBalloonCount').textContent=creations.length+' creations';
-    creations.forEach(c=>{
+    const perPage=2;
+    const pages=Math.max(1,Math.ceil(creations.length/perPage));
+    madePage=Math.min(Math.max(0,madePage),pages-1);
+    gallery.style.setProperty('--page-columns',String(perPage));
+    el('myBalloonCount').textContent=creations.length+' creations · '+(madePage+1)+'/'+pages;
+    el('myBalloonPrev').disabled=madePage===0;
+    el('myBalloonNext').disabled=madePage>=pages-1;
+    creations.slice(madePage*perPage,(madePage+1)*perPage).forEach(c=>{
       const card=document.createElement('div');card.className='made-balloon-card';
       const img=document.createElement('img');img.alt=c.name;const src=customSource(c);if(src)img.src=src;card.append(img);
       const info=document.createElement('div');const name=document.createElement('b');name.textContent=c.name;info.append(name);
@@ -169,6 +214,8 @@
       info.append(document.createElement('br'),add,edit,del);card.append(info);gallery.append(card);
     });
   }
+  el('myBalloonPrev').onclick=()=>{madePage=Math.max(0,madePage-1);renderMade()};
+  el('myBalloonNext').onclick=()=>{madePage++;renderMade()};
   // Repaint custom creations when a student or saved draft changes.
   const originalRender=window.paradeRefreshCreations;
   window.paradeRefreshCreations=()=>{originalRender?.();renderMade()};
