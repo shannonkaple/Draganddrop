@@ -378,6 +378,10 @@ window.addEventListener('resize',()=>{
  cancelAnimationFrame(resizeFrame);
  resizeFrame=requestAnimationFrame(()=>{renderLineup();renderGallery();});
 });
+window.addEventListener('parade:viewport-fit',()=>{
+ cancelAnimationFrame(resizeFrame);
+ resizeFrame=requestAnimationFrame(()=>{renderLineup();renderGallery();});
+});
 const studioFullscreen=$('studioFullscreenBtn');
 studioFullscreen.onclick=async()=>{
  try {
