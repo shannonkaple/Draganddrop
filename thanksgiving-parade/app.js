@@ -86,6 +86,21 @@ const MAX={1:25,2:25};
 const $=id=>document.getElementById(id);
 let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,color:'cranberry',music:'march',activePiece:null,paradeId:null,savedParades:[]};
 let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
+// Galleries and lineup have discrete arrow-controlled pages, never scroll strips.
+const galleryPages=Object.create(null);
+let lineupPage=0;
+function updatePager(id,page,pages){
+ for(const arrow of document.querySelectorAll('[data-scroll-gallery="'+id+'"]')){
+  const direction=Number(arrow.dataset.direction);
+  arrow.disabled=direction<0?page===0:page>=pages-1;
+  arrow.setAttribute('aria-label',(direction<0?'Previous':'Next')+' page for '+id+', page '+(page+1)+' of '+pages);
+ }
+ if(id==='lineup'){
+  const label=$('lineupPageStatus');
+  if(label)label.textContent='Page '+(page+1)+' of '+pages;
+ }
+}
+
 function paradeSettings(){
  return {pieces:[...state.pieces],scene:state.scene,routeTour:state.routeTour,color:state.color,music:state.music};
 }
@@ -234,7 +249,7 @@ function customSource(c){
  const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);customSrcCache.set(signature,url);return url;
 }
 function getPiece(id){const standard=PIECES.find(p=>p.id===id);if(standard)return standard;const c=state.customPieces.find(p=>p.id===id);return c?{id:c.id,name:c.name,type:'balloon',src:customSource(c),custom:true}:null;}
-function renderLineup(){const el=$('lineup');const scrollLeft=el.scrollLeft;el.innerHTML='';const max=MAX[state.grade];const visible=Math.min(max,Math.max(5,state.pieces.length+1));el.style.gridTemplateColumns=`repeat(${visible},minmax(var(--slot-min,77px),1fr))`;for(let i=0;i<visible;i++){const id=state.pieces[i];const piece=getPiece(id);const slot=document.createElement('div');slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');slot.setAttribute('role','listitem');slot.innerHTML=`<span class="slot-number">${i+1}</span>`;if(piece){slot.draggable=true;slot.innerHTML+=`<img ${piece.src?'src="'+piece.src+'"':''} alt="${piece.name}" loading="lazy"><span class="slot-label" title="${piece.name.replaceAll('"','')}">${piece.name}</span><div class="slot-controls"><button type="button" data-action="left" aria-label="Move ${piece.name} left" ${i===0?'disabled':''}>◀</button><button type="button" data-action="right" aria-label="Move ${piece.name} right" ${i===state.pieces.length-1?'disabled':''}>▶</button><button type="button" data-action="remove" aria-label="Remove ${piece.name}">×</button></div>`;slot.addEventListener('click',e=>{if(e.target.closest('button')){const act=e.target.dataset.action;if(act==='remove'){state.pieces.splice(i,1);state.activePiece=null;}else if(act==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1;}else if(act==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1;}markChanged();renderAll()}else{state.activePiece=i;renderLineup()}});slot.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',String(i))});slot.addEventListener('dragover',e=>e.preventDefault());slot.addEventListener('drop',e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/plain'));if(Number.isInteger(from)&&from>=0&&from<state.pieces.length&&from!==i&&i<state.pieces.length){const [x]=state.pieces.splice(from,1);state.pieces.splice(i,0,x);markChanged();renderAll()}})}else{slot.innerHTML+='<span class="slot-empty">+</span><span class="slot-empty-text">EMPTY</span>';slot.addEventListener('click',()=>switchTab('balloons'))}el.appendChild(slot)}el.scrollLeft=scrollLeft}
+function renderLineup(){const el=$('lineup');el.innerHTML='';const max=MAX[state.grade];const visible=Math.min(max,Math.max(5,state.pieces.length+1));const perPage=5;const totalPages=Math.max(1,Math.ceil(visible/perPage));lineupPage=Math.min(Math.max(0,lineupPage),totalPages-1);const start=lineupPage*perPage;const end=Math.min(visible,start+perPage);el.style.gridTemplateColumns=`repeat(${perPage},minmax(0,1fr))`;for(let i=start;i<end;i++){const id=state.pieces[i];const piece=getPiece(id);const slot=document.createElement('div');slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');slot.setAttribute('role','listitem');slot.innerHTML=`<span class="slot-number">${i+1}</span>`;if(piece){slot.draggable=true;slot.innerHTML+=`<img ${piece.src?'src="'+piece.src+'"':''} alt="${piece.name}" loading="lazy"><span class="slot-label" title="${piece.name.replaceAll('"','')}">${piece.name}</span><div class="slot-controls"><button type="button" data-action="left" aria-label="Move ${piece.name} left" ${i===0?'disabled':''}>◀</button><button type="button" data-action="right" aria-label="Move ${piece.name} right" ${i===state.pieces.length-1?'disabled':''}>▶</button><button type="button" data-action="remove" aria-label="Remove ${piece.name}">×</button></div>`;slot.addEventListener('click',e=>{if(e.target.closest('button')){const act=e.target.dataset.action;if(act==='remove'){state.pieces.splice(i,1);state.activePiece=null;}else if(act==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1;}else if(act==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1;}markChanged();renderAll()}else{state.activePiece=i;renderLineup()}});slot.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',String(i))});slot.addEventListener('dragover',e=>e.preventDefault());slot.addEventListener('drop',e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/plain'));if(Number.isInteger(from)&&from>=0&&from<state.pieces.length&&from!==i&&i<state.pieces.length){const [x]=state.pieces.splice(from,1);state.pieces.splice(i,0,x);markChanged();renderAll()}})}else{slot.innerHTML+='<span class="slot-empty">+</span><span class="slot-empty-text">EMPTY</span>';slot.addEventListener('click',()=>switchTab('balloons'))}el.appendChild(slot)}updatePager('lineup',lineupPage,totalPages)}
 const newBalloons=GALLERY_PIECES.filter(piece=>piece.original);
 const featuredBalloons=[37,59,60,61,62,67,68,69];
 const newChoices=[
@@ -243,8 +258,13 @@ const newChoices=[
 ];
 function renderShelf(id,choices){
  const gallery=$(id);
- const scrollLeft=gallery.scrollLeft;
- const cards=choices.map(piece=>{
+ const width=gallery.clientWidth||$('libraryPanel').clientWidth-30;
+ const perPage=Math.max(2,Math.min(6,Math.floor(width/(window.innerHeight<650?96:108))));
+ gallery.style.setProperty('--page-columns',String(perPage));
+ const totalPages=Math.max(1,Math.ceil(choices.length/perPage));
+ const page=Math.min(Math.max(0,galleryPages[id]||0),totalPages-1);
+ galleryPages[id]=page;
+ const cards=choices.slice(page*perPage,(page+1)*perPage).map(piece=>{
   const selected=state.pieces.includes(piece.id);
   const button=document.createElement('button');
   button.className='asset-card'+(selected?' selected-asset':'');
@@ -258,14 +278,15 @@ function renderShelf(id,choices){
    if(state.pieces.length>=MAX[state.grade])return;
    state.pieces.push(piece.id);
    state.activePiece=state.pieces.length-1;
+   lineupPage=Math.floor(state.activePiece/5);
    markChanged();
    renderAll();
   };
   return button;
  });
  gallery.replaceChildren(...cards);
- gallery.scrollLeft=scrollLeft;
- $(id+'Count').textContent=choices.length+' choices';
+ $(id+'Count').textContent=choices.length+' choices · Page '+(page+1)+'/'+totalPages;
+ updatePager(id,page,totalPages);
 }
 function renderGallery(){
  if(tab==='balloons'){
@@ -341,10 +362,22 @@ function startMovie(){
 }
 for(const button of document.querySelectorAll('[data-scroll-gallery]')){
  button.addEventListener('click',()=>{
-  const gallery=$(button.dataset.scrollGallery);
-  gallery.scrollBy({left:Number(button.dataset.direction)*gallery.clientWidth*.85,behavior:'smooth'});
+  const id=button.dataset.scrollGallery;
+  const direction=Number(button.dataset.direction);
+  if(id==='lineup'){
+   lineupPage=Math.max(0,lineupPage+direction);
+   renderLineup();
+  }else{
+   galleryPages[id]=Math.max(0,(galleryPages[id]||0)+direction);
+   renderGallery();
+  }
  });
 }
+let resizeFrame=0;
+window.addEventListener('resize',()=>{
+ cancelAnimationFrame(resizeFrame);
+ resizeFrame=requestAnimationFrame(()=>{renderLineup();renderGallery();});
+});
 const studioFullscreen=$('studioFullscreenBtn');
 studioFullscreen.onclick=async()=>{
  try {
