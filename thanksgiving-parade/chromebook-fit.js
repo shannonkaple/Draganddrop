@@ -15,6 +15,8 @@
     const scale = Math.max(0.3, Math.min(1, width / TARGET_WIDTH, height / TARGET_HEIGHT));
     document.documentElement.style.setProperty('--studio-scale', scale.toFixed(5));
     document.documentElement.dataset.paradeViewport = Math.round(width) + 'x' + Math.round(height);
+    window.dispatchEvent(new Event('parade:viewport-fit'));
+
   }
   function scheduleFit() {
     cancelAnimationFrame(raf);
