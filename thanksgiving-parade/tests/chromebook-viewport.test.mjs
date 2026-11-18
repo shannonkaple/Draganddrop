@@ -72,7 +72,7 @@ for(const size of SIZES){
       return [...document.querySelectorAll('#balloonShelves > *')].map(el=>{
         const r=el.getBoundingClientRect();
         return {name:el.id||el.className,left:r.left,right:r.right,top:r.top,bottom:r.bottom,
-          visible:getComputedStyle(el).display!=='none',panel};
+          visible:getComputedStyle(el).display!=='none',panel:{left:panel.left,right:panel.right,top:panel.top,bottom:panel.bottom}};
       });
     });
     for(const item of shelves.filter(x=>x.visible)){
