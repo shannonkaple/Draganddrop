@@ -63,6 +63,48 @@ for(const size of SIZES){
     assert.match(await page.locator('#floatGalleryCount').innerText(),/Page 1\/\d+/);
     await page.locator('[data-scroll-gallery="floatGallery"][data-direction="1"]').click();
     assert.match(await page.locator('#floatGalleryCount').innerText(),/Page 2\/\d+/);
+    await page.locator('[data-tab="balloons"]').click();
+
+    // The two stock shelves cannot fall beyond the library viewport when
+    // the new Make Your Own and My Created Balloons controls are inserted.
+    const shelves=await page.evaluate(()=>{
+      const panel=document.querySelector('#libraryPanel').getBoundingClientRect();
+      return [...document.querySelectorAll('#balloonShelves > *')].map(el=>{
+        const r=el.getBoundingClientRect();
+        return {name:el.id||el.className,left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+          visible:getComputedStyle(el).display!=='none',panel};
+      });
+    });
+    for(const item of shelves.filter(x=>x.visible)){
+      assert(item.left>=item.panel.left-3 && item.right<=item.panel.right+3 &&
+        item.top>=item.panel.top-3 && item.bottom<=item.panel.bottom+3,
+        slug+': clipped shelf '+JSON.stringify(item));
+    }
+    await page.locator('.balloon-maker-entry').click();
+    await page.locator('#balloonMakerOverlay.open').waitFor();
+    const maker=await page.evaluate(()=>{
+      const ids=['#balloonMakerOverlay .balloon-maker','#balloonMakerTabs',
+        '#balloonMakerOptions','.balloon-maker-pager','.balloon-maker-bottom'];
+      const bounds=ids.map(selector=>{
+        const el=document.querySelector(selector),r=el.getBoundingClientRect();
+        return {selector,left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+      });
+      const options=document.querySelector('#balloonMakerOptions');
+      return {bounds,optionsHeight:options.clientHeight,optionsScrollHeight:options.scrollHeight};
+    });
+    for(const r of maker.bounds){
+      assert(r.left>=-3&&r.top>=-3&&r.right<=size.width+3&&r.bottom<=size.height+3,
+        slug+': clipped maker control '+JSON.stringify(r));
+    }
+    assert(maker.optionsScrollHeight<=maker.optionsHeight+3,
+      slug+': editor options scroll instead of paging');
+    assert.match(await page.locator('#balloonMakerPageLabel').innerText(),/Page 1 of \d+/);
+    await page.locator('#balloonMakerNext').click();
+    assert.match(await page.locator('#balloonMakerPageLabel').innerText(),/Page 2 of \d+/);
+    await page.locator('#balloonMakerTabs .maker-category-arrow').last().click();
+    assert(await page.locator('#balloonMakerTabs button').count()>=3);
+    await page.screenshot({path:'thanksgiving-parade/tests/screenshots/'+slug+'-maker.png',fullPage:false});
+    await page.locator('#balloonMakerClose').click();
 
     // Save a diagnostic screenshot for review on each tested viewport.
     await page.screenshot({path:'thanksgiving-parade/tests/screenshots/'+slug+'.png',fullPage:false});
