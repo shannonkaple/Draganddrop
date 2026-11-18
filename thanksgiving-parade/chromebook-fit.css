@@ -1,0 +1,238 @@
+/* Chromebook-fit studio: no page scrolling, arrow-paged selections.
+   Applied after style.css on the isolated development branch. */
+:root { --studio-scale: 1; }
+html,body { width:100%; height:100%; overflow:hidden !important; }
+#app {
+  zoom: var(--studio-scale);
+  width: calc(100vw / var(--studio-scale));
+  height: calc(100dvh / var(--studio-scale));
+  min-height: 0 !important;
+  max-width: none;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+}
+body:not(.workshop-mode) #app .topbar {
+  flex: 0 0 54px;
+  height: 54px !important;
+  min-height: 54px !important;
+  padding: 0 10px !important;
+}
+body:not(.workshop-mode) #app .saved-note,
+body:not(.workshop-mode) #app .footbar,
+body:not(.workshop-mode) #app .sidebar .tip-card {
+  display:none !important;
+}
+body:not(.workshop-mode) #app .body-layout {
+  width:100%;
+  max-width:none;
+  flex:1 1 0;
+  min-height:0 !important;
+  min-width:0;
+  margin:0;
+  padding:7px !important;
+  display:grid !important;
+  grid-template-columns:156px minmax(0,1fr) !important;
+  gap:8px !important;
+  overflow:hidden !important;
+}
+body:not(.workshop-mode) #app .sidebar {
+  display:flex !important;
+  flex-direction:column !important;
+  gap:7px !important;
+  min-width:0;
+  min-height:0;
+  overflow:hidden !important;
+  padding:5px !important;
+}
+body:not(.workshop-mode) #app .step-list {
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:0;
+  gap:7px !important;
+}
+body:not(.workshop-mode) #app .step-list .step {
+  min-height:42px !important;
+  flex:0 0 42px;
+}
+body:not(.workshop-mode) #app .main {
+  display:grid !important;
+  grid-template-columns:minmax(0,1.06fr) minmax(0,1fr) !important;
+  grid-template-rows:minmax(0,72fr) minmax(0,28fr) !important;
+  align-items:stretch !important;
+  align-content:stretch !important;
+  width:100%;
+  min-width:0;
+  min-height:0;
+  height:100%;
+  gap:8px !important;
+  overflow:hidden !important;
+}
+body:not(.workshop-mode) #app .preview-panel {
+  grid-area:1/1 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  min-width:0;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+body:not(.workshop-mode) #app .preview-head,
+body:not(.workshop-mode) #app .preview-foot { flex:0 0 auto; }
+body:not(.workshop-mode) #app .preview-panel .stage {
+  width:100% !important;
+  height:auto !important;
+  max-height:none !important;
+  min-height:0;
+  flex:1 1 0;
+}
+body:not(.workshop-mode) #app .lineup-panel {
+  grid-area:2/1 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  min-width:0;
+  min-height:0 !important;
+  padding:5px !important;
+  overflow:hidden !important;
+}
+body:not(.workshop-mode) #app .lineup {
+  width:100%;
+  flex:1 1 0;
+  min-height:0 !important;
+  max-height:none !important;
+  display:grid !important;
+  grid-auto-flow:row !important;
+  overflow:hidden !important;
+  gap:4px;
+}
+body:not(.workshop-mode) #app .lineup .slot {
+  width:100%;
+  height:100% !important;
+  min-height:0 !important;
+  min-width:0 !important;
+  overflow:hidden;
+}
+body:not(.workshop-mode) #app .lineup .slot img {
+  max-height:65%;
+}
+body:not(.workshop-mode) #app .library-panel {
+  grid-area:1/2/span 2 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:6px !important;
+  min-width:0;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+body:not(.workshop-mode) #app #balloonShelves:not(.hidden) {
+  flex:1 1 0;
+  min-height:0;
+  display:grid !important;
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+  gap:5px;
+}
+body:not(.workshop-mode) #app #floatShelf:not(.hidden) {
+  flex:1 1 0;
+  min-height:0;
+  display:flex !important;
+}
+body:not(.workshop-mode) #app #floatShelf .balloon-shelf,
+body:not(.workshop-mode) #app #bandShelf:not(.hidden) {
+  flex:1 1 0;
+}
+body:not(.workshop-mode) #app .balloon-shelf {
+  display:flex;
+  flex-direction:column;
+  margin:0 !important;
+  padding:5px !important;
+  min-width:0;
+  min-height:0;
+  overflow:hidden !important;
+}
+body:not(.workshop-mode) #app .shelf-heading {
+  flex:0 0 auto;
+  min-height:30px;
+  margin:0 0 4px !important;
+}
+body:not(.workshop-mode) #app .shelf-heading h2 {
+  font-size:14px !important;
+  min-width:0;
+}
+body:not(.workshop-mode) #app .shelf-heading span {
+  font-size:10px;
+}
+body:not(.workshop-mode) #app .gallery {
+  display:grid !important;
+  grid-template-columns:repeat(var(--page-columns,4),minmax(0,1fr)) !important;
+  grid-template-rows:minmax(0,1fr);
+  flex:1 1 0;
+  min-width:0;
+  min-height:0 !important;
+  width:100%;
+  height:100%;
+  overflow:hidden !important;
+  overscroll-behavior:none;
+  gap:5px !important;
+  padding:2px !important;
+  scroll-snap-type:none !important;
+}
+body:not(.workshop-mode) #app .gallery .asset-card {
+  flex:none !important;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  padding:4px 3px !important;
+  overflow:hidden;
+}
+body:not(.workshop-mode) #app .gallery .asset-card img {
+  width:100% !important;
+  height:calc(100% - 23px) !important;
+  max-height:none !important;
+  object-fit:contain;
+}
+body:not(.workshop-mode) #app .gallery .asset-card .asset-name {
+  display:block;
+  height:20px;
+  overflow:hidden;
+  font-size:10px !important;
+  line-height:1.05;
+}
+body:not(.workshop-mode) #app .gallery .band-members {
+  width:100%;
+  height:calc(100% - 24px);
+  min-height:0;
+}
+body:not(.workshop-mode) #app .gallery .band-members img {
+  height:100% !important;
+  max-height:100% !important;
+}
+body:not(.workshop-mode) #app .decorate-panel:not(.hidden) {
+  flex:1 1 0;
+  min-width:0;
+  min-height:0;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,.65fr) minmax(0,1.25fr) !important;
+  gap:6px !important;
+  overflow:hidden;
+}
+body:not(.workshop-mode) #app .decorate-panel .design-section {
+  overflow:hidden;
+  min-height:0;
+}
+body:not(.workshop-mode) #app .decorate-panel .section-art {
+  max-height:50px;
+}
+body:not(.workshop-mode) #app .decorate-panel .music-options {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:4px;
+}
+body:not(.workshop-mode) #app .decorate-panel .music-choice .music-option {
+  min-height:46px !important;
+}
+body:not(.workshop-mode) #app [data-scroll-gallery]:disabled {
+  opacity:.35;
+  cursor:default;
+}
+/* Do not shrink or clip cinema playback or entry dialogs as side effects. */
+#onboarding, #helpModal, #cinema { zoom:1; }
