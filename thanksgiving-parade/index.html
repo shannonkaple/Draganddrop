@@ -6,18 +6,32 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>Ms. Kaple’s Thanksgiving Day Parade Maker</title>
 <link rel="icon" href="assets/ui/kaple-2026-raster/brand-20261117/parade-logo.png" type="image/png">
-<link rel="stylesheet" href="studio.css?v=20261119-slides-1">
+<link rel="stylesheet" href="studio.css?rev=individual-jpeg&amp;v=20261119-slides-1">
+<link rel="stylesheet" href="skyline.css?v=20261120-layered">
 <link rel="stylesheet" href="cinema.css?v=20261119-slides-1">
 </head>
 <body class="parade-studio">
 <div id="app" class="app" inert>
 <header class="topbar">
-  <div class="skyline" aria-hidden="true"><img src="assets/ui/slide-reference/skyline-left.png" alt=""><img src="assets/ui/slide-reference/skyline-right.png" alt=""></div>
+  <div class="skyline skyline--layers" aria-hidden="true">
+    <img class="skyline-layer skyline-buildings-2" src="assets/ui/skyline/buildings.png" alt="">
+    <img class="skyline-layer skyline-buildings-1" src="assets/ui/skyline/buildings.png" alt="">
+    <img class="skyline-layer skyline-buildings-3" src="assets/ui/skyline/buildings.png" alt="">
+    <img class="skyline-layer skyline-buildings-4" src="assets/ui/skyline/buildings.png" alt="">
+    <img class="skyline-layer skyline-left-handlers" src="assets/ui/skyline/left-handlers.png" alt="">
+    <img class="skyline-layer skyline-caterpillar skyline-balloon" src="assets/ui/skyline/caterpillar-balloon.png" alt="">
+    <img class="skyline-layer skyline-ice-cream skyline-balloon" src="assets/ui/skyline/ice-cream-balloon.png" alt="">
+    <img class="skyline-layer skyline-right-handlers" src="assets/ui/skyline/right-handlers.png" alt="">
+    <img class="skyline-layer skyline-teddy skyline-balloon" src="assets/ui/skyline/teddy-balloon.png" alt="">
+    <img class="skyline-layer skyline-car" src="assets/ui/skyline/parade-car.png" alt="">
+    <img class="skyline-layer skyline-star skyline-balloon" src="assets/ui/skyline/star-balloon.png" alt="">
+    <img class="skyline-layer skyline-horse-float" src="assets/ui/skyline/horse-float.png" alt="">
+  </div>
   <nav class="step-list" aria-label="Parade categories">
-    <button type="button" class="step selected" data-step="1" data-tab="balloons" aria-pressed="true" aria-label="Choose balloons"><img src="assets/ui/slide-reference/tab-balloons.png" alt=""></button>
-    <button type="button" class="step" data-step="2" data-tab="floats" aria-pressed="false" aria-label="Choose floats"><img src="assets/ui/slide-reference/tab-floats.png" alt=""></button>
-    <button type="button" class="step" data-step="3" data-tab="bands" aria-pressed="false" aria-label="Marching Bands and Music"><img src="assets/ui/slide-reference/tab-bands.png" alt=""></button>
-    <button type="button" class="step" data-step="4" data-tab="decorate" aria-pressed="false" aria-label="Parade scenes"><img src="assets/ui/slide-reference/tab-scenes.png" alt=""></button>
+    <button type="button" class="step selected" data-step="1" data-tab="balloons" aria-pressed="true" aria-label="Choose balloons"><img src="assets/ui/individual-jpeg/tab-balloons.jpg" alt=""></button>
+    <button type="button" class="step" data-step="2" data-tab="floats" aria-pressed="false" aria-label="Choose floats"><img src="assets/ui/individual-jpeg/tab-floats.jpg" alt=""></button>
+    <button type="button" class="step" data-step="3" data-tab="bands" aria-pressed="false" aria-label="Marching Bands and Music"><img src="assets/ui/individual-jpeg/tab-bands.jpg" alt=""></button>
+    <button type="button" class="step" data-step="4" data-tab="decorate" aria-pressed="false" aria-label="Parade scenes"><img src="assets/ui/individual-jpeg/tab-scenes.jpg" alt=""></button>
   </nav>
   <div class="brand kaple-brand">
     <h1 class="sr-only">Ms. Kaple’s Thanksgiving Day Parade Maker</h1>
@@ -42,7 +56,7 @@
 <div class="body-layout">
  <main class="main">
    <section class="preview-panel" id="paradePreviewPanel" aria-label="Animated parade preview">
-    <h2 id="stageHeading" class="panel-title"><img src="assets/ui/slide-reference/heading-preview.png" alt="Preview"></h2>
+    <h2 id="stageHeading" class="panel-title"><img src="assets/ui/individual-jpeg/heading-preview.jpg" alt="Preview"></h2>
     <div id="stage" class="stage" aria-label="Parade street background">
       <div id="stageScene" class="stage-scene"></div><div id="stageCharacters" class="stage-characters"></div>
       <div class="sr-only" id="sceneChip"></div><div class="sr-only" id="stageSign"></div>
@@ -54,7 +68,7 @@
    <section class="lineup-panel" id="paradeLineupPanel" aria-label="Parade lineup">
      <div class="section-heading">
       <button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="-1" aria-label="Previous lineup slots">Previous</button>
-      <h2 class="panel-title"><img src="assets/ui/slide-reference/heading-lineup.png" alt="My Parade Line-up"></h2>
+      <h2 class="panel-title"><img src="assets/ui/individual-jpeg/heading-lineup.jpg" alt="My Parade Line-up"></h2>
       <button type="button" class="arrow-btn" data-scroll-gallery="lineup" data-direction="1" aria-label="Next lineup slots">Next</button>
      </div>
      <div class="lineup-status"><span id="lineupCount"></span><span class="gallery-page-status" id="lineupPageStatus" aria-live="polite"></span></div>
@@ -68,14 +82,14 @@
     </div>
     <div id="balloonShelves">
     <section class="balloon-shelf" aria-labelledby="realGalleryTitle">
-      <div class="shelf-heading"><h2 id="realGalleryTitle" class="panel-title"><img src="assets/ui/slide-reference/heading-balloons.png" alt="Original Parade Balloons"></h2><span class="sr-only" id="realGalleryCount">26 choices</span><span class="gallery-page-status" id="realPageStatus" aria-live="polite">Page 1</span>
+      <div class="shelf-heading"><h2 id="realGalleryTitle" class="panel-title"><img src="assets/ui/individual-jpeg/heading-balloons.jpg" alt="Balloons"></h2><span class="sr-only" id="realGalleryCount">26 choices</span><span class="gallery-page-status" id="realPageStatus" aria-live="polite">Page 1</span>
         <button type="button" class="arrow-btn" data-page-gallery="realGallery" data-direction="-1" aria-label="Previous original parade balloons">←</button>
         <button type="button" class="arrow-btn" data-page-gallery="realGallery" data-direction="1" aria-label="Next original parade balloons">→</button>
       </div>
       <div id="realGallery" class="gallery" aria-labelledby="realGalleryTitle"></div>
     </section>
     <section class="balloon-shelf" aria-labelledby="newGalleryTitle">
-      <div class="shelf-heading"><h2 id="newGalleryTitle" class="panel-title"><img src="assets/ui/slide-reference/heading-balloons.png" alt="New Character Balloons"></h2><span class="sr-only" id="newGalleryCount">33 choices</span><span class="gallery-page-status" id="newPageStatus" aria-live="polite">Page 1</span>
+      <div class="shelf-heading"><h2 id="newGalleryTitle" class="panel-title"><img src="assets/ui/individual-jpeg/heading-balloons.jpg" alt="Balloons"></h2><span class="sr-only" id="newGalleryCount">33 choices</span><span class="gallery-page-status" id="newPageStatus" aria-live="polite">Page 1</span>
         <button type="button" class="arrow-btn" data-page-gallery="newGallery" data-direction="-1" aria-label="Previous new character balloons">←</button>
         <button type="button" class="arrow-btn" data-page-gallery="newGallery" data-direction="1" aria-label="Next new character balloons">→</button>
       </div>
@@ -84,7 +98,7 @@
     </div>
     <div id="floatShelf" class="hidden">
     <section class="balloon-shelf" aria-labelledby="floatGalleryTitle">
-      <div class="shelf-heading"><h2 id="floatGalleryTitle" class="panel-title"><img src="assets/ui/slide-reference/heading-floats.png" alt="Parade Floats"></h2><span class="sr-only" id="floatGalleryCount">23 choices</span><span class="gallery-page-status" id="floatPageStatus" aria-live="polite">Page 1</span>
+      <div class="shelf-heading"><h2 id="floatGalleryTitle" class="panel-title"><img src="assets/ui/individual-jpeg/heading-floats.jpg" alt="Floats"></h2><span class="sr-only" id="floatGalleryCount">23 choices</span><span class="gallery-page-status" id="floatPageStatus" aria-live="polite">Page 1</span>
         <button type="button" class="arrow-btn" data-page-gallery="floatGallery" data-direction="-1" aria-label="Previous parade floats">←</button>
         <button type="button" class="arrow-btn" data-page-gallery="floatGallery" data-direction="1" aria-label="Next parade floats">→</button>
       </div>
@@ -93,11 +107,11 @@
     </div>
     <div id="bandShelf" class="bands-layout hidden">
       <section class="band-palette" aria-labelledby="bandGalleryTitle">
-       <h2 id="bandGalleryTitle" class="panel-title"><img src="assets/ui/slide-reference/heading-bands.png" alt="Bands"></h2><span class="sr-only" id="bandGalleryCount"></span>
+       <h2 id="bandGalleryTitle" class="panel-title"><img src="assets/ui/individual-jpeg/heading-bands.jpg" alt="Bands"></h2><span class="sr-only" id="bandGalleryCount"></span>
        <div id="bandGallery" class="gallery" aria-labelledby="bandGalleryTitle"></div>
       </section>
       <section class="band-music-panel" id="bandMusicPanel" aria-labelledby="musicTitle">
-       <h2 id="musicTitle" class="panel-title"><img src="assets/ui/slide-reference/heading-music.png" alt="Music"></h2>
+       <h2 id="musicTitle" class="panel-title"><img src="assets/ui/individual-jpeg/heading-music.jpg" alt="Music"></h2>
        <div class="page-controls"><span id="musicPageStatus" class="gallery-page-status" aria-live="polite">Page 1</span>
   <button type="button" class="arrow-btn" data-page-gallery="musicOptions" data-direction="-1" aria-label="Previous music tracks">Previous</button>
   <button type="button" class="arrow-btn" data-page-gallery="musicOptions" data-direction="1" aria-label="Next music tracks">Next</button></div>
@@ -105,7 +119,7 @@
       </section>
     </div>
     <section id="decoratePanel" class="decorate-panel hidden" aria-labelledby="scenesTitle">
-      <h2 class="panel-title" id="scenesTitle"><img src="assets/ui/slide-reference/heading-scenes.png" alt="Scenes"></h2>
+      <h2 class="panel-title" id="scenesTitle"><img src="assets/ui/individual-jpeg/heading-scenes.jpg" alt="Scenes"></h2>
       <div class="page-controls"><span id="scenePageStatus" class="gallery-page-status" aria-live="polite">Page 1</span>
   <button type="button" class="arrow-btn" data-page-gallery="scenes" data-direction="-1" aria-label="Previous scenes">Previous</button>
   <button type="button" class="arrow-btn" data-page-gallery="scenes" data-direction="1" aria-label="Next scenes">Next</button></div>
@@ -204,7 +218,7 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261119-slides-1" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?v=20261119-slides-1" defer></script>
+<script src="app.js?rev=individual-jpeg&amp;v=20261119-slides-1" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>

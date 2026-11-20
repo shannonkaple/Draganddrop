@@ -192,6 +192,13 @@ async function visual(browser,w,h){
   await key(p,'#guestModeBtn');await hidden(p,'#onboarding');
   assert.equal(await count(p),0);
   assert.equal(await l(p,'#playBtn').isEnabled(),false);
+  const tabSizes=await p.evaluate(async()=>{
+    const urls=['balloons','floats','bands','scenes'].flatMap(tab=>['','-active'].map(state=>'assets/ui/individual-jpeg/tab-'+tab+state+'.jpg'));
+    return await Promise.all(urls.map(async url=>{const im=new Image();im.src=url;await im.decode();return [im.naturalWidth,im.naturalHeight];}));
+  });
+  assert.deepEqual(tabSizes,Array.from({length:8},()=>[672,200]),'Every tab JPEG shares one canvas');
+  assert.equal(await l(p,'#stageHeading img[src$="heading-preview.jpg"]').count(),1);
+
   let focus=false;
   for(let i=0;i<3&&!focus;i++){
     await p.keyboard.press('Tab');
@@ -200,6 +207,8 @@ async function visual(browser,w,h){
   assert.ok(focus,'Tab reaches a usable control after guest entry');
   await select(p,'balloons');await l(p,'#realGallery .asset-card').first().press('Space');
   assert.equal(await count(p),1);
+  assert.ok(await l(p,'#realGallery .native-add svg').count()>0);
+  assert.equal(await l(p,'#lineup .native-remove svg').count(),1);
   await check(()=>geometry(p,'#app',tag+'-1-balloons'));
   if(w===1280)await check(async()=>{
     await gallery(p,'realGallery','.asset-card',26);

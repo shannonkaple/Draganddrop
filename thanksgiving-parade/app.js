@@ -84,7 +84,11 @@ const MUSIC=[
 const MAX={1:10,2:10};
 const LEGACY_MAX=25,LINEUP_PAGE_SIZE=9;
 let lineupPage=0,lastAdd={id:null,time:0};
-const uiIcon=name=>'<img class="control-art" src="assets/ui/slide-reference/'+name+'.png" alt="">';
+const uiIcon=name=>{
+ const path={add:'M8 2v12M2 8h12',remove:'M3.5 3.5l9 9m0-9l-9 9'}[name];
+ const icon=path?'<svg viewBox="0 0 16 16" focusable="false" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><path d="'+path+'"/></svg>':({'arrow-left':'←','arrow-right':'→'}[name]||'');
+ return '<span class="native-control native-'+name+'" aria-hidden="true">'+icon+'</span>';
+};
 const $=id=>document.getElementById(id);
 let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,music:'march',activePiece:null,paradeId:null,savedParades:[]};
 let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
