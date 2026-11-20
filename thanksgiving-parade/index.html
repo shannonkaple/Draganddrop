@@ -6,7 +6,7 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>Ms. Kaple’s Thanksgiving Day Parade Maker</title>
 <link rel="icon" href="assets/ui/kaple-2026-raster/brand-20261117/parade-logo.png" type="image/png">
-<link rel="stylesheet" href="studio.css?v=20261120-parade-motion">
+<link rel="stylesheet" href="studio.css?v=20261120-parade-actions">
 <link rel="stylesheet" href="skyline.css?v=20261120-parade-motion">
 <link rel="stylesheet" href="cinema.css?v=20261120-parade-motion">
 <link rel="stylesheet" href="scene-atmosphere.css?v=20261120-parade-motion">
@@ -39,21 +39,24 @@
     <img src="assets/ui/kaple-2026-raster/brand-20261117/parade-logo.png" class="game-brand-image" alt="">
     <div class="top-actions">
       <button type="button" class="kaple-util picture-button" id="studioFullscreenBtn" aria-label="Full screen"><img src="assets/ui/individual-jpeg/utility-full-screen.png" alt=""></button>
-      <details class="studio-tools"><summary>Parade tools</summary>
-       <div class="studio-tools-menu">
-        <button type="button" id="saveBtn">Save Parade</button>
-        <button type="button" id="savedParadesBtn">Saved Parades</button>
-        <button type="button" id="builderNewParadeBtn">New Parade</button>
-        <button type="button" id="motionBtn" aria-pressed="true">Parade motion: On</button>
-        <button type="button" id="helpBtn">Help</button>
-        <button type="button" id="changeStudentBtn">Change Student</button>
-       </div>
-      </details>
+      <a class="studio-games-link" href="games/" target="_blank" rel="noopener">PARADE GAMES<span class="sr-only"> (opens in a new tab)</span></a>
       <button type="button" class="kaple-util picture-button" id="homeBtn" aria-label="Home"><img src="assets/ui/individual-jpeg/utility-home.png" alt=""></button>
     </div>
   </div>
 </header>
-<div class="studio-feedback" id="saveStatus" role="status">Ready to create</div>
+<nav class="studio-action-bar" aria-label="Parade studio tools">
+  <div class="studio-primary-actions" role="group" aria-label="Parade actions">
+    <button type="button" id="saveBtn" aria-label="Save parade">SAVE</button>
+    <button type="button" id="builderNewParadeBtn" aria-label="New parade">NEW</button>
+    <button type="button" id="savedParadesBtn">MY PARADES</button>
+  </div>
+  <div class="studio-secondary-actions" role="group" aria-label="Studio settings and help">
+    <button type="button" id="motionBtn" aria-pressed="true">Parade motion: On</button>
+    <button type="button" id="helpBtn">Help</button>
+    <button type="button" id="changeStudentBtn">Change Student</button>
+  </div>
+  <div class="studio-feedback" id="saveStatus" role="status">Ready to create</div>
+</nav>
 <div hidden aria-hidden="true"><div id="studentTitle"></div><p id="gradeDescription"></p><div id="progressBar"></div><b id="countText"></b><span id="gradeTag"></span><p id="tipText"></p><button type="button" id="previewSceneNext"></button><button type="button" id="shuffleBtn"></button></div>
 <div class="body-layout">
  <main class="main">
@@ -173,7 +176,7 @@
  <div class="entry-choice-actions"><button type="button" class="save-btn" id="entryNewParadeBtn">New Parade</button><button type="button" class="light-btn" id="entryOpenParadeBtn">Open Previous Parade</button></div>
 </dialog>
 <dialog id="savedParadesDialog" class="saved-parades-dialog" aria-labelledby="savedParadesTitle">
- <h2 id="savedParadesTitle">Saved Parades</h2>
+ <h2 id="savedParadesTitle">My Parades</h2>
  <p id="savedParadeEmpty">Save a parade to see it here.</p>
  <div id="savedParadeList" class="saved-parade-list"></div>
  <form method="dialog"><button type="submit" class="light-btn">Close</button></form>

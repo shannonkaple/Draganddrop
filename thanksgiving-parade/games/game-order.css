@@ -1,0 +1,24 @@
+.order-game{max-width:960px;margin:auto}.order-round{margin:.15rem 0 .3rem;color:#86411e;font-size:.95rem}.order-game .order-direction{margin:0 0 .55rem;color:#17477a;font-size:clamp(1.15rem,3vw,1.65rem);line-height:1.2}.order-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:.7rem}
+.order-controls button:disabled{opacity:.47}.order-alt{background:#fff2cb;color:#183559;border-color:#95642a;box-shadow:0 2px #95642a}.order-alt:hover{background:#ffdfa5;color:#183559}
+.order-tv-zone{background:#d71028 url(art-tv/stripes.png) repeat;border:2px solid #911d32;border-radius:14px;display:grid;place-items:center;overflow:hidden}
+.order-tv{width:min(100%,790px);aspect-ratio:16/9;position:relative;isolation:isolate}
+.order-set{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:3}
+.order-screen{position:absolute;left:5.625%;top:20.833333%;width:77.265625%;height:65.277778%;overflow:hidden;background:#303b4b;z-index:1}
+.order-street,.order-stage{position:absolute;inset:0;width:100%;height:100%}.order-street{object-fit:cover}
+.order-sprite{position:absolute;transform:translateX(-50%);width:37%;height:65%;bottom:5%;z-index:1;--bob:0%;pointer-events:none}
+.order-sprite.order-balloon{bottom:34%;height:56%;transform:translate(-50%,var(--bob))}.order-sprite.order-marcher{height:46%;bottom:8%;transform:translate(-50%,var(--bob))}.order-sprite.order-float{height:59%;transform:translate(-50%,var(--bob))}
+.order-sprite-art{width:100%;height:100%;object-fit:contain;object-position:bottom;filter:drop-shadow(2px 3px 2px #13243765)}
+.order-tv-cue{position:absolute;z-index:2;top:50%;left:50%;transform:translate(-50%,-50%);border:2px solid #bc1736;border-radius:10px;background:#fff8e3;padding:.4em .65em;white-space:nowrap;font-size:clamp(.86rem,2.5vw,1.45rem);color:#9c2137}
+.order-slots,.order-choices{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;padding:0;margin:.4rem 0 .8rem;list-style:none}
+.order-slot{position:relative;width:clamp(42px,10vw,91px);height:clamp(48px,11vw,91px);display:grid;place-items:center;background:#ebf8ff;border:2px dashed #3579af;border-radius:10px}
+.order-position{position:absolute;top:2px;left:4px;color:#17477a;font-size:.85rem}.order-blank{color:#4f7d9f;font-size:1.5rem}
+.order-art{width:100%;height:100%;object-fit:contain}.order-slot .order-art{height:79%;width:84%;align-self:end}
+.order-choice{display:grid;grid-template-rows:clamp(46px,8vw,76px) auto;gap:3px;align-items:center;justify-items:center;width:clamp(77px,15vw,124px);min-height:74px;background:#fff6dc;color:#16345e;border:2px solid #285c94;border-radius:11px;padding:5px;font-size:clamp(.75rem,2vw,1rem);line-height:1.08;cursor:pointer}
+.order-choice:not(:disabled):hover{background:#ffdda0}.order-choice.order-picked{opacity:.38}.order-feedback{text-align:center;min-height:1.3em;margin:.35rem 0;color:#175179}.order-finish{font-size:1.28rem;color:#156e48}
+.order-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:475px){.order-slots,.order-choices{gap:5px}.order-stage{width:100%}.order-slot{width:calc((100% - 30px)/7);max-width:52px}.order-controls button{padding:7px 9px;font-size:.87rem;min-height:44px}.order-choice{width:calc((100% - 15px)/4)}}
+.order-tv-transport{position:absolute;left:34.2%;top:86%;width:27.5%;height:10.56%;display:grid;grid-template-columns:repeat(4,1fr);gap:1%;z-index:5}
+.order-tv-hit{min-width:0;min-height:0;overflow:hidden;white-space:nowrap;text-indent:120%;background:transparent;border:0;border-radius:21%;cursor:pointer;padding:0}
+.order-tv-hit:not(:disabled):hover,.order-tv-hit[aria-pressed=true]{background:#fff5cf44;box-shadow:inset 0 0 0 2px #fff5cf}
+.order-tv-hit:focus-visible{outline:3px solid #123d78;outline-offset:0}
+@media(max-width:475px){.order-slots{display:grid;grid-template-columns:repeat(var(--slot-count,4),minmax(0,1fr));width:100%;gap:3px;align-items:center}.order-slot{width:100%;max-width:none;min-width:0;height:47px}.order-blank{font-size:1rem}.order-position{left:2px;font-size:.68rem}.order-slot .order-art{height:70%}}

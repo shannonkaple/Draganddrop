@@ -1,0 +1,4 @@
+@font-face{font-family:VAG;src:url(fonts/VAG-Rounded-Std-Black_47296.ttf) format('truetype');font-display:swap}
+@font-face{font-family:"Homebody Club";src:url(fonts/KAHomebodyClub.ttf) format('truetype');font-display:swap}
+body,button,a,input,select{font-family:VAG,"Trebuchet MS",sans-serif}
+.mast h1,.play-area>h2,.card b,main>header h1,.final strong{font-family:"Homebody Club",VAG,"Trebuchet MS",sans-serif;font-weight:normal;text-transform:uppercase}
