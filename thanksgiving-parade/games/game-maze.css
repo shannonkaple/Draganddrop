@@ -4,3 +4,44 @@
 .route-controls{display:grid;gap:.65rem;padding:.75rem;border:2px solid #86b1d3;border-radius:13px;background:#f7fbff}.route-legend{gap:.55rem .75rem;font-size:.88rem}.route-example{display:inline-flex;align-items:center;gap:4px}.route-example.road::before,.route-example.wall::before{content:'';display:inline-block;width:12px;height:12px;border:1px solid #4d728b;border-radius:2px;background:#f5fbff}.route-example.wall::before{background:#346591}.route-arrows{display:grid;grid-template:repeat(2,auto)/repeat(3,1fr);gap:5px;max-width:235px}.route-arrow{display:grid;place-items:center;min-width:0;min-height:48px;color:white;background:#13579a;border:2px solid #0f4279;border-radius:9px;font-size:1.62rem;line-height:1;cursor:pointer;box-shadow:0 2px 0 #0f4279}.route-arrow:hover{background:#0a477e}.route-arrow:active{transform:translateY(2px);box-shadow:none}.route-arrow:disabled{opacity:.55;cursor:default}.route-arrow[data-dir=up]{grid-area:1/2}.route-arrow[data-dir=left]{grid-area:2/1}.route-arrow[data-dir=down]{grid-area:2/2}.route-arrow[data-dir=right]{grid-area:2/3}.route-feedback{min-height:3.2em;margin:0;color:#255948;font-weight:850}.route-actions .arc-btn{font-size:.89rem;padding-inline:10px}
 @media(max-width:740px){.route-layout{grid-template-columns:minmax(0,1fr)}.route-controls{grid-template-columns:minmax(130px,1fr) minmax(120px,1fr);align-items:start;gap:6px 10px;padding:8px}.route-legend,.route-actions{grid-column:1/-1}.route-feedback{min-height:3em}.route-pin,.route-car{font-size:clamp(.62rem,3.25vw,1.55rem)}.route-landmark{font-size:clamp(.55rem,2.4vw,1.34rem)}}
 .route-legend .start{color:#205c37}.route-game[data-theme=park] .route-example.wall::before{background:#338157}.route-game[data-theme=herald] .route-example.wall::before{background:#855cb1}
+
+/* Photo-textured map tiles, with the original illustrated Parade Maker car. */
+.route-game{--map-lane:#f2e8c6;--map-curb:#d8bd91;--map-art:url(maze-art/central-park.jpg)}
+.route-game[data-theme=midtown]{--map-art:url(maze-art/midtown.jpg)}
+.route-game[data-theme=herald]{--map-art:url(maze-art/herald-square.jpg)}
+.route-board{background:#3b4146;border:3px solid #193e60;border-radius:12px;--map-visited:rgba(48,156,198,.31);--curb-width:clamp(1px,.22vw,3px)}
+.route-square{aspect-ratio:1}
+.route-wall,.route-road,.route-road.route-visited,.route-board .route-start,.route-board .route-flag,.route-board .route-current{background-color:#4f555b;background-image:url(maze-art/asphalt.jpg);background-size:auto 110%;border:0;box-shadow:none}
+.route-wall{background-color:#4b6937;background-image:var(--map-art);background-size:cover;box-shadow:inset 0 0 0 var(--curb-width) #edd3a9,inset 0 0 0 calc(var(--curb-width) + 1px) #4d382a77;z-index:0}
+.route-wall[data-block="1"]{background-size:132%;background-position:100% 43%}
+.route-wall[data-block="2"]{background-size:128%;background-position:0 86%}
+.route-wall.route-frame{filter:brightness(.88) saturate(.92)}
+.route-road{--n:var(--map-curb);--e:var(--map-curb);--s:var(--map-curb);--w:var(--map-curb);box-shadow:inset 0 var(--curb-width) 0 var(--n),inset calc(0px - var(--curb-width)) 0 0 var(--e),inset 0 calc(0px - var(--curb-width)) 0 var(--s),inset var(--curb-width) 0 0 var(--w)}
+.route-road.route-open-up{--n:transparent}.route-road.route-open-right{--e:transparent}.route-road.route-open-down{--s:transparent}.route-road.route-open-left{--w:transparent}
+.route-road::after{content:'';position:absolute;inset:0;pointer-events:none}
+.route-road.route-visited::after{background-color:var(--map-visited)}
+.route-road:is([data-road="ew"],[data-road="we"])::before,.route-road:is([data-road="ns"],[data-road="sn"])::before{content:'';position:absolute;pointer-events:none}
+.route-road:is([data-road="ew"],[data-road="we"])::before{left:0;right:0;top:49%;border-top:1.5px dashed var(--map-lane)}
+.route-road:is([data-road="ns"],[data-road="sn"])::before{top:0;bottom:0;left:49%;border-left:1.5px dashed var(--map-lane)}
+.route-board .route-start{outline:1.5px solid #7fdca1;outline-offset:-3px}
+.route-board .route-flag{outline:2px solid #ffda78;outline-offset:-3px}
+.route-board .route-current{z-index:2;box-shadow:inset 0 0 0 1.5px #fef1b3;background-color:#576773}
+.route-start .route-pin,.route-flag .route-pin{color:#1b2d35;background:#d9f7cf;border:1px solid #134b42;border-radius:3px;z-index:2;padding:.16em .22em;font:800 clamp(.35rem,1vw,.68rem)/1 VAG,system-ui,sans-serif;text-shadow:none;letter-spacing:.015em}
+.route-flag .route-pin{background:#ffe08c;border-color:#744415}
+.route-car{position:absolute;width:98%;max-width:none;height:auto;max-height:96%;object-fit:contain;object-position:center;filter:drop-shadow(0 2px 1px #131a22);z-index:3;pointer-events:none;transform:scale(1.09)}
+.route-car[data-facing=right]{transform:scale(-1.09,1.09)}
+.route-car[data-dir=up]{transform:rotate(18deg) scale(1.09)}
+.route-car[data-dir=down]{transform:rotate(-17deg) scale(1.09)}
+.route-car[data-facing=right][data-dir=up]{transform:rotate(-18deg) scale(-1.09,1.09)}
+.route-car[data-facing=right][data-dir=down]{transform:rotate(17deg) scale(-1.09,1.09)}
+.route-example.road::before{background:#49525c url(maze-art/asphalt.jpg) center/cover}
+.route-game[data-theme] .route-example.wall::before{background:#5b633f var(--map-art) center/cover}
+.route-example.start,.route-example.goal{font-weight:800}.route-example.goal{color:#774b17}
+@media(max-width:500px){.route-board{border-width:2px}.route-start .route-pin,.route-flag .route-pin{font-size:clamp(.28rem,1.15vw,.48rem)}}
+
+/* Give the board, not the arcade masthead, most of the Chromebook screen. */
+body:has(.route-game) .mast{display:none}
+.play-area:has(.route-game)>h2{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden;margin:0}
+@media(min-width:741px){
+ .route-layout{grid-template-columns:minmax(0,min(720px,max(410px,calc((100dvh - 275px) * 1.16)))) minmax(215px,1fr)}
+}
