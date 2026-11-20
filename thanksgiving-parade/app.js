@@ -68,13 +68,7 @@ const UPLOADED_FLOATS=[
 ].map(([file,name])=>({id:file+36,name,type:'float',src:'assets/floats/parade-float-'+file+'.webp'}));
 PIECES.push(...BANDS,...UPLOADED_FLOATS);
 const GALLERY_PIECES=PIECES.filter(piece=>piece.id!==8);
-const SCENES=[
-{id:'storybook',name:'Storybook Parade',badge:'HERALD SQUARE · STORYBOOK PARADE',src:'assets/scenes/storybook-parade.jpg'},
-{id:'central-park',name:'Central Park West',badge:'CENTRAL PARK WEST · UPPER WEST SIDE',src:(window.PARADE_SCENE_ASSETS||{})['central-park']||'assets/scenes/storybook-parade.jpg'},
-{id:'columbus',name:'Columbus Circle',badge:'COLUMBUS CIRCLE · NEW YORK CITY',src:(window.PARADE_SCENE_ASSETS||{})['columbus']||'assets/scenes/storybook-parade.jpg'},
-{id:'sixth-avenue',name:'Sixth Avenue',badge:'SIXTH AVENUE · MIDTOWN MANHATTAN',src:(window.PARADE_SCENE_ASSETS||{})['sixth-avenue']||'assets/scenes/storybook-parade.jpg'},
-{id:'herald-square',name:'Herald Square',badge:'HERALD SQUARE · 34TH STREET',src:(window.PARADE_SCENE_ASSETS||{})['herald-square']||'assets/scenes/storybook-parade.jpg'}
-];
+const SCENES=window.PARADE_SCENE_ATMOSPHERE.scenes;
 const MUSIC=[
  {id:'march',label:'Balloons Over the Boulevard',sub:'Festive brass & drums',src:'assets/music/balloons_over_the_boulevard-classroom-loop.ogg',fallback:'assets/music/grand-parade-march.ogg'},
  {id:'bouncy',label:'The Tinsel Cadence',sub:'Upbeat parade music',src:'assets/music/the_tinsel_cadence-classroom-loop.ogg',fallback:'assets/music/silly-balloon-bounce.ogg'},
@@ -90,7 +84,7 @@ const uiIcon=name=>{
  return '<span class="native-control native-'+name+'" aria-hidden="true">'+icon+'</span>';
 };
 const $=id=>document.getElementById(id);
-let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,music:'march',activePiece:null,paradeId:null,savedParades:[]};
+let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:SCENES[0].id,routeTour:false,music:'march',activePiece:null,paradeId:null,savedParades:[]};
 let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
 function paradeSettings(){
  return {pieces:[...state.pieces],scene:state.scene,routeTour:state.routeTour,music:state.music};
@@ -418,12 +412,12 @@ function renderTabs(){
  $('decoratePanel').classList.toggle('hidden',tab!=='decorate');
  const label=$('libraryChoiceLabel');if(label)label.textContent=({balloons:'1 · PICK YOUR BALLOONS',floats:'1 · PICK YOUR FLOATS',bands:'1 · PICK A BAND & YOUR MUSIC',decorate:'1 · PICK YOUR NEW YORK SCENE'})[tab]||'1 · PICK YOUR PARADE STARS';
 }
-function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge}
+function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;window.PARADE_SCENE_ATMOSPHERE.apply($('previewAtmosphere'),s);$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge}
 function renderPreview(){
  const stage=$('stageCharacters');
  stage.replaceChildren();
  $('stageEmpty').classList.toggle('hidden',state.pieces.length>0);
- const street={storybook:9,'central-park':13,columbus:12,'sixth-avenue':11,'herald-square':10}[scene().id]??10;
+ const street=scene().street;
  const items=state.pieces.slice(0,2);
  items.forEach((id,i)=>{
   const p=getPiece(id);

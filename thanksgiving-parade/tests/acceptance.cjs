@@ -239,7 +239,7 @@ async function visual(browser,w,h){
   await check(()=>geometry(p,'#app',tag+'-2-floats'));
   if(w===1280)await check(()=>gallery(p,'floatGallery','.asset-card',23));
   await select(p,'decorate');
-  if(w===1280)await check(()=>gallery(p,'scenes','.scene-option',5));
+  if(w===1280)await check(()=>gallery(p,'scenes','.scene-option',6));
   await p.getByRole('button',{name:'Sixth Avenue',exact:true}).press('Enter');
   assert.match(await l(p,'#sceneChip').textContent(),/sixth avenue/i);
   await check(()=>geometry(p,'#app',tag+'-3-scenes'));

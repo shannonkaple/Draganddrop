@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="studio.css?rev=matching-controls&amp;v=20261119-slides-1">
 <link rel="stylesheet" href="skyline.css?v=20261120-horse">
 <link rel="stylesheet" href="cinema.css?v=20261119-slides-1">
+<link rel="stylesheet" href="scene-atmosphere.css?v=20261120-scenes-edition2">
 </head>
 <body class="parade-studio">
 <div id="app" class="app" inert>
@@ -58,7 +59,7 @@
    <section class="preview-panel" id="paradePreviewPanel" aria-label="Animated parade preview">
     <h2 id="stageHeading" class="panel-title"><img src="assets/ui/individual-jpeg/heading-preview.jpg" alt="Preview"></h2>
     <div id="stage" class="stage" aria-label="Parade street background">
-      <div id="stageScene" class="stage-scene"></div><div id="stageCharacters" class="stage-characters"></div>
+      <div id="stageScene" class="stage-scene"></div><div id="previewAtmosphere" class="parade-atmosphere" aria-hidden="true"></div><div id="stageCharacters" class="stage-characters"></div>
       <div class="sr-only" id="sceneChip"></div><div class="sr-only" id="stageSign"></div>
       <div id="stageEmpty" class="stage-empty"><b>Choose a balloon, float, or band.</b></div>
       <button type="button" id="playBtn" class="play-btn picture-button" aria-label="Watch my parade"><img src="assets/ui/slide-reference/watch.png" alt=""></button>
@@ -185,7 +186,7 @@
    <button type="button" id="closeMovieBtn" aria-label="Back to parade builder"><img src="assets/ui/individual-jpeg/utility-home.png" alt=""><span class="cinema-sr">Back to Studio</span></button>
   </div>
   <div class="movie-scene" id="movieScene">
-   <div class="movie-world" id="movieWorld"><img class="movie-background" id="movieBackground" alt=""><canvas id="movieStage" aria-label="Your ordered parade moving along the chosen street"></canvas></div>
+   <div class="movie-world" id="movieWorld"><img class="movie-background" id="movieBackground" alt=""><div id="movieAtmosphere" class="parade-atmosphere" aria-hidden="true"></div><canvas id="movieStage" aria-label="Your ordered parade moving along the chosen street"></canvas></div>
    <div class="movie-celebration hidden" id="movieCelebration"><h2>Your parade is complete!</h2><div class="end-parade-actions"><button type="button" id="endSaveBtn">Save Parade</button><button type="button" id="newParadeBtn">New Parade</button></div><p id="endSaveStatus" role="status"></p></div>
   </div>
   <img class="cinema-tv-shell" src="assets/ui/slide-reference/cinema-tv-shell.png" alt="" aria-hidden="true">
@@ -211,19 +212,16 @@
 <script src="bundles/pieces-10.js" defer></script>
 <script src="bundles/pieces-11.js" defer></script>
 <script src="bundles/pieces-12.js" defer></script>
-<script src="bundles/scene-central-park.js" defer></script>
-<script src="bundles/scene-columbus.js" defer></script>
-<script src="bundles/scene-sixth-avenue.js" defer></script>
-<script src="bundles/scene-herald-square.js" defer></script>
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261119-slides-1" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="app.js?rev=individual-jpeg&amp;v=20261119-slides-1" defer></script>
+<script src="scene-atmosphere.js?v=20261120-scenes-edition2" defer></script>
+<script src="app.js?v=20261120-scenes-edition2" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
 <script src="full-music.js?v=20261116-full-recordings1" defer></script>
 <script src="music-preview.js?v=20261116-full-recordings2" defer></script>
-<script src="parade-player.js?v=20261119-slides-1" defer></script>
+<script src="parade-player.js?v=20261120-scenes-edition2" defer></script>
 </body>
 </html>

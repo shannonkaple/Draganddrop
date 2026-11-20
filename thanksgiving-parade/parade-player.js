@@ -17,13 +17,6 @@
   const INTERVAL = 4.8;
   const TRAVEL_TIME = 10.8;
   const SPEED = .137;
-  const STREETS = {
-    storybook: { handlers: .925, floats: .968 },
-    'central-park': { handlers: .846, floats: .924 },
-    columbus: { handlers: .879, floats: .946 },
-    'sixth-avenue': { handlers: .852, floats: .941 },
-    'herald-square': { handlers: .904, floats: .962 }
-  };
   const CREW = [
     { path: 'assets/handlers/cranberry.webp', hand: [.055, .146] },
     { path: 'assets/handlers/teal.webp', hand: [.058, .147] },
@@ -244,15 +237,15 @@
     const { width: W, height: H } = bounds;
     context.clearRect(0, 0, W, H);
     const { elapsed, pieces, scene } = playing;
-    const street = STREETS[scene.id] ?? STREETS['central-park'];
+    const handlers = scene.movieHandlers ?? .88, floats = scene.movieFloats ?? .95;
     pieces.forEach((piece, i) => {
       if (piece.type !== 'band' && !piece.art.ready) return;
       const localTime = elapsed - i * INTERVAL;
       const center = W * (1.16 - SPEED * localTime);
       if (center < -W * .28 || center > W * 1.25) return;
-      if (piece.type === 'band') drawBand(piece.musicians, center, H * street.handlers, elapsed);
-      else if (piece.type === 'float') drawFloat(piece.art, center, H * street.floats);
-      else drawBalloon(piece.art, center, H * street.handlers, i, elapsed);
+      if (piece.type === 'band') drawBand(piece.musicians, center, H * handlers, elapsed);
+      else if (piece.type === 'float') drawFloat(piece.art, center, H * floats);
+      else drawBalloon(piece.art, center, H * handlers, i, elapsed);
     });
   }
 
@@ -270,6 +263,7 @@
     sound.querySelector('span').textContent = muted ? 'Sound Off' : 'Sound On';
     fullscreen.querySelector('span').textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
     cinema.classList.toggle('parade-paused', Boolean(playing?.paused));
+    cinema.classList.toggle('parade-ambient-still', !playing || playing.paused || playing.done);
   }
 
   // Never silently substitute an older song for one of the four student-selected tracks.
@@ -337,6 +331,7 @@
       backdrop.src = scene.src;
     }
     backdrop.alt = scene.name + ' parade route';
+    window.PARADE_SCENE_ATMOSPHERE.apply(el('movieAtmosphere'), scene);
     backdrop.onload = resize;
     el('movieLocation').textContent = scene.name;
     endCard.classList.add('hidden');

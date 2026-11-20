@@ -1,0 +1,88 @@
+/* Decorative layers behind the parade lineup (and behind the TV shell). */
+.parade-atmosphere {
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+#stageScene, #movieBackground {z-index:0}
+#previewAtmosphere, #movieAtmosphere {z-index:1}
+#stageCharacters, #cinema #movieStage {z-index:2}
+#stageEmpty {z-index:3}
+
+.parade-ambient-sprite {
+  position:absolute;
+  display:block;
+  left:var(--x);
+  bottom:calc(100% - var(--crowd-ground, 69%));
+  width:var(--w);
+  overflow:hidden;
+  transform-origin:50% 100%;
+}
+.parade-ambient-sprite img {
+  position:relative;
+  display:block;
+  left:calc(var(--cell) * -100%);
+  width:calc(var(--cells) * 100%);
+  max-width:none;
+  height:auto;
+}
+.parade-ambient-crowd {
+  mask-image:linear-gradient(to right,transparent,black 17%,black 83%,transparent);
+  animation:parade-crowd-sway 2.8s var(--phase) ease-in-out infinite;
+}
+.parade-ambient-clown {
+  z-index:1;
+  bottom:calc(100% - var(--crowd-ground, 69%) - 1%);
+  animation:parade-clown-step 1.9s var(--phase) ease-in-out infinite;
+}
+@keyframes parade-crowd-sway {
+  0%,100% {transform:translateY(0) rotate(-1deg)}
+  50% {transform:translateY(-1.2%) rotate(1.5deg)}
+}
+@keyframes parade-clown-step {
+  0%,100% {transform:translateX(-2%) rotate(-2deg)}
+  50% {transform:translate(2%, -4%) rotate(3deg)}
+}
+.parade-ambient-confetti {
+  position:absolute;
+  inset:0 0 auto;
+  height:min(var(--crowd-ground, 69%),76%);
+  overflow:hidden;
+}
+.parade-confetti-path {
+  position:absolute;
+  left:var(--x);
+  top:0;
+  height:100%;
+  animation:parade-confetti-fall var(--pace) var(--phase) linear infinite;
+}
+.parade-confetti-path > i {
+  display:block;
+  position:absolute;
+  top:0;
+  width:clamp(2.5px,.48vw,7px);
+  height:clamp(4px,.62vw,9px);
+  border-radius:1px;
+  background:var(--paper);
+  box-shadow:0 0 1px #41204044;
+  animation:parade-confetti-turn 1.7s var(--phase) ease-in-out infinite alternate;
+}
+@keyframes parade-confetti-fall {
+  0% {transform:translate(-3px,-9%)}
+  50% {transform:translate(var(--side),52%)}
+  100% {transform:translate(calc(var(--side) * -.7),106%)}
+}
+@keyframes parade-confetti-turn {
+  0% {transform:rotate(-28deg) scaleX(.7)}
+  100% {transform:rotate(96deg) scaleX(1)}
+}
+#cinema.parade-ambient-still #movieAtmosphere *,
+.parade-playing #previewAtmosphere * {animation-play-state:paused}
+@media (prefers-reduced-motion:reduce) {
+  .parade-atmosphere .parade-ambient-sprite,
+  .parade-atmosphere .parade-confetti-path,
+  .parade-atmosphere .parade-confetti-path > i {animation:none}
+  .parade-confetti-path {top:var(--land)}
+  .parade-confetti-path > i {transform:rotate(29deg)}
+}
