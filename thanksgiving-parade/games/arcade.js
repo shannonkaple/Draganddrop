@@ -4,6 +4,30 @@ const cards=el('arcadeCards'), play=el('playArea'), body=el('gameBody'), back=el
 let selected=null, cleanup=null;
 let art={'spotlight':'round2.webp','macys-match':'art-match/star.webp','parade-order':'art-tv/cinema-tv-shell.png','nyc-maze':'brand/maze-car.webp'};
 if(new URLSearchParams(location.search).get('preview')==='maker'||/\/thanksgiving-parade\/games(?:\/|$)/.test(location.pathname))el('makerLink').href='../index.html';
+// Keep the studio in its original tab so its current selection and draft stay intact.
+const fromMaker=new URLSearchParams(location.search).get('from')==='maker';
+if(fromMaker){
+ const link=el('makerLink'),status=el('makerReturnStatus'), fallback=link.href;
+ link.textContent='Home';
+ link.setAttribute('aria-label','Home: back to your parade');
+ link.onclick=event=>{
+  event.preventDefault();
+  let maker=null;
+  try{
+   const parent=window.opener, expected=new URL(fallback).pathname.replace(/index\.html$/,'');
+   if(parent&&!parent.closed&&parent.location.origin===location.origin&&
+      parent.location.pathname.replace(/index\.html$/,'')===expected&&
+      parent.document.querySelector('.studio-games-link'))maker=parent;
+  }catch{}
+  if(!maker){
+   status.textContent='Switch back to your original Parade Maker tab to keep your parade open.';
+   return;
+  }
+  maker.focus();
+  window.close();
+  status.textContent='If this tab stays open, switch back to your Parade Maker tab.';
+ };
+}
 function speak(text){if(!window.speechSynthesis||!text)return;const u=new SpeechSynthesisUtterance(text);u.rate=.82;u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
 const spotlight={id:'spotlight',title:'Parade Spotlight',blurb:'Ten real photos. Find ten things in each.',mount(root){const f=document.createElement('iframe');f.title='Parade Spotlight photo game';f.src='hunt.html';root.replaceChildren(f);return null}};
 const cityMaze={id:'nyc-maze',title:'NYC Maze',blurb:'Guide the parade car through New York City streets.',mount:(root)=>window.mountParadeMaze(root,home)};
