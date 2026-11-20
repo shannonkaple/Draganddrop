@@ -12,25 +12,30 @@ button:focus-visible,summary:focus-visible,input:focus-visible,[tabindex]:focus-
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 h1,h2,p{margin:0}
 picture,img{display:block;max-width:100%}
-.app{position:relative;width:100%;max-width:1800px;margin:auto;height:100dvh;display:grid;grid-template-rows:25% minmax(0,1fr)}
-.topbar{position:relative;z-index:4;min-height:0;background:#eef9fd;border-bottom:calc(5 * var(--u)) solid var(--ice)}
-.skyline{position:absolute;inset:0 0 33%;display:flex;justify-content:space-between;overflow:hidden;background:#bdedfb url('assets/ui/slide-reference/skyline-join.png') repeat-x center bottom;background-size:auto 100%}
-.skyline img{width:30%;height:100%;object-fit:contain;object-position:bottom}
-.skyline img:first-child{object-position:left bottom}
-.skyline img:last-child{object-position:right bottom}
-.step-list{position:absolute;inset:67% 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) 40% repeat(2,minmax(0,1fr));place-items:center;background:white}
-.step{border:0;background:transparent;padding:0;width:94%;height:90%;display:grid;place-items:center;position:relative;min-width:0}
+.app{position:relative;width:100%;max-width:1800px;margin:auto;height:100dvh;display:grid;grid-template-rows:min(25dvh,16.5vw) minmax(0,1fr)}
+/* The category rail is contained between two uninterrupted blue rules. */
+.topbar{--rail:36%;--rail-rule:max(3px,calc(5 * var(--u)));position:relative;z-index:4;min-height:0;background:#eef9fd;border-bottom:var(--rail-rule) solid #8adbf0}
+.step-list{position:absolute;inset:auto 0 0;height:var(--rail);display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) 40% repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr);place-items:center;border-top:var(--rail-rule) solid #8adbf0;background:#f6fcff;overflow:hidden;isolation:isolate}
+.step{container-type:size;isolation:isolate;border:0;background:transparent;padding:0;width:94%;height:100%;display:grid;place-items:center;position:relative;min-width:0;min-height:0}
 .step:nth-child(3){grid-column:4}
-.step img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
+.step img{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);height:auto;width:min(100cqw,calc(85cqh * 3.36));max-width:100%;max-height:85%;aspect-ratio:672/200;object-fit:contain;pointer-events:none;clip-path:var(--tab-contour)}
+.step.selected{background:#d9f5fc}
+.step.selected::after{content:"";position:absolute;bottom:1px;left:18%;right:18%;height:clamp(2px,calc(4 * var(--u)),5px);background:var(--red);border-radius:6px;pointer-events:none}
+.step:focus-visible{outline-offset:-3px}
 .step.selected img{content:var(--active-tab)}
 .step[data-tab="balloons"]{--active-tab:url('assets/ui/individual-jpeg/tab-balloons-active.jpg?v=2')}
 .step[data-tab="floats"]{--active-tab:url('assets/ui/individual-jpeg/tab-floats-active.jpg')}
 .step[data-tab="bands"]{--active-tab:url('assets/ui/individual-jpeg/tab-bands-active.jpg')}
 .step[data-tab="decorate"]{--active-tab:url('assets/ui/individual-jpeg/tab-scenes-active.jpg')}
-.kaple-brand{position:absolute;left:30%;right:30%;top:0;bottom:calc(-5 * var(--u));isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
-.kaple-brand::before{content:"";position:absolute;z-index:-1;inset:43% 0 0;background:var(--red);border:calc(5 * var(--u)) solid var(--ice);border-radius:calc(22 * var(--u))}
-.game-brand-image{position:absolute;top:0;max-height:79%;width:86%;height:100%;object-fit:contain;object-position:center top}
-.top-actions{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;place-items:center;gap:5px;width:85%;height:25%;padding-bottom:calc(5 * var(--u));z-index:2}
+/* Clip only the opaque export matte, not the raster artwork. */
+.step[data-tab="balloons"]{--tab-contour:polygon(4.077% 49.700%,4.464% 49.700%,5.208% 45.200%,5.952% 42.200%,6.696% 34.200%,7.440% 30.700%,8.185% 28.700%,9.673% 26.200%,10.417% 25.700%,11.905% 25.700%,12.649% 24.200%,14.137% 19.700%,15.625% 17.200%,17.113% 15.700%,26.786% 15.200%,27.530% 14.700%,34.226% 14.700%,34.970% 14.200%,64.732% 14.200%,65.476% 14.700%,72.173% 14.700%,72.917% 15.200%,82.589% 15.700%,84.821% 18.200%,87.798% 25.700%,89.286% 25.700%,90.030% 26.200%,92.262% 30.200%,93.006% 33.200%,94.494% 44.700%,95.387% 49.700%,95.774% 49.700%,95.774% 63.300%,95.387% 63.300%,94.494% 68.300%,93.006% 74.300%,92.262% 78.800%,90.774% 83.800%,90.030% 84.800%,87.054% 86.300%,79.613% 87.300%,78.869% 88.300%,75.893% 87.800%,75.149% 88.300%,66.964% 88.800%,65.476% 89.800%,64.732% 89.300%,60.268% 89.300%,59.524% 89.800%,40.923% 89.800%,40.179% 89.300%,33.482% 89.300%,32.738% 88.800%,29.762% 89.300%,28.274% 88.300%,25.298% 88.300%,24.554% 87.800%,23.065% 88.300%,21.577% 87.800%,20.833% 88.300%,20.089% 87.800%,18.601% 87.800%,17.113% 86.800%,11.161% 85.800%,8.929% 83.300%,7.440% 78.300%,6.696% 72.300%,5.952% 70.800%,5.208% 67.800%,4.464% 63.300%,4.077% 63.300%)}
+.step[data-tab="floats"]{--tab-contour:polygon(9.286% 46.700%,9.673% 46.700%,10.417% 40.200%,11.161% 35.700%,11.905% 33.200%,12.649% 31.200%,14.137% 29.200%,14.881% 27.200%,16.369% 21.700%,17.113% 20.200%,19.345% 17.200%,20.833% 16.700%,38.690% 16.700%,43.155% 8.700%,46.875% 5.700%,48.363% 5.200%,51.339% 5.200%,55.804% 7.700%,58.036% 10.700%,60.268% 15.700%,61.012% 16.700%,78.869% 16.700%,81.101% 17.700%,83.333% 21.200%,84.077% 23.200%,85.565% 29.200%,87.798% 32.700%,88.542% 35.200%,89.732% 42.700%,90.030% 46.200%,90.417% 46.200%,90.417% 61.800%,90.030% 61.800%,89.435% 67.300%,88.542% 73.300%,87.054% 77.300%,85.565% 79.300%,84.077% 83.300%,81.845% 86.800%,81.101% 87.300%,59.524% 87.300%,58.780% 88.800%,56.548% 91.800%,52.827% 94.300%,46.875% 94.300%,43.155% 91.800%,40.179% 87.300%,18.601% 87.300%,17.857% 86.800%,16.369% 84.800%,14.137% 79.300%,13.393% 78.800%,11.905% 75.800%,11.161% 73.300%,9.970% 65.300%,9.673% 62.300%,9.286% 62.300%)}
+.step[data-tab="bands"]{--tab-contour:polygon(7.054% 51.200%,7.440% 51.200%,8.036% 45.700%,8.929% 40.200%,10.417% 36.700%,12.649% 33.200%,13.393% 28.200%,14.137% 25.700%,14.881% 23.700%,16.369% 21.700%,17.857% 20.700%,34.226% 20.700%,34.970% 19.700%,37.202% 14.200%,40.179% 10.200%,42.411% 8.200%,46.875% 5.700%,52.827% 5.700%,54.315% 6.200%,59.524% 9.700%,62.500% 13.700%,63.988% 16.700%,65.476% 20.700%,82.589% 20.700%,83.333% 21.200%,85.565% 24.700%,86.310% 27.200%,87.798% 34.700%,90.030% 37.200%,90.774% 39.200%,91.518% 43.200%,92.411% 50.200%,92.798% 50.200%,92.798% 63.300%,92.411% 63.300%,92.113% 66.800%,90.774% 74.800%,89.286% 78.300%,87.054% 80.800%,86.310% 83.800%,85.565% 85.800%,84.077% 87.800%,82.589% 88.800%,61.756% 88.800%,58.036% 92.300%,52.083% 94.300%,48.363% 94.300%,47.619% 93.800%,43.899% 93.300%,39.435% 90.300%,37.946% 88.800%,17.113% 88.800%,16.369% 88.300%,14.137% 84.800%,12.649% 80.300%,11.905% 79.800%,9.673% 76.300%,8.929% 74.300%,8.036% 69.300%,7.440% 63.800%,7.054% 63.800%)}
+.step[data-tab="decorate"]{--tab-contour:polygon(6.756% 51.700%,7.143% 51.700%,7.738% 46.200%,8.631% 41.200%,10.119% 37.700%,11.607% 36.200%,13.095% 27.700%,13.839% 24.700%,16.071% 20.200%,18.304% 18.700%,38.393% 18.700%,39.137% 18.200%,40.625% 13.700%,42.113% 10.700%,45.089% 7.200%,48.065% 5.700%,51.042% 5.700%,54.018% 6.700%,56.250% 8.700%,59.226% 14.200%,60.714% 18.700%,81.548% 18.700%,83.780% 20.200%,86.012% 24.200%,86.756% 26.700%,87.500% 30.200%,88.244% 36.200%,89.732% 37.700%,91.220% 41.200%,92.411% 48.200%,92.708% 51.700%,93.095% 51.700%,93.095% 63.300%,92.708% 63.300%,92.411% 66.300%,91.220% 73.800%,88.244% 79.300%,87.500% 82.800%,86.756% 84.800%,85.268% 87.300%,83.036% 88.800%,59.226% 88.800%,55.506% 93.300%,51.042% 94.800%,48.810% 94.800%,44.345% 93.300%,40.625% 88.800%,16.071% 88.800%,14.583% 87.800%,12.351% 83.800%,10.863% 77.800%,9.375% 75.800%,8.631% 73.800%,7.440% 66.800%,7.143% 63.300%,6.756% 63.300%)}
+.kaple-brand{position:absolute;left:30%;right:30%;top:0;bottom:0;isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.kaple-brand::before{content:"";position:absolute;z-index:-1;inset:60% 0 0;background:var(--red);border:calc(5 * var(--u)) solid var(--ice);border-radius:calc(22 * var(--u))}
+.game-brand-image{position:absolute;top:0;max-height:80%;width:91%;height:100%;object-fit:contain;object-position:center top}
+.top-actions{position:relative;display:grid;grid-template-columns:1fr 1fr 1fr;place-items:center;gap:5px;width:85%;height:32%;padding-bottom:calc(4 * var(--u));z-index:2}
 .picture-button{border:0;background:transparent;padding:0;display:grid;place-items:center;min-width:0}
 .picture-button img{object-fit:contain;width:100%;height:100%}
 .kaple-util{width:100%;max-width:calc(133 * var(--u));height:100%}
@@ -55,8 +60,9 @@ picture,img{display:block;max-width:100%}
 .native-control svg{width:100%;height:100%;display:block}
 .stage,.stage-scene,.stage-characters{position:absolute;inset:0;overflow:hidden}
 .stage{inset:calc(5 * var(--u));background:#c9eef8;border-radius:calc(30 * var(--u))}
-.stage-scene{background-size:cover;background-position:center 76%;background-repeat:no-repeat}
-.stage-scene::after{content:"";position:absolute;inset:0;background:#e3f6fb26}
+.stage{container-type:size}
+.preview-world{position:absolute;left:50%;bottom:0;width:max(100cqw,calc(100cqh * var(--scene-ratio,2.36)));height:auto;min-height:100%;aspect-ratio:var(--scene-ratio,2.36);transform:translateX(-50%);overflow:hidden}
+.stage-scene{width:100%;height:100%;object-fit:fill}
 .stage-characters{pointer-events:none}
 .stage-preview-piece{position:absolute;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 3px 3px #33253655)}
 .stage-preview-piece.balloon{animation:bob 3s ease-in-out infinite}
@@ -65,8 +71,10 @@ picture,img{display:block;max-width:100%}
 .stage-band img:nth-child(2){animation-delay:-.26s}
 @keyframes preview-march{to{transform:translateY(-4%) rotate(-3deg)}}
 .stage-empty{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);text-align:center;width:max-content;max-width:90%;background:#fff;border:2px solid var(--red);color:var(--deep);border-radius:12px;padding:6px 12px;font-size:clamp(11px,calc(16 * var(--u)),18px)}
-.play-btn{position:absolute;z-index:3;bottom:calc(1 * var(--u));left:50%;transform:translateX(-50%);width:42%;height:29%;filter:drop-shadow(0 2px 2px #19232da0)}
-.play-btn:disabled{opacity:.65}
+.play-btn{position:absolute;z-index:3;bottom:3%;left:50%;transform:translateX(-50%);width:min(44%,calc(275 * var(--u)));height:23%;filter:drop-shadow(0 3px 4px #19232d9c)}
+.play-btn img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.play-btn:disabled{opacity:.72}
+.play-btn:not(:disabled):hover{filter:drop-shadow(0 4px 7px #19232dce);transform:translateX(-50%) scale(1.04)}
 @keyframes bob{50%{transform:translateY(-3%) rotate(1.5deg)}}
 .lineup-panel{grid-column:1/-1;margin:0 calc(9 * var(--u));padding:calc(50 * var(--u)) calc(16 * var(--u)) calc(7 * var(--u));border-color:var(--ice);border-radius:calc(35 * var(--u));background:white;display:grid}
 .section-heading{position:absolute;top:calc(-12 * var(--u));left:50%;transform:translateX(-50%);width:min(53%,calc(568 * var(--u)));height:calc(56 * var(--u));display:flex;align-items:end;justify-content:space-between;gap:6px}

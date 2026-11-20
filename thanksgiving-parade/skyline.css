@@ -1,64 +1,54 @@
-/* Each element is an unchanged PNG from the owner's editable slide deck.
-   Layer positions follow Slide 1. Keep this loaded after studio.css. */
+/* The original layered illustrations are separate from the category rail.
+   Anchor them to the street and cap their size by the available sky height. */
 .topbar .skyline.skyline--layers {
-  position:absolute;
-  inset:0 0 33%;
-  display:block;
-  isolation:isolate;
-  overflow:hidden;
-  pointer-events:none;
-  background:linear-gradient(to bottom,#f0f7fd 0 83%,#75c3ea 83% 100%);
+  position:absolute; inset:0 0 var(--rail);
+  display:block; isolation:isolate; overflow:hidden; pointer-events:none;
+  container-type:size;
+  background:linear-gradient(#e9f6ff 0 72%,#d9effd 72% 82%,#d5e5ee 82%);
 }
 .skyline.skyline--layers .skyline-layer {
   position:absolute;
   left:calc(var(--x) * 1%);
-  top:calc(var(--y) * 1%);
-  width:calc(var(--w) * 1%);
-  height:auto;
-  max-width:none;
-  object-fit:contain;
-  object-position:center;
-  transform:rotate(var(--tilt, 0deg)) scaleX(var(--flip, 1));
+  bottom:calc(var(--ground, 6) * 1%);
+  width:min(calc(var(--w) * 1%),var(--cap,100cqw));
+  height:auto; max-width:none; object-fit:contain;
+  transform:rotate(var(--tilt,0deg)) scaleX(var(--flip,1));
 }
-.skyline.skyline--layers .skyline-buildings-1 {--x:0;--y:8.5;--w:24.87;}
-.skyline.skyline--layers .skyline-buildings-2 {--x:24.87;--y:7.85;--w:25.13;--flip:-1;}
-.skyline.skyline--layers .skyline-buildings-3 {--x:46.09;--y:8.42;--w:27.22;--flip:-1;}
-.skyline.skyline--layers .skyline-buildings-4 {--x:72.78;--y:6.40;--w:27.22;--flip:-1;}
-.skyline.skyline--layers .skyline-left-handlers {--x:15.09;--y:33.5;--w:10.87;}
-.skyline.skyline--layers .skyline-right-handlers {--x:74.11;--y:12.0;--w:8.66;}
-.skyline.skyline--layers .skyline-caterpillar {--x:17.03;--y:3.4;--w:9.05;--lift:-3.5px;--drift:1px;--period:6.2s;--phase:-.9s;}
-.skyline.skyline--layers .skyline-ice-cream {--x:92.52;--y:11.55;--w:5.66;--lift:-3.5px;--drift:-1.6px;--period:6.8s;--phase:-2.7s;}
-.skyline.skyline--layers .skyline-teddy {--x:70.62;--y:3.6;--w:6.94;--tilt:-23.95deg;--lift:-3px;--drift:1.3px;--period:5.8s;--phase:-1.7s;}
-.skyline.skyline--layers .skyline-star {--x:9.30;--y:21.20;--w:4.22;--lift:-2.8px;--drift:-1.2px;--period:7.2s;--phase:-1.4s;}
-.skyline.skyline--layers .skyline-car {--x:85.23;--y:42.7;--w:5.67;}
+.skyline.skyline--layers .skyline-buildings-1,
+.skyline.skyline--layers .skyline-buildings-2,
+.skyline.skyline--layers .skyline-buildings-3,
+.skyline.skyline--layers .skyline-buildings-4{height:69%;width:25.5%;object-fit:cover;object-position:center bottom;bottom:16%}
+.skyline.skyline--layers .skyline-buildings-1 {--x:0}
+.skyline.skyline--layers .skyline-buildings-2 {--x:25;--flip:-1}
+.skyline.skyline--layers .skyline-buildings-3 {--x:50}
+.skyline.skyline--layers .skyline-buildings-4 {--x:75;--flip:-1}
+.skyline.skyline--layers .skyline-left-handlers {--x:15.6;--w:10;--cap:77cqh;--ground:7}
+.skyline.skyline--layers .skyline-right-handlers {--x:74.4;--w:8;--cap:43cqh;--ground:7}
+.skyline.skyline--layers .skyline-caterpillar {--x:16;--w:10.5;--cap:81cqh;--ground:24;--lift:-13cqh;--drift:7px;--period:3.35s;--phase:-.55s}
+.skyline.skyline--layers .skyline-ice-cream {--x:93;--w:6;--cap:53cqh;--ground:19;--lift:-17cqh;--drift:-5px;--period:3.85s;--phase:-2.7s}
+.skyline.skyline--layers .skyline-teddy {--x:72;--w:8;--cap:60cqh;--ground:20;--tilt:-17deg;--lift:-13cqh;--drift:5px;--period:3.55s;--phase:-1.65s}
+.skyline.skyline--layers .skyline-star {--x:8.9;--w:5.4;--cap:47cqh;--ground:19;--lift:-14cqh;--drift:-5px;--period:3.2s;--phase:-1.4s}
+.skyline.skyline--layers .skyline-car {--x:85.8;--w:5.8;--cap:43cqh;--ground:5;transform-origin:50% 86%;animation:skyline-car-rumble .8s ease-in-out infinite}
 .skyline.skyline--layers .skyline-horse-float {
-  --x:1.88;--y:30.89;--w:5.07;--tilt:-7.845deg;
-  transform-origin:50% 88%;
-  animation:skyline-horse-rock 2.8s ease-in-out infinite;
+  --x:1.5;--w:5.2;--cap:42cqh;--ground:6;--tilt:-7.845deg;
+  transform-origin:50% 88%;animation:skyline-horse-rock 2.8s ease-in-out infinite;
 }
-.skyline.skyline--layers .skyline-balloon {
-  animation:skyline-balloon-drift var(--period) var(--phase) ease-in-out infinite;
-}
-.skyline.skyline--layers .skyline-car {
-  transform-origin:50% 86%;
-  animation:skyline-car-rumble .8s ease-in-out infinite;
-}
+.skyline.skyline--layers .skyline-balloon {animation:skyline-balloon-drift var(--period) var(--phase) ease-in-out infinite}
 @keyframes skyline-balloon-drift {
-  0%,100% {transform:translate(0,0) rotate(var(--tilt,0deg));}
-  50% {transform:translate(var(--drift),var(--lift)) rotate(calc(var(--tilt,0deg) + 1deg));}
+  0%,100% {transform:translate(0,0) rotate(var(--tilt,0deg))}
+  50% {transform:translate(var(--drift),var(--lift)) rotate(calc(var(--tilt,0deg) + 4deg))}
 }
 @keyframes skyline-car-rumble {
-  0%,100% {transform:translateY(0) rotate(0deg);}
-  28% {transform:translateY(-.65px) rotate(-.35deg);}
-  57% {transform:translateY(-1.05px) rotate(.45deg);}
-  76% {transform:translateY(-.3px) rotate(-.15deg);}
+  0%,100% {transform:translateY(0) rotate(0deg)}
+  35% {transform:translateY(-2px) rotate(-1.4deg)}
+  67% {transform:translateY(-1px) rotate(1.1deg)}
 }
 @keyframes skyline-horse-rock {
-  0%,100% {transform:translateX(.8px) rotate(calc(var(--tilt) + 6deg));}
-  50% {transform:translateX(-.8px) rotate(calc(var(--tilt) - 6deg));}
+  0%,100% {transform:translateX(1px) rotate(calc(var(--tilt) + 7deg))}
+  50% {transform:translateX(-1px) rotate(calc(var(--tilt) - 7deg))}
 }
 @media (prefers-reduced-motion:reduce) {
   .skyline.skyline--layers .skyline-balloon,
   .skyline.skyline--layers .skyline-car,
-  .skyline.skyline--layers .skyline-horse-float {animation:none;}
+  .skyline.skyline--layers .skyline-horse-float {animation:none}
 }

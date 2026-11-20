@@ -412,12 +412,12 @@ function renderTabs(){
  $('decoratePanel').classList.toggle('hidden',tab!=='decorate');
  const label=$('libraryChoiceLabel');if(label)label.textContent=({balloons:'1 · PICK YOUR BALLOONS',floats:'1 · PICK YOUR FLOATS',bands:'1 · PICK A BAND & YOUR MUSIC',decorate:'1 · PICK YOUR NEW YORK SCENE'})[tab]||'1 · PICK YOUR PARADE STARS';
 }
-function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;window.PARADE_SCENE_ATMOSPHERE.apply($('previewAtmosphere'),s);$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge}
+function renderScene(){const s=scene();if($('stageScene').getAttribute('src')!==s.src)$('stageScene').src=s.src;$('previewWorld').style.setProperty('--scene-ratio',s.movieAspect);window.PARADE_SCENE_ATMOSPHERE.apply($('previewAtmosphere'),s);$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge}
 function renderPreview(){
  const stage=$('stageCharacters');
  stage.replaceChildren();
  $('stageEmpty').classList.toggle('hidden',state.pieces.length>0);
- const street=scene().street;
+ const street=Math.max(7,scene().street);
  const items=state.pieces.slice(0,2);
  items.forEach((id,i)=>{
   const p=getPiece(id);
@@ -433,8 +433,8 @@ function renderPreview(){
   const el=document.createElement('img'),float=p.type==='float';
   el.src=p.src;el.alt=p.name;el.className='stage-preview-piece '+p.type;
   el.style.bottom=(float?street:street+17)+'%';
-  el.style.width=(float?46:42)+'%';el.style.height=(float?72:66)+'%';
-  el.style.left=(center-(float?23:21))+'%';
+  el.style.width=(float?47:48)+'%';el.style.height=(float?66:69)+'%';
+  el.style.left=(center-(float?23.5:24))+'%';
   stage.append(el);
  });
  $('previewCaption').textContent=state.pieces.length?state.pieces.length+' parade stars are ready for the big day!':'Make your lineup, then watch it come to life.';

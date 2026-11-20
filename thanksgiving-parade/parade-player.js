@@ -16,7 +16,8 @@
   const endCard = el('movieCelebration');
   const INTERVAL = 4.8;
   const TRAVEL_TIME = 10.8;
-  const SPEED = .137;
+  const SPEED = .115;
+  const ART_LOAD_LIMIT = 6000;
   const CREW = [
     { path: 'assets/handlers/cranberry.webp', hand: [.055, .146] },
     { path: 'assets/handlers/teal.webp', hand: [.058, .147] },
@@ -27,28 +28,46 @@
   const pictures = new Map();
   const measurement = document.createElement('canvas');
   const measure = measurement.getContext('2d', { willReadFrequently: true });
+  const visualStatus = document.createElement('p');
+  visualStatus.className = 'movie-visual-status';
+  visualStatus.hidden = true;
+  visualStatus.setAttribute('aria-hidden', 'true');
+  view.append(visualStatus);
   let playing = null;
   let frame;
   let muted = false;
   let lastImage = '';
   let lastTrack = '';
-  let bounds = { width: 0, height: 0 };
+  let bounds = { width: 0, height: 0, visibleWidth: 0, visibleLeft: 0 };
 
   function picture(src) {
     if (!pictures.has(src)) {
       const image = new Image();
-      const entry = { image, ready: false };
+      const entry = { image, ready: false, failed: false };
       entry.loaded = new Promise(resolve => { entry.resolve = resolve; });
       pictures.set(src, entry);
-      image.onload = () => {
-        entry.ready = true;
-        measurePicture(entry);
+      let settled = false;
+      function finish(ok) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(deadline);
+        entry.ready = ok;
+        entry.failed = !ok;
+        if (ok) {
+          // A measurement failure must not block an otherwise usable image.
+          entry.crop = [0, 0, image.naturalWidth, image.naturalHeight];
+          entry.tetherY = [.87, .96, .96, .87];
+          try { measurePicture(entry); }
+          catch (error) { console.warn('Parade artwork could not be measured:', error); }
+        }
         entry.resolve();
-        if (playing?.paused) paint();
-      };
-      image.onerror = () => { entry.failed = true; };
-      image.onerror = () => { entry.failed = true; entry.resolve(); };
-      image.src = src;
+        if (ok && playing?.paused) paint();
+      }
+      const deadline = setTimeout(() => finish(false), ART_LOAD_LIMIT);
+      image.onload = () => finish(image.naturalWidth > 0 && image.naturalHeight > 0);
+      image.onerror = () => finish(false);
+      if (src) image.src = src;
+      else finish(false);
     }
     return pictures.get(src);
   }
@@ -105,12 +124,16 @@
 
   function resize() {
     if (!playing) return;
-    const available = view.getBoundingClientRect();
-    const ratio = backdrop.naturalWidth && backdrop.naturalHeight ? backdrop.naturalWidth / backdrop.naturalHeight : 1800 / 763;
-    const width = Math.max(available.width, available.height * ratio);
+    const visibleWidth = view.clientWidth;
+    const visibleHeight = view.clientHeight;
+    if (!visibleWidth || !visibleHeight) return;
+    const currentBackground = new URL(playing.scene.src, document.baseURI).href;
+    const hasBackground = backdrop.currentSrc === currentBackground && backdrop.naturalWidth && backdrop.naturalHeight;
+    const ratio = hasBackground ? backdrop.naturalWidth / backdrop.naturalHeight : playing.scene.movieAspect || 1800 / 763;
+    const width = Math.max(visibleWidth, visibleHeight * ratio);
     const height = width / ratio;
     const scale = Math.min(2, devicePixelRatio || 1);
-    bounds = { width, height };
+    bounds = { width, height, visibleWidth, visibleLeft: (width - visibleWidth) / 2 };
     el('movieWorld').style.width = width + 'px';
     el('movieWorld').style.height = height + 'px';
     canvas.width = Math.max(1, Math.round(width * scale));
@@ -214,6 +237,7 @@
   }
 
   function drawBand(members, center, ground, time) {
+    if (!members.length) return;
     const { width: W, height: H } = bounds;
     const spacing = Math.min(W * .095, H * .23);
     // Draw the far rank first so the front rank naturally overlaps it.
@@ -234,15 +258,18 @@
 
   function paint() {
     if (!playing) return;
-    const { width: W, height: H } = bounds;
+    const { width: W, height: H, visibleWidth, visibleLeft } = bounds;
+    if (!W || !H || !visibleWidth) return;
     context.clearRect(0, 0, W, H);
     const { elapsed, pieces, scene } = playing;
     const handlers = scene.movieHandlers ?? .88, floats = scene.movieFloats ?? .95;
     pieces.forEach((piece, i) => {
       if (piece.type !== 'band' && !piece.art.ready) return;
       const localTime = elapsed - i * INTERVAL;
-      const center = W * (1.16 - SPEED * localTime);
-      if (center < -W * .28 || center > W * 1.25) return;
+      // Travel relative to what the TV actually shows, not the offscreen
+      // portions of a wide background. The first star is visible immediately.
+      const center = visibleLeft + visibleWidth * (.95 - SPEED * localTime);
+      if (center < visibleLeft - W * .28 || center > visibleLeft + visibleWidth + W * .28) return;
       if (piece.type === 'band') drawBand(piece.musicians, center, H * handlers, elapsed);
       else if (piece.type === 'float') drawFloat(piece.art, center, H * floats);
       else drawBalloon(piece.art, center, H * handlers, i, elapsed);
@@ -253,9 +280,14 @@
     el('nowPlaying').textContent = text;
   }
 
+  function showVisualStatus(text = '') {
+    visualStatus.textContent = text;
+    visualStatus.hidden = !text;
+  }
+
   function controls() {
-    pause.disabled = !playing || playing.paused || playing.done;
-    resume.disabled = !playing || !playing.paused || playing.done;
+    pause.disabled = !playing || playing.failed || playing.paused || playing.done;
+    resume.disabled = !playing || playing.failed || !playing.paused || playing.done;
     sound.setAttribute('aria-pressed', String(!muted));
     sound.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
     pause.setAttribute('aria-pressed', String(Boolean(playing?.paused)));
@@ -263,7 +295,7 @@
     sound.querySelector('span').textContent = muted ? 'Sound Off' : 'Sound On';
     fullscreen.querySelector('span').textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
     cinema.classList.toggle('parade-paused', Boolean(playing?.paused));
-    cinema.classList.toggle('parade-ambient-still', !playing || playing.paused || playing.done);
+    cinema.classList.toggle('parade-ambient-still', !playing || playing.paused || playing.done || playing.failed);
   }
 
   // Never silently substitute an older song for one of the four student-selected tracks.
@@ -274,18 +306,19 @@
 
   function playAudio() {
     audio.muted = muted;
+    const session = playing;
     audio.play().catch(error => {
-      if (!playing || muted || playing.done) return;
+      if (!playing || playing !== session || muted || playing.done || playing.failed) return;
       if (error.name === 'NotAllowedError') showMessage('Press Sound Off and Sound On to hear the music.');
       else if (error.name !== 'AbortError') showMessage('Music could not start. Please choose another song.');
     });
   }
 
   function advance(timestamp) {
-    if (!playing || playing.paused || playing.done) return;
+    if (!playing || playing.paused || playing.done || playing.failed || playing.loading) return;
     const delta = playing.last ? Math.max(0, Math.min(.09, (timestamp - playing.last) / 1000)) : 0;
     playing.last = timestamp;
-    if (!playing.loading) playing.elapsed += delta;
+    playing.elapsed += delta;
     const total = INTERVAL * (playing.pieces.length - 1) + TRAVEL_TIME;
     const current = Math.min(playing.pieces.length - 1, Math.floor(playing.elapsed / INTERVAL));
     if (current !== playing.announced) {
@@ -315,24 +348,28 @@
       el('app').inert = true;
     }
     cancelAnimationFrame(frame);
-    playing = { pieces: pieces.map(piece => ({ ...piece, art: picture(piece.src), musicians: piece.members?.map(picture) })), scene, track, elapsed: 0, last: 0, announced: -1, done: false, paused: false, loading: true };
-    const sessionImages = playing;
-    const required = playing.pieces.flatMap(piece => piece.type === 'band' ? piece.musicians : [piece.art]);
-    required.push(...CREW.map(person => picture(person.path)));
-    Promise.all(required.map(entry => entry.loaded)).then(() => {
-      if (playing !== sessionImages) return;
-      playing.loading = false; playing.last = 0;
-      if (required.some(entry => entry.failed)) showMessage('Some parade pictures could not load. Return Home and try again.');
-      paint();
-    });
-    CREW.forEach(person => picture(person.path));
+    for (const [src, entry] of pictures) if (entry.failed) pictures.delete(src);
+    const original = pieces.map(({ art, musicians, ...piece }) => piece);
+    playing = {
+      original, scene, track, elapsed: 0, last: 0, announced: -1,
+      done: false, paused: false, loading: true, failed: false,
+      pieces: original.map(piece => ({
+        ...piece,
+        art: piece.type === 'band' ? null : picture(piece.src),
+        musicians: (piece.members || []).map(picture)
+      }))
+    };
+    const session = playing;
+    const required = new Set(session.pieces.flatMap(piece => piece.type === 'band' ? piece.musicians : [piece.art]));
+    if (session.pieces.some(piece => piece.type === 'balloon')) CREW.forEach(person => picture(person.path));
+    showVisualStatus([...required].every(entry => entry.ready) ? '' : 'Getting your parade ready…');
+    if (visualStatus.textContent) showMessage(visualStatus.textContent);
     if (lastImage !== scene.src) {
       lastImage = scene.src;
       backdrop.src = scene.src;
     }
     backdrop.alt = scene.name + ' parade route';
-    window.PARADE_SCENE_ATMOSPHERE.apply(el('movieAtmosphere'), scene);
-    backdrop.onload = resize;
+    window.PARADE_SCENE_ATMOSPHERE?.apply(el('movieAtmosphere'), scene);
     el('movieLocation').textContent = scene.name;
     endCard.classList.add('hidden');
     el('endSaveStatus').textContent = '';
@@ -340,7 +377,6 @@
     // Begin immediately on the user’s PLAY click, then transition once to the
     // complete original recording assembled from the existing MP3 parts.
     // This prevents the old short classroom OGG from repeating every ~30 seconds.
-    const session = playing;
     const loader = window.PARADE_FULL_MUSIC;
     const available = loader?.peek(track.src);
     const initialSource = available || track.src;
@@ -353,7 +389,7 @@
     playAudio();
     if (!available && loader) {
       loader.load(track.src).then(fullSource => {
-        if (playing !== session || playing.done) return;
+        if (playing !== session || playing.done || playing.failed) return;
         const offset = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
         lastTrack = fullSource;
         audio.src = fullSource;
@@ -372,7 +408,32 @@
     controls();
     resize();
     el('closeMovieBtn').focus({ preventScroll: true });
-    frame = requestAnimationFrame(advance);
+    Promise.all([...required].map(entry => entry.loaded)).then(() => {
+      if (playing !== session) return;
+      playing.loading = false;
+      playing.pieces = playing.pieces.filter(piece =>
+        piece.type === 'band' ? piece.musicians.some(entry => entry.ready) : piece.art.ready);
+      if (!playing.pieces.length) {
+        playing.failed = true;
+        audio.pause();
+        controls();
+        showVisualStatus('The parade pictures couldn’t load. Try Replay or go Home.');
+        showMessage(visualStatus.textContent);
+        return;
+      }
+      if (required.size && [...required].some(entry => entry.failed)) {
+        const warning = 'Some pictures couldn’t load. Playing the rest of your parade.';
+        showVisualStatus(warning);
+        showMessage(warning);
+        setTimeout(() => {
+          if (playing === session && visualStatus.textContent === warning) showVisualStatus();
+        }, 3000);
+      } else {
+        showVisualStatus();
+      }
+      paint();
+      if (!playing.paused) frame = requestAnimationFrame(advance);
+    });
   }
 
   function close() {
@@ -380,6 +441,7 @@
     playing = null;
     cancelAnimationFrame(frame);
     audio.pause();
+    showVisualStatus();
     cinema.classList.add('hidden');
     document.body.classList.remove('parade-playing');
     el('app').inert = false;
@@ -388,28 +450,29 @@
   }
 
   pause.onclick = () => {
-    if (!playing || playing.paused || playing.done) return;
+    if (!playing || playing.failed || playing.paused || playing.done) return;
     playing.paused = true;
     cancelAnimationFrame(frame);
     audio.pause();
     controls();
-    resume.focus();
+    resume.focus({ preventScroll: true });
     showMessage('Parade paused.');
   };
   resume.onclick = () => {
-    if (!playing?.paused || playing.done) return;
+    if (!playing?.paused || playing.failed || playing.done) return;
     playing.paused = false;
     playing.last = 0;
     playAudio();
     controls();
-    pause.focus();
-    showMessage(playing.pieces[playing.announced]?.name + ' is on parade!');
+    pause.focus({ preventScroll: true });
+    if (!playing.loading && playing.pieces[playing.announced])
+      showMessage(playing.pieces[playing.announced].name + ' is on parade!');
     frame = requestAnimationFrame(advance);
   };
   sound.onclick = () => {
     muted = !muted;
     audio.muted = muted;
-    if (!muted && playing && !playing.paused && !playing.done && audio.paused) playAudio();
+    if (!muted && playing && !playing.failed && !playing.paused && !playing.done && audio.paused) playAudio();
     controls();
   };
   fullscreen.onclick = async () => {
@@ -422,13 +485,14 @@
     }
   };
   el('replayBtn').onclick = () => {
-    if (playing) start(playing.pieces, playing.scene, playing.track);
+    if (playing) start(playing.original, playing.scene, playing.track);
   };
   el('closeMovieBtn').onclick = close;
   document.addEventListener('fullscreenchange', controls);
   window.addEventListener('keydown', event => {
     if (event.key === 'Escape' && playing && !document.fullscreenElement) close();
   });
+  backdrop.addEventListener('load', resize);
   new ResizeObserver(resize).observe(view);
   window.PARADE_PLAYER = { start, close, get active() { return Boolean(playing); }, get finished() { return Boolean(playing?.done); } };
 })();

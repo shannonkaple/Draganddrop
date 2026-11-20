@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'), fs=require('node:fs'), http=require(
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..'), output=path.resolve(process.env.PARADE_TEST_ARTIFACTS||path.join(os.tmpdir(),'parade-qa'));
 const types={html:'text/html',js:'application/javascript',css:'text/css',png:'image/png',jpg:'image/jpeg',webp:'image/webp',svg:'image/svg+xml',ogg:'audio/ogg',mp3:'audio/mpeg',woff2:'font/woff2'};
-const dimensions=[[1280,720],[1366,768],[1024,600]];
+const dimensions=[[1280,720],[1366,768],[1024,600],[803,797]];
 const panels={balloons:'#balloonShelves',floats:'#floatShelf',bands:'#bandShelf',decorate:'#decoratePanel'};
 const rows=new Map(),calls=[];
 let failRead=false,failWrite=false,version=0,url,origin,server;
@@ -198,6 +198,35 @@ async function visual(browser,w,h){
   });
   assert.deepEqual(tabSizes,Array.from({length:8},()=>[672,200]),'Every tab JPEG shares one canvas');
   assert.equal(await l(p,'#stageHeading img[src$="heading-preview.jpg"]').count(),1);
+  await check(async()=>{
+    const result=await p.evaluate(()=>{
+      const q=s=>document.querySelector(s), all=s=>[...document.querySelectorAll(s)];
+      const animates=(e,name)=>{
+        const a=e.getAnimations().find(a=>a.animationName===name);
+        if(!a)return false;
+        const previous=a.currentTime;
+        a.pause();a.currentTime=0;
+        const initial=getComputedStyle(e).transform;
+        a.currentTime=a.effect.getTiming().duration*.52;
+        const end=getComputedStyle(e).transform;
+        a.currentTime=previous;a.play();
+        return initial!==end;
+      };
+      const groups=all('#previewAtmosphere .parade-spectator-group');
+      return {
+        groups:groups.length, movement:groups.every(e=>animates(e,'parade-crowd-cheer')),
+        balloons:all('.skyline-balloon').every(e=>animates(e,'skyline-balloon-drift')),
+        confetti:all('#previewAtmosphere .parade-confetti-path').some(e=>animates(e,'parade-confetti-fall')),
+        noClown:!q('#previewAtmosphere [class*=clown],#previewAtmosphere [src*=clown]'),
+        masks:all('.step img').every(e=>getComputedStyle(e).clipPath.startsWith('polygon')),
+        borders:[parseFloat(getComputedStyle(q('.step-list')).borderTopWidth),parseFloat(getComputedStyle(q('.topbar')).borderBottomWidth)],
+        watchArtContained:q('#playBtn img').getBoundingClientRect().bottom<=q('#stage').getBoundingClientRect().bottom+1
+      };
+    });
+    assert.ok(result.groups>=12 && result.movement && result.balloons && result.confetti && result.noClown,JSON.stringify(result));
+    assert.ok(result.masks && result.borders.every(w=>w>=3) && result.watchArtContained,JSON.stringify(result));
+  });
+
   await check(async()=>{
     const horse=l(p,'.skyline-horse-float');
     const rocked=await horse.evaluate(h=>{
