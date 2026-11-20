@@ -198,6 +198,24 @@ async function visual(browser,w,h){
   });
   assert.deepEqual(tabSizes,Array.from({length:8},()=>[672,200]),'Every tab JPEG shares one canvas');
   assert.equal(await l(p,'#stageHeading img[src$="heading-preview.jpg"]').count(),1);
+  await check(async()=>{
+    const horse=l(p,'.skyline-horse-float');
+    const rocked=await horse.evaluate(h=>{
+      const motion=h.getAnimations().find(a=>a.animationName==='skyline-horse-rock');
+      if(!motion)return false;
+      motion.pause();
+      motion.currentTime=0;
+      const start=getComputedStyle(h).transform;
+      motion.currentTime=motion.effect.getComputedTiming().duration/2;
+      const end=getComputedStyle(h).transform;
+      motion.play();
+      return start!==end;
+    });
+    assert.ok(rocked,'Original horse rocks');
+    await p.emulateMedia({reducedMotion:'reduce'});
+    await p.waitForFunction(()=>getComputedStyle(document.querySelector('.skyline-horse-float')).animationName==='none');
+    await p.emulateMedia({reducedMotion:'no-preference'});
+  });
 
   let focus=false;
   for(let i=0;i<3&&!focus;i++){

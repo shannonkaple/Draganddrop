@@ -23,7 +23,7 @@ picture,img{display:block;max-width:100%}
 .step:nth-child(3){grid-column:4}
 .step img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain}
 .step.selected img{content:var(--active-tab)}
-.step[data-tab="balloons"]{--active-tab:url('assets/ui/individual-jpeg/tab-balloons-active.jpg')}
+.step[data-tab="balloons"]{--active-tab:url('assets/ui/individual-jpeg/tab-balloons-active.jpg?v=2')}
 .step[data-tab="floats"]{--active-tab:url('assets/ui/individual-jpeg/tab-floats-active.jpg')}
 .step[data-tab="bands"]{--active-tab:url('assets/ui/individual-jpeg/tab-bands-active.jpg')}
 .step[data-tab="decorate"]{--active-tab:url('assets/ui/individual-jpeg/tab-scenes-active.jpg')}
@@ -51,7 +51,7 @@ picture,img{display:block;max-width:100%}
 .panel-title{display:grid;place-items:center;min-height:calc(64 * var(--u));padding:0 calc(6 * var(--u));border:calc(5 * var(--u)) solid white;border-radius:calc(13 * var(--u));background:#d21331;color:white;text-transform:uppercase;text-align:center;white-space:nowrap;}
 .section-heading .panel-title{min-height:calc(56 * var(--u));background:#a7e8f6}
 .panel-title img{width:100%;height:calc(52 * var(--u));object-fit:fill}
-.section-heading .panel-title img{height:calc(44 * var(--u))}
+.section-heading .panel-title img{height:calc(44 * var(--u));object-fit:contain}
 .native-control svg{width:100%;height:100%;display:block}
 .stage,.stage-scene,.stage-characters{position:absolute;inset:0;overflow:hidden}
 .stage{inset:calc(5 * var(--u));background:#c9eef8;border-radius:calc(30 * var(--u))}

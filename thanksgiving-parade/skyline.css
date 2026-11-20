@@ -31,7 +31,11 @@
 .skyline.skyline--layers .skyline-teddy {--x:70.62;--y:3.6;--w:6.94;--tilt:-23.95deg;--lift:-3px;--drift:1.3px;--period:5.8s;--phase:-1.7s;}
 .skyline.skyline--layers .skyline-star {--x:9.30;--y:21.20;--w:4.22;--lift:-2.8px;--drift:-1.2px;--period:7.2s;--phase:-1.4s;}
 .skyline.skyline--layers .skyline-car {--x:85.23;--y:42.7;--w:5.67;}
-.skyline.skyline--layers .skyline-horse-float {--x:1.88;--y:30.89;--w:5.07;--tilt:-7.845deg;}
+.skyline.skyline--layers .skyline-horse-float {
+  --x:1.88;--y:30.89;--w:5.07;--tilt:-7.845deg;
+  transform-origin:50% 88%;
+  animation:skyline-horse-rock 2.8s ease-in-out infinite;
+}
 .skyline.skyline--layers .skyline-balloon {
   animation:skyline-balloon-drift var(--period) var(--phase) ease-in-out infinite;
 }
@@ -49,7 +53,12 @@
   57% {transform:translateY(-1.05px) rotate(.45deg);}
   76% {transform:translateY(-.3px) rotate(-.15deg);}
 }
+@keyframes skyline-horse-rock {
+  0%,100% {transform:translateX(.8px) rotate(calc(var(--tilt) + 6deg));}
+  50% {transform:translateX(-.8px) rotate(calc(var(--tilt) - 6deg));}
+}
 @media (prefers-reduced-motion:reduce) {
   .skyline.skyline--layers .skyline-balloon,
-  .skyline.skyline--layers .skyline-car {animation:none;}
+  .skyline.skyline--layers .skyline-car,
+  .skyline.skyline--layers .skyline-horse-float {animation:none;}
 }
