@@ -6,10 +6,10 @@
 <meta name="description" content="A colorful Thanksgiving parade creation game for elementary classrooms.">
 <title>Ms. Kaple’s Thanksgiving Day Parade Maker</title>
 <link rel="icon" href="assets/ui/kaple-2026-raster/brand-20261117/parade-logo.png" type="image/png">
-<link rel="stylesheet" href="studio.css?v=20261120-street-repair">
-<link rel="stylesheet" href="skyline.css?v=20261120-street-repair">
-<link rel="stylesheet" href="cinema.css?v=20261120-street-repair">
-<link rel="stylesheet" href="scene-atmosphere.css?v=20261120-street-repair">
+<link rel="stylesheet" href="studio.css?v=20261120-parade-motion">
+<link rel="stylesheet" href="skyline.css?v=20261120-parade-motion">
+<link rel="stylesheet" href="cinema.css?v=20261120-parade-motion">
+<link rel="stylesheet" href="scene-atmosphere.css?v=20261120-parade-motion">
 </head>
 <body class="parade-studio">
 <div id="app" class="app" inert>
@@ -44,6 +44,7 @@
         <button type="button" id="saveBtn">Save Parade</button>
         <button type="button" id="savedParadesBtn">Saved Parades</button>
         <button type="button" id="builderNewParadeBtn">New Parade</button>
+        <button type="button" id="motionBtn" aria-pressed="true">Parade motion: On</button>
         <button type="button" id="helpBtn">Help</button>
         <button type="button" id="changeStudentBtn">Change Student</button>
        </div>
@@ -62,7 +63,7 @@
       <div id="previewWorld" class="preview-world" aria-hidden="true"><img id="stageScene" class="stage-scene" alt=""><div id="previewAtmosphere" class="parade-atmosphere"></div></div><div id="stageCharacters" class="stage-characters"></div>
       <div class="sr-only" id="sceneChip"></div><div class="sr-only" id="stageSign"></div>
       <div id="stageEmpty" class="stage-empty"><b>Choose a balloon, float, or band.</b></div>
-      <button type="button" id="playBtn" class="play-btn picture-button" aria-label="Watch my parade"><img src="assets/ui/slide-reference/watch.png" alt=""></button>
+      <button type="button" id="playBtn" class="play-btn picture-button" aria-label="Watch my parade"><img src="assets/ui/kaple-2026-raster/circus-serif-watch-my-parade-v2.png" alt=""></button>
     </div>
     <span class="sr-only" id="previewCaption"></span>
    </section>
@@ -180,7 +181,7 @@
 <dialog class="help-card" id="helpModal" aria-labelledby="helpTitle"><button type="button" class="modal-close" id="helpClose" aria-label="Close help">×</button><div class="eyebrow">HOW TO PLAY</div><h2 id="helpTitle">You're the parade director!</h2><ol><li><b>Choose</b> your favorite balloons and floats to make a giant Thanksgiving parade.</li><li><b>Arrange</b> your parade. Use the arrows to pick who goes first, second, and last.</li><li><b>Decorate</b> with a New York scene and music.</li><li><b>Save</b> with your classroom code and student number, then press <b>WATCH MY PARADE</b>.</li></ol><p>Press Escape or use the back button to leave the parade movie.</p><button type="button" class="start-btn" id="helpGotIt">I'M READY!</button></dialog>
 <div class="cinema hidden" id="cinema" role="dialog" aria-modal="true" aria-label="Watch my parade">
  <div class="cinema-reference-stage">
-  <img class="cinema-title-art" src="assets/ui/slide-reference/watch.png" alt="Watch my parade">
+  <img class="cinema-title-art" src="assets/ui/kaple-2026-raster/circus-serif-watch-my-parade-v2.png" alt="Watch my parade">
   <div class="cinema-utilities">
    <button type="button" id="fullscreenBtn" aria-label="Full screen"><img src="assets/ui/individual-jpeg/utility-full-screen.png" alt=""><span class="cinema-sr">Full Screen</span></button>
    <button type="button" id="closeMovieBtn" aria-label="Back to parade builder"><img src="assets/ui/individual-jpeg/utility-home.png" alt=""><span class="cinema-sr">Back to Studio</span></button>
@@ -215,13 +216,13 @@
 <script src="bundles/menu-art-2026.js" defer></script>
 <script src="parade-saves.js?v=20261119-slides-1" defer></script>
 <script src="balloon-images.js?v=20261116-studio" defer></script>
-<script src="scene-atmosphere.js?v=20261120-street-repair" defer></script>
-<script src="app.js?v=20261120-street-repair" defer></script>
+<script src="scene-atmosphere.js?v=20261120-parade-motion" defer></script>
+<script src="app.js?v=20261120-parade-motion" defer></script>
 <script src="workshop-legacy.js?v=20261116-studio" defer></script>
 <script src="workshop-catalog.js?v=20261116-studio" defer></script>
 <script src="builder.js?v=20261116-ready-made" defer></script>
 <script src="full-music.js?v=20261116-full-recordings1" defer></script>
 <script src="music-preview.js?v=20261116-full-recordings2" defer></script>
-<script src="parade-player.js?v=20261120-street-repair" defer></script>
+<script src="parade-player.js?v=20261120-parade-motion" defer></script>
 </body>
 </html>

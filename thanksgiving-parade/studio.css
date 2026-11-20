@@ -192,4 +192,5 @@ dialog h2{color:var(--deep);margin-bottom:7px}
  .section-heading .panel-title{max-width:60%}.stage-empty{top:42%}
  .skyline img{width:32%}.kaple-brand{left:29%;right:29%}.studio-tools summary{font-size:8px}.top-actions{width:96%;gap:3px}
 }
-@media(prefers-reduced-motion:reduce){.stage-preview-piece,.stage-band img{animation:none}}
+html[data-parade-motion="off"] :is(.stage-preview-piece,.stage-band img){animation:none}
+@media(prefers-reduced-motion:reduce){html:not([data-parade-motion="on"]) :is(.stage-preview-piece,.stage-band img){animation:none}}

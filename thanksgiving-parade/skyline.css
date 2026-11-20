@@ -24,10 +24,10 @@
 .skyline.skyline--layers .skyline-buildings-4 {--x:75;--flip:-1}
 .skyline.skyline--layers .skyline-left-handlers {--x:15.6;--w:10;--cap:77cqh;--ground:7}
 .skyline.skyline--layers .skyline-right-handlers {--x:74.4;--w:8;--cap:43cqh;--ground:7}
-.skyline.skyline--layers .skyline-caterpillar {--x:16;--w:10.5;--cap:81cqh;--ground:24;--lift:-13cqh;--drift:7px;--period:3.35s;--phase:-.55s}
-.skyline.skyline--layers .skyline-ice-cream {--x:93;--w:6;--cap:53cqh;--ground:19;--lift:-17cqh;--drift:-5px;--period:3.85s;--phase:-2.7s}
-.skyline.skyline--layers .skyline-teddy {--x:72;--w:8;--cap:60cqh;--ground:20;--tilt:-17deg;--lift:-13cqh;--drift:5px;--period:3.55s;--phase:-1.65s}
-.skyline.skyline--layers .skyline-star {--x:8.9;--w:5.4;--cap:47cqh;--ground:19;--lift:-14cqh;--drift:-5px;--period:3.2s;--phase:-1.4s}
+.skyline.skyline--layers .skyline-caterpillar {--x:16;--w:10.5;--cap:77cqh;--ground:20;--lift:-23%;--drift:12%;--period:2.7s;--phase:-.55s}
+.skyline.skyline--layers .skyline-ice-cream {--x:93;--w:6;--cap:53cqh;--ground:19;--lift:-32%;--drift:-14%;--period:3.15s;--phase:-2.7s}
+.skyline.skyline--layers .skyline-teddy {--x:72;--w:8;--cap:60cqh;--ground:20;--tilt:-17deg;--lift:-29%;--drift:12%;--period:2.9s;--phase:-1.65s}
+.skyline.skyline--layers .skyline-star {--x:8.9;--w:5.4;--cap:47cqh;--ground:19;--lift:-34%;--drift:-13%;--period:2.5s;--phase:-1.4s}
 .skyline.skyline--layers .skyline-car {--x:85.8;--w:5.8;--cap:43cqh;--ground:5;transform-origin:50% 86%;animation:skyline-car-rumble .8s ease-in-out infinite}
 .skyline.skyline--layers .skyline-horse-float {
   --x:1.5;--w:5.2;--cap:42cqh;--ground:6;--tilt:-7.845deg;
@@ -36,7 +36,7 @@
 .skyline.skyline--layers .skyline-balloon {animation:skyline-balloon-drift var(--period) var(--phase) ease-in-out infinite}
 @keyframes skyline-balloon-drift {
   0%,100% {transform:translate(0,0) rotate(var(--tilt,0deg))}
-  50% {transform:translate(var(--drift),var(--lift)) rotate(calc(var(--tilt,0deg) + 4deg))}
+  50% {transform:translate(var(--drift),var(--lift)) rotate(calc(var(--tilt,0deg) + 8deg))}
 }
 @keyframes skyline-car-rumble {
   0%,100% {transform:translateY(0) rotate(0deg)}
@@ -47,8 +47,7 @@
   0%,100% {transform:translateX(1px) rotate(calc(var(--tilt) + 7deg))}
   50% {transform:translateX(-1px) rotate(calc(var(--tilt) - 7deg))}
 }
-@media (prefers-reduced-motion:reduce) {
-  .skyline.skyline--layers .skyline-balloon,
-  .skyline.skyline--layers .skyline-car,
-  .skyline.skyline--layers .skyline-horse-float {animation:none}
+html[data-parade-motion="off"] .skyline.skyline--layers :is(.skyline-balloon,.skyline-car,.skyline-horse-float) {animation:none}
+@media(prefers-reduced-motion:reduce) {
+  html:not([data-parade-motion="on"]) .skyline.skyline--layers :is(.skyline-balloon,.skyline-car,.skyline-horse-float) {animation:none}
 }

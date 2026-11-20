@@ -130,10 +130,12 @@
     const currentBackground = new URL(playing.scene.src, document.baseURI).href;
     const hasBackground = backdrop.currentSrc === currentBackground && backdrop.naturalWidth && backdrop.naturalHeight;
     const ratio = hasBackground ? backdrop.naturalWidth / backdrop.naturalHeight : playing.scene.movieAspect || 1800 / 763;
-    const width = Math.max(visibleWidth, visibleHeight * ratio);
+    // Fit the entire illustrated scene into the TV instead of zooming past
+    // its edges. The street, its spectators, and sprites share this size.
+    const width = Math.min(visibleWidth, visibleHeight * ratio);
     const height = width / ratio;
     const scale = Math.min(2, devicePixelRatio || 1);
-    bounds = { width, height, visibleWidth, visibleLeft: (width - visibleWidth) / 2 };
+    bounds = { width, height, visibleWidth: width, visibleLeft: 0 };
     el('movieWorld').style.width = width + 'px';
     el('movieWorld').style.height = height + 'px';
     canvas.width = Math.max(1, Math.round(width * scale));
@@ -158,7 +160,7 @@
   function drawFloat(entry, center, ground) {
     const { width: W, height: H } = bounds;
     const aspect = entry.crop[2] / entry.crop[3];
-    const width = Math.min(.515 * W, H * .54 * aspect);
+    const width = Math.min(.553 * W, H * .58 * aspect);
     const height = width / aspect;
     if (center + width / 2 < 0 || center - width / 2 > W) return;
     groundShadow(center, ground, width * .38, H * .012);

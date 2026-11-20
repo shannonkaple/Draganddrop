@@ -1,14 +1,18 @@
-/* Cinema geometry follows the original 1280 × 720 reference. */
+/* Cinema geometry follows the original 1280 × 720 illustrated TV. */
+#playBtn{bottom:4%;width:min(56%,max(145px,calc(278 * var(--u))));height:auto;aspect-ratio:2048/690}
+#playBtn:focus-visible{outline-offset:1px;border-radius:12px}
 #cinema{position:fixed;inset:0;z-index:1000;width:100%;height:100dvh;max-width:none;max-height:none;display:grid;place-items:center;padding:0;margin:0;overflow:hidden;background:#d71028 url('assets/ui/slide-reference/stripes.png') repeat;color:#8f1022}
-#cinema .cinema-reference-stage{position:relative;width:min(100vw,177.777778dvh);height:min(56.25vw,100dvh);flex:none;isolation:isolate}
+#cinema .cinema-reference-stage{position:relative;width:min(97vw,172.444444dvh);height:auto;aspect-ratio:16/9;flex:none;isolation:isolate}
 #cinema .cinema-tv-shell{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:3}
 #cinema .cinema-title-art{position:absolute;left:1.8%;top:.55%;width:22.2%;height:13.9%;object-fit:contain;z-index:4}
-#cinema .cinema-utilities{position:absolute;left:69.9%;top:2.1%;width:29.1%;height:10.5%;display:flex;align-items:center;justify-content:space-around;gap:7%;padding:1.1% 2%;border:5px solid white;border-radius:12px;background:#a7e9f5;z-index:4}
+#cinema .cinema-utilities{position:absolute;left:69.9%;top:2.1%;width:29.1%;height:10.5%;display:flex;align-items:center;justify-content:space-around;gap:7%;padding:1.1% 2%;border:clamp(2px,.39vw,5px) solid white;border-radius:12px;background:#a7e9f5;z-index:4}
 #cinema button{min-width:0;min-height:0;border:0;padding:0;margin:0;box-shadow:none;border-radius:0;background:transparent;display:block;cursor:pointer;color:inherit}
 #cinema button img{display:block;width:100%;height:100%;object-fit:contain}
 #cinema .cinema-utilities button{width:46%;height:100%}
-#cinema .movie-scene{position:absolute;left:5.8%;top:21.2%;width:77%;height:64.2%;border:0;border-radius:12% / 22%;padding:0;margin:0;overflow:hidden;background:#777a80;z-index:1;box-shadow:none}
-#cinema .movie-world{position:absolute;left:50%;bottom:0;transform:translateX(-50%);max-width:none;max-height:none;overflow:hidden;background:#b8e2f4}
+/* Extend a few pixels under the glass's measured alpha aperture. The raster
+   frame provides the curved mask, so a second CSS curve cannot expose gaps. */
+#cinema .movie-scene{position:absolute;left:5.625%;top:20.833333%;width:77.265625%;height:65.277778%;border:0;padding:0;margin:0;overflow:hidden;background:#303b4b;z-index:1;box-shadow:none}
+#cinema .movie-world{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:none;max-height:none;overflow:hidden;background:#b8e2f4}
 #cinema .movie-background{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block;filter:none}
 #cinema #movieStage{position:absolute;inset:0;width:100%;height:100%;display:block}
 #cinema .cinema-transport{position:absolute;left:34.2%;top:86%;width:27.5%;height:10.56%;display:grid;grid-template-columns:repeat(4,1fr);gap:1%;z-index:5}
@@ -24,3 +28,16 @@
 #cinema #endSaveStatus{margin:0;font-size:clamp(12px,1.1vw,17px)}
 #cinema .cinema-sr{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 body.parade-playing{overflow:hidden}
+@media(max-width:700px) and (orientation:portrait) {
+ #cinema .cinema-title-art{top:auto;bottom:104%;width:44%;height:auto}
+ #cinema .cinema-utilities{top:auto;bottom:106%;right:1.8%;left:auto;width:46%;height:max(42px,18%);padding:2px 7px;gap:6px}
+ #cinema .cinema-utilities button{width:50%;height:100%}
+ #cinema .cinema-transport{top:calc(91.28% - 22px);height:44px}
+ #cinema .cinema-transport button{display:grid;place-items:center}
+ #cinema .cinema-transport button img{width:100%;height:auto;max-height:100%}
+ #cinema .movie-celebration{inset:12% 6%;gap:4px;padding:3px;border-radius:12px}
+ #cinema .movie-celebration h2{font-size:clamp(12px,4vw,18px)}
+ #cinema .end-parade-actions{gap:4px}
+ #cinema .end-parade-actions button{padding:5px 7px;font-size:clamp(10px,3vw,14px)}
+ #cinema #endSaveStatus{font-size:11px}
+}

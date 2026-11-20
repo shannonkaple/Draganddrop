@@ -13,6 +13,7 @@
   left:var(--x);top:var(--y);width:var(--w);
   aspect-ratio:213.3333 / 223;
   overflow:hidden;transform-origin:50% 100%;
+  transform:translateY(-100%);
   animation:parade-crowd-cheer var(--pace) var(--phase) ease-in-out infinite;
 }
 .parade-spectator-group img {
@@ -21,9 +22,9 @@
   width:600%;max-width:none;height:auto;
 }
 @keyframes parade-crowd-cheer {
-  0%,100% {transform:translateY(-100%) rotate(0)}
-  40% {transform:translateY(-108%) rotate(var(--tilt))}
-  70% {transform:translateY(-102%) rotate(calc(var(--tilt) * -.4))}
+  0%,100% {transform:translate(0,-100%) rotate(0)}
+  38% {transform:translate(3%,-126%) rotate(var(--tilt))}
+  65% {transform:translate(-2%,-108%) rotate(calc(var(--tilt) * -.55))}
 }
 .parade-ambient-confetti {position:absolute;inset:0 0 auto;height:76%;overflow:hidden}
 .parade-confetti-path {position:absolute;left:var(--x);top:0;height:100%;animation:parade-confetti-fall var(--pace) var(--phase) linear infinite}
@@ -44,9 +45,11 @@
 }
 #cinema.parade-ambient-still #movieAtmosphere *,
 .parade-playing #previewAtmosphere * {animation-play-state:paused}
+html[data-parade-motion="off"] :is(.parade-spectator-group,.parade-confetti-path,.parade-confetti-path>i) {animation:none}
+html[data-parade-motion="off"] .parade-confetti-path {top:var(--land)}
+html[data-parade-motion="off"] .parade-confetti-path>i {transform:rotate(29deg)}
 @media(prefers-reduced-motion:reduce) {
-  .parade-spectator-group,.parade-confetti-path,.parade-confetti-path>i {animation:none}
-  .parade-spectator-group {transform:translateY(-100%)}
-  .parade-confetti-path {top:var(--land)}
-  .parade-confetti-path>i {transform:rotate(29deg)}
+  html:not([data-parade-motion="on"]) :is(.parade-spectator-group,.parade-confetti-path,.parade-confetti-path>i) {animation:none}
+  html:not([data-parade-motion="on"]) .parade-confetti-path {top:var(--land)}
+  html:not([data-parade-motion="on"]) .parade-confetti-path>i {transform:rotate(29deg)}
 }

@@ -386,7 +386,31 @@ function renderGallery(){
  }
 }
 function renderTabs(){
- document.querySelectorAll('.step').forEach(button=>{
+ // A device preference, not a student's save. Respect the OS by default, but
+// let teachers explicitly turn on or pause decorative animation in this app.
+const motionButton=$('motionBtn');
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+const motionKey='parade-decorative-motion';
+let motionChoice=null;
+try {
+ const stored=localStorage.getItem(motionKey);
+ if(stored==='on'||stored==='off')motionChoice=stored;
+} catch {}
+function updateDecorativeMotion(){
+ const mode=motionChoice||(reducedMotion.matches?'off':'on');
+ document.documentElement.dataset.paradeMotion=mode;
+ motionButton.setAttribute('aria-pressed',String(mode==='on'));
+ motionButton.textContent='Parade motion: '+(mode==='on'?'On':'Off');
+}
+motionButton.addEventListener('click',()=>{
+ motionChoice=document.documentElement.dataset.paradeMotion==='on'?'off':'on';
+ try{localStorage.setItem(motionKey,motionChoice)}catch{}
+ updateDecorativeMotion();
+});
+reducedMotion.addEventListener?.('change',updateDecorativeMotion);
+if(!reducedMotion.addEventListener)reducedMotion.addListener?.(updateDecorativeMotion);
+updateDecorativeMotion();
+document.querySelectorAll('.step').forEach(button=>{
   const active=button.dataset.tab===tab;
   button.classList.toggle('selected',active);
   button.setAttribute('aria-pressed',String(active));
@@ -433,8 +457,8 @@ function renderPreview(){
   const el=document.createElement('img'),float=p.type==='float';
   el.src=p.src;el.alt=p.name;el.className='stage-preview-piece '+p.type;
   el.style.bottom=(float?street:street+17)+'%';
-  el.style.width=(float?47:48)+'%';el.style.height=(float?66:69)+'%';
-  el.style.left=(center-(float?23.5:24))+'%';
+  el.style.width=(float?50:48)+'%';el.style.height=(float?72:69)+'%';
+  el.style.left=(center-(float?25:24))+'%';
   stage.append(el);
  });
  $('previewCaption').textContent=state.pieces.length?state.pieces.length+' parade stars are ready for the big day!':'Make your lineup, then watch it come to life.';
