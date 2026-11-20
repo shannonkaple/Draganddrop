@@ -1,0 +1,24 @@
+/* Cinema geometry follows the original 1280 × 720 reference. */
+#cinema{position:fixed;inset:0;z-index:1000;width:100%;height:100dvh;max-width:none;max-height:none;display:grid;place-items:center;padding:0;margin:0;overflow:hidden;background:#d71028 url('assets/ui/slide-reference/stripes.png') repeat;color:#8f1022}
+#cinema .cinema-reference-stage{position:relative;width:min(100vw,177.777778dvh);height:min(56.25vw,100dvh);flex:none;isolation:isolate}
+#cinema .cinema-tv-shell{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:3}
+#cinema .cinema-title-art{position:absolute;left:1.8%;top:.55%;width:22.2%;height:13.9%;object-fit:contain;z-index:4}
+#cinema .cinema-utilities{position:absolute;left:69.9%;top:2.1%;width:29.1%;height:10.5%;display:flex;align-items:center;justify-content:space-around;gap:7%;padding:1.1% 2%;border:5px solid white;border-radius:12px;background:#a7e9f5;z-index:4}
+#cinema button{min-width:0;min-height:0;border:0;padding:0;margin:0;box-shadow:none;border-radius:0;background:transparent;display:block;cursor:pointer;color:inherit}
+#cinema button img{display:block;width:100%;height:100%;object-fit:contain}
+#cinema .cinema-utilities button{width:46%;height:100%}
+#cinema .movie-scene{position:absolute;left:5.8%;top:21.2%;width:77%;height:64.2%;border:0;border-radius:12% / 22%;padding:0;margin:0;overflow:hidden;background:#777a80;display:flex;align-items:flex-end;justify-content:center;z-index:1;box-shadow:none}
+#cinema .movie-world{position:relative;flex:none;max-width:none;max-height:none;overflow:hidden;background:#b8e2f4}
+#cinema .movie-background{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block;filter:none}
+#cinema #movieStage{position:absolute;inset:0;width:100%;height:100%;display:block}
+#cinema .cinema-transport{position:absolute;left:34.2%;top:86%;width:27.5%;height:10.56%;display:grid;grid-template-columns:repeat(4,1fr);gap:1%;z-index:5}
+#cinema .cinema-transport button{width:100%;height:100%;position:relative;border-radius:25%;filter:none}
+#cinema .cinema-transport button:disabled{cursor:default;filter:none;opacity:1}
+#cinema button:focus-visible{outline:4px solid #063e72;outline-offset:3px}
+#cinema .movie-celebration{position:absolute;inset:22% 10%;z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;background:#fffef6ed;border:3px solid #d1102a;border-radius:22px;text-align:center;padding:12px}
+#cinema .movie-celebration h2{font-size:clamp(18px,2vw,30px);margin:0}
+#cinema .end-parade-actions{display:flex;gap:12px}
+#cinema .end-parade-actions button{background:#c80b27;color:white;border:2px solid white;border-radius:8px;padding:10px 18px;font-weight:bold}
+#cinema #endSaveStatus{margin:0;font-size:clamp(12px,1.1vw,17px)}
+#cinema .cinema-sr{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+body.parade-playing{overflow:hidden}

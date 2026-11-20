@@ -100,13 +100,13 @@
     }
 
     function save(session) {
-      if (!session.dirty) return Promise.resolve('Your parade is saved.');
-      if (session.conflict) return Promise.resolve('Saved on this Chromebook. Ask your teacher about the other copy.');
+      if (!session.dirty) return Promise.resolve(session.version?'Your parade is saved online.':session.local?'Saved on this Chromebook.':'Nothing has been saved yet.');
+      if (session.conflict) return Promise.resolve((session.local?'Saved on this Chromebook. Ask your teacher about the other copy.':'Saving is unavailable. Keep this page open and ask your teacher to help.'));
       const previous = pending.get(session.key) ?? Promise.resolve();
       const sequence = session.sequence;
       const draft = session.draft;
       const task = previous.catch(() => {}).then(async () => {
-        if (session.conflict) return 'Saved on this Chromebook. Ask your teacher about the other copy.';
+        if (session.conflict) return (session.local?'Saved on this Chromebook. Ask your teacher about the other copy.':'Saving is unavailable. Keep this page open and ask your teacher to help.');
         const { classCode, number, grade } = session.identity;
         const mode = session.version ? 'update' : 'create';
         const updated_at = new Date().toISOString();
@@ -123,7 +123,7 @@
           const [saved] = await response.json();
           if (!saved?.updated_at) {
             session.conflict = true;
-            return 'Saved on this Chromebook. Ask your teacher about the other copy.';
+            return (session.local?'Saved on this Chromebook. Ask your teacher about the other copy.':'Saving is unavailable. Keep this page open and ask your teacher to help.');
           }
           session.version = saved.updated_at;
           if (sequence === session.sequence) session.dirty = false;

@@ -50,7 +50,7 @@ const PIECES=[
 [68,'Sparkskip','balloon','sparkskip'],
 [69,'Mossbloom','balloon','mossbloom']
 ].map(([id,name,type,art])=>({
- id,name,type,original:Boolean(art),src:art?ASSETS+art+'.webp':(window.PARADE_PIECE_ASSETS||{})[id]||ASSETS+id+'.svg'
+ id,name,type,original:Boolean(art),src:art?ASSETS+art+'.webp':(window.PARADE_PIECE_ASSETS||{})[id]||''
 }));
 const BANDS=[
  [70,'Royal Blue Band','blue'],
@@ -70,10 +70,10 @@ PIECES.push(...BANDS,...UPLOADED_FLOATS);
 const GALLERY_PIECES=PIECES.filter(piece=>piece.id!==8);
 const SCENES=[
 {id:'storybook',name:'Storybook Parade',badge:'HERALD SQUARE · STORYBOOK PARADE',src:'assets/scenes/storybook-parade.jpg'},
-{id:'central-park',name:'Central Park West',badge:'CENTRAL PARK WEST · UPPER WEST SIDE',src:(window.PARADE_SCENE_ASSETS||{})['central-park']||'assets/scenes/central-park.svg'},
-{id:'columbus',name:'Columbus Circle',badge:'COLUMBUS CIRCLE · NEW YORK CITY',src:(window.PARADE_SCENE_ASSETS||{})['columbus']||'assets/scenes/columbus.svg'},
-{id:'sixth-avenue',name:'Sixth Avenue',badge:'SIXTH AVENUE · MIDTOWN MANHATTAN',src:(window.PARADE_SCENE_ASSETS||{})['sixth-avenue']||'assets/scenes/sixth-avenue.svg'},
-{id:'herald-square',name:'Herald Square',badge:'HERALD SQUARE · 34TH STREET',src:(window.PARADE_SCENE_ASSETS||{})['herald-square']||'assets/scenes/herald-square.svg'}
+{id:'central-park',name:'Central Park West',badge:'CENTRAL PARK WEST · UPPER WEST SIDE',src:(window.PARADE_SCENE_ASSETS||{})['central-park']||'assets/scenes/storybook-parade.jpg'},
+{id:'columbus',name:'Columbus Circle',badge:'COLUMBUS CIRCLE · NEW YORK CITY',src:(window.PARADE_SCENE_ASSETS||{})['columbus']||'assets/scenes/storybook-parade.jpg'},
+{id:'sixth-avenue',name:'Sixth Avenue',badge:'SIXTH AVENUE · MIDTOWN MANHATTAN',src:(window.PARADE_SCENE_ASSETS||{})['sixth-avenue']||'assets/scenes/storybook-parade.jpg'},
+{id:'herald-square',name:'Herald Square',badge:'HERALD SQUARE · 34TH STREET',src:(window.PARADE_SCENE_ASSETS||{})['herald-square']||'assets/scenes/storybook-parade.jpg'}
 ];
 const MUSIC=[
  {id:'march',label:'Balloons Over the Boulevard',sub:'Festive brass & drums',src:'assets/music/balloons_over_the_boulevard-classroom-loop.ogg',fallback:'assets/music/grand-parade-march.ogg'},
@@ -81,7 +81,10 @@ const MUSIC=[
  {id:'cozy',label:'Fifty Yard Triumph',sub:'Triumphant marching melody',src:'assets/music/fifty_yard_triumph-classroom-loop.ogg',fallback:'assets/music/autumn-stroll.ogg'},
  {id:'celebration',label:'Sunday Morning Strut',sub:'Bright jazzy parade',src:'assets/music/sunday_morning_strut-classroom-loop.ogg',fallback:'assets/music/big-celebration.ogg'}
 ];
-const MAX={1:25,2:25};
+const MAX={1:10,2:10};
+const LEGACY_MAX=25,LINEUP_PAGE_SIZE=9;
+let lineupPage=0,lastAdd={id:null,time:0};
+const uiIcon=name=>'<img class="control-art" src="assets/ui/slide-reference/'+name+'.png" alt="">';
 const $=id=>document.getElementById(id);
 let state={grade:1,classCode:'',number:null,pieces:[],customPieces:[],scene:'storybook',routeTour:false,music:'march',activePiece:null,paradeId:null,savedParades:[]};
 let tab='balloons',saveTimer=null,studentSession=null,entryRun=0;
@@ -92,7 +95,7 @@ function draft(){
  return {...paradeSettings(),customPieces:state.customPieces,paradeId:state.paradeId,savedParades:state.savedParades};
 }
 function sanitizeSettings(v,validIds,grade){
- return {pieces:Array.isArray(v.pieces)?v.pieces.map(Number).filter(id=>validIds.has(id)).slice(0,MAX[grade]):[],scene:SCENES.some(x=>x.id===v.scene)?v.scene:SCENES[0].id,routeTour:false,music:MUSIC.some(x=>x.id===v.music)?v.music:'march'};
+ return {pieces:Array.isArray(v.pieces)?v.pieces.map(Number).filter(id=>validIds.has(id)).slice(0,LEGACY_MAX):[],scene:SCENES.some(x=>x.id===v.scene)?v.scene:SCENES[0].id,routeTour:false,music:MUSIC.some(x=>x.id===v.music)?v.music:'march'};
 }
 function validParadeId(id){return typeof id==='string'&&/^[a-f0-9-]{36}$/.test(id);}
 function sanitizeDraft(input,grade=state.grade){
@@ -117,7 +120,15 @@ function sanitizeDraft(input,grade=state.grade){
  return {...sanitizeSettings(v,validIds,grade),customPieces:customs,paradeId:validParadeId(v.paradeId)?v.paradeId:null,savedParades};
 }
 const store=window.createParadeStore(SUPABASE_URL,SUPABASE_KEY,(value,grade)=>sanitizeDraft(value,grade));
-function notify(message,good=true){$('saveStatus').textContent=message;$('saveStatus').style.color=good?'#6d8b6c':'#b75462';}
+let feedbackTimer;
+function notify(message,good=true){
+ const status=$('saveStatus');
+ status.textContent=message;
+ status.classList.remove('error','saving','saved');
+ status.classList.add(!good?'error':message==='Saving…'?'saving':'saved');
+ clearTimeout(feedbackTimer);
+ if(good&&message!=='Saving…')feedbackTimer=setTimeout(()=>status.classList.remove('saved'),3300);
+}
 function localSave(){if(studentSession?.dirty)store.write(studentSession)}
 function markChanged(){
  if(!studentSession)return;
@@ -139,7 +150,7 @@ async function saveParade(session=studentSession){
   return message;
  }
  const message=await store.save(session);
- if(session===studentSession)notify(message);
+ if(session===studentSession)notify(message,!/unavailable|Ask your teacher|could not/i.test(message));
  return message;
 }
 function archiveCurrent(){
@@ -174,7 +185,7 @@ async function finishParade(startNew){
   const saved=await saveCopy();
   if(!startNew||!saved||session!==studentSession||!window.PARADE_PLAYER?.finished)return;
   window.PARADE_PLAYER.close();
-  Object.assign(state,{pieces:[],scene:SCENES[0].id,music:MUSIC[0].id,activePiece:null,paradeId:null});
+  lineupPage=0;Object.assign(state,{pieces:[],scene:SCENES[0].id,music:MUSIC[0].id,activePiece:null,paradeId:null});
   markChanged();
   switchTab('balloons');
   renderAll();
@@ -185,6 +196,23 @@ async function finishParade(startNew){
   saveButton.disabled=newButton.disabled=false;
  }
 }
+function newEmptyParade(){
+ if(!studentSession)return;
+ archiveCurrent();
+ Object.assign(state,{pieces:[],scene:SCENES[0].id,music:MUSIC[0].id,routeTour:false,activePiece:null,paradeId:null});
+ lineupPage=0;markChanged();switchTab('balloons');renderAll();
+}
+function offerEntryChoice(){
+ const dialog=$('entryParadeChoice');
+ if(!dialog||!state.pieces.length){document.querySelector('.step.selected')?.focus({preventScroll:true});return;}
+ $('app').inert=true;dialog.showModal();
+ const finish=()=>{dialog.close();$('app').inert=false;document.querySelector('.step.selected')?.focus({preventScroll:true});};
+ $('entryOpenParadeBtn').onclick=finish;
+ $('entryNewParadeBtn').onclick=()=>{finish();newEmptyParade();};
+ dialog.oncancel=event=>event.preventDefault();
+ $('entryOpenParadeBtn').focus();
+}
+$('builderNewParadeBtn')?.addEventListener('click',newEmptyParade);
 function showSavedParades(){
  const list=$('savedParadeList');
  list.replaceChildren();
@@ -197,7 +225,7 @@ function showSavedParades(){
   button.onclick=()=>{
    if(copy.id!==state.paradeId)archiveCurrent();
    const {id,...settings}=copy;
-   Object.assign(state,settings,{paradeId:id,activePiece:null});
+   lineupPage=0;Object.assign(state,settings,{paradeId:id,activePiece:null});
    markChanged();
    switchTab('balloons');
    renderAll();
@@ -209,7 +237,7 @@ function showSavedParades(){
 }
 function scene(){return SCENES.find(x=>x.id===state.scene)||SCENES[0]}
 function renderAll(){renderProgress();renderLineup();renderGallery();renderDecorate();renderScene();renderPreview();renderTabs();}
-function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*4))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
+function renderProgress(){const count=state.pieces.length;$('countText').textContent=`${count} parade ${count===1?'star':'stars'} chosen`;$('gradeTag').textContent=studentSession?.guest?'GUEST':`GRADE ${state.grade}`;$('lineupCount').textContent=`${count} in your parade`;$('progressBar').style.width=`${Math.min(100,Math.max(5,count*10))}%`;$('studentTitle').textContent=studentSession?.guest?'Guest Parade Director':`Director #${state.number}`;$('gradeDescription').textContent='Pick balloons and floats, arrange your lineup, and watch your parade!';$('playBtn').disabled=count===0||state.pieces.some(id=>!getPiece(id)?.src);$('tipText').textContent=count===MAX[state.grade]?'Your parade is ready! Remove a piece to make a change.':'Pick your favorites and use the arrows to choose their parade order.'}
 const customSrcCache=new Map();
 const savedImages=new Map();
 async function restoreImages(session){
@@ -227,30 +255,37 @@ function customSource(c){
  if(c.workshop)return savedImages.get(c.id)||window.PARADE_WORKSHOP?.compose(c)||'';
  const signature=JSON.stringify(c);if(customSrcCache.has(signature))return customSrcCache.get(signature);
  const original=PIECES.find(x=>x.id===c.baseId)||PIECES[0];
- const strokes=(c.strokes||[]).map(st=>{const points=st.pts.map(pt=>`${Math.round(pt[0])},${Math.round(pt[1])}`).join(' ');return `<polyline points="${points}" stroke="${st.color}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`}).join('');
- const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="480" height="450" viewBox="0 0 480 450"><image href="${original.src}" x="42" y="0" width="396" height="450" preserveAspectRatio="xMidYMid meet" style="filter:hue-rotate(${c.hue}deg)"/>${strokes}</svg>`;
- const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);customSrcCache.set(signature,url);return url;
+ // Keep legacy recipes unchanged while rendering their artwork as raster.
+ const canvas=document.createElement('canvas');canvas.width=480;canvas.height=450;
+ const image=new Image();customSrcCache.set(signature,original.src);
+ image.onload=()=>{const ctx=canvas.getContext('2d');ctx.filter='hue-rotate('+c.hue+'deg)';
+  const ratio=Math.min(396/image.width,450/image.height),w=image.width*ratio,h=image.height*ratio;
+  ctx.drawImage(image,42+(396-w)/2,(450-h)/2,w,h);ctx.filter='none';
+  for(const stroke of c.strokes||[]){ctx.beginPath();ctx.strokeStyle=stroke.color;ctx.lineWidth=8;ctx.lineCap=ctx.lineJoin='round';stroke.pts.forEach((pt,i)=>i?ctx.lineTo(pt[0],pt[1]):ctx.moveTo(pt[0],pt[1]));ctx.stroke();}
+  customSrcCache.set(signature,canvas.toDataURL('image/png'));window.paradeRefreshCreations?.();
+ };image.src=original.src;return original.src;
+
 }
 function getPiece(id){const standard=PIECES.find(p=>p.id===id);if(standard)return standard;const c=state.customPieces.find(p=>p.id===id);return c?{id:c.id,name:c.name,type:'balloon',src:customSource(c),custom:true}:null;}
 function renderLineup(){
- const el=$('lineup'),previousScroll=el.scrollLeft;
- const max=MAX[state.grade];
- // Show seven full-size slots before scrolling; never shrink the move/delete controls.
- const visible=Math.min(max,Math.max(7,state.pieces.length+1));
- el.style.gridTemplateColumns='repeat('+visible+',minmax(var(--slot-min,154px),1fr))';
- const leftIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m0 0 6-6m-6 6 6 6"/></svg>';
- const rightIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m0 0-6-6m6 6-6 6"/></svg>';
- const trashIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m3 0-1 13H7L6 7m4 4v6m4-6v6"/></svg>';
+ const el=$('lineup');
+ const max=Math.max(MAX[state.grade],state.pieces.length),pages=Math.ceil(max/LINEUP_PAGE_SIZE);
+ lineupPage=Math.max(0,Math.min(lineupPage,pages-1));
+ const start=lineupPage*LINEUP_PAGE_SIZE,visible=Math.min(LINEUP_PAGE_SIZE,max-start);
+ el.style.gridTemplateColumns='repeat(9,minmax(0,1fr))';
+ const leftIcon=uiIcon('arrow-left'),rightIcon=uiIcon('arrow-right'),trashIcon=uiIcon('remove');
+ const status=$('lineupPageStatus');if(status)status.textContent='Page '+(lineupPage+1)+' of '+pages;
+ document.querySelectorAll('[data-scroll-gallery="lineup"]').forEach(b=>b.disabled=Number(b.dataset.direction)<0?lineupPage===0:lineupPage===pages-1);
  const escapeHTML=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
  const cards=[];
- for(let i=0;i<visible;i++){
+ for(let i=start;i<start+visible;i++){
   const id=state.pieces[i],piece=getPiece(id);
   const slot=document.createElement('div');
   slot.className='slot '+(piece?'filled':'')+(state.activePiece===i?' active':'');
   slot.setAttribute('role','listitem');
   if(piece){
    const safeName=escapeHTML(piece.name);
-   slot.draggable=true;
+   slot.draggable=true;slot.dataset.index=i;
    slot.innerHTML='<span class="slot-number">'+(i+1)+'</span>'
     +'<div class="slot-art"><img '+(piece.src?'src="'+escapeHTML(piece.src)+'"':'')+' alt="'+safeName+'" loading="lazy"></div>'
     +'<span class="slot-label" title="'+safeName+'">'+safeName+'</span>'
@@ -266,7 +301,9 @@ function renderLineup(){
     else if(action==='left'&&i>0){[state.pieces[i-1],state.pieces[i]]=[state.pieces[i],state.pieces[i-1]];state.activePiece=i-1}
     else if(action==='right'&&i<state.pieces.length-1){[state.pieces[i+1],state.pieces[i]]=[state.pieces[i],state.pieces[i+1]];state.activePiece=i+1}
     else return;
+    lineupPage=Math.floor((state.activePiece??Math.min(i,state.pieces.length-1))/LINEUP_PAGE_SIZE);
     markChanged();renderAll();
+    $('lineup').querySelector('[data-index="'+(state.activePiece??Math.min(i,state.pieces.length-1))+'"] button[data-action="'+action+'"]')?.focus({preventScroll:true});
    });
    slot.addEventListener('dragstart',event=>event.dataTransfer.setData('text/plain',String(i)));
    slot.addEventListener('dragover',event=>event.preventDefault());
@@ -286,15 +323,7 @@ function renderLineup(){
   cards.push(slot);
  }
  el.replaceChildren(...cards);
- el.scrollLeft=previousScroll;
- // Keep an actively moved item visible as the horizontal lineup grows.
- const active=state.activePiece;
- if(Number.isInteger(active)&&active>=0&&active<cards.length){
-  const item=cards[active];
-  const viewport=el.getBoundingClientRect(),position=item.getBoundingClientRect();
-  if(position.right>viewport.right)el.scrollLeft+=position.right-viewport.right+12;
-  else if(position.left<viewport.left)el.scrollLeft-=viewport.left-position.left+12;
- }
+
 }
 const newBalloons=GALLERY_PIECES.filter(piece=>piece.original);
 const featuredBalloons=[37,59,60,61,62,67,68,69];
@@ -304,10 +333,9 @@ const newChoices=[
 ];
 // Show full-size, complete balloon pictures one page at a time: no nested scrolling.
 let balloonGroup='real';
-const galleryPages={realGallery:0,newGallery:0,floatGallery:0,bandGallery:0};
+const galleryPages={realGallery:0,newGallery:0,floatGallery:0,bandGallery:0,scenes:0,musicOptions:0};
 function galleryPageSize(){
- const width=window.innerWidth;
- return width>=1180?10:width>=680?8:width>=480?6:4;
+ return 10;
 }
 function renderShelf(id,choices){
  const gallery=$(id);
@@ -322,15 +350,18 @@ function renderShelf(id,choices){
   button.type='button';
   button.title=piece.name;
   button.setAttribute('aria-label',(selected?'Add another ':'Add ')+piece.name+' to your parade');
-  const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="" loading="lazy">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
-  button.innerHTML='<span class="add-dot">'+(selected?'✓':'+')+'</span>'+pictures+'<span class="asset-name">'+piece.name+'</span>';
+  const pictures=piece.members?'<span class="band-members">'+piece.members.map(src=>'<img src="'+src+'" alt="">').join('')+'</span>':'<img src="'+piece.src+'" alt="" loading="lazy">';
+  button.innerHTML='<span class="add-dot">'+uiIcon('add')+'</span>'+pictures+'<span class="asset-name">'+piece.name+'</span>';
   button.disabled=state.pieces.length>=MAX[state.grade];
   button.onclick=()=>{
+   const now=Date.now();if(lastAdd.id===piece.id&&now-lastAdd.time<400)return;lastAdd={id:piece.id,time:now};
+   if(button.dataset.added==='true')return;button.dataset.added='true';
    if(state.pieces.length>=MAX[state.grade])return;
    state.pieces.push(piece.id);
-   state.activePiece=state.pieces.length-1;
+   state.activePiece=state.pieces.length-1;lineupPage=Math.floor(state.activePiece/LINEUP_PAGE_SIZE);
    markChanged();
    renderAll();
+   $(id).querySelectorAll('.asset-card')[choices.indexOf(piece)-page*pageSize]?.focus({preventScroll:true});
   };
   return button;
  });
@@ -384,11 +415,45 @@ function renderTabs(){
  const label=$('libraryChoiceLabel');if(label)label.textContent=({balloons:'1 · PICK YOUR BALLOONS',floats:'1 · PICK YOUR FLOATS',bands:'1 · PICK A BAND & YOUR MUSIC',decorate:'1 · PICK YOUR NEW YORK SCENE'})[tab]||'1 · PICK YOUR PARADE STARS';
 }
 function renderScene(){const s=scene();$('stageScene').style.backgroundImage=`url('${s.src}')`;$('sceneChip').textContent=s.name;$('stageSign').textContent=s.badge}
-function renderPreview(){const g=$('stageCharacters');g.innerHTML='';$('stageEmpty').classList.toggle('hidden',state.pieces.length>0);let items=state.pieces.slice(0,2);items.forEach((id,i)=>{const p=getPiece(id);if(!p?.src)return;if(p.members){const group=document.createElement('div');group.className='stage-band';group.style.left=(i*50)+'%';group.style.bottom=(scene().id==='storybook'?7.5:11)+'%';group.setAttribute('role','img');group.setAttribute('aria-label',p.name);for(const src of p.members){const musician=document.createElement('img');musician.src=src;musician.alt='';group.append(musician)}g.append(group);return}const el=document.createElement('img');el.src=p.src;el.alt=p.name;el.style.cssText=`position:absolute;bottom:${p.id===36?'-21%':p.type==='float'?'-8%':'18%'};left:${i===0?0:50}%;width:${p.type==='float'?'55%':'47%'};height:${p.type==='float'?'93%':'77%'};object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #33253675);${p.type==='float'?'':`animation:bob ${2.5+i*.31}s ease-in-out infinite;`}`;el.loading='lazy';g.appendChild(el)});$('previewCaption').textContent=state.pieces.length?`${state.pieces.length} parade stars are ready for the big day!`:'Make your lineup, then watch it come to life.'}
-function renderDecorate(){const sc=$('scenes');sc.innerHTML='';SCENES.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='scene-option'+(state.scene===s.id?' active':'');b.innerHTML=`<img class="scene-thumb" src="${s.src}" alt="">${s.name}`;b.onclick=()=>{state.scene=s.id;markChanged();renderAll()};sc.appendChild(b)});
-const music=$('musicOptions');music.innerHTML='';MUSIC.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='music-option'+(state.music===m.id?' active':'');b.innerHTML=`♫ ${m.label}<small>${m.sub}</small>`;b.onclick=()=>{state.music=m.id;window.PARADE_FULL_MUSIC?.load(m.src).catch(error=>console.warn('Full music preload failed:',error));markChanged();renderAll();};music.appendChild(b)});
+function renderPreview(){
+ const stage=$('stageCharacters');
+ stage.replaceChildren();
+ $('stageEmpty').classList.toggle('hidden',state.pieces.length>0);
+ const street={storybook:9,'central-park':13,columbus:12,'sixth-avenue':11,'herald-square':10}[scene().id]??10;
+ const items=state.pieces.slice(0,2);
+ items.forEach((id,i)=>{
+  const p=getPiece(id);
+  if(!p?.src)return;
+  const center=items.length===1?50:(i===0?25:74);
+  if(p.members){
+   const group=document.createElement('div');
+   group.className='stage-band';group.style.left=(center-25)+'%';group.style.bottom=street+'%';
+   group.setAttribute('role','img');group.setAttribute('aria-label',p.name);
+   for(const src of p.members){const musician=document.createElement('img');musician.src=src;musician.alt='';group.append(musician)}
+   stage.append(group);return;
+  }
+  const el=document.createElement('img'),float=p.type==='float';
+  el.src=p.src;el.alt=p.name;el.className='stage-preview-piece '+p.type;
+  el.style.bottom=(float?street:street+17)+'%';
+  el.style.width=(float?46:42)+'%';el.style.height=(float?72:66)+'%';
+  el.style.left=(center-(float?23:21))+'%';
+  stage.append(el);
+ });
+ $('previewCaption').textContent=state.pieces.length?state.pieces.length+' parade stars are ready for the big day!':'Make your lineup, then watch it come to life.';
+}
+function renderDecorate(){const sc=$('scenes');sc.innerHTML='';SCENES.slice(galleryPages.scenes*4,galleryPages.scenes*4+4).forEach(s=>{const b=document.createElement('button');b.type='button';b.className='scene-option'+(state.scene===s.id?' active':'');b.innerHTML=`<img class="scene-thumb" src="${s.src}" alt="">${s.name}`;b.setAttribute('aria-pressed',String(state.scene===s.id));b.onclick=()=>{state.scene=s.id;markChanged();renderAll();$('scenes').querySelector('.active')?.focus({preventScroll:true})};sc.appendChild(b)});
+updatePager('scenes',SCENES.length,4,'scenePageStatus');
+updatePager('musicOptions',MUSIC.length,4,'musicPageStatus');
+const music=$('musicOptions');music.innerHTML='';MUSIC.forEach(m=>{const b=document.createElement('button');b.type='button';b.className='music-option'+(state.music===m.id?' active':'');b.innerHTML=`<span>${m.label}</span><small>${m.sub}</small>`;b.setAttribute('aria-pressed',String(state.music===m.id));b.onclick=()=>{window.PARADE_STOP_MUSIC_PREVIEW?.();state.music=m.id;window.PARADE_FULL_MUSIC?.load(m.src).catch(error=>console.warn('Full music preload failed:',error));markChanged();renderAll();$('musicOptions').querySelector('.active')?.focus({preventScroll:true});};music.appendChild(b)});
+}
+function updatePager(id,total,size,statusId){
+ const pages=Math.max(1,Math.ceil(total/size));
+ galleryPages[id]=Math.max(0,Math.min(galleryPages[id],pages-1));
+ const status=$(statusId);if(status)status.textContent='Page '+(galleryPages[id]+1)+' of '+pages;
+ document.querySelectorAll('[data-page-gallery="'+id+'"]').forEach(b=>b.disabled=Number(b.dataset.direction)<0?galleryPages[id]===0:galleryPages[id]>=pages-1);
 }
 function switchTab(next){
+ if(next!=='bands')window.PARADE_STOP_MUSIC_PREVIEW?.();
  tab=next;
  renderTabs();
  if(tab==='decorate')renderDecorate();
@@ -416,6 +481,7 @@ async function enterStudent(){
  renderAll();
  notify(message);
  restoreImages(session);
+ offerEntryChoice();
 }
 function openStudent(){
  if(window.PARADE_PLAYER?.active)window.PARADE_PLAYER.close();
@@ -440,7 +506,8 @@ document.querySelectorAll('[data-balloon-group]').forEach(button=>button.addEven
 document.querySelectorAll('[data-page-gallery]').forEach(button=>button.addEventListener('click',()=>{
  const id=button.dataset.pageGallery;
  galleryPages[id]=Math.max(0,(galleryPages[id]||0)+Number(button.dataset.direction));
- renderGallery();
+ if(id==='scenes'||id==='musicOptions')renderDecorate();else renderGallery();
+ if(button.disabled)document.querySelector('[data-page-gallery="'+id+'"]:not(:disabled)')?.focus({preventScroll:true});
 }));
 let galleryResizeFrame=0;
 window.addEventListener('resize',()=>{
@@ -449,8 +516,7 @@ window.addEventListener('resize',()=>{
 });
 for(const button of document.querySelectorAll('[data-scroll-gallery]')){
  button.addEventListener('click',()=>{
-  const gallery=$(button.dataset.scrollGallery);
-  gallery.scrollBy({left:Number(button.dataset.direction)*gallery.clientWidth*.85,behavior:'smooth'});
+  if(button.dataset.scrollGallery==='lineup'){lineupPage+=Number(button.dataset.direction);renderLineup();if(button.disabled)document.querySelector('[data-scroll-gallery="lineup"]:not(:disabled)')?.focus({preventScroll:true});}
  });
 }
 const studioFullscreen=$('studioFullscreenBtn');
@@ -462,14 +528,14 @@ studioFullscreen.onclick=async()=>{
  } catch {notify('Full screen is unavailable here.',false);}
 };
 document.addEventListener('fullscreenchange',()=>{
- studioFullscreen.querySelector('span').textContent=document.fullscreenElement?'Exit Full Screen':'Full Screen';
+ studioFullscreen.setAttribute('aria-label',document.fullscreenElement?'Exit Full Screen':'Full Screen');
 });
 // All controls remain operable with keyboard and trackpad. Avoid any touch-only interactions.
 document.querySelectorAll('.step').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
 document.querySelectorAll('.grade-pick').forEach(el=>el.addEventListener('click',()=>{state.grade=Number(el.dataset.grade);document.querySelectorAll('.grade-pick').forEach(e=>e.classList.toggle('selected',e===el))}));
 $('enterBtn').addEventListener('click',enterStudent);$('studentNumber').addEventListener('keydown',e=>{if(e.key==='Enter')enterStudent()});$('classCode').addEventListener('keydown',e=>{if(e.key==='Enter')$('studentNumber').focus()});$('changeStudentBtn').addEventListener('click',openStudent);$('homeBtn').addEventListener('click',openStudent);$('saveBtn').addEventListener('click',saveCopy);$('endSaveBtn').addEventListener('click',()=>finishParade(false));$('newParadeBtn').addEventListener('click',()=>finishParade(true));$('savedParadesBtn').addEventListener('click',showSavedParades);$('playBtn').addEventListener('click',startMovie);
-$('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...GALLERY_PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').classList.remove('hidden'));$('helpClose').addEventListener('click',()=>$('helpModal').classList.add('hidden'));$('helpGotIt').addEventListener('click',()=>$('helpModal').classList.add('hidden'));
-window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.PARADE_PLAYER?.active)$('helpModal').classList.add('hidden');});
+$('previewSceneNext').addEventListener('click',()=>{let i=SCENES.findIndex(x=>x.id===state.scene);state.scene=SCENES[(i+1)%SCENES.length].id;markChanged();renderAll()});$('shuffleBtn').addEventListener('click',()=>{const max=Math.min(8,MAX[state.grade]);const pool=[...GALLERY_PIECES].sort(()=>Math.random()-.5);state.pieces=pool.slice(0,max).map(x=>x.id);state.activePiece=null;markChanged();renderAll()});$('helpBtn').addEventListener('click',()=>$('helpModal').showModal());$('helpClose').addEventListener('click',()=>$('helpModal').close());$('helpGotIt').addEventListener('click',()=>$('helpModal').close());
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!window.PARADE_PLAYER?.active)$('helpModal').close();});
 // Teachers can bookmark a class-specific link such as ?class=JOHNSON&grade=1.
 const params=new URLSearchParams(window.location.search);const classFromUrl=(params.get('class')||'').trim().toUpperCase();if(/^[A-Z0-9-]{2,12}$/.test(classFromUrl)){$('classCode').value=classFromUrl;state.classCode=classFromUrl}const gradeFromUrl=Number(params.get('grade'));if(gradeFromUrl===1||gradeFromUrl===2){state.grade=gradeFromUrl;document.querySelectorAll('.grade-pick').forEach(el=>el.classList.toggle('selected',Number(el.dataset.grade)===gradeFromUrl))}
 window.addEventListener('beforeunload',localSave);renderAll();
@@ -510,19 +576,8 @@ function enterGuest(){
  renderAll();
  notify('Guest mode — parades save on this device only.');
  restoreImages(session);
+ offerEntryChoice();
 }
-// Decorate the grade menu with the teacher-provided illustrated NYC scenes.
-function decorateGameMenus(){
- const artworks=window.PARADE_SCENE_ASSETS||{};
- const scenes=[artworks['central-park'],artworks['columbus'],artworks['sixth-avenue'],artworks['herald-square']].filter(Boolean);
- const menuArt=window.PARADE_MENU_ART;
- if(menuArt)document.documentElement.style.setProperty('--parade-menu-art','url("'+menuArt+'")');
- document.querySelectorAll('[data-portal-grade]').forEach((btn,i)=>{
-  const scene=scenes.length?scenes[(i*2)%scenes.length]:null;
-  if(scene){btn.style.backgroundImage='linear-gradient(180deg,rgba(255,250,243,.04),rgba(28,32,53,.77)),url("'+scene+'")';btn.style.backgroundSize='cover';btn.style.backgroundPosition='center'}
- });
-}
-decorateGameMenus();
 document.querySelectorAll('[data-portal-grade]').forEach(b=>b.addEventListener('click',()=>{portalState.grade=Number(b.dataset.portalGrade);portalState.teacher='';showPortal('teacher')}));
 $('guestModeBtn').addEventListener('click',enterGuest);
 document.querySelectorAll('[data-go-back]').forEach(b=>b.addEventListener('click',()=>showPortal(b.dataset.goBack)));

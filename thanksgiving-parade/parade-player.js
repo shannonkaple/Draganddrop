@@ -45,13 +45,16 @@
     if (!pictures.has(src)) {
       const image = new Image();
       const entry = { image, ready: false };
+      entry.loaded = new Promise(resolve => { entry.resolve = resolve; });
       pictures.set(src, entry);
       image.onload = () => {
         entry.ready = true;
         measurePicture(entry);
+        entry.resolve();
         if (playing?.paused) paint();
       };
       image.onerror = () => { entry.failed = true; };
+      image.onerror = () => { entry.failed = true; entry.resolve(); };
       image.src = src;
     }
     return pictures.get(src);
@@ -110,8 +113,8 @@
   function resize() {
     if (!playing) return;
     const available = view.getBoundingClientRect();
-    const ratio = 1800 / 763;
-    const width = Math.min(available.width, available.height * ratio);
+    const ratio = backdrop.naturalWidth && backdrop.naturalHeight ? backdrop.naturalWidth / backdrop.naturalHeight : 1800 / 763;
+    const width = Math.max(available.width, available.height * ratio);
     const height = width / ratio;
     const scale = Math.min(2, devicePixelRatio || 1);
     bounds = { width, height };
@@ -222,7 +225,7 @@
     const spacing = Math.min(W * .095, H * .23);
     // Draw the far rank first so the front rank naturally overlaps it.
     for (let rank = 0; rank < 3; rank++) {
-      const height = H * (.185 + rank * .017);
+      const height = H * (.215 + rank * .017);
       for (let file = 0; file < 4; file++) {
         const asset = members[(rank + file) % members.length];
         if (!asset.ready) continue;
@@ -231,7 +234,7 @@
         const y = ground + H * (-.049 + rank * .033);
         groundShadow(x, y, width * .32, H * .005);
         drawCrew(asset, x - width / 2, y, width, height,
-          time * 9.5 + file * 1.45 + rank * .85, .78);
+          time * 9.5 + (file % 2) * Math.PI + rank * .25, .78);
       }
     }
   }
@@ -248,7 +251,7 @@
       const center = W * (1.16 - SPEED * localTime);
       if (center < -W * .28 || center > W * 1.25) return;
       if (piece.type === 'band') drawBand(piece.musicians, center, H * street.handlers, elapsed);
-      else if (piece.type === 'float') drawFloat(piece.art, center, H * (street.floats + (piece.id === 36 ? .11 : 0)));
+      else if (piece.type === 'float') drawFloat(piece.art, center, H * street.floats);
       else drawBalloon(piece.art, center, H * street.handlers, i, elapsed);
     });
   }
@@ -261,6 +264,9 @@
     pause.disabled = !playing || playing.paused || playing.done;
     resume.disabled = !playing || !playing.paused || playing.done;
     sound.setAttribute('aria-pressed', String(!muted));
+    sound.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
+    pause.setAttribute('aria-pressed', String(Boolean(playing?.paused)));
+    fullscreen.setAttribute('aria-label', document.fullscreenElement ? 'Exit full screen' : 'Full screen');
     sound.querySelector('span').textContent = muted ? 'Sound Off' : 'Sound On';
     fullscreen.querySelector('span').textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
     cinema.classList.toggle('parade-paused', Boolean(playing?.paused));
@@ -285,7 +291,7 @@
     if (!playing || playing.paused || playing.done) return;
     const delta = playing.last ? Math.max(0, Math.min(.09, (timestamp - playing.last) / 1000)) : 0;
     playing.last = timestamp;
-    playing.elapsed += delta;
+    if (!playing.loading) playing.elapsed += delta;
     const total = INTERVAL * (playing.pieces.length - 1) + TRAVEL_TIME;
     const current = Math.min(playing.pieces.length - 1, Math.floor(playing.elapsed / INTERVAL));
     if (current !== playing.announced) {
@@ -315,13 +321,23 @@
       el('app').inert = true;
     }
     cancelAnimationFrame(frame);
-    playing = { pieces: pieces.map(piece => ({ ...piece, art: picture(piece.src), musicians: piece.members?.map(picture) })), scene, track, elapsed: 0, last: 0, announced: -1, done: false, paused: false };
+    playing = { pieces: pieces.map(piece => ({ ...piece, art: picture(piece.src), musicians: piece.members?.map(picture) })), scene, track, elapsed: 0, last: 0, announced: -1, done: false, paused: false, loading: true };
+    const sessionImages = playing;
+    const required = playing.pieces.flatMap(piece => piece.type === 'band' ? piece.musicians : [piece.art]);
+    required.push(...CREW.map(person => picture(person.path)));
+    Promise.all(required.map(entry => entry.loaded)).then(() => {
+      if (playing !== sessionImages) return;
+      playing.loading = false; playing.last = 0;
+      if (required.some(entry => entry.failed)) showMessage('Some parade pictures could not load. Return Home and try again.');
+      paint();
+    });
     CREW.forEach(person => picture(person.path));
     if (lastImage !== scene.src) {
       lastImage = scene.src;
       backdrop.src = scene.src;
     }
     backdrop.alt = scene.name + ' parade route';
+    backdrop.onload = resize;
     el('movieLocation').textContent = scene.name;
     endCard.classList.add('hidden');
     el('endSaveStatus').textContent = '';
